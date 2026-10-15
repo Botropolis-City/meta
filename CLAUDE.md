@@ -76,6 +76,9 @@ One owns `ROADMAP.md`, `roadmap/`, numbered items, audits and relaying to Aria, 
 Aria judges the frames.
 Relaying to Aria is the roadmap session's half — check before sending, or she gets the same thing twice.
 
+A planning session works beside them, in the private `vision` repository: it runs the interview about what Botropolis becomes, and when work on a decision starts it files the numbered items here that say what is being built.
+It writes no code; other sessions pick its items up.
+
 **Cross-checking is capped at two rounds (Aria, 2026-09-29).**
 Her ruling: *"Keep it, cap the rounds"* — verify each other's work once, and take a second round only if the first found something material.
 Otherwise write the finding in the file and skip the message.
