@@ -38,6 +38,9 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [75](roadmap/075-a-road-label-is-drawn-under-a-tower.md) | a road's label is drawn under the tower beside it | nobody, a defect |
 | [76](roadmap/076-what-the-website-still-needs-filmed.md) | the website's stand-ins: a hero loop, a still per view, a social card, chosen posters, anchors | nobody, filming work |
 | [78](roadmap/078-trains-belong-on-the-main-view.md) | the trains run only on the Spend view; put them on the main view as bug 48 did the cars | nobody, Aria asked for it |
+| [82](roadmap/082-find-a-session-by-what-was-said-in-it.md) | the finder: search sessions by what was said, in a panel inside the city, and the overlay stack it needs | nobody, slice 1's tests agreed |
+| [83](roadmap/083-read-a-session-inside-the-city.md) | read a session's last turns in a pane inside the city; open a terminal only to reply | nobody, after item 82's first slice |
+| [84](roadmap/084-a-global-shortcut-off-by-default.md) | a global shortcut for the finder, off until the user records one; X11 first | nobody for X11; spikes for macOS and Wayland |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | Aria, from a frame |
 
 ## Waiting on Aria
