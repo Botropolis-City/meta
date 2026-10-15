@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Verify the meta repo's documentation structure holds: links resolve (into the
+# child repositories too, when they are checked out), every roadmap item
+# declares a status, ROADMAP.md's open table matches the item files, nothing is
+# orphaned, and every image has been reviewed.
+set -euo pipefail
+
+usage() {
+    cat <<'USAGE'
+check-docs — verify the meta repo's documentation structure holds
+
+Usage: tools/check-docs [--help]
+
+Checks, all against the working tree:
+  1. every relative markdown link resolves from its own file's directory,
+     including links into botropolis/, botropolis.city/ and vision/ when
+     they are checked out here (and says so when one is not)
+  2. no "§N" citation to the pre-split ROADMAP survives outside the dated inventory
+  3. every roadmap/NNN-*.md carries a status line under its title
+  4. ROADMAP.md's open table lists exactly the items whose status is Open
+  5. the corpus is not empty, and every item number up to the highest has a file
+  6. nothing in roadmap/ (or vision/, when present) is linked from nowhere
+  7. every image in this repository is on tools/reviewed-images.txt
+
+Exit 0 if all hold, 1 otherwise, naming every failure.
+USAGE
+}
+
+[ "${1:-}" = "--help" ] && { usage; exit 0; }
+cd "$(dirname "$0")/.." >/dev/null
+exec python3 tools/check_docs.py

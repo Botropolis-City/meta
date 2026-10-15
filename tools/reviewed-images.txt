@@ -1,0 +1,6 @@
+# Every image in this repository, each looked at before it was added.
+# This repository is public: an image not on this list fails `make docs-check`.
+# These three came from botropolis, where they were already on the reviewed list.
+docs/references/chimney-skirt.png
+docs/references/curb-geometry.png
+docs/references/probe-tugs-aground.png

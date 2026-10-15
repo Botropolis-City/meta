@@ -1,0 +1,15 @@
+# Meta repo: tracks only the roadmap, cross-cutting docs, tools and Claude skills.
+# Every child directory (botropolis, botropolis.city, vision) is an independent
+# repository at github.com/Botropolis-City/<name> and is never tracked here.
+/*
+!/.gitignore
+!/*.md
+!/Makefile
+!/roadmap/
+!/docs/
+!/tools/
+!/.claude/
+/.claude/*
+!/.claude/skills/
+!/.claude/commands/
+!/.claude/settings.json

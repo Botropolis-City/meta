@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# Assert this repository is safe to make public.
+#
+# botropolis's tools/check-publishable, adapted. The roadmap lived in botropolis
+# until 2026-10-15, under that script's sweep for the employer's names, and the
+# move took it out from under the sweep: the guard enumerates its own
+# repository's history, and the documents most likely to quote real work were
+# no longer in it. So the same sweep runs here, over this repository.
+set -euo pipefail
+
+usage() {
+    cat <<'USAGE'
+check-publishable — assert nothing unpublishable is in this repository
+
+Usage: tools/check-publishable [--help]
+
+Checks:
+  1. no employer token appears in any blob or any commit message, anywhere in history
+     (only where a .publishable-tokens list exists, here or in botropolis/; it is
+     read where it is and never copied, and without one the check is skipped, and said so)
+  2. every ref the remote advertises is an ancestor of main
+     (an unreachable or empty remote is said so, not passed)
+
+The third check botropolis makes, that every image has been reviewed, belongs
+to tools/check-docs here, and `make publishable` runs it first.
+
+Exit 0 if both hold, 1 otherwise, naming what failed.
+USAGE
+}
+
+[ "${1:-}" = "--help" ] && { usage; exit 0; }
+
+cd "$(dirname "$0")/.." >/dev/null
+
+fail=0
+note() { printf '  %s\n' "$1"; fail=1; }
+
+# 1. Tokens. The list IS the employer's names, so it is never tracked and never
+# copied anywhere: it is read where it already is, which before this repository
+# existed was botropolis/. A list that is present but empty still fails, because
+# an empty pattern matches nothing and looks identical to a clean repository.
+tokens_file=""
+for candidate in .publishable-tokens botropolis/.publishable-tokens; do
+    if [ -e "${candidate}" ]; then
+        tokens_file="${candidate}"
+        break
+    fi
+done
+if [ -n "${tokens_file}" ] && [ ! -s "${tokens_file}" ]; then
+    note "${tokens_file} is present but empty, so it would match nothing."
+elif [ -n "${tokens_file}" ]; then
+    # Every search is captured before it is tested. Piped into `head -1 | grep -q`,
+    # as botropolis's was until 2026-10-15, the search is killed by SIGPIPE as soon
+    # as the reader has its first line, and pipefail reports the pipeline as failed:
+    # a token found in more than one place read exactly like a token found nowhere.
+    rc=0
+    messages=$(git log --all --no-show-signature --format='%s%n%b') || rc=$?
+    [ "${rc}" -eq 0 ] || note "git log could not read the commit messages (exit ${rc})"
+    while read -r tokens; do
+        [ -n "${tokens}" ] || continue
+        case "${tokens}" in \#*) continue;; esac
+        rc=0
+        found=$(git grep -lI -E -e "${tokens}" $(git rev-list --all) -- 2>/dev/null) || rc=$?
+        if [ "${rc}" -gt 1 ]; then
+            note "a pattern from ${tokens_file} could not be searched for (git grep exit ${rc})"
+        elif [ -n "${found}" ]; then
+            note "a pattern from ${tokens_file} matches history:"
+            sed -n '1,5s/^/    /p' <<< "${found}"
+        fi
+        rc=0
+        grep -qE -e "${tokens}" <<< "${messages}" 2>/dev/null || rc=$?
+        if [ "${rc}" -eq 0 ]; then
+            note "a pattern from ${tokens_file} matches a commit message"
+        elif [ "${rc}" -gt 1 ]; then
+            note "a pattern from ${tokens_file} is not a valid extended regular expression"
+        fi
+    done < "${tokens_file}"
+fi
+
+# 2. Refs. `git ls-remote` is the only thing that says what the remote hands out;
+# a sweep of main cannot see a tag, which is how botropolis's first miss happened.
+# A loop over nothing passes, so an unreachable or empty remote is said so.
+refs="checked"
+if ! git remote get-url github >/dev/null 2>&1; then
+    note "no 'github' remote, so the refs it advertises cannot be checked"
+elif ! advertised=$(git ls-remote github 2>/dev/null); then
+    refs="unreachable"
+elif [ -z "${advertised}" ]; then
+    refs="empty"
+else
+    while read -r sha ref; do
+        [ -n "${sha}" ] || continue
+        case "${ref}" in *"^{}") continue;; esac
+        if ! git merge-base --is-ancestor "${sha}" main 2>/dev/null; then
+            note "${ref} (${sha:0:10}) is not in main's history"
+        fi
+    done <<< "${advertised}"
+fi
+
+if [ "${fail}" -ne 0 ]; then
+    printf '\n%s\n' "Not publishable yet."
+    exit 1
+fi
+if [ -n "${tokens_file}" ]; then
+    tokens_said="no employer tokens in history (the list in ${tokens_file})"
+else
+    tokens_said="employer tokens NOT checked: no .publishable-tokens here or in botropolis/"
+fi
+case "${refs}" in
+    checked) refs_said="every remote ref is in main" ;;
+    empty) refs_said="github advertises no refs yet" ;;
+    unreachable) refs_said="remote refs NOT checked: github could not be reached" ;;
+esac
+printf '  %s; %s.\n' "${tokens_said}" "${refs_said}"
