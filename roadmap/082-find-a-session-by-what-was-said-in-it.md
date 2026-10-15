@@ -73,7 +73,7 @@ Commits cite item 82.
    Tool output stays out of the index, and a flag searches it straight from the transcripts.
    Ranking: field weight (your prompts, then recaps, then replies, then commands and paths, then titles), then recency, with live and waiting sessions first.
 3. **Results in the panel.**
-   One row per session, headed by your own words — the prompt that matched, or the first one — and never by the generated title, with the repository, branch and age beneath.
+   One row per session, headed by your own words — the prompt that matched, or the first one — and never by the generated title, with its directory, its branch when it has one, and its age beneath.
    The matching passage is highlighted, `↑` and `↓` move, and a preview shows the session's last recap and its next step.
    A session whose transcript is gone still appears, found by its prompts, and says that its conversation has been deleted.
 4. **Acting on a result.**
