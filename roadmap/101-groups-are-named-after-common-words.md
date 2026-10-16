@@ -1,6 +1,6 @@
 # 101. Groups are named after common words
 
-**Open. Filed 2026-10-16 (r521) at Aria's request, from a frame of item 90's. Nobody's call — a defect.**
+**Open, in progress since 2026-10-16 in the session "item 101". Filed 2026-10-16 (r521) at Aria's request, from a frame of item 90's. Nobody's call — a defect.**
 
 A group is named from the reference it shares and its members' most distinctive words, and in `docs/screenshots/r515-item-90-lines.png` that came out as "PROJ-123 · through allow", from prompts that said "Allow the headers through".
 Neither word says what the work is.
