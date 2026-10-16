@@ -38,7 +38,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [75](roadmap/075-a-road-label-is-drawn-under-a-tower.md) | a road's label is drawn under the tower beside it | — | nobody, a defect |
 | [76](roadmap/076-what-the-website-still-needs-filmed.md) | the website's stand-ins: a hero loop, a still per view, a social card, chosen posters, anchors | — | nobody, filming work |
 | [78](roadmap/078-trains-belong-on-the-main-view.md) | the trains run only on the Spend view; put them on the main view as bug 48 did the cars | — | nobody, Aria asked for it |
-| [84](roadmap/084-a-global-shortcut-off-by-default.md) | a global shortcut for the finder, off until the user records one; X11 first | 82 (slice 5) | nobody for X11; spikes for macOS and Wayland |
 | [85](roadmap/085-city-look-part-1.md) | a vision item; details private | — | nobody |
 | [86](roadmap/086-trust-part-1.md) | a vision item; details private | — | nobody |
 | [88](roadmap/088-legibility-part-1.md) | a vision item; details private | 82 (slice 1) | nobody |

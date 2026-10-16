@@ -1,6 +1,6 @@
 # 84. A global shortcut that opens the finder from any application, off until the user sets one
 
-**Open, in progress since 2026-10-16 in the session "item 84". Filed 2026-10-15 (r412) at Aria's request, from the planning session. Nobody's call for the X11 part; the macOS and Wayland parts each start with a spike.**
+**Done 2026-10-16 (`36c488e`, r497). Filed 2026-10-15 (r412) at Aria's request, from the planning session. Nobody's call for the X11 part; the macOS and Wayland parts each start with a spike.**
 
 Depends on: 82 (slice 5)
 Landed: slice 1 (`938625d`, r476).
@@ -56,7 +56,8 @@ Where a part is missing, the setting says so rather than half working.
    `global_shortcut` in the config, `pkg/hotkey`'s grab and raise over `jezek/xgb`, and a press opening the finder by `botropolis find`'s path.
    It also raises the window for `botropolis find` on X11.
    Its commit calls it slice 1a.
-2. **The settings row**, with its frames: `botropolis/docs/screenshots/r481-item-84-shortcut-off.png`, `-asking.png` and `-named.png`.
+2. **The settings row**, with its frames: `botropolis/docs/screenshots/r497-item-84-shortcut-off.png`, `-asking.png`, `-named.png`, `-saved.png` and `-held.png`.
+   Aria passed the r481 frames on 2026-10-16 on condition they were drawn again from a throwaway config, since they showed her real terminal; the r497 ones are, through `--config` (`36c488e`), and add the saved and held states.
 
 The two spikes are written up below rather than numbered, because neither lands code.
 Until either part is built, the city on macOS or on a Wayland session without `DISPLAY` says in the panel that the desktop has no way to register a shortcut, with the fallback.
@@ -104,6 +105,22 @@ This machine runs i3 under X11, with only the GTK portal backend installed, whic
 ## Done when
 
 The X11 part works under i3, and under Xvfb with a bare X server that has no window manager, run in CI as well as here; the setting round-trips through the config file, the macOS and Wayland spikes are written up here with their verdicts, and Aria has judged the frames of the settings row.
+
+## Closed
+
+The X11 part and the settings row are on `main`: `938625d` (r476), `4f421a0` (r481) and `36c488e` (r497).
+`testing/integration/hotkey` grabs, presses through XTEST, releases, meets a combination another client holds, and raises the window under i3 across a workspace that is not showing and on a bare server; CI installs Xvfb and i3 and fails without them.
+The frames are the five r497 ones named under *Slices*.
+
+Flagged for Aria:
+
+- **A scripted city now uses the desktop of the display it is drawn on.**
+  It never grabs the config's combination, only what its own `--keys` record, but a `--screenshot` without `--headless` that records one grabs it on that display while the frame is drawn.
+- **Two fixes outside the item came with it, each with a test:** the settings subtitle ran past the panel's edge, and a screenshot could be taken before its last scripted keys, which drew the first `named` frame identical to `off`.
+- **The r481 frames are gone from the tree, not from history.**
+  They showed the real `terminal` setting, and they remain in botropolis's public history at `7a7c5e7`.
+- **The shortcut works only while the city runs**, as answered below.
+- **On macOS and on Wayland it says it is unavailable**, with the fallback, until the parts the spikes describe are built.
 
 ## Answered while building
 
