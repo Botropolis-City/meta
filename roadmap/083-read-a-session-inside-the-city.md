@@ -45,3 +45,91 @@ Item 82's — one window, nothing copied, nothing separate to run, no tokens, an
 ## Done when
 
 All six work on a live, a parked and a deleted session in the demo city, built test-first in the repository's style, `make lint` passes, and Aria has judged the frames.
+
+## Slices and their tests
+
+Agreed with Aria on 2026-10-16, before any were written.
+Each slice is built test-first in the repository's *when / and / it should* style, passes `make lint`, and lands with a frame of a synthetic home for Aria to judge.
+
+```
+── Slice 1: the read ─────────────────────────────────────────────
+pkg/claude · ReadConversation(path, skip, count)
+  when a transcript has typed prompts and replies
+    it should keep them oldest first, each marked yours or Claude's
+  when a user record is a tool result                → it should leave it out
+  when a user record is the CLI's own (isMeta, isCompactSummary, "<…")
+                                                     → it should leave it out
+  when a record is a subagent's (isSidechain)        → it should leave it out
+  when one reply is written as several records of one message
+                                                     → it should keep it as one turn
+  when Claude runs a command                         → it should keep one line holding the command
+  when Claude reads, edits or writes a file          → it should keep one line holding the path, not the content
+  when Claude calls any other tool                   → it should keep one line naming the tool
+  when a line does not parse                         → it should skip it and keep reading
+  when the session is waiting on AskUserQuestion
+    it should carry the question word for word
+    it should carry its options
+    and the question has been answered               → it should carry no question
+  when a page is asked for, skipping the newest n
+    it should return the count turns before them
+  when more turns are asked for than the transcript holds
+    it should return what there is
+    it should say it reached the start
+  when the transcript holds far more than the page   → it should read less of the file than the whole
+
+── Slice 2: the pane ─────────────────────────────────────────────
+pkg/city · the summary's actions
+  when the summary is open                           → it should offer read
+
+pkg/ui · LayoutReader
+  when laid out in a 1280×800 window
+    it should centre the panel across the window
+    it should draw with the plates' palette, radius and grid
+    it should name its keys: PgUp PgDn, enter to reply, esc to close
+  when the window is narrower than the panel         → it should stay inside the window
+  when there are turns
+    it should put the newest at the bottom
+    it should set your prompts apart from Claude's replies
+    it should give each tool call one line
+    it should wrap a long reply inside the panel
+  when there are more lines than fit                 → it should drop the oldest and keep the newest
+  when the session is waiting on a question
+    it should lead with the question, above the turns
+    it should list its options beneath it
+  when the start of the conversation is shown        → it should say so at the top
+
+pkg/render · the reading pane
+  when a session is selected and o is pressed
+    it should open the pane
+    it should read that session's transcript
+  when nothing is selected and o is pressed          → it should say to select a building first
+  when the summary's read is clicked                 → it should open the pane
+  when the pane is open
+    and a key the map binds is pressed (t, x, s, Tab) → it should not reach the map
+    and Esc is pressed
+      it should close the pane
+      it should keep the selection
+    and the pointer clicks outside the panel         → it should close the pane
+    and PgUp is pressed                              → it should read the page before
+    and PgDn is pressed after PgUp                   → it should come back a page
+    and PgDn is pressed at the newest                → it should stay
+    and PgUp is pressed at the start                 → it should stay
+    and Enter is pressed
+      it should close the pane
+      it should attach a live session, or resume a parked one
+  when the pane closes                               → it should keep nothing it read
+  when the read fails                                → it should say why in the pane
+
+── Slice 3: a transcript that is gone ────────────────────────────
+pkg/ui · LayoutReader
+  when the transcript is gone
+    it should say the conversation has been deleted
+    it should show the kept prompts as yours
+    it should name enter as a new session here
+
+pkg/render · the reading pane
+  when the selection's transcript is gone
+    it should show the prompts history.jsonl has for it
+    and Enter is pressed                             → it should start a new session in its directory
+  when history.jsonl has nothing for it              → it should say no prompts were kept
+```
