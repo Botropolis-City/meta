@@ -5,6 +5,7 @@
 Depends on: nothing
 Landed: slice 1 (`86de907`, r414).
 Landed: slice 2 (`764e9b5`, r418).
+Landed: slice 3 (`1e1b1b0`, r423).
 
 What is being built: a finder that searches every session on the machine by what was said in it — your prompts first, then Claude's replies, its recaps, and the commands and paths it touched — opened as a panel inside the city's window.
 The reasoning behind it is in the private vision repository (`vision/find.md`), for sessions that have it checked out; this item is what to build.
@@ -194,6 +195,51 @@ testing/acceptance · botropolis find
 
 As built, item 87 landed its own reader of `history.jsonl` first, `claude.ReadPromptHistory`, so the index reads through it and the NUL-byte case joined its tests rather than a second reader.
 Two cases were added while building: a compaction summary is a user record that nobody typed, and is left out of prompts by its `isCompactSummary` mark; and a transcript's directory and branch are kept with what was said.
+
+## Slice 3's tests
+
+Agreed with Aria on 2026-10-16, before any were written, with the preview's next step being the session's last prompt.
+
+```
+pkg/ui · LayoutFinder, with results
+  when there are results
+    it should lay one row per session beneath the field
+    it should head each row with the prompt that matched
+    and the match was not in a prompt
+      it should head the row with the session's first prompt, never its title
+      it should show the matching passage beneath
+    it should put the directory, branch and age beneath the head
+    it should highlight each matched word where it is drawn
+    it should mark the selected row
+  when there are more rows than fit the window
+    it should stop at the window's bottom and keep the selected row in view
+  when a session's transcript is gone
+    it should say its conversation has been deleted
+  when a row is selected
+    it should show a preview of its last recap and its next step
+
+pkg/find · Hit
+  when a session has a recap
+    it should carry the recap with the hit
+
+pkg/render · the finder's results
+  when the query changes
+    and typing pauses
+      it should ask for results once
+    and typing continues
+      it should not ask yet
+  when results arrive for a query that has since changed
+    it should drop them
+  when ↓ or ↑ is pressed
+    it should move the selection, stopping at either end
+  when the query is emptied
+    it should clear the results
+```
+
+Two cases were added while building: the hit carries its last prompt as well as its recap, for the preview; and when the match lies past the row's width, the row shows the text around it, because the first frame had two rows whose match was clipped away.
+
+The frame (`botropolis/docs/screenshots/r423-item-82-results.png`) shows something for Aria to rule on: while the finder is open, the map keeps slice 1's filter by title, project, branch, state or model, so a query the finder answers from what was said can leave the whole map dimmed ("4 sessions found, 0 of 5 on the map match").
+Making the map follow the finder's results would answer it, and `Ctrl+M` in slice 4 is the natural place.
 
 ## Not in this item
 
