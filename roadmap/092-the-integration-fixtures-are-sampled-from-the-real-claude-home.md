@@ -1,6 +1,6 @@
 # 92. The integration fixtures are sampled from the real Claude home, so the tests depend on whatever it holds
 
-**Open. Filed 2026-10-16 (r445) at Aria's request, from a failure item 87 hit. Nobody's call — a defect.**
+**Open, in progress since 2026-10-16 in the session "item 92". Filed 2026-10-16 (r445) at Aria's request, from a failure item 87 hit. Nobody's call — a defect.**
 
 `make test-integration` and `make test-acceptance` both depend on `fixtures`, which runs `tools/make-fixtures.py` to copy a scrubbed slice of the real `~/.claude` into `testing/helpers/fixtures/sample/`.
 That directory is git-ignored, so every run tests against whatever this machine's Claude Code last wrote.
