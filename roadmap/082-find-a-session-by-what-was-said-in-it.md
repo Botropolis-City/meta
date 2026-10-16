@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`86de907`, r414).
+Landed: slice 2 (`764e9b5`, r418).
 
 What is being built: a finder that searches every session on the machine by what was said in it — your prompts first, then Claude's replies, its recaps, and the commands and paths it touched — opened as a panel inside the city's window.
 The reasoning behind it is in the private vision repository (`vision/find.md`), for sessions that have it checked out; this item is what to build.
@@ -134,6 +135,65 @@ pkg/render · the field
   when an input method is composing
     it should draw the composition without filtering on it
 ```
+
+## Slice 2's tests
+
+Agreed with Aria on 2026-10-16, before any were written, with matching per passage: every word of a query must appear in one prompt, reply, recap, command, path or title.
+
+```
+pkg/claude · ReadSaid
+  when a transcript has a typed prompt            → it should keep it as a prompt
+  when a user record is a tool result             → it should leave it out
+  when a user record is the CLI's own (isMeta, or "<…")  → it should leave it out
+  when Claude replies with text                   → it should keep it as a reply
+  when Claude runs a command                      → it should keep the command
+  when Claude reads, edits or writes a file       → it should keep the path and not the content
+  when the session left a recap                   → it should keep the recap
+  when the session has a title                    → it should keep the title
+  when a record is a subagent's (isSidechain)     → it should leave it out
+  when a line does not parse                      → it should skip it and keep reading
+
+pkg/claude · ReadHistory
+  when history.jsonl holds prompts for two sessions
+    it should key each prompt by its session
+    it should keep each prompt's directory and time
+  when a line begins with NUL bytes               → it should skip it and keep reading
+
+pkg/find · Index
+  when a transcript is indexed
+    and every word of the query is in one passage → it should find the session
+    and the words are only spread across passages → it should not find it
+    and the query differs in case                 → it should find the session
+  when only tool output holds the words           → it should not find the session
+    and the tool-output search is asked for       → it should find it from the transcript
+  when the transcript is gone and history.jsonl holds its prompts
+    it should find it by its prompts
+    it should say its transcript is gone
+  when a transcript is deleted after indexing, and the index is refreshed
+    it should drop what only that transcript said
+  when a transcript grows after indexing, and the index is refreshed
+    it should find what was added
+  when the index is refreshed                     → it should write nothing under the home
+  when sessions match in different fields (data-driven over each adjacent pair)
+    it should rank prompt › recap › reply › command › title
+  when two sessions match in the same field       → it should rank the more recent first
+  when a live or waiting session matches in a weaker field → it should rank it above a stopped one
+  when more sessions match than the limit         → it should return only the limit
+
+pkg/daemon · the find op
+  when a client sends find                        → it should answer with the index's hits
+
+pkg/commands · Find
+  when the daemon is listening                    → it should print what the daemon found
+  when the daemon is not running                  → it should build its own index and print the same
+  when nothing matches                            → it should say so
+
+testing/acceptance · botropolis find
+  when run with -n against a sample home and no daemon → it should print at most n matching sessions
+```
+
+As built, item 87 landed its own reader of `history.jsonl` first, `claude.ReadPromptHistory`, so the index reads through it and the NUL-byte case joined its tests rather than a second reader.
+Two cases were added while building: a compaction summary is a user record that nobody typed, and is left out of prompts by its `isCompactSummary` mark; and a transcript's directory and branch are kept with what was said.
 
 ## Not in this item
 
