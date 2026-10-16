@@ -1,6 +1,6 @@
 # 83. Read a session inside the city, and open a terminal only to reply
 
-**Open, in progress since 2026-10-16 in the session "item 83". Filed 2026-10-15 (r412) from the planning session. Nobody's call — the design is settled; it waits on item 82's first slice, and Aria judges the frames.**
+**Done 2026-10-16 (`08ec60b`, r456). Filed 2026-10-15 (r412) from the planning session.**
 
 Depends on: 82 (slice 1)
 Landed: slice 1 (`095cda2`, r435).
@@ -182,3 +182,14 @@ Turns that do not fill the pane now start directly under what leads it, which a 
 
 - **Slice 2's frame** (`r442-item-83-reading-pane.png`): one change, and otherwise it stands — close the gap, so the conversation flows straight under the question rather than being pinned to the bottom of the pane. Aria, 2026-10-16.
 - **Slice 3's frames and the closed gap** (`r447-item-83-live.png`, `-parked.png`, `-deleted.png`): passed, with one addition — *"we should add a copy button next to each prompt"* on the deleted-transcript pane, built in this item before it closes. Aria, 2026-10-16.
+
+## Closed
+
+Done in three slices, a fix and an addition, all in botropolis: the read (`095cda2`, r435), the pane (`f2cfb87`, r442), a transcript that is gone (`90589a9`, r446), the gap closed (`6b04629`, r447), and a copy button beside each kept prompt (`08ec60b`, r456).
+All six things the item asks for work on a live, a parked and a deleted session, which `r447-item-83-live.png`, `r447-item-83-parked.png` and `r447-item-83-deleted.png` show, and Aria passed them on 2026-10-16.
+The copy buttons' frame, `botropolis/docs/screenshots/r456-item-83-copy.png`, went to her after closing, as the manager arranged; any change she asks for comes back as new work.
+
+Two departures from the item as filed, both settled while building:
+
+- **Read is on the card, not in the summary**, because item 88 folded the summary into the card's face while this item was in flight.
+- **Approvals lead the pane as questions do** (Aria's request): a session that needs you leads with the tool call it is waiting to run, word for word, and the hook's note. A session without hooks still reads as working while it waits on an approval, as it does on the map.
