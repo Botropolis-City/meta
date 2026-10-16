@@ -6,6 +6,7 @@ Depends on: nothing
 Landed: slice 1 (`86de907`, r414).
 Landed: slice 2 (`764e9b5`, r418).
 Landed: slice 3 (`1e1b1b0`, r423).
+Landed: slice 4 (`9bf8576`, r433).
 
 What is being built: a finder that searches every session on the machine by what was said in it — your prompts first, then Claude's replies, its recaps, and the commands and paths it touched — opened as a panel inside the city's window.
 The reasoning behind it is in the private vision repository (`vision/find.md`), for sessions that have it checked out; this item is what to build.
@@ -240,6 +241,78 @@ Two cases were added while building: the hit carries its last prompt as well as 
 
 The frame (`botropolis/docs/screenshots/r423-item-82-results.png`) shows something for Aria to rule on: while the finder is open, the map keeps slice 1's filter by title, project, branch, state or model, so a query the finder answers from what was said can leave the whole map dimmed ("4 sessions found, 0 of 5 on the map match").
 Making the map follow the finder's results would answer it, and `Ctrl+M` in slice 4 is the natural place.
+
+## Slice 4's tests
+
+Agreed with Aria on 2026-10-16, before any were written, with the map following the finder's results rather than matching the words itself, as slice 3's frame suggested.
+
+```
+pkg/city · the finder's filter
+  when the map is filtered to a set of sessions
+    it should dim every building outside it
+    it should count the ones inside it as matching
+  when the set is cleared
+    it should dim nothing
+
+pkg/control · in a terminal, in a directory
+  when a stopped session is resumed from the finder
+    it should open a terminal in its directory running claude --resume <id>
+  when a new session is started from the finder
+    it should open a terminal in the directory running claude
+
+pkg/commands · Actor
+  when the action is to resume in a terminal   → it should resume there
+  when the action is to start in a terminal    → it should start there
+  when the action is to copy text              → it should copy the text
+
+pkg/render · acting on a result
+  when the finder has results
+    and a character is typed             → it should dim the map to the sessions found   (replaces slice 1's)
+    and Enter is pressed on a live session
+      it should attach to it
+      it should close the finder and keep the map dimmed to what was found
+    and Enter is pressed on a stopped session → it should resume it in a terminal in its own directory
+    and Enter is pressed on a session whose conversation is gone
+      it should say Enter again starts a new session in its directory
+      and Enter is pressed again          → it should start a new session there
+    and Ctrl+Y is pressed
+      it should copy cd <dir> && claude --resume <id>
+      and the directory has a space in it → it should quote it
+    and Ctrl+M is pressed
+      it should close the finder
+      it should select the session on the map
+      and the session is not on the map   → it should say so
+  when the finder has no results
+    and Enter is pressed                  → it should close the finder and keep the filter   (as slice 1)
+```
+
+As built:
+
+- The terminal runs `sh -c 'cd -- "$1" && exec claude --resume "$2"'` with the directory and id as arguments, because Terminal.app and terminals that hand windows to a server do not start where they were launched.
+- Typing `m` or `y` without the modifier types it rather than acting, which mutation showed nothing pinned, so a case each was added.
+- Until the finder's first results arrive, typing narrows the map by title, project, branch, state or model as `/` did; after that the map holds the last answer. That keeps item 91's reopen task, driven with no search behind it, as measured.
+- The card's own resume (`claude --bg --resume` in the session's directory, then attach) is unchanged; the finder opens an interactive `claude --resume` in a terminal instead.
+
+**The chords are settings** (Aria, 2026-10-16, landed at `9a15072`, r438).
+On macOS slice 4 made show-on-map ⌘M, which minimizes the window before the city sees it.
+`find_key`, `find_copy_key` and `find_show_key` take modifiers and a key such as `alt+s`, where `mod` is ⌘ on macOS and Ctrl elsewhere; the defaults are `mod+k`, `mod+y` and `ctrl+m`, and a chord macOS keeps (⌘M, ⌘H, ⌘Q, ⌘W) or a key the city cannot read is refused when the city starts.
+Agreed tests:
+
+```
+pkg/config · ParseChord
+  when a chord names modifiers and a key ("ctrl+m")   → it should read both
+  when it uses mod (data-driven: darwin, linux)       → it should be ⌘ on macOS and Ctrl elsewhere
+  when it names a key Ebitengine does not know        → it should refuse it, naming the setting
+  when it is a chord macOS keeps (⌘M ⌘H ⌘Q ⌘W) on macOS → it should refuse it and say what macOS does with it
+  when nothing is set (data-driven: darwin, linux)
+    it should open the finder on mod+k, copy on mod+y and show on ctrl+m
+
+pkg/render · the finder's chords
+  when show is set to another chord (alt+s)
+    and that chord is pressed → it should show the session on the map
+    and Ctrl+M is pressed     → it should not
+  when the help is drawn      → it should list the chords as configured
+```
 
 ## Not in this item
 
