@@ -43,6 +43,7 @@ A normal item's details are its file in `roadmap/`.
 A **vision item**'s file there is a stub — a public name made of an area and a part number, such as *City look, part 1*, its status, and what it depends on — and its details are in the private vision repository at `vision/items/NNN-*.md`.
 So work on an idea that has not shipped can be triggered and tracked here without the idea being published, and the same skills handle both.
 Anyone working a vision item cites its number in commits and code comments and never quotes its details or the reasoning behind it in anything public; the details stay private after it ships, and the shipped code speaks for itself.
+That includes commit messages: a public commit that files or closes a vision item names only its number and public name, and the why goes in the vision repository's own commit, because a pushed commit in a public repository cannot be taken back.
 
 **Item status lives in the item's own file**, on the line under its title: `Done`, `Fixed`, `Open`, `Unadjudicated`, with the date and revision.
 `ROADMAP.md`'s open table is derived from those lines, so it is checked rather than remembered — a hand-maintained summary of machine-checkable state always drifts, which it did.

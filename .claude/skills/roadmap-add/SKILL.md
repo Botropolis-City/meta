@@ -111,9 +111,14 @@ Detail stays in the item; the row is one line.
 ```sh
 make docs-check          # must report the new count, none missing, open table matches
 git add ROADMAP.md roadmap/NNN-*.md
-git commit               # "File item NNN: <title>", with the why in the body
+git commit               # "File item NNN: <title>", with the why in the body (not for a vision item: below)
 git pull --rebase github main && git push github main
 ```
+
+**A vision item's public commit says nothing private.**
+Its subject is `File item NNN: <public name>` and its body is one line, `A vision item; its details are private.` — no why, no description, no quote.
+The why goes in the vision repository's commit, which is private.
+A pushed commit in a public repository cannot be taken back, so this is the step to get right.
 
 For a vision item, commit and push the details in `vision/` first, so the public stub never points at something that exists nowhere.
 The roadmap session may commit at the same time; rebase rather than merge, and re-run `make docs-check` if the rebase touched `ROADMAP.md`.

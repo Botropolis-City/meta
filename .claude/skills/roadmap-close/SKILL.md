@@ -51,6 +51,9 @@ git commit               # "Close item NNN: <title>"
 git pull --rebase github main && git push github main
 ```
 
+For a vision item, the subject uses its public name, `Close item NNN: <public name>`, and the body names only the commit and revision that closed it.
+Anything more goes in its details file and the vision repository's commit, both private.
+
 ## Report
 
 Name the item, what closed it, and anything left for Aria to look at, such as a frame to judge.
