@@ -40,15 +40,20 @@ Items cite revisions as `r<N>`, and those count **botropolis's** commits, as the
 
 **Items come in two kinds, numbered in the same series.**
 A normal item's details are its file in `roadmap/`.
-A **vision item**'s file there is a stub — a public name made of an area and a part number, such as *City look, part 1*, its status, and what it depends on — and its details are in the private vision repository at `vision/items/NNN-*.md`.
+A **vision item**'s file there is a stub — a public name made of an area and a part number, such as *City look, part 1*, its status, and what it depends on — and its details are in the private vision repository at `vision/items/`, under the stub's own filename, since the stub's `Details:` line naming them is public.
 So work on an idea that has not shipped can be triggered and tracked here without the idea being published, and the same skills handle both.
 Anyone working a vision item cites its number in commits and code comments and never quotes its details or the reasoning behind it in anything public; the details stay private after it ships, and the shipped code speaks for itself.
 That includes commit messages: a public commit that files or closes a vision item names only its number and public name, and the why goes in the vision repository's own commit, because a pushed commit in a public repository cannot be taken back.
 
 **Item status lives in the item's own file**, on the line under its title: `Done`, `Fixed`, `Open`, `Unadjudicated`, with the date and revision.
 `ROADMAP.md`'s open table is derived from those lines, so it is checked rather than remembered — a hand-maintained summary of machine-checkable state always drifts, which it did.
+The same goes for the three other lines an item can carry, which `tools/roadmap.py` parses for both the check and the status line:
 
-**The skills `roadmap-add`, `roadmap-close` and `roadmap-status`** (in `.claude/skills/` here, so run them from this root) carry out this contract step by step: search before numbering, number from `git ls-files`, status on line 3, one row in the open table, `make docs-check`, then commit to `main`.
+- a **claim**, at the start of the status line while a session works it: `Open, in progress since 2026-10-16 in the session "item 85". `;
+- **`Depends on:`**, on line 5: `82 (slice 1), 85`, or `nothing`, and the open table's *depends on* column shows it;
+- **`Landed: slice 1 (`abc1234`, r413).`**, one per slice that has landed while the item stays open, which is what an item waiting on that slice checks for.
+
+**The skills `roadmap-add`, `roadmap-start`, `roadmap-close` and `roadmap-status`** (in `.claude/skills/` here, so run them from this root) carry out this contract step by step: search before numbering, number from `git ls-files`, status on line 3, one row in the open table, a claim before work starts, `make docs-check`, then commit to `main`.
 
 ## The documentation guard
 
@@ -56,7 +61,9 @@ That includes commit messages: a public commit that files or closes a vision ite
 It verifies that every relative link resolves *from its own file's directory* — into `botropolis/` and the other children too, when they are checked out — that no `§N` citation to the pre-split roadmap survives, that every item declares a status, and that `ROADMAP.md`'s open table lists exactly the items whose status is `Open`.
 It also refuses an empty corpus — the indexes must be non-empty and every item number from 1 to the highest must have a file — because the other checks all pass on nothing.
 And it fails on any image not on `tools/reviewed-images.txt`, because this repository is public.
-When `vision/` is checked out it pairs every vision item's stub with its details file, both ways; when it is not, it says the pairing went unchecked.
+A vision item's stub is checked whatever is checked out, because it is public: its title is an area and a part, it holds only its status, `Depends on:`, `Landed:` and `Details:` lines, and it names its details by its own filename.
+When `vision/` is checked out it also pairs every stub with its details file, both ways; when it is not, it says the pairing went unchecked.
+And it holds every `Depends on:`, `Landed:` and claim to the shapes above, with the open table's *depends on* column agreeing with each item.
 
 Every check was mutated red before the script was trusted, and **five of its own versions could not fail**:
 the first link check tried the bare path before the relative one, so every root-level target resolved from the repo root;
@@ -76,13 +83,19 @@ A link into it cannot be checked, so it is skipped — **and the summary says so
 
 **A guard that is not invoked cannot fail.**
 In botropolis, the docs check has two callers, `make lint` and an acceptance test, so it survives losing either.
-This repository has no test suite to give it a second caller; the roadmap skills are the callers, and each runs `make docs-check` before it commits.
+Here the roadmap skills are callers, since each runs `make docs-check` before it commits, and `make test` is the second: `testing/acceptance/docs_test.py` runs the check against the tree, so losing the Makefile target or a skill's step does not silence it.
 
 ## Working arrangement
 
 Two sessions, at Aria's request.
 One owns `ROADMAP.md`, `roadmap/`, numbered items, audits and relaying to Aria, and runs here at the root; the other writes code in `botropolis/`, renders frames to `botropolis/docs/screenshots/` and packages to `~/workspaces/aur/botropolis-git`.
 Aria judges the frames.
+
+**Item sessions work beside them, one per item** (Aria, 2026-10-15).
+`roadmap-start` claims an item and launches a background session named `item NNN` in its own git worktree, `<repository>/.claude/worktrees/item-NNN`, so several agents build at once without editing each other's trees.
+Each rebases onto `github/main` and pushes `HEAD:main` to land: still trunk-based, with a short-lived local branch and no pull request.
+Claude Code refuses a worktree session's writes to its repository's main checkout, so its work reaches only its own branch and, from there, `main` on GitHub.
+After an agent lands, the main checkout is behind until someone runs `git pull` in it.
 Relaying to Aria is the roadmap session's half — check before sending, or she gets the same thing twice.
 
 A planning session works beside them, in the private `vision` repository: it runs the interview about what Botropolis becomes, and when work on a decision starts it files the numbered items here that say what is being built.

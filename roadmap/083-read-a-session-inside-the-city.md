@@ -2,6 +2,8 @@
 
 **Open. Filed 2026-10-15 (r412) from the planning session. Nobody's call — the design is settled; it waits on item 82's first slice, and Aria judges the frames.**
 
+Depends on: 82 (slice 1)
+
 What is being built: a pane inside the city's window that shows a session's last turns — your prompts, Claude's replies, and the question it is asking if it is waiting on you — so that checking on a session needs no terminal.
 Only replying opens one.
 The reasoning is in the private vision repository (`vision/command-center.md`), for sessions that have it checked out.

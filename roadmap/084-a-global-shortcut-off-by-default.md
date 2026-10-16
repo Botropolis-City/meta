@@ -2,6 +2,8 @@
 
 **Open. Filed 2026-10-15 (r412) at Aria's request, from the planning session. Nobody's call for the X11 part; the macOS and Wayland parts each start with a spike.**
 
+Depends on: 82 (slice 5)
+
 What is being built: a setting that is off by default and that, once the user records a key combination, makes that combination open the finder ([item 82](082-find-a-session-by-what-was-said-in-it.md)) from any application and bring the city's window forward.
 It is off by default so that no key — `Ctrl+K` least of all — stops meaning what it means in other applications.
 `Ctrl+K` inside the city never becomes global.

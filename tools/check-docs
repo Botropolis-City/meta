@@ -21,6 +21,13 @@ Checks, all against the working tree:
   5. the corpus is not empty, and every item number up to the highest has a file
   6. nothing in roadmap/ (or vision/, when present) is linked from nowhere
   7. every image in this repository is on tools/reviewed-images.txt
+  8. every vision item's stub holds only its name, status, Depends on, Landed
+     and Details lines, names its details by its own filename, and (when
+     vision/ is here) is paired with them, both ways
+  9. every Depends on and Landed line parses, and ROADMAP.md's depends-on
+     column agrees with each item's own Depends on line
+ 10. every claim on a status line has the shape roadmap-start writes, and no
+     closed item is still claimed
 
 Exit 0 if all hold, 1 otherwise, naming every failure.
 USAGE

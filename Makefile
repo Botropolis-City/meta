@@ -27,6 +27,16 @@ docs-check ::
 	$(LOG) "Checking the documentation structure"
 	@tools/check-docs
 
+test :: test-unit test-acceptance
+
+test-unit ::
+	$(LOG) "Running the unit tests"
+	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools -p '*_test.py'
+
+test-acceptance ::
+	$(LOG) "Running the acceptance tests"
+	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s testing/acceptance -p '*_test.py'
+
 publishable :: docs-check
 	$(LOG) "Checking nothing unpublishable is in the repository"
 	@tools/check-publishable

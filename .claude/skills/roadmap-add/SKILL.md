@@ -58,6 +58,7 @@ Revisions have counted botropolis's commits since the beginning, and the roadmap
 ```
 
 - When Aria asked for it, say so on the status line and quote her words in the body.
+- If it cannot start until another item, or one slice of one, has landed, say so on line 5, after a blank line 4: `Depends on: 82 (slice 1), 85`. Plain numbers, never links. Leave the line out when it depends on nothing; `make docs-check` holds the open table's *depends on* column to it.
 - Newline after every sentence, as the repo's markdown convention requires.
 - Say whose call it is honestly. "Nobody's" means the fix is known and only needs doing.
 
@@ -66,7 +67,7 @@ Revisions have counted botropolis's commits since the beginning, and the roadmap
 An item whose details must stay private — anything from the vision interview, an idea that has not shipped — is a **vision item**.
 It takes the next number in the same series and is written as two files.
 
-First the details, in the private vision repository, committed and pushed there before anything public:
+First the details, in the private vision repository, committed and pushed there before anything public, saved under **exactly the stub's filename**:
 
 ```markdown
 # 85. <the real title>
@@ -74,7 +75,8 @@ First the details, in the private vision repository, committed and pushed there 
 <Everything an agent needs to build it: what to build, the slices, the tests, links into the vision documents.>
 ```
 
-saved as `vision/items/NNN-<private-slug>.md`.
+saved as `vision/items/NNN-<area>-part-<k>.md`.
+The stub's `Details:` line is public, so the details file has no name of its own: a descriptive filename would say what the item is.
 Then the public stub, `roadmap/NNN-<area>-part-<k>.md`:
 
 ```markdown
@@ -84,12 +86,12 @@ Then the public stub, `roadmap/NNN-<area>-part-<k>.md`:
 
 Depends on: <item numbers, or nothing>
 
-Details: `vision/items/NNN-<private-slug>.md`, in the private vision repository.
+Details: `vision/items/NNN-<area>-part-<k>.md`, in the private vision repository.
 ```
 
 - The public name is an area and a part number — *City look, part 1* — never the idea, and the filename follows it.
-- The stub says nothing else: no description, no reasoning, no quote.
-- The `Details:` line is a path in backticks, not a link; `make docs-check` pairs every stub with its details file when vision is checked out, and says when it could not.
+- The stub says nothing else: no description, no reasoning, no quote. Its whose-call clause is generic too — "Nobody's call" or "Aria's call", never what Aria would decide.
+- `make docs-check` enforces the shape whether or not vision is checked out: a title of the form `# N. <Area>, part <k>`, only status, `Depends on:` (always, `nothing` included), `Landed:` and `Details:` lines, and a details path that is the stub's own filename. With vision checked out, it also pairs every stub with its details file, both ways.
 - Without vision checked out, a vision item cannot be filed; say so and stop.
 
 ## 5. Index it
