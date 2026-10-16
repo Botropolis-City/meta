@@ -21,10 +21,10 @@ A skipped test that reads like a passing one is the silent fallback `CLAUDE.md` 
 
 ## The fix
 
-A checked-in synthetic fixture: a small Claude home written by hand, or generated once and then edited and committed, holding each shape the readers must handle — a conversation, a bridge stub, a session with subagents, a road between two repositories, and the title-only transcript that broke this.
+A checked-in synthetic fixture: a small Claude home written by hand, never sampled from a real one, holding each shape the readers must handle — a conversation, a bridge stub, a session with subagents, a road between two repositories, and the title-only transcript that broke this.
 `fixtures` keeps its job as a tool for sampling new shapes from a real home, and stops being a dependency of the test targets.
 `FixtureHome` then fails, not skips, when the fixture is missing, because a checked-in fixture is never legitimately absent.
 
 What it touches: the `Makefile`'s `test-integration` and `test-acceptance` lines, `.gitignore`'s `testing/helpers/fixtures/` line, `testing/helpers/fixtures.go`, and every test that reads `sample` — which must then hold on the synthetic home, including the manifest the tests read.
 `make gif` records from the same fixture, and item 76 owns the website's media, so the GIF moving to a synthetic home is that item's to judge.
-`tools/make-fixtures.py`'s scrubbing must still hold for anything sampled and committed: `make publishable` reviews images, not fixtures, so a committed fixture is read before it is committed.
+Nothing sampled from a real Claude home is committed: `make publishable` reviews images, not fixtures, so the hand-written home is read before it is committed.
