@@ -6,5 +6,6 @@ Depends on: 82 (slice 1)
 Landed: slice 1 (`74e0241`, r436).
 Landed: slice 2 (`25fb933`, r453).
 Landed: slice 3 (`c5dcf63`, r465).
+Landed: slice 4 (`0a1f4b4`, r472).
 
 Details: `vision/items/088-legibility-part-1.md`, in the private vision repository.
