@@ -1,6 +1,6 @@
 # 82. Find a session by what was said in it, from a panel inside the city
 
-**Open, in progress since 2026-10-16 in the session "item 82". Filed 2026-10-15 (r412) from the planning session, as the first piece of work it settled. Nobody's call — the design is settled and slice 1's tests are agreed; Aria judges the frames.**
+**Done 2026-10-16 (`e0bfe60`, r444). Filed 2026-10-15 (r412) from the planning session, as the first piece of work it settled.**
 
 Depends on: nothing
 Landed: slice 1 (`86de907`, r414).
@@ -374,6 +374,20 @@ Frames judged, in `botropolis/docs/screenshots/`:
 - `r423-item-82-results.png` (slice 3): passed by Aria, 2026-10-16.
 - `r433-item-82-show-on-map.png` (slice 4): passed by Aria, 2026-10-16.
 - `r443-item-82-opened-by-find.png` (slice 5): with Aria.
+
+## Closed
+
+Done 2026-10-16, in five slices, each built to an agreed tree and each frame passed by Aria: the overlay stack and the finder panel (`86de907`, r414), the index and `botropolis find` (`764e9b5`, r418), results in the panel (`1e1b1b0`, r423), acting on a result (`9bf8576`, r433), and one city (`4227a42`, r443).
+The finder is the first panel on the overlay stack, so item 83's reading pane has it to stand on, and slice 5's window seam is the one item 84 fills in.
+
+Where it differs from what the item asked, each by Aria's ruling or recorded above:
+
+- **Resuming matches the card** (`e0bfe60`, r444): the item asked for `claude --resume` in the session's own directory; `Enter` sends the card's resume instead, and a deleted conversation's second `Enter` the card's *new session here*.
+- **The chords are settings** (`9a15072`, r438): `find_key`, `find_copy_key` and `find_show_key`, with show-on-map on Control+M everywhere, because ⌘M minimizes the window on macOS.
+- **The map follows the finder**: once results arrive it dims every session the finder did not find; until the first arrive, typing narrows it by title as `/` did.
+- **The index costs the daemon about 4 MB**: measured on this machine at 20.1 MB idle before any find and 24.2 MB after, against the 20 MB idle budget from the milestones. Aria chose not to worry about it for now.
+
+Found and fixed on the way: botropolisd answered every find with "this daemon keeps no index" (`5287c63`), `make publishable` measured remote refs against a local `main` every worktree has stale (`d9a2f97`), and `make-fixtures` built samples that turned the integration suite red for every item session (`57fbe3e`, `04186ff`).
 
 ## Sources
 
