@@ -56,3 +56,9 @@ clone ::
 			echo "  $$c: NOT cloned — no access, or offline (vision is private)"; \
 		fi; \
 	done
+	@for d in vision/.claude/skills/*/; do \
+		[ -d "$$d" ] || continue; n=$$(basename "$$d"); \
+		[ -e ".claude/skills/$$n" ] || ln -s "../../$${d%/}" ".claude/skills/$$n"; \
+		grep -qxF "/.claude/skills/$$n" .git/info/exclude 2>/dev/null || echo "/.claude/skills/$$n" >> .git/info/exclude; \
+		echo "  vision skill $$n: linked here, kept out of git"; \
+	done
