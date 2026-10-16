@@ -8,5 +8,6 @@ Landed: slice 2 (`16d6526`, r486).
 Landed: slice 3 (`5e0b016`, r499).
 Landed: slice 4 (`a1b6b68`, r503).
 Landed: slice 5 (`defe8fb`, r515).
+Landed: slice 6 (`82f926c`, r519).
 
 Details: `vision/items/090-groups-part-2.md`, in the private vision repository.
