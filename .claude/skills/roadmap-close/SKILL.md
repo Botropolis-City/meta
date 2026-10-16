@@ -48,7 +48,7 @@ Other items may name it on their `Depends on:` line, and their rows show it; lea
 ```sh
 make docs-check
 git add ROADMAP.md roadmap/NNN-*.md
-git commit               # "Close item NNN: <title>"
+git commit -- ROADMAP.md roadmap/NNN-*.md   # "Close item NNN: <title>"
 git pull --rebase github main && git push github main
 ```
 

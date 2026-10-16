@@ -125,6 +125,8 @@ It reads the roadmap through `tools/roadmap.py`, the grammar `make docs-check` e
 
 - **Trunk-based.** Commit to `main` in whichever repository owns the change, with no branches and no pull requests.
   Commit here at the root for the roadmap and these documents; commit from inside a child for that child.
+- **Commit only the paths you name: `git commit -- <paths>`.**
+  Every item session commits its `Landed:` lines from this one checkout, so they share one index, and a bare `git commit` takes whatever another session staged a second earlier — item 86's slice 1 line went out in `bbc3932`, "Start item 84".
 - **Every commit is signed with Aria's own key.** `git verify-commit HEAD` after a commit is the check, and it should report a good signature for `dev@ariavesta.com`.
   On a machine whose global git identity is anyone else's, give each repository its own identity and signing key before its first commit; the gotchas in `botropolis/CLAUDE.md` name them.
 - **This repository, botropolis and botropolis.city are public: every push publishes.**

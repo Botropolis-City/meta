@@ -113,7 +113,7 @@ Detail stays in the item; the row is one line.
 ```sh
 make docs-check          # must report the new count, none missing, open table matches
 git add ROADMAP.md roadmap/NNN-*.md
-git commit               # "File item NNN: <title>", with the why in the body (not for a vision item: below)
+git commit -- ROADMAP.md roadmap/NNN-*.md   # "File item NNN: <title>", with the why in the body (not for a vision item: below)
 git pull --rebase github main && git push github main
 ```
 

@@ -76,7 +76,7 @@ The shape is fixed, because `make docs-check` and the status line both read it: 
 ```sh
 make docs-check
 git add roadmap/NNN-*.md
-git commit -m "Start item NNN: <title, or a vision item's public name>"
+git commit -m "Start item NNN: <title, or a vision item's public name>" -- roadmap/NNN-*.md
 git pull --rebase github main && git push github main
 ```
 
