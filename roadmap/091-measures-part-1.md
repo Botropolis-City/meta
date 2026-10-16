@@ -4,5 +4,6 @@
 
 Depends on: nothing
 Landed: slice 1 (`5b09985`, r417).
+Landed: slice 2 (`714bb34`, r422).
 
 Details: `vision/items/091-measures-part-1.md`, in the private vision repository.
