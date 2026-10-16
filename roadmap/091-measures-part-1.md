@@ -1,6 +1,6 @@
 # 91. Measures, part 1
 
-**Open. Filed 2026-10-16 (r413), a vision item: its details are private. Nobody's call.**
+**Open, in progress since 2026-10-16 in the session "item 91". Filed 2026-10-16 (r413), a vision item: its details are private. Nobody's call.**
 
 Depends on: nothing
 Landed: slice 1 (`5b09985`, r417).
