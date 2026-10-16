@@ -108,6 +108,14 @@ It was capped after a day of seven rounds on one 90-line script in which **every
 So the cap is not a judgement that the cross-checking was wrong; it is a budget.
 The value is real and bounded, and the rounds after the second are where it stops paying.
 
+## The status line
+
+`make statusline` points Claude Code's status line at `tools/statusline` in every repository checked out here, through each one's git-ignored `.claude/settings.local.json`, so nobody's own status line is overridden by a checked-in setting.
+botropolis and botropolis.city carry a `.worktreeinclude`, so every item worktree gets the setting too.
+Its first line is the session: the item it works and its claim, the repository and what the tree needs — changed files, commits to push or to land, commits to pull or to rebase onto, unsigned commits, a checkout off `main` — and context and 5-hour usage.
+Its second is the roadmap and the city: open, ready, claimed, blocked and Aria's items, any claim whose session is gone, botropolis's revision and release, how many sessions need you or are working, from botropolis's own daemon, and a warning when two live sessions share one working tree.
+It reads the roadmap through `tools/roadmap.py`, the grammar `make docs-check` enforces, and fetches nothing, so a release tagged on GitHub shows as "not tagged here" until a fetch brings the tag.
+
 ## Git
 
 - **Trunk-based.** Commit to `main` in whichever repository owns the change, with no branches and no pull requests.

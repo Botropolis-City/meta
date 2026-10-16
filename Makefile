@@ -41,6 +41,10 @@ publishable :: docs-check
 	$(LOG) "Checking nothing unpublishable is in the repository"
 	@tools/check-publishable
 
+statusline ::
+	$(LOG) "Wiring Claude Code's status line into each checked-out repository"
+	@tools/wire-statusline
+
 clone ::
 	$(LOG) "Cloning the child repositories that are missing"
 	@for c in ${CHILDREN}; do \

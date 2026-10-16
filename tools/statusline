@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Claude Code's status line for the Botropolis-City tree.
+set -euo pipefail
+
+usage() {
+    cat <<'USAGE'
+statusline — Claude Code's status line for the Botropolis-City tree
+
+Usage: tools/statusline [--help]      (reads Claude Code's session JSON on stdin)
+
+Line 1, this session:
+  ▶ item N · its name · claimed when   when the session is named "item N", or
+                                       runs in the worktree item-N
+  <repo> <branch> · what the tree needs   N changed, ↑N unpushed or to land,
+                                       ↓N to pull or to rebase, ⚠ unsigned
+                                       commits, ⚠ a checkout not on main
+  ctx N% · 5h N%                       context used, and the 5-hour limit
+
+Line 2, the roadmap and the city:
+  roadmap N open: N ready · ▶ claimed items · N blocked · N Aria's
+  ⚠ N: its session is gone             a claim whose session is not alive
+  rN · vX.Y.Z +N                       botropolis's revision, and its release
+  city N needs you · N working         from botropolis's own daemon
+  ⚠ N sessions share this tree         two live sessions in one working tree
+
+It reads only local state and fetches nothing. NO_COLOR turns off colour
+and links. `make statusline` at the meta root wires it into each checked-out
+repository's .claude/settings.local.json.
+USAGE
+}
+
+[ "${1:-}" = "--help" ] && { usage; exit 0; }
+exec python3 -B "$(dirname "$(readlink -f "$0")")/statusline.py"

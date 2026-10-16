@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Point each checked-out repository's local Claude Code settings at tools/statusline.
+set -euo pipefail
+
+usage() {
+    cat <<'USAGE'
+wire-statusline — use tools/statusline as Claude Code's status line here
+
+Usage: tools/wire-statusline [--help]
+
+For the meta root and each child checked out under it (botropolis,
+botropolis.city, vision), sets statusLine in .claude/settings.local.json,
+keeping every other key in that file. That file is machine-local and
+git-ignored, so a contributor's own status line is never overridden by a
+checked-in setting; a repository where it is not ignored is skipped, and
+said so. botropolis and botropolis.city carry a .worktreeinclude, so the
+setting is copied into each session worktree roadmap-start creates.
+
+Safe to run again: it only rewrites the one key.
+USAGE
+}
+
+[ "${1:-}" = "--help" ] && { usage; exit 0; }
+root=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+command="${root}/tools/statusline"
+
+for dir in "${root}" "${root}/botropolis" "${root}/botropolis.city" "${root}/vision"; do
+    name=${dir#"${root}"}; name=${name#/}; name=${name:-meta}
+    if [ ! -d "${dir}/.git" ]; then
+        echo "  ${name}: not checked out here, skipped"
+        continue
+    fi
+    if ! git -C "${dir}" check-ignore -q .claude/settings.local.json; then
+        echo "  ${name}: NOT wired — .claude/settings.local.json is not git-ignored there, so it would be committed"
+        continue
+    fi
+    file="${dir}/.claude/settings.local.json"
+    mkdir -p "${dir}/.claude"
+    current='{}'
+    [ -s "${file}" ] && current=$(cat "${file}")
+    tmp=$(mktemp "${file}.XXXXXX")
+    if printf '%s' "${current}" | jq --arg cmd "${command}" \
+        '.statusLine = {type: "command", command: $cmd, padding: 0, refreshInterval: 30}' > "${tmp}"; then
+        mv "${tmp}" "${file}"
+        echo "  ${name}: wired"
+    else
+        rm -f "${tmp}"
+        echo "  ${name}: NOT wired — its .claude/settings.local.json is not valid JSON"
+    fi
+done
