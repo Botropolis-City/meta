@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [90](roadmap/090-groups-part-2.md) | a vision item; details private | 87 (slice 4) | nobody |
 | [91](roadmap/091-measures-part-1.md) | a vision item; details private | — | nobody |
 | [92](roadmap/092-the-integration-fixtures-are-sampled-from-the-real-claude-home.md) | the integration fixtures are sampled from the real `~/.claude` and git-ignored, and skip where it is absent; check in a synthetic one | — | nobody, a defect |
+| [93](roadmap/093-a-heavy-codex-history-takes-seconds-to-load.md) | 2,000 Codex rollouts take ~3 s to decode at every daemon start; decode lazily | — | nobody, a known fix |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
