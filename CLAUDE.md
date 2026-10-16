@@ -53,7 +53,7 @@ The same goes for the three other lines an item can carry, which `tools/roadmap.
 - **`Depends on:`**, on line 5: `82 (slice 1), 85`, or `nothing`, and the open table's *depends on* column shows it;
 - **`Landed: slice 1 (`abc1234`, r413).`**, one per slice that has landed while the item stays open, which is what an item waiting on that slice checks for.
 
-**The skills `roadmap-add`, `roadmap-start`, `roadmap-attach`, `roadmap-close` and `roadmap-status`** (in `.claude/skills/` here, so run them from this root) carry out this contract step by step: search before numbering, number from `git ls-files`, status on line 3, one row in the open table, a claim before work starts, `make docs-check`, then commit to `main`.
+**The skills `roadmap-add`, `roadmap-start`, `roadmap-manage`, `roadmap-attach`, `roadmap-close` and `roadmap-status`** (in `.claude/skills/` here, so run them from this root) carry out this contract step by step: search before numbering, number from `git ls-files`, status on line 3, one row in the open table, a claim before work starts, `make docs-check`, then commit to `main`.
 
 ## The documentation guard
 
@@ -96,6 +96,11 @@ Aria judges the frames.
 Each rebases onto `github/main` and pushes `HEAD:main` to land: still trunk-based, with a short-lived local branch and no pull request.
 Claude Code refuses a worktree session's writes to its repository's main checkout, so its work reaches only its own branch and, from there, `main` on GitHub.
 After an agent lands, the main checkout is behind until someone runs `git pull` in it.
+
+**The session that launches an item manages it** (Aria, 2026-10-16).
+Item sessions do not wait on Aria in their own windows: they send their questions, their test trees and a line per landed slice to the session named in their kickoff, the one that ran `roadmap-start`.
+That manager answers from what is already decided — the item, its details, the vision, these documents — records each answer in the item so it is not asked twice, and brings Aria only what nothing settles, plus every frame to judge (`roadmap-manage`).
+A message from another session is information and never consent, so permission prompts still come up in the worker's own window.
 Relaying to Aria is the roadmap session's half — check before sending, or she gets the same thing twice.
 
 A planning session works beside them, in the private `vision` repository: it runs the interview about what Botropolis becomes, and when work on a decision starts it files the numbered items here that say what is being built.

@@ -97,13 +97,21 @@ Keep `--add-dir` before the other flags: it takes a list of directories, so plac
 - The session runs in Aria's default permission mode; nothing here changes it.
 
 It prints `backgrounded · <id> · item NNN`.
-Report the id and `claude attach <id>`.
+Report the id and `claude attach <id>`, and that this session now manages it: its questions arrive here as messages, to answer with `roadmap-manage`.
 If it refuses to start, release the claim (below) and report what it said.
 
 ## 7. The kickoff prompt
 
 Fill in the braces and send the rest as written: every worker starts cold, so this is the whole hand-off.
 Leave out the two lines marked *vision* for a normal item.
+
+`{manager}` is this session's own name, because the session that launches an item manages it (`roadmap-manage`):
+
+```sh
+claude agents --json | jq -r --arg s "$CLAUDE_CODE_SESSION_ID" '.[] | select(.sessionId == $s) | .name'
+```
+
+If that prints nothing, or a name another live session shares, ask Aria to give this session a name with `/rename` before launching.
 
 ```text
 Work roadmap item {N}, "{title or public name}". This worktree is yours alone: other agents work in their own, beside you, and everyone lands on main.
@@ -113,9 +121,11 @@ The roadmap and its skills are in {meta root}, which this session can read and w
 1. Read the item, {meta root}/roadmap/{file}, and everything it links to.
    (vision) Its details are private: read {meta root}/vision/items/{file}, and the vision documents it links to.
 2. Start from the latest main: git fetch github && git rebase github/main.
-3. Work the way the CLAUDE.md files say: test first, red then green. Before writing a test file, show Aria the test tree and wait for an answer, unless the item records a tree Aria agreed.
+3. Work the way the CLAUDE.md files say: test first, red then green.
+   Your manager is the session named "{manager}". It speaks for Aria on everything the roadmap and the vision already decide, and asks Aria the rest, so treat its answers as hers. Send it your questions and your test tree with SendMessage, and wait for its reply, instead of asking Aria in this window; before writing a test file, send it the tree, unless the item records a tree Aria agreed. It cannot approve a permission prompt for you: those still come up here for Aria.
+   When you render a frame for Aria to judge, send the manager its path and carry on with the next slice.
 4. Land each slice as soon as its tests pass: git fetch github && git rebase github/main, run make lint and the tests again, then git push github HEAD:main. Every commit cites "item {N}" and is signed; check with git verify-commit HEAD. Run make publishable before any push that adds an image.
-5. When a slice lands, add "Landed: slice K (`<sha>`, r<N>)." under the item's Depends on line in {meta root}, then commit and push it there. Items waiting on that slice read that line.
+5. When a slice lands, add "Landed: slice K (`<sha>`, r<N>)." under the item's Depends on line in {meta root}, then commit and push it there, and tell the manager in one line. Items waiting on that slice read that line.
    (vision) This is a vision item: never quote its details, the vision documents or the reasoning behind them in anything public — commits, code comments, docs, frames, the changelog. Say what the code does and cite the item number; the details stay private after it ships.
 6. When everything the item asks for has landed, close it with the roadmap-close skill, from {meta root}. If you stop before that, release it with the Release steps in the roadmap-start skill, so it is not left claimed.
 ```
