@@ -3,7 +3,8 @@ name: roadmap-start
 description: >-
   Start work on a numbered botropolis roadmap item in its own background Claude
   Code session and git worktree. Use when asked to start, kick off, pick up,
-  launch or hand off a roadmap item, or to release one that stopped. Checks the
+  launch or hand off a roadmap item, or the next one when no number is given,
+  or to release one that stopped. Checks the
   item is open, unclaimed, nobody's call and not waiting on another item, claims
   it on its status line, launches a session named "item NNN" in a worktree of
   the repository the work lands in, and hands it the workflow.
@@ -23,7 +24,19 @@ make docs-check
 
 If the check fails, stop and report it: a claim written onto a roadmap that does not hold is the wrong first commit.
 
-## 2. Check the item can start
+## 2. Choose the item, if none was given
+
+With no number, start the next ready one: the ready item the most open items wait on, then the lowest number.
+
+```sh
+python3 -c 'import sys; sys.path.insert(0, "tools"); import roadmap
+items = roadmap.load(); print(roadmap.next_ready(items, roadmap.open_table(open("ROADMAP.md").read())))'
+```
+
+It prints `None` when nothing is ready: report what is claimed, blocked or waiting on Aria, as `roadmap-status` does, and stop.
+Say which item was chosen and why before claiming it.
+
+## 3. Check the item can start
 
 Read `roadmap/NNN-*.md` and its row in `ROADMAP.md`'s open table.
 
@@ -33,7 +46,7 @@ Read `roadmap/NNN-*.md` and its row in `ROADMAP.md`'s open table.
 - **Nobody's call.** If the open table's *whose call* cell starts with `Aria`, it needs Aria's decision first: stop and name the decision. A cell with `until` in it is parked; ask before starting it.
 - **A vision item** (its file has a `Details:` line) needs `vision/` checked out here, with its details at the path that line names. Without them, stop: the session would start without knowing what to build.
 
-## 3. Choose where the work lands
+## 4. Choose where the work lands
 
 The repository the item's code lives in: `botropolis` for the app, `botropolis.city` for the website.
 The item usually says, by naming files; if it touches both, start it where most of the work is and say so in the report.
@@ -50,7 +63,7 @@ jq -r --arg p "$PWD/botropolis" '.projects[$p].hasTrustDialogAccepted // false' 
 If it prints anything but `true`, stop and ask Aria to run `claude` in that directory once and accept the prompt.
 Never edit `~/.claude.json` to trust a directory: trusting one is Aria's decision, and live sessions rewrite that file.
 
-## 4. Claim it
+## 5. Claim it
 
 Rewrite line 3 so it starts with the claim, keeping everything after `Open.`:
 
@@ -69,7 +82,7 @@ git pull --rebase github main && git push github main
 
 If the rebase stops on line 3 of the item, another session claimed it first: `git rebase --abort`, `git reset --hard github/main`, and report who has it.
 
-## 5. Launch it
+## 6. Launch it
 
 ```sh
 cd <repository>
@@ -87,7 +100,7 @@ It prints `backgrounded · <id> · item NNN`.
 Report the id and `claude attach <id>`.
 If it refuses to start, release the claim (below) and report what it said.
 
-## 6. The kickoff prompt
+## 7. The kickoff prompt
 
 Fill in the braces and send the rest as written: every worker starts cold, so this is the whole hand-off.
 Leave out the two lines marked *vision* for a normal item.

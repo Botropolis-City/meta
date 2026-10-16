@@ -124,5 +124,24 @@ class WhenJudgingWhereAnOpenItemStands(unittest.TestCase):
         self.assertEqual(self.standing(subject, item(82, 'Done 2026-10-20 (`abc1234`, r430). Filed.')), 'ready')
 
 
+
+class WhenChoosingTheNextItem(unittest.TestCase):
+    def choose(self, *its, whose=None):
+        items = {i.number: i for i in its}
+        rows = {i.number: roadmap.Row('what', i.depends_raw or '—', (whose or {}).get(i.number, 'nobody')) for i in its}
+        return roadmap.next_ready(items, rows)
+
+    def test_and_one_ready_item_unblocks_others_it_should_choose_that_one(self):
+        self.assertEqual(self.choose(item(70, 'Open. Filed.'), item(82, 'Open. Filed.'),
+                                     item(83, 'Open. Filed.', 'Depends on: 82 (slice 1)')), 82)
+
+    def test_and_nothing_unblocks_anything_it_should_choose_the_lowest_number(self):
+        self.assertEqual(self.choose(item(75, 'Open. Filed.'), item(70, 'Open. Filed.')), 70)
+
+    def test_and_nothing_is_ready_it_should_choose_nothing(self):
+        claimed = item(70, 'Open, in progress since 2026-10-16 in the session "item 70". Filed.')
+        self.assertIsNone(self.choose(claimed, item(69, 'Open. Filed.'), whose={69: 'Aria'}))
+
+
 if __name__ == '__main__':
     unittest.main()

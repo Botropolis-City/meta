@@ -97,3 +97,12 @@ def standing(item, items, row):
         if dep is not None and dep.is_open and (s is None or s not in dep.landed):
             return 'blocked'
     return 'ready'
+
+
+def next_ready(items, rows):
+    """The ready item to start next: the one most open items wait on, then the lowest number."""
+    ready = [n for n, it in items.items() if it.is_open and standing(it, items, rows.get(n)) == 'ready']
+    if not ready:
+        return None
+    waiting = {n: sum(1 for it in items.values() if it.is_open and any(d == n for d, _ in it.deps)) for n in ready}
+    return min(ready, key=lambda n: (-waiting[n], n))
