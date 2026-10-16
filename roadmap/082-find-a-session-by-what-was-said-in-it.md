@@ -314,6 +314,11 @@ pkg/render · the finder's chords
   when the help is drawn      → it should list the chords as configured
 ```
 
+## Answered while building
+
+- **Slice 5's test tree:** agreed as proposed: the city's own socket beside the daemon's, a second `botropolis city` bringing the first forward, `botropolis find` with and without words, a stale socket taken over, scripted cities neither listening nor deferring, and the binding help for GNOME, KDE, macOS and i3. The roadmap manager, 2026-10-16, from this item's slice 5 and its rules: one window, any desktop, no cgo.
+- **What a second `botropolis city` prints:** "the city is already open; brought it forward" on stderr, and it exits 0, since bringing it forward is success. The roadmap manager, 2026-10-16, a CLI convention nothing here decides otherwise.
+
 ## Not in this item
 
 Modes and qualifiers in the box (`repo:`, `branch:`, `is:waiting`), ranking that learns from what was picked, and moving settings, the timeline and the breakdown onto the overlay stack.
