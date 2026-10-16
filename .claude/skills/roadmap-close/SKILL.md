@@ -18,6 +18,10 @@ Read the item and check what it asked for against what landed: the commit, the t
 If only part landed, do not close it: leave it **Open**, and record each slice that landed under its `Depends on:` line (or line 5, if it has none) as `Landed: slice K (`<sha>`, r<N>).` — items that wait on a slice read that line, so it is not free text.
 If it is closed by a decision rather than a fix, the reason goes in the body. "Not doing", with why, is a valid close.
 
+If anything it landed is visible to someone using Botropolis — a key, a panel, a setting, a command, a change in what the map draws or what `status` prints — check `botropolis/CHANGELOG.md`'s `[Unreleased]` section says so, and add the entry in botropolis before closing if it does not.
+Write what it does for the user, not how it was built, and nothing from a vision item's details.
+On 2026-10-16 four items (82, 83, 84, 88) closed without entries while two others wrote theirs, and the gap was found only when Aria asked whether the changelog was keeping up.
+
 ## 2. Rewrite the status line
 
 Line 3 of `roadmap/NNN-*.md`. Keep the filing history:
