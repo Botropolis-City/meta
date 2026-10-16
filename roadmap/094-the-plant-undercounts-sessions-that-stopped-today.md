@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-16 in the session "item 94". Filed 2026-10-16 (r462), from a finding item 86 reported. Nobody's call — a defect with a known fix.**
 
+Depends on: nothing
+Landed: slice 1 (`07967d4`, r545).
+
 The plant's 24-hour figures — fresh and cached tokens, the per-model sums and the cost — count only part of any large session that stopped within the last day.
 
 ## Where it comes from
@@ -28,3 +31,27 @@ Item 91's measures include start-up cost, so re-run them and record the differen
 - **What decides a whole read** (manager, 2026-10-16): the transcript's own last activity, from the window's tail, inside `PowerWindow` of the load's `now` — not the file's modification time, so it agrees with `PowerSince`'s own filter and a touched or copied file changes nothing.
 - **The test tree** (manager, 2026-10-16): approved as proposed in `pkg/state/loader_test.go` — a whole read's plant figures and no partial mark when recent, a second load reading nothing, and the window and a partial mark when older — with `now` injected and reads counted through a seam.
 - **Item 91's measures** (manager, 2026-10-16): re-run and the difference recorded here; a gate that goes red is not loosened, and comes back to Aria.
+
+## What it cost
+
+The loader decides on the window's own last timestamp, not the file's mtime, so it agrees with `PowerSince`'s own filter (the manager's call, 2026-10-16).
+
+Item 91's benchmarks don't reach this path.
+Their fixtures are three-line transcripts, below the window, so they read the same before and after.
+Their gates stayed green.
+The wall times moved — `StartASessionAnywhere/1000` went from 2.3 s to 3.8 s — but the load average was 25–31 from other sessions' builds, and an unchanged path can't account for the difference.
+
+So it was measured on the real home instead: 44 transcripts, 21 of them active in the last day, 1.0 GB in all.
+Three cold loads each, before and after, interleaved:
+
+| | before | after |
+| --- | --- | --- |
+| plant, fresh tokens over 24 hours | 6.4 M | 17.9 M |
+| plant, cached tokens over 24 hours | 251 M | 1,488 M |
+| transcript reads | 48 | 63 |
+| allocated | 56 MB | 142 MB |
+| cold load | 1.15–1.32 s | 4.5–6.2 s |
+| warm load | 5–98 ms | 5–16 ms |
+
+The plant had been showing about a third of the fresh tokens and a sixth of the cached ones.
+A cold start costs about 3.4 s more on this home, and a warm load costs no more, because the stat-keyed cache reads each transcript once.
