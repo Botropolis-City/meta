@@ -7,3 +7,8 @@ Its size is `cam.Zoom * districtSignScale` (`botropolis/pkg/render/districtsign.
 
 The fix: clamp the board's scale at a maximum as well as a minimum, so close up it stays the size of a readable sign and the post carries it.
 Tests: data-driven over zooms, the board's drawn height never exceeds the cap, and below the floor it is still left off.
+
+## Answered while building
+
+- **Where the cap sits** (manager, 2026-10-16, from the item's "the size of a readable sign"): the board stops growing at its zoom-1 size, `min(zoom, 1) * 1.3`, so the cap is the size it was already readable at rather than a new number; the post keeps scaling with the uncapped zoom, so close up it lifts the board clear of the session's plaque. The floor is unchanged. Aria judges the frame.
+- **The test tree** (manager, 2026-10-16): approved as proposed, in `pkg/ui/districtsign_test.go` — never taller than at zoom 1 across the zoom steps and beyond the maximum, higher above its foot past zoom 1, left off below the floor, and unchanged at zoom 1.
