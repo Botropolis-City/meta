@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
 | [100](roadmap/100-the-stream-takes-too-much-of-a-small-window.md) | the stream column is a fixed width; cap it at about a quarter of the window | — | nobody, the cap is chosen |
-| [101](roadmap/101-groups-are-named-after-common-words.md) | groups are named after common words ("through allow"); a full stop-word list and shared nouns | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
