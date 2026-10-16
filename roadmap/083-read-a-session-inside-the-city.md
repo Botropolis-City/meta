@@ -193,3 +193,5 @@ Two departures from the item as filed, both settled while building:
 
 - **Read is on the card, not in the summary**, because item 88 folded the summary into the card's face while this item was in flight.
 - **Approvals lead the pane as questions do** (Aria's request): a session that needs you leads with the tool call it is waiting to run, word for word, and the hook's note. A session without hooks still reads as working while it waits on an approval, as it does on the map.
+
+The copy-button frame (`r456-item-83-copy.png`) passed after closing. Aria, 2026-10-16.
