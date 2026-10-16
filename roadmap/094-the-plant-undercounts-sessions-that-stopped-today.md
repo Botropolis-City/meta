@@ -22,3 +22,9 @@ The cost the window was there to avoid is a long history of old sessions, which 
 
 Tests: a stopped transcript larger than the window, active within the last day, should give the plant the same hourly sum as a whole read; one whose last activity is older should still be read through the window.
 Item 91's measures include start-up cost, so re-run them and record the difference.
+
+## Answered while building
+
+- **What decides a whole read** (manager, 2026-10-16): the transcript's own last activity, from the window's tail, inside `PowerWindow` of the load's `now` — not the file's modification time, so it agrees with `PowerSince`'s own filter and a touched or copied file changes nothing.
+- **The test tree** (manager, 2026-10-16): approved as proposed in `pkg/state/loader_test.go` — a whole read's plant figures and no partial mark when recent, a second load reading nothing, and the window and a partial mark when older — with `now` injected and reads counted through a seam.
+- **Item 91's measures** (manager, 2026-10-16): re-run and the difference recorded here; a gate that goes red is not loosened, and comes back to Aria.
