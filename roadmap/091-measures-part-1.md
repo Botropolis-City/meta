@@ -8,5 +8,6 @@ Landed: slice 2 (`714bb34`, r422).
 Landed: slice 7 (`df25b3d`, r429).
 Landed: slice 3 (`b7be522`, r478).
 Landed: slice 5 (`5bbd7c7`, r487).
+Landed: slice 6 (`e55c08f`, r500).
 
 Details: `vision/items/091-measures-part-1.md`, in the private vision repository.
