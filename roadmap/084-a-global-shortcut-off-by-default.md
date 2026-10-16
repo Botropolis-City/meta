@@ -4,6 +4,7 @@
 
 Depends on: 82 (slice 5)
 Landed: slice 1 (`938625d`, r476).
+Landed: slice 2 (`4f421a0`, r481).
 
 What is being built: a setting that is off by default and that, once the user records a key combination, makes that combination open the finder ([item 82](082-find-a-session-by-what-was-said-in-it.md)) from any application and bring the city's window forward.
 It is off by default so that no key — `Ctrl+K` least of all — stops meaning what it means in other applications.
