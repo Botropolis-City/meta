@@ -41,7 +41,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [84](roadmap/084-a-global-shortcut-off-by-default.md) | a global shortcut for the finder, off until the user records one; X11 first | 82 (slice 5) | nobody for X11; spikes for macOS and Wayland |
 | [85](roadmap/085-city-look-part-1.md) | a vision item; details private | — | nobody |
 | [86](roadmap/086-trust-part-1.md) | a vision item; details private | — | nobody |
-| [87](roadmap/087-groups-part-1.md) | a vision item; details private | — | nobody |
 | [88](roadmap/088-legibility-part-1.md) | a vision item; details private | 82 (slice 1) | nobody |
 | [89](roadmap/089-city-look-part-2.md) | a vision item; details private | 85 (slice 1) | nobody |
 | [90](roadmap/090-groups-part-2.md) | a vision item; details private | 87 (slice 4) | nobody |
