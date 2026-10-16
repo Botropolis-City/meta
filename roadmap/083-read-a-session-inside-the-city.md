@@ -168,3 +168,7 @@ Item 88 landed between the tree and the code and folded the summary into the car
 Two cases were added: the layout says how many turns it showed, which is how far PgUp goes, and it keeps every line between the title and the keys.
 The pane's fill is opaque, because the selected card showed through the plates' translucency in the first frame.
 Frame: `botropolis/docs/screenshots/r442-item-83-reading-pane.png`, a live session asking a question, from a synthetic home.
+
+## Answered while building
+
+- **Slice 2's frame** (`r442-item-83-reading-pane.png`): one change, and otherwise it stands — close the gap, so the conversation flows straight under the question rather than being pinned to the bottom of the pane. Aria, 2026-10-16.
