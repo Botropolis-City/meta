@@ -5,6 +5,7 @@
 Depends on: 82 (slice 1)
 Landed: slice 1 (`095cda2`, r435).
 Landed: slice 2 (`f2cfb87`, r442).
+Landed: slice 3 (`90589a9`, r446).
 
 What is being built: a pane inside the city's window that shows a session's last turns — your prompts, Claude's replies, and the question it is asking if it is waiting on you — so that checking on a session needs no terminal.
 Only replying opens one.
@@ -167,7 +168,15 @@ Item 88 landed between the tree and the code and folded the summary into the car
 *Read* is on the card of every session whose transcript is Claude Code's, beside *generate summary*, and the test that the summary offers it now reads "when the selected session has a recap, it should offer read".
 Two cases were added: the layout says how many turns it showed, which is how far PgUp goes, and it keeps every line between the title and the keys.
 The pane's fill is opaque, because the selected card showed through the plates' translucency in the first frame.
-Frame: `botropolis/docs/screenshots/r442-item-83-reading-pane.png`, a live session asking a question, from a synthetic home.
+Frame: `r442-item-83-reading-pane.png`, a live session asking a question, from a synthetic home; replaced at r447 (below).
+
+**Slice 3, as built.**
+A deleted transcript is told from an unreadable one by a sentinel error, and only then is `history.jsonl` read, through `claude.ReadPromptHistory`.
+The deleted and parked frames were reached through the finder and `Ctrl+M`, since a session the map shows can be selected that way.
+
+**The gap, closed** (`6b04629`, r447).
+Turns that do not fill the pane now start directly under what leads it, which a test pins, and the three frames were re-rendered and replace the earlier ones:
+`botropolis/docs/screenshots/r447-item-83-live.png`, `r447-item-83-parked.png` and `r447-item-83-deleted.png`.
 
 ## Answered while building
 
