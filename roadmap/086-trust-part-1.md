@@ -5,5 +5,6 @@
 Depends on: nothing
 Landed: slice 1 (`da2469e`, r470).
 Landed: slice 2 (`80b803d`, r492).
+Landed: slice 3 (`120bbeb`, r511).
 
 Details: `vision/items/086-trust-part-1.md`, in the private vision repository.
