@@ -1,6 +1,6 @@
 # 86. Trust, part 1
 
-**Open. Filed 2026-10-15 (r412), a vision item: its details are private. Nobody's call.**
+**Open, in progress since 2026-10-16 in the session "item 86". Filed 2026-10-15 (r412), a vision item: its details are private. Nobody's call.**
 
 Depends on: nothing
 
