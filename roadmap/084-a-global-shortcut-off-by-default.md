@@ -1,6 +1,6 @@
 # 84. A global shortcut that opens the finder from any application, off until the user sets one
 
-**Open. Filed 2026-10-15 (r412) at Aria's request, from the planning session. Nobody's call for the X11 part; the macOS and Wayland parts each start with a spike.**
+**Open, in progress since 2026-10-16 in the session "item 84". Filed 2026-10-15 (r412) at Aria's request, from the planning session. Nobody's call for the X11 part; the macOS and Wayland parts each start with a spike.**
 
 Depends on: 82 (slice 5)
 
