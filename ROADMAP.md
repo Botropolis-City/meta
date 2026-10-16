@@ -44,7 +44,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [95](roadmap/095-the-global-shortcut-on-macos.md) | the global shortcut on macOS: registering is solved, coming forward needs a Mac run | — | nobody, needs a Mac |
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
-| [98](roadmap/098-district-signs-grow-without-limit-when-zoomed-in.md) | district signs grow without limit when zoomed in; cap their scale | — | nobody, a defect |
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
 | [100](roadmap/100-the-stream-takes-too-much-of-a-small-window.md) | the stream column is a fixed width; cap it at about a quarter of the window | — | nobody, the cap is chosen |
 | [101](roadmap/101-groups-are-named-after-common-words.md) | groups are named after common words ("through allow"); a full stop-word list and shared nouns | — | nobody, a defect |
