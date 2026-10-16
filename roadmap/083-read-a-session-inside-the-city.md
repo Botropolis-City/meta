@@ -181,3 +181,4 @@ Turns that do not fill the pane now start directly under what leads it, which a 
 ## Answered while building
 
 - **Slice 2's frame** (`r442-item-83-reading-pane.png`): one change, and otherwise it stands — close the gap, so the conversation flows straight under the question rather than being pinned to the bottom of the pane. Aria, 2026-10-16.
+- **Slice 3's frames and the closed gap** (`r447-item-83-live.png`, `-parked.png`, `-deleted.png`): passed, with one addition — *"we should add a copy button next to each prompt"* on the deleted-transcript pane, built in this item before it closes. Aria, 2026-10-16.
