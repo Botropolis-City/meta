@@ -5,5 +5,6 @@
 Depends on: nothing
 Landed: slice 1 (`1727487`, r419).
 Landed: slice 2 (`5e19c5b`, r428).
+Landed: slice 3 (`cd8ae0a`, r434).
 
 Details: `vision/items/085-city-look-part-1.md`, in the private vision repository.
