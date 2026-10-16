@@ -1,6 +1,6 @@
 # 82. Find a session by what was said in it, from a panel inside the city
 
-**Open. Filed 2026-10-15 (r412) from the planning session, as the first piece of work it settled. Nobody's call — the design is settled and slice 1's tests are agreed; Aria judges the frames.**
+**Open, in progress since 2026-10-16 in the session "item 82". Filed 2026-10-15 (r412) from the planning session, as the first piece of work it settled. Nobody's call — the design is settled and slice 1's tests are agreed; Aria judges the frames.**
 
 What is being built: a finder that searches every session on the machine by what was said in it — your prompts first, then Claude's replies, its recaps, and the commands and paths it touched — opened as a panel inside the city's window.
 The reasoning behind it is in the private vision repository (`vision/find.md`), for sessions that have it checked out; this item is what to build.
