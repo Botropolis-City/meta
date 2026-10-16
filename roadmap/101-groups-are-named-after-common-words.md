@@ -16,3 +16,10 @@ The fix, cheapest first:
 
 Tests: data-driven over prompt sets, including the one in the frame, the name should hold the work's nouns ("rate-limit headers") and none of the stop words; and the wording signal's measured false-join rate (item 87's 1%) must not rise, since the same weights decide grouping.
 Renaming stays the only naming anyone has to do, so this only improves the guess.
+
+## Answered while building
+
+- **The cause** (item 101's session, 2026-10-16): two of the three fixes above were already in the code; the naming weight dropped every word found in more than half of all sessions, so on a small history the group's own words were cut and one member's leftovers named it.
+- **The fix** (manager, 2026-10-16): a full stop-word list, carried in the source under its licence; and naming measures a word's rarity against the sessions outside the group, taking only words a larger share of members use than outsiders, ranked by how many members said them; first-said order stays.
+- **The false-join rate** (manager, 2026-10-16): a test cannot read a real history, so the wording signal's rate is measured before and after on this machine, in memory, and recorded here; a rise stops the landing. Before: 1.05% of random pairs (380 sessions), 12.19% of pairs started within 15 minutes.
+- **The test tree** (manager, 2026-10-16): approved as proposed, data-driven over prompt sets in `pkg/group/name_test.go`, plus a stop-words-only case in `pkg/group/wording_test.go`.
