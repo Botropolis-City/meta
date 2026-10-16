@@ -50,7 +50,13 @@ Where a part is missing, the setting says so rather than half working.
 
 ## Done when
 
-The X11 part works under i3 and under one other X11 window manager, the setting round-trips through the config file, the macOS and Wayland spikes are written up here with their verdicts, and Aria has judged the frames of the settings row.
+The X11 part works under i3, and under Xvfb with a bare X server that has no window manager, run in CI as well as here; the setting round-trips through the config file, the macOS and Wayland spikes are written up here with their verdicts, and Aria has judged the frames of the settings row.
+
+## Answered while building
+
+- **A second window manager:** none is installed for this; the raise is tested under Xvfb with i3 and with a bare server, and recorded as all it got. Aria, 2026-10-16, declining to install openbox.
+- **Who holds the grab:** the city, so the shortcut works only while the city runs; a daemon holding it would make the daemon an X client, which nothing asked for. Manager, 2026-10-16.
+- **Clearing the setting:** `Backspace` or `Delete` on the row clears it to off. Manager, 2026-10-16.
 
 ## Sources
 
