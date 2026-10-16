@@ -5,5 +5,6 @@
 Depends on: nothing
 Landed: slice 1 (`49ca8c3`, r416).
 Landed: slice 2 (`e051761`, r426).
+Landed: slice 3 (`41cbbf6`, r430).
 
 Details: `vision/items/087-groups-part-1.md`, in the private vision repository.
