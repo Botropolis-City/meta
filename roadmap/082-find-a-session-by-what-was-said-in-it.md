@@ -7,6 +7,7 @@ Landed: slice 1 (`86de907`, r414).
 Landed: slice 2 (`764e9b5`, r418).
 Landed: slice 3 (`1e1b1b0`, r423).
 Landed: slice 4 (`9bf8576`, r433).
+Landed: slice 5 (`4227a42`, r443).
 
 What is being built: a finder that searches every session on the machine by what was said in it — your prompts first, then Claude's replies, its recaps, and the commands and paths it touched — opened as a panel inside the city's window.
 The reasoning behind it is in the private vision repository (`vision/find.md`), for sessions that have it checked out; this item is what to build.
@@ -318,6 +319,45 @@ pkg/render · the finder's chords
 
 - **Slice 5's test tree:** agreed as proposed: the city's own socket beside the daemon's, a second `botropolis city` bringing the first forward, `botropolis find` with and without words, a stale socket taken over, scripted cities neither listening nor deferring, and the binding help for GNOME, KDE, macOS and i3. The roadmap manager, 2026-10-16, from this item's slice 5 and its rules: one window, any desktop, no cgo.
 - **What a second `botropolis city` prints:** "the city is already open; brought it forward" on stderr, and it exits 0, since bringing it forward is success. The roadmap manager, 2026-10-16, a CLI convention nothing here decides otherwise.
+
+## Slice 5's tests
+
+Approved by the roadmap manager on 2026-10-16, before any were written, with a second `botropolis city` printing "the city is already open; brought it forward" on stderr and exiting 0.
+
+```
+pkg/single · the one city's socket
+  when no city is listening
+    and a city starts                         → it should listen
+  when a city is listening
+    and a second city starts                  → it should ask the first to come forward and not open a window
+    and botropolis find is run                → it should ask the first to open the finder
+  when the socket was left by a city that died
+    and a city starts                         → it should take it over
+  when a city is scripted (screenshot, record, headless) → it should neither listen nor defer
+
+pkg/render · requests from outside
+  when a request to come forward arrives
+    and the window is minimized               → it should restore it
+    and the desktop cannot raise windows      → it should ask for attention
+  when a request to find arrives              → it should open the finder and come forward
+
+pkg/cli · find
+  when run with no words and a city is running   → it should open the finder in that city
+  when run with no words and no city is running  → it should start the city with the finder open
+  when run with words                            → it should print matches, as in slice 2
+  when its help is shown                         → it should show how to bind it in GNOME, KDE, macOS and i3
+
+testing/acceptance · one city
+  when a second botropolis city starts beside a running one → it should exit without opening a window
+```
+
+As built, the two cases about whether a city is running are tested in `pkg/commands` against a real listening city, and `pkg/cli` tests only that no words opens and words search.
+With no city running, `botropolis find` replaces itself with `botropolis city` and the same arguments rather than starting the city from a command without the city's flags.
+The window comes forward through a seam item 84 fills in; until then it is restored if minimized and asks for attention.
+
+**The finder resumes as the card does** (Aria, 2026-10-16, landed at `e0bfe60`, r444).
+Slice 4 had `Enter` open a terminal running a plain `claude --resume` through `sh`, so closing the terminal ended the session and a shell wrapper around `claude` was skipped.
+`Enter` now sends the card's resume (`claude --bg --resume` in the session's folder, then attach), and a deleted conversation's second `Enter` the card's *new session here*; the terminal path is gone.
 
 ## Not in this item
 
