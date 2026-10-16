@@ -55,7 +55,7 @@ git pull --rebase github main && git push github main
 For a vision item, the subject uses its public name, `Close item NNN: <public name>`, and the body names only the commit and revision that closed it.
 Anything more goes in its details file and the vision repository's commit, both private.
 
-If it was worked in a worktree (`roadmap-start`), its session can stop now. The worktree goes when Claude Code's sweep finds it holding nothing unpushed, or sooner with `git -C <repository> worktree remove .claude/worktrees/item-NNN` once the session has stopped; never with `--force`.
+If it was worked in a worktree by `roadmap-start`, its session can stop now, and `roadmap-start`'s *Tidy* step removes the worktree, keeping the transcript.
 
 ## Report
 

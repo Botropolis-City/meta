@@ -73,8 +73,10 @@ If the rebase stops on line 3 of the item, another session claimed it first: `gi
 
 ```sh
 cd <repository>
-claude --bg -w item-NNN -n "item NNN" --add-dir ~/workspaces/github/botropolis-city "<the kickoff prompt>"
+claude --bg --add-dir ~/workspaces/github/botropolis-city -w item-NNN -n "item NNN" "<the kickoff prompt>"
 ```
+
+Keep `--add-dir` before the other flags: it takes a list of directories, so placed last it swallows the prompt as one more, and the session starts at an empty prompt with nothing to do.
 
 - `-w item-NNN` makes the worktree `<repository>/.claude/worktrees/item-NNN` on the branch `worktree-item-NNN`, from `main`.
 - `-n "item NNN"` is the name the claim records; `claude agents`, the city and the status line all show it.
@@ -114,8 +116,12 @@ When a session stops before its item is done, or Aria takes an item back:
 3. `make docs-check`, commit `Release item NNN: <title or public name>`, then pull with rebase and push.
 4. `claude stop <id>` if the session is still running; its conversation is kept, and `claude respawn <id>` brings it back.
 
-The worktree stays until Claude Code's sweep removes it, once it holds nothing unpushed and is older than `cleanupPeriodDays`.
-To remove one sooner, after its session has stopped: `git -C <repository> worktree remove .claude/worktrees/item-NNN`, which refuses while anything in it is uncommitted. Never pass `--force`.
+## Tidy
+
+Once an item is closed or released and its session has stopped, `claude rm <id>` takes the session off the list and removes its worktree and branch; the transcript stays, and `claude --resume` still finds it.
+It refuses while the worktree holds uncommitted changes or unpushed commits, and names them: land or release those first, and never pass the flags its refusal offers to discard them.
+If it says the worktree is locked by a session that has exited, `git -C <repository> worktree unlock .claude/worktrees/item-NNN` and run it again.
+Left alone, Claude Code's sweep removes the worktree anyway once it holds nothing unpushed and is older than `cleanupPeriodDays`.
 
 ## Report
 
