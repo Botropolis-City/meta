@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-16 in the session "item 84". Filed 2026-10-15 (r412) at Aria's request, from the planning session. Nobody's call for the X11 part; the macOS and Wayland parts each start with a spike.**
 
 Depends on: 82 (slice 5)
+Landed: slice 1 (`938625d`, r476).
 
 What is being built: a setting that is off by default and that, once the user records a key combination, makes that combination open the finder ([item 82](082-find-a-session-by-what-was-said-in-it.md)) from any application and bring the city's window forward.
 It is off by default so that no key — `Ctrl+K` least of all — stops meaning what it means in other applications.
@@ -47,6 +48,16 @@ Where a part is missing, the setting says so rather than half working.
 2. Choosing it asks for a combination and records the next one pressed, and `Esc` cancels.
 3. A combination already held elsewhere, or one that commonly means something in other applications (`Ctrl+K`, `Ctrl+P`, `Ctrl+Shift+P`), is named as such before it is saved, and can still be saved.
 4. Clearing the setting releases the grab at once.
+
+## Slices
+
+1. **The X11 part.**
+   `global_shortcut` in the config, `pkg/hotkey`'s grab and raise over `jezek/xgb`, and a press opening the finder by `botropolis find`'s path.
+   It also raises the window for `botropolis find` on X11.
+   Its commit calls it slice 1a.
+2. **The settings row**, with its frames.
+3. **The macOS spike**, written up here.
+4. **The Wayland spike**, written up here.
 
 ## Done when
 
