@@ -38,7 +38,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [75](roadmap/075-a-road-label-is-drawn-under-a-tower.md) | a road's label is drawn under the tower beside it | — | nobody, a defect |
 | [76](roadmap/076-what-the-website-still-needs-filmed.md) | the website's stand-ins: a hero loop, a still per view, a social card, chosen posters, anchors | — | nobody, filming work |
 | [78](roadmap/078-trains-belong-on-the-main-view.md) | the trains run only on the Spend view; put them on the main view as bug 48 did the cars | — | nobody, Aria asked for it |
-| [86](roadmap/086-trust-part-1.md) | a vision item; details private | — | nobody |
 | [89](roadmap/089-city-look-part-2.md) | a vision item; details private | 85 (slice 1) | nobody |
 | [91](roadmap/091-measures-part-1.md) | a vision item; details private | — | nobody |
 | [93](roadmap/093-a-heavy-codex-history-takes-seconds-to-load.md) | 2,000 Codex rollouts take ~3 s to decode at every daemon start; decode lazily | — | nobody, a known fix |

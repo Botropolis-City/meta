@@ -1,6 +1,6 @@
 # 86. Trust, part 1
 
-**Open, in progress since 2026-10-16 in the session "item 86". Filed 2026-10-15 (r412), a vision item: its details are private. Nobody's call.**
+**Done 2026-10-16 (`e15cbd2`, r532). Filed 2026-10-15 (r412), a vision item: its details are private.**
 
 Depends on: nothing
 Landed: slice 1 (`da2469e`, r470).
