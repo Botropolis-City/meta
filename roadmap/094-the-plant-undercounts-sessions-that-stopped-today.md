@@ -1,6 +1,6 @@
 # 94. The power plant undercounts sessions that stopped in the last day
 
-**Open. Filed 2026-10-16 (r462), from a finding item 86 reported. Nobody's call — a defect with a known fix.**
+**Open, in progress since 2026-10-16 in the session "item 94". Filed 2026-10-16 (r462), from a finding item 86 reported. Nobody's call — a defect with a known fix.**
 
 The plant's 24-hour figures — fresh and cached tokens, the per-model sums and the cost — count only part of any large session that stopped within the last day.
 
