@@ -53,7 +53,7 @@ The same goes for the three other lines an item can carry, which `tools/roadmap.
 - **`Depends on:`**, on line 5: `82 (slice 1), 85`, or `nothing`, and the open table's *depends on* column shows it;
 - **`Landed: slice 1 (`abc1234`, r413).`**, one per slice that has landed while the item stays open, which is what an item waiting on that slice checks for.
 
-**The skills `roadmap-add`, `roadmap-start`, `roadmap-close` and `roadmap-status`** (in `.claude/skills/` here, so run them from this root) carry out this contract step by step: search before numbering, number from `git ls-files`, status on line 3, one row in the open table, a claim before work starts, `make docs-check`, then commit to `main`.
+**The skills `roadmap-add`, `roadmap-start`, `roadmap-attach`, `roadmap-close` and `roadmap-status`** (in `.claude/skills/` here, so run them from this root) carry out this contract step by step: search before numbering, number from `git ls-files`, status on line 3, one row in the open table, a claim before work starts, `make docs-check`, then commit to `main`.
 
 ## The documentation guard
 

@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# Open a tmux window attached to every live roadmap item session.
+set -euo pipefail
+
+SESSION=items
+
+usage() {
+    cat <<'USAGE'
+attach-items — a tmux window for every live roadmap item session
+
+Usage: tools/attach-items [--dry-run] [--help]
+
+Finds the background sessions roadmap-start launched (named "item NNN",
+listed by `claude agents`) and gives each a window named item-NNN running
+`claude attach <id>`, in item order.
+
+Inside tmux, the windows go into the current tmux session. Outside it,
+they go into a tmux session named "items", created if needed; attach to
+it with `tmux attach -t items`.
+
+A window that already exists for an item is left alone, so it is safe to
+run again as new items start. A window for an item whose session is no
+longer listed is closed.
+
+--dry-run   say what it would open and close, and change nothing
+USAGE
+}
+
+dry=false
+case "${1:-}" in
+    --help) usage; exit 0 ;;
+    --dry-run) dry=true ;;
+    "") ;;
+    *) usage >&2; exit 2 ;;
+esac
+
+command -v tmux >/dev/null || { echo "attach-items: tmux is not installed" >&2; exit 1; }
+items=$(claude agents --json 2>/dev/null \
+    | jq -r '.[] | select(.id != null and (.name // "" | test("^item [0-9]+$"))) | "\(.name | ltrimstr("item ") | tonumber)\t\(.id)"' \
+    | sort -n)
+
+if [ -n "${TMUX:-}" ]; then
+    target=$(tmux display-message -p '#S')
+else
+    target=${SESSION}
+fi
+
+existing=""
+if tmux has-session -t "=${target}" 2>/dev/null; then
+    existing=$(tmux list-windows -t "=${target}" -F '#W')
+fi
+
+opened=0
+while IFS=$'\t' read -r n id; do
+    [ -n "${n}" ] || continue
+    name=$(printf 'item-%03d' "${n}")
+    if grep -qxF "${name}" <<< "${existing}"; then
+        echo "  ${name}: already open"
+        continue
+    fi
+    echo "  ${name}: opening, attached to ${id}"
+    ${dry} && continue
+    if tmux has-session -t "=${target}" 2>/dev/null; then
+        tmux new-window -d -t "=${target}:" -n "${name}" "claude attach ${id}"
+    else
+        tmux new-session -d -s "${target}" -n "${name}" "claude attach ${id}"
+    fi
+    existing+=$'\n'"${name}"
+    opened=$((opened + 1))
+done <<< "${items}"
+
+while IFS= read -r name; do
+    [[ "${name}" =~ ^item-0*([0-9]+)$ ]] || continue
+    if ! grep -qE "^${BASH_REMATCH[1]}"$'\t' <<< "${items}"; then
+        echo "  ${name}: its session is gone, closing"
+        ${dry} || tmux kill-window -t "=${target}:${name}"
+    fi
+done <<< "${existing}"
+
+[ -n "${items}" ] || echo "  no item sessions are running"
+if [ -z "${TMUX:-}" ] && ! ${dry} && tmux has-session -t "=${target}" 2>/dev/null; then
+    echo "Attach with: tmux attach -t ${target}"
+fi
