@@ -6,5 +6,6 @@ Depends on: nothing
 Landed: slice 1 (`5b09985`, r417).
 Landed: slice 2 (`714bb34`, r422).
 Landed: slice 7 (`df25b3d`, r429).
+Landed: slice 3 (`270d4d1`, r475).
 
 Details: `vision/items/091-measures-part-1.md`, in the private vision repository.
