@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-16 in the session "item 83". Filed 2026-10-15 (r412) from the planning session. Nobody's call — the design is settled; it waits on item 82's first slice, and Aria judges the frames.**
 
 Depends on: 82 (slice 1)
+Landed: slice 1 (`095cda2`, r435).
 
 What is being built: a pane inside the city's window that shows a session's last turns — your prompts, Claude's replies, and the question it is asking if it is waiting on you — so that checking on a session needs no terminal.
 Only replying opens one.
@@ -132,4 +133,30 @@ pkg/render · the reading pane
     it should show the prompts history.jsonl has for it
     and Enter is pressed                             → it should start a new session in its directory
   when history.jsonl has nothing for it              → it should say no prompts were kept
+```
+
+### Added while building
+
+Slice 1 kept two cases nobody had named: two replies that are messages of their own stay two turns, and a page further back than one 64 KB read reaches comes out whole across the boundary.
+
+**Approvals lead too (Aria, 2026-10-16).**
+A session paused on a permission prompt asks no question in its transcript: it has written the tool call, word for word, and no result for it yet.
+The transcript alone cannot tell that from a command still running, so the pane leads with the pending call only when the session's state says it needs you, which the `Notification` hook sets, carrying its message as the session's note.
+A session without hooks still reads as working while it waits on an approval, the same blind spot the map has.
+
+```
+pkg/claude · ReadConversation                       (slice 1, landed)
+  when Claude's last tool call has no result yet, as while it waits on your approval
+    it should carry the call as pending, word for word
+    and the call has its result                      → it should carry nothing pending
+    and the pending call is a question               → it should carry it as a question and not as a pending call
+
+pkg/ui · LayoutReader                                (slice 2)
+  when the session is waiting on your approval
+    it should lead with the call it is asking to run, word for word
+    it should carry the hook's note beneath it, when there is one
+
+pkg/render · the reading pane                        (slice 2)
+  when the session needs you and a call is pending   → it should lead with the approval
+  when the session is working and a call is pending  → it should not lead with it
 ```
