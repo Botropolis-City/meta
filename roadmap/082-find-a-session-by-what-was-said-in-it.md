@@ -368,6 +368,13 @@ A tool that lets a Claude session query the finder is parked, because it would b
 
 All five slices are in, `make lint` and the acceptance tests pass, and Aria has judged the frames.
 
+Frames judged, in `botropolis/docs/screenshots/`:
+
+- `r414-item-82-finder.png` (slice 1): passed by Aria, 2026-10-16.
+- `r423-item-82-results.png` (slice 3): passed by Aria, 2026-10-16.
+- `r433-item-82-show-on-map.png` (slice 4): passed by Aria, 2026-10-16.
+- `r443-item-82-opened-by-find.png` (slice 5): with Aria.
+
 ## Sources
 
 - [`exp/textinput` — Ebitengine v2.10.2 API](https://pkg.go.dev/github.com/hajimehoshi/ebiten/v2@v2.10.2/exp/textinput)
