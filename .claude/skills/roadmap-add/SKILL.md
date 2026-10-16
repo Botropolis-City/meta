@@ -19,7 +19,7 @@ An item is one numbered file in `roadmap/`; `ROADMAP.md` is an index and only ge
 Search before numbering, because a duplicate is worse than a late item:
 
 ```sh
-grep -rliE '<two or three distinctive words>' roadmap/ ROADMAP.md
+grep -rliE '<two or three distinctive words>' roadmap/ ROADMAP.md vision/items/ 2>/dev/null
 ```
 
 Read anything that matches.
@@ -61,13 +61,47 @@ Revisions have counted botropolis's commits since the beginning, and the roadmap
 - Newline after every sentence, as the repo's markdown convention requires.
 - Say whose call it is honestly. "Nobody's" means the fix is known and only needs doing.
 
+### A vision item
+
+An item whose details must stay private — anything from the vision interview, an idea that has not shipped — is a **vision item**.
+It takes the next number in the same series and is written as two files.
+
+First the details, in the private vision repository, committed and pushed there before anything public:
+
+```markdown
+# 85. <the real title>
+
+<Everything an agent needs to build it: what to build, the slices, the tests, links into the vision documents.>
+```
+
+saved as `vision/items/NNN-<private-slug>.md`.
+Then the public stub, `roadmap/NNN-<area>-part-<k>.md`:
+
+```markdown
+# 85. <Area>, part <k>
+
+**Open. Filed YYYY-MM-DD (rN), a vision item: its details are private. <Whose call>.**
+
+Depends on: <item numbers, or nothing>
+
+Details: `vision/items/NNN-<private-slug>.md`, in the private vision repository.
+```
+
+- The public name is an area and a part number — *City look, part 1* — never the idea, and the filename follows it.
+- The stub says nothing else: no description, no reasoning, no quote.
+- The `Details:` line is a path in backticks, not a link; `make docs-check` pairs every stub with its details file when vision is checked out, and says when it could not.
+- Without vision checked out, a vision item cannot be filed; say so and stop.
+
 ## 5. Index it
 
 Add one row to the `## Open` table in `ROADMAP.md`, above the `phase 20 item 3` row:
 
 ```markdown
-| [80](roadmap/080-the-slug.md) | <what it wants, one line> | <whose call> |
+| [80](roadmap/080-the-slug.md) | <what it wants, one line> | <numbers it waits on, or —> | <whose call> |
 ```
+
+- **Depends on** names other items as plain numbers, never links: `make docs-check` reads any link to an item in `ROADMAP.md` as listing it open, so a linked dependency would stop the item it names from closing.
+- For a vision item, *what it wants* is "a vision item; details private", and nothing more.
 
 If it waits on Aria, add a bullet under `## Waiting on Aria` naming the decision.
 Detail stays in the item; the row is one line.
@@ -81,6 +115,7 @@ git commit               # "File item NNN: <title>", with the why in the body
 git pull --rebase github main && git push github main
 ```
 
+For a vision item, commit and push the details in `vision/` first, so the public stub never points at something that exists nowhere.
 The roadmap session may commit at the same time; rebase rather than merge, and re-run `make docs-check` if the rebase touched `ROADMAP.md`.
 Work is trunk-based: commit to `main`, no branch or PR.
 

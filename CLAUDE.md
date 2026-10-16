@@ -27,6 +27,7 @@ This is the rule that was never written down, and the roadmap grew to 2,689 line
 | `docs/references/` | crops and references belonging to one item | frames, which go in `botropolis/docs/screenshots/` |
 | `botropolis/DESIGN.md`, `design/`, `rules/` | what the app is, and the rules paid for by its mistakes | see `botropolis/CLAUDE.md` |
 | `vision/*.md` | the brainstorm: options, trade-offs, the interview with Aria — private | decisions, which become numbered items |
+| `vision/items/NNN-*.md` | a vision item's details: everything an agent needs to build it — private | the item's status, which stays on its public stub |
 
 **A file that is an index stays an index.**
 If detail is being added to `ROADMAP.md` or `botropolis/DESIGN.md`, it belongs in a file underneath them instead.
@@ -36,6 +37,12 @@ Both were kept short deliberately so that adding an item or a rule does not grow
 Numbers are never reused and never renumbered — `roadmap/` filenames, commit messages and code comments in the children all cite them.
 There are two bug 18s, left as written, because a dated record that gets tidied stops being a record.
 Items cite revisions as `r<N>`, and those count **botropolis's** commits, as they always have: the roadmap moved here at botropolis r410 and the numbering of revisions did not move with it.
+
+**Items come in two kinds, numbered in the same series.**
+A normal item's details are its file in `roadmap/`.
+A **vision item**'s file there is a stub — a public name made of an area and a part number, such as *City look, part 1*, its status, and what it depends on — and its details are in the private vision repository at `vision/items/NNN-*.md`.
+So work on an idea that has not shipped can be triggered and tracked here without the idea being published, and the same skills handle both.
+Anyone working a vision item cites its number in commits and code comments and never quotes its details or the reasoning behind it in anything public; the details stay private after it ships, and the shipped code speaks for itself.
 
 **Item status lives in the item's own file**, on the line under its title: `Done`, `Fixed`, `Open`, `Unadjudicated`, with the date and revision.
 `ROADMAP.md`'s open table is derived from those lines, so it is checked rather than remembered — a hand-maintained summary of machine-checkable state always drifts, which it did.
@@ -48,6 +55,7 @@ Items cite revisions as `r<N>`, and those count **botropolis's** commits, as the
 It verifies that every relative link resolves *from its own file's directory* — into `botropolis/` and the other children too, when they are checked out — that no `§N` citation to the pre-split roadmap survives, that every item declares a status, and that `ROADMAP.md`'s open table lists exactly the items whose status is `Open`.
 It also refuses an empty corpus — the indexes must be non-empty and every item number from 1 to the highest must have a file — because the other checks all pass on nothing.
 And it fails on any image not on `tools/reviewed-images.txt`, because this repository is public.
+When `vision/` is checked out it pairs every vision item's stub with its details file, both ways; when it is not, it says the pairing went unchecked.
 
 Every check was mutated red before the script was trusted, and **five of its own versions could not fail**:
 the first link check tried the bare path before the relative one, so every root-level target resolved from the repo root;

@@ -18,6 +18,7 @@ docs = ['ROADMAP.md', 'CLAUDE.md', 'README.md']
 docs += sorted(glob.glob('roadmap/*.md'))
 if present['vision']:
     docs += sorted(glob.glob('vision/*.md'))
+    docs += sorted(glob.glob('vision/items/*.md'))
 
 def targets(p):
     base = os.path.dirname(p) or '.'
@@ -141,6 +142,31 @@ for img in sorted(images):
     if img not in reviewed:
         note('images', '%s is not on tools/reviewed-images.txt -- look at it, then add it' % img)
 
+# 8. vision items. A vision item is an ordinary item file here -- a public
+# name, a status line, what it depends on -- whose details live in the private
+# vision repository, at the path its Details line names. When vision is
+# checked out, every stub must point at a details file carrying its own
+# number, and every details file must have a stub pointing at it. When vision
+# is not, the pairing cannot be checked, and the summary says so rather than
+# reading as a pass.
+STUB = re.compile(r'^Details: `(vision/items/(\d{3})-[^`/]+\.md)`', re.M)
+stubs = {}
+for p in items:
+    m = STUB.search(open(p, encoding='utf-8').read())
+    if m:
+        stubs[p] = (os.path.normpath(m.group(1)), m.group(2))
+if present['vision']:
+    details = {os.path.normpath(f) for f in glob.glob('vision/items/[0-9][0-9][0-9]-*.md')}
+    pointed = set()
+    for p, (path, num) in sorted(stubs.items()):
+        if num != os.path.basename(p)[:3]:
+            note('vision-items', '%s points at %s, which carries another number' % (p, path))
+        if path not in details:
+            note('vision-items', '%s points at %s, which does not exist' % (p, path))
+        pointed.add(path)
+    for f in sorted(details - pointed):
+        note('vision-items', '%s has no stub in roadmap/ pointing at it' % f)
+
 if fail:
     for f in fail:
         print('  %s' % f)
@@ -157,3 +183,8 @@ for child in CHILDREN:
               % (skipped[child], child, child))
 if not present['vision']:
     print('  NOTE: vision/ is not checked out here, so its documents were not checked.')
+if stubs:
+    if present['vision']:
+        print('  %d vision item(s) paired with their private details.' % len(stubs))
+    else:
+        print('  NOTE: %d vision item(s) NOT paired with their details: vision/ is not checked out here.' % len(stubs))

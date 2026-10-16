@@ -29,6 +29,7 @@ Line 3 of `roadmap/NNN-*.md`. Keep the filing history:
 - `Done` for work and requests, `Fixed` for defects. The checker treats anything not starting with "Open" as closed.
 - The commit is the one that did the work, not this one, and it lives in the child it landed in; its revision is `git -C botropolis rev-list --count <sha>` (or `-C botropolis.city` for the website).
 - Add a short closing section to the body: what was done, the frame or test that shows it, and any deviation from what the item asked, flagged for Aria.
+- **A vision item** (its file has a `Details:` line) closes the same way, but its public closing section says only what closed it — the commit and revision — and never the details or the reasoning, which stay private after it ships. Anything worth recording about how it landed goes in its details file in `vision/items/`.
 
 ## 3. Unlist it everywhere
 
@@ -39,6 +40,7 @@ grep -n 'roadmap/NNN-' ROADMAP.md
 ```
 
 That catches the open table row and any `## Waiting on Aria` bullet.
+Other rows name it in their *depends on* cell as a plain number; drop it from them, since it no longer holds anything up.
 
 ## 4. Check, commit, push
 

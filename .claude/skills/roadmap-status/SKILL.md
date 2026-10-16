@@ -27,6 +27,11 @@ for f in $(git ls-files 'roadmap/[0-9][0-9][0-9]-*.md'); do
 done
 ```
 
+A file with a `Details:` line is a **vision item**: its stub is public and its details are in `vision/items/`.
+When `vision/` is checked out, read the details from there to say what the item is; when it is not, report it by its public name and say its details are private.
+Never repeat a vision item's details anywhere public.
+Report each item's *depends on* cell from `ROADMAP.md`, so what is ready to start shows apart from what waits on another item.
+
 Report in three groups:
 1. **Waiting on Aria**: items whose status names her call, with the decision each needs, in one line.
 2. **Ready to do**: "nobody's call" items, with what the fix touches if the item says so.

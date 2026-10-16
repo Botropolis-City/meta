@@ -22,6 +22,7 @@ Each child is an independent repository and is never tracked here.
 
 [ROADMAP.md](ROADMAP.md) is the index of what is open and what is waiting on a decision.
 Every numbered item has its own file in [`roadmap/`](roadmap/), with its status on the line under its title.
+Some are vision items: their file gives an area and a part number, what they depend on and their status, and their details are kept privately.
 `make docs-check` proves the index and the items agree.
 
 The roadmap lived in the botropolis repository until 2026-10-15, and its history before that is there.
