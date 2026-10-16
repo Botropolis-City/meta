@@ -1,6 +1,6 @@
 # 83. Read a session inside the city, and open a terminal only to reply
 
-**Open. Filed 2026-10-15 (r412) from the planning session. Nobody's call — the design is settled; it waits on item 82's first slice, and Aria judges the frames.**
+**Open, in progress since 2026-10-16 in the session "item 83". Filed 2026-10-15 (r412) from the planning session. Nobody's call — the design is settled; it waits on item 82's first slice, and Aria judges the frames.**
 
 Depends on: 82 (slice 1)
 
