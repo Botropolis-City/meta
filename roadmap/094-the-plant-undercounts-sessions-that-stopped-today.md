@@ -1,9 +1,10 @@
 # 94. The power plant undercounts sessions that stopped in the last day
 
-**Open, in progress since 2026-10-16 in the session "item 94". Filed 2026-10-16 (r462), from a finding item 86 reported. Nobody's call — a defect with a known fix.**
+**Fixed 2026-10-17 (`5d3fe10`, r553). Filed 2026-10-16 (r462), from a finding item 86 reported. Nobody's call — a defect with a known fix.**
 
 Depends on: nothing
 Landed: slice 1 (`07967d4`, r545).
+Landed: slice 2 (`5d3fe10`, r553).
 
 The plant's 24-hour figures — fresh and cached tokens, the per-model sums and the cost — count only part of any large session that stopped within the last day.
 
@@ -57,3 +58,43 @@ Three cold loads each, before and after, interleaved:
 
 The plant had been showing about a third of the fresh tokens and a sixth of the cached ones.
 A cold start costs about 3.4 s more on this home, and a warm load costs no more, because the stat-keyed cache reads each transcript once.
+
+## Slice 2: from the window on
+
+Aria's ruling, 2026-10-17: rather than accept the 3.4 s, read only what the plant sums, then close.
+`claude.ReadTranscriptSince` reads the head window for the title, then walks back from the end to the start of the hour the plant's window opens in, which is where `PowerSince`'s buckets begin.
+Two rules keep the figures equal to a whole read's (the manager's calls, 2026-10-17):
+
+- a message whose lines straddle that hour is read from its first line, because a whole read dedups by message id and buckets the message there;
+- the walk goes on until it meets a cost-state record, because the cost and `ByModel` are the last one's.
+  Past the hour that search is a byte match, not a decode, since those hours are not the plant's.
+
+A transcript whose head began inside the hour is read whole with no walk, and so is one whose walk reaches the head.
+
+The real home on 2026-10-17: 47 sessions, four cold loads of each build, interleaved, load average 5–9:
+
+| | before item 94 | slice 1 | slice 2 |
+| --- | --- | --- | --- |
+| plant, fresh tokens over 24 hours | 3.3 M | 4.6 M | 4.6 M |
+| plant, cached tokens over 24 hours | 136 M | 340 M | 340 M |
+| transcript reads | 52 | 59 | 59 |
+| allocated | 61 MB | 98 MB | 180 MB |
+| cold load | 0.97–1.38 s | 2.47–2.97 s | 1.96–2.52 s |
+
+Slice 2's figures are identical to slice 1's, which read whole, and its cold load is about 0.5 s shorter.
+Where the walk applies, it pays: a 67 MB transcript that began before the window read in 35 ms instead of 162 ms, and an 89 MB one in 162 ms instead of 283 ms.
+Most of what remains is inherent to the fix.
+On this home most of the day's transcripts began inside the day, so they are read whole either way.
+Allocation is higher than slice 1's because the walk decodes each line of the region once and the forward read decodes it again.
+
+A transcript with no cost-state record is walked to its head and then read whole, which is slice 1's cost for it plus the walk.
+Of the 14 transcripts active in the last day, 9 have no cost-state record, live sessions included; if that count grows among stopped ones, it is where the time goes.
+
+## Closed
+
+Fixed in two slices: slice 1 read whole each stopped transcript active in the last day (`07967d4`, r545), and slice 2 reads it from the plant's window on (`5d3fe10`, r553).
+`TestStoppedTranscriptsInThePowerWindow` in `pkg/state/loader_test.go` holds the plant to a whole read's figures, and `TestReadTranscriptSince` in `pkg/claude/since_test.go` covers the straddling hour, a message split across it, an old cost-state record, a file wholly inside the window, and how many bytes each read takes.
+Every rule in the walk was mutated red before it was trusted.
+The CHANGELOG entry is under `[Unreleased]`, *Fixed*.
+One deviation, for Aria: a cold start still costs about 1 s more than before item 94 on this home, because most of the day's transcripts began inside the day and have to be read whole.
+
