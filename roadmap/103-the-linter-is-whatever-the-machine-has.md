@@ -1,6 +1,6 @@
 # 103. The linter is whatever version the machine happens to have
 
-**Open, in progress since 2026-10-17 in the session "item 103". Filed 2026-10-17 (r552) at Aria's request. Nobody's call — a defect.**
+**Fixed 2026-10-17 (`1044121`, r557). Filed 2026-10-17 (r552) at Aria's request.**
 
 Depends on: nothing
 Landed: slice 1 (`1044121`, r557).
@@ -30,3 +30,20 @@ Tests: `make lint` green on main with the pinned version; and a check — in `ma
 - **Go's best practice, then** (Aria, 2026-10-17: *"Let's do whatever go best practices is. Research that"*): golangci-lint's install docs recommend a binary, and for `go tool` users a dedicated module or module file, since a tool's dependencies otherwise change the project's and its own `replace` directives do not apply; Go's toolchain docs make the `toolchain` line a preference a newer local Go overrides, and only an exact `GOTOOLCHAIN` forces it. So the linter is pinned in `tools/lint/go.mod`, with any `replace` directives of its own copied there; the app's go.mod carries `toolchain go1.27.2`; the Makefile exports `GOTOOLCHAIN` from that line; and CI reads both. mise, the other route the docs name, was left out because every contributor would need it installed.
 - **The AUR package** (manager, 2026-10-17): unchanged; it calls `go build` directly and builds with pacman's Go while that is at least the pin. Setting `GOTOOLCHAIN=local` in its `build()` is a packaging call for later.
 - **The test tree** (manager, 2026-10-17): `TestToolchainPins` in `testing/acceptance/toolchain_pin_test.go`, approved as proposed — a decoy linter first on `PATH` passes, a different linter or Go fails naming both versions — each check mutated red once.
+
+## Closed
+
+Fixed in `1044121` (r557), in one slice.
+`make lint` now runs go1.27.2, from `go.mod`'s `toolchain` line, and golangci-lint v2.15.0, from `tools/lint/go.mod`, whatever the machine has installed.
+It fails, naming both versions, when either one that ran is not its pin (`tools/check-pin`, via `go-version-check` and `lint-version-check`).
+`TestToolchainPins` is the second caller, and both mutations went red once: `GOLANGCI_LINT` set back to the `PATH` linter, and the `GOTOOLCHAIN` export removed.
+CI's `test-lint` job read the same pins and logged `go 1.27.2, as pinned`, `golangci-lint 2.15.0, as pinned` and `0 issues`.
+v2.15.0 has no `replace` directives, so nothing was copied.
+
+Deviations and findings, for Aria:
+
+- The pin is v2.15.0, not CI's old v2.13.2, because v2.13.2 cannot read go1.27.2's export data.
+- Adding the linter as a tool in the app's own `go.mod` upgraded 24 of its dependencies, 15 of them compiled into the shipped binaries, which is why it has its own module.
+- Under the pin, make runs the official go1.27.2 that Go downloads into the module cache: Arch's `go1.27.2-X:nodwarf5` does not count as a match.
+  The AUR package's plain `go build` still uses pacman's Go.
+- Not this item's, and found on the way: `TestStagedHomeLoadsAsTheScenarioSays` in `testing/integration/demo` failed 1 of 6 runs on a clean main, and CI's `test-macos` (`TestFinderActs`, `TestOverlayStack`) and `bench` jobs were already failing on main before this landed.
