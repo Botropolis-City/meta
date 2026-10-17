@@ -9,5 +9,6 @@ Landed: slice 3 (`b6570f1`, r548).
 Landed: slice 8 (`44a90f7`, r550).
 Landed: slice 4 (`971e99c`, r556).
 Landed: slice 5 (`b0c7787`, r560).
+Landed: slice 6 (`afd7fa4`, r563).
 
 Details: `vision/items/089-city-look-part-2.md`, in the private vision repository.
