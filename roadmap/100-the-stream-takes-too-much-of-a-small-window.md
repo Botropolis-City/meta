@@ -5,6 +5,7 @@
 Depends on: nothing
 Landed: slice 1 (`5d44000`, r541).
 Landed: slice 2 (`2fc1881`, r552).
+Landed: slice 3 (`4e42d89`, r561).
 
 Item 88 added the stream, a column down the right with the event log's live tail, shown by default.
 Its width is a fixed number of grid units (`StreamGrids` in `botropolis/pkg/ui/stream.go`, used by `StreamArea`), so it takes the same pixels at every window size, and in a window about 960 pixels wide it covers about 40% of the screen (`docs/screenshots/r511-item-86-depot.png`).
