@@ -19,3 +19,7 @@ Whichever is chosen, CI's step uses the same pin, the Go version moves with it a
 Nothing is installed on the system outside its package manager.
 
 Tests: `make lint` green on main with the pinned version; and a check — in `make lint` or an acceptance test — that fails when the version run differs from the pin, mutated red once before it is trusted.
+
+## Answered while building
+
+- **What is pinned, and where** (Aria, 2026-10-17): *"We should pin both versions in our go.mod and make should use that regardless of what pacman has installed."* So go.mod carries a `toolchain` line and golangci-lint as a `tool` directive; the Makefile runs that exact Go through `GOTOOLCHAIN`, since `auto` would prefer a newer local Go; and CI reads both from go.mod. If the linter's dependencies would move any of the app's own, that comes back to Aria before landing.
