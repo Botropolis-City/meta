@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-17 in the session "item 103". Filed 2026-10-17 (r552) at Aria's request. Nobody's call — a defect.**
 
+Depends on: nothing
+Landed: slice 1 (`1044121`, r557).
+
 `make lint` runs `golangci-lint` from `PATH` (`botropolis/Makefile`, the `lint` target), so its version is whatever the system package manager last installed.
 On 2026-10-17 a system update moved this machine to golangci-lint 2.15.0, and its errcheck failed `make lint` on main for every item session, on a receive in `pkg/daemon/watch.go` unchanged since September.
 Item 89 fixed that line (`127e828`, r549), and `make lint` is green again, but nothing stops the next update doing the same.
