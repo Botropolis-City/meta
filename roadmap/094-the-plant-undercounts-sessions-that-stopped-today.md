@@ -32,6 +32,7 @@ Item 91's measures include start-up cost, so re-run them and record the differen
 - **The test tree** (manager, 2026-10-16): approved as proposed in `pkg/state/loader_test.go` — a whole read's plant figures and no partial mark when recent, a second load reading nothing, and the window and a partial mark when older — with `now` injected and reads counted through a seam.
 - **Item 91's measures** (manager, 2026-10-16): re-run and the difference recorded here; a gate that goes red is not loosened, and comes back to Aria.
 - **The +3.4 s cold start** (Aria, 2026-10-17): add a second slice, then close — read only the part of a recent transcript inside the power window, its head for the title and its tail backwards until the timestamps fall before the window opens, with the plant's figures equal to a whole read's.
+- **Slice 2's bound** (manager, 2026-10-17, from Aria's "equal to a whole read"): the walk back stops at the start of the power window's first hour, includes the first line of any message it has seen, and goes on until it finds a cost-state record, so a resumed session's cost and per-model figures stay a whole read's; a file without one is read to its start. Its tree was approved.
 
 ## What it cost
 
