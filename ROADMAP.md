@@ -47,7 +47,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [100](roadmap/100-the-stream-takes-too-much-of-a-small-window.md) | the stream column is a fixed width; cap it at about a quarter of the window | — | nobody, the cap is chosen |
 | [102](roadmap/102-badges-signs-and-line-labels-overlap.md) | group badges, district signs and line labels draw over each other; lay them out together | — | nobody, a defect |
 | [104](roadmap/104-ci-on-main-has-been-red-since-2026-10-16.md) | CI on main has been red since 2026-10-16: macOS finder keys, bench killed, a flaky demo test | — | nobody, a defect |
-| [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 | nobody |
+| [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
