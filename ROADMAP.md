@@ -44,7 +44,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
-| [100](roadmap/100-the-stream-takes-too-much-of-a-small-window.md) | the stream column is a fixed width; cap it at about a quarter of the window | — | nobody, the cap is chosen |
 | [102](roadmap/102-badges-signs-and-line-labels-overlap.md) | group badges, district signs and line labels draw over each other; lay them out together | — | nobody, a defect |
 | [104](roadmap/104-ci-on-main-has-been-red-since-2026-10-16.md) | CI on main has been red since 2026-10-16: macOS finder keys, bench killed, a flaky demo test | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |

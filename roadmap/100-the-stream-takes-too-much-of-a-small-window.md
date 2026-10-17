@@ -1,6 +1,6 @@
 # 100. The stream takes too much of a small window
 
-**Open, in progress since 2026-10-16 in the session "item 100". Filed 2026-10-16 (r512) at Aria's request, from a frame of item 86's. Nobody's call — the cap is chosen.**
+**Fixed 2026-10-17 (`cfd4d08`, r564). Filed 2026-10-16 (r512) at Aria's request, from a frame of item 86's.**
 
 Depends on: nothing
 Landed: slice 1 (`5d44000`, r541).
@@ -25,3 +25,18 @@ Tests, data-driven over window widths: the column is never wider than its share;
 - **The corner panel's shape** (manager, 2026-10-17): a fixed height, `StreamPanelGrids` = 24, clamped to the room, rather than one that tracks the card and jumps; a new `SetCornerChrome` fits the city both ways around the panel and keeps the larger, never under it and never smaller than with the full-height column; cards keep out of the panel's column in both corners; `StreamCorner` chooses the corner, and in the bottom right the panel stacks above the minimap or the footer. Its tree was approved, with eight frames, two corners by two widths by two sets of open panels.
 - **The r552 frames** (Aria, 2026-10-17): *"Of these I like the top right. But I want to see the bottom right actually at the bottom corner of the window right attached to the bottom bar like it is on the top bar. Also… I do like the sizing of it, and we should hava scroll bar to scroll the history and the mouse wheel should work for scrolling when it's hovered."* Top right stays for now; bottom right is redrawn flush on the footer, with the minimap moving above it when drawn, for her to compare again.
 - **Scrolling** (manager, 2026-10-17, approved as the session proposed): newest at the top; scrolled to the top it follows new entries, scrolled back it holds still and says "↑ N newer", which jumps back when clicked; it moves a whole entry per wheel notch; a thin bar, drawn only when the entries do not fit, can be dragged; the wheel scrolls the panel only while the pointer is over it and zooms the map elsewhere; the position lasts the run.
+
+## Closed
+
+Aria passed it on 2026-10-17, from the r561 frames: top right, and the scrolling.
+The stream is a panel in the top-right corner, 24 grids tall, at most a quarter of the window wide and never wider than its old 40 grids, wrapping its entries to fit (`5d44000`, r541; `2fc1881`, r552).
+Below 24 grids wide it hides itself, and `l` still shows it for the run.
+The map reserves the panel as a strip along the right or the top, whichever leaves the city larger.
+It scrolls a whole entry per wheel notch while the pointer is over it, or by dragging its bar; scrolled back it holds still and says how many are newer above (`4e42d89`, r561).
+`StreamCorner` still offers the bottom right, flush on the footer with the minimap above it (`cfd4d08`, r564, after the r561 frames showed it running over the footer's needs-you line).
+
+The frames: `botropolis/docs/screenshots/r561-item-100-top-right-960-scrolled.png`, `r561-item-100-bottom-right-960-card.png` and `r561-item-100-bottom-right-1600-card.png`, and before them the r552 corner set and the r541 widths.
+The tests are `TestStreamArea`, `TestLayoutStreamWraps`, `TestLayoutStreamScrolled`, `TestFollowStream`, `TestToggleStream` and `TestMinimapBesideStream` in `botropolis/pkg/ui`, `TestSetCornerChrome` in `botropolis/pkg/city`, and `TestStreamColumnNarrow` and `TestStreamScrolls` in the acceptance suite.
+
+Flagged for Aria: no test covers the bottom-right panel's flush footer, since `StreamCorner` is a constant and the tests run top right; the frames are its check.
+The minimap is drawn only once zoomed past the fit, so no frame shows it moving above a bottom-right panel; a unit test covers it.
