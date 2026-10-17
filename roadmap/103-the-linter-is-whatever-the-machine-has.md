@@ -1,6 +1,6 @@
 # 103. The linter is whatever version the machine happens to have
 
-**Open. Filed 2026-10-17 (r552) at Aria's request. Nobody's call — a defect.**
+**Open, in progress since 2026-10-17 in the session "item 103". Filed 2026-10-17 (r552) at Aria's request. Nobody's call — a defect.**
 
 `make lint` runs `golangci-lint` from `PATH` (`botropolis/Makefile`, the `lint` target), so its version is whatever the system package manager last installed.
 On 2026-10-17 a system update moved this machine to golangci-lint 2.15.0, and its errcheck failed `make lint` on main for every item session, on a receive in `pkg/daemon/watch.go` unchanged since September.
