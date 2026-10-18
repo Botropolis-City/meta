@@ -49,6 +49,10 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [114](roadmap/114-frame-state-test-flakes-under-load.md) | item 111's private-state acceptance test fails under load and leaves a directory behind | — | nobody, a defect |
 | [117](roadmap/117-acceptance-tests-cached-past-code-changes.md) | the acceptance tests report a cached pass after the code they test has changed | — | nobody, a defect |
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
+| [119](roadmap/119-the-website-credits-nobody-for-its-art.md) | the website shows Kenney's art in every frame and credits nobody; a footer line | — | nobody, Aria asked for it |
+| [120](roadmap/120-the-readme-credits-a-retired-kit-and-not-our-own-pieces.md) | the README thanks Kenney for the retired Space Kit and for buildings now drawn here | — | nobody, Aria asked for it |
+| [121](roadmap/121-the-packages-declare-only-mit.md) | the packages declare MIT alone but ship OFL and CC0 work; declare all three | — | nobody, Aria asked for it |
+| [122](roadmap/122-the-app-credits-nobody-whose-work-it-draws.md) | the app credits nobody whose art it draws; a credit line in the help overlay | — | nobody, Aria asked for it |
 | [110](roadmap/110-scale-part-1.md) | a vision item; details private | 109 (slice 1) | nobody |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
