@@ -1,6 +1,6 @@
 # 104. CI on main has been red since 2026-10-16
 
-**Open, in progress since 2026-10-17 in the session "item 104". Filed 2026-10-17 (r558), from what item 103 found. Nobody's call — a defect.**
+**Fixed 2026-10-18 (`e25c0d3`, r586). Filed 2026-10-17 (r558), from what item 103 found. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`99e7125`, r582).
@@ -32,7 +32,15 @@ Three consecutive `ci` runs on main are green, and the flaky test passes fifty r
 2. **The bench was made to fit, with no timeout change** (slice 3). `TestDrive` holds a Drive's heap flat over 50 ticks, where it grew 405 MB before, and the full `make bench` completes on 4 CPUs in 101 s with flat memory.
    The release workflow's `bench` job cannot run until the next release.
    It is shown well-formed by `make workflows-check` and a parse of its steps, and its lookup of the previous release's `bench.txt` was dry-run, read-only, against the live repository: it skips the release being made, finds the one before, and says nothing is compared because no release carries a `bench.txt` yet.
-   A `dry_run` dispatch of the release workflow runs the job end to end without attaching anything.
+   The bench then moved beside the release job instead of after it (`e25c0d3`, r586), because a dry run on a version already tagged stops in the release job and would never have reached it; a separate `attach` job adds `bench.txt` once the release exists.
+   One `dry_run` dispatch, approved by Aria on 2026-10-18, ran it end to end: [run 39104386516](https://github.com/Botropolis-City/botropolis/actions/runs/39104386516). The `bench` job passed, the full `make bench` taking 94 s on the runner, uploaded `bench.txt` as an artifact and took the "nothing is compared" path; `release` failed as it should, on "v0.1.7 is already tagged", and `attach` and `packages` were skipped.
+   The benchstat comparison itself runs first on the release after the next one, the first with a previous `bench.txt` to read.
 3. **The flaky test was a race in `demo.Unstage`, not in the test** (slice 2). `exec.Cmd.Start` returns before the kernel lays out the new program's arguments, so a stand-in spawned a moment earlier could have an empty `/proc/<pid>/cmdline`; `isSleep` then refused it and it was never signalled, which would have left a recording's sleeper running for its whole hold.
    A failing run showed `comm` already reading `sleep` with `cmdline` empty, so `Unstage` checks `comm` now.
    It failed about once in 6,000 runs before and passed `-count=50` and then 8,000 runs after.
+
+## Closed
+
+Done when is met: `ci` on main was green three runs in a row, at `f924fea`, `59fd8fa` and `24d0560`, every job included, both macOS runners among them; the flaky test passes `-count=50`; and a full `make bench` completes locally and on a runner.
+Deviations, for Aria: the bench moved out of `ci` at her direction rather than being given time there, and it runs beside the release job rather than after it, so a dry run exercises it.
+The `ci` run at `99e7125` stayed open after its other jobs went green, because its `bench` job predates both the memory fix and the bench's removal from `ci`; it cannot turn that run red.

@@ -44,7 +44,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
 | [102](roadmap/102-badges-signs-and-line-labels-overlap.md) | group badges, district signs and line labels draw over each other; lay them out together | — | nobody, a defect |
-| [104](roadmap/104-ci-on-main-has-been-red-since-2026-10-16.md) | CI on main has been red since 2026-10-16: macOS finder keys, bench killed, a flaky demo test | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [108](roadmap/108-roads-run-alongside-lots-instead-of-between-them.md) | roads run alongside two lots instead of between them; driveways, street paths, and hovering a car shows its path | — | nobody, the design is chosen |
 | [106](roadmap/106-city-look-part-3.md) | a vision item; details private | 89 (slice 11) | nobody |
