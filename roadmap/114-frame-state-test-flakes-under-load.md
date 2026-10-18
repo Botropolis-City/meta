@@ -6,6 +6,7 @@ Depends on: nothing
 Landed: slice 1 (`66da47e`, r618).
 Landed: slice 2 (`d79558f`, r621).
 Landed: slice 3 (`5a50f4e`, r625).
+Landed: slice 4 (`e6c8539`, r638).
 
 `TestFrameRunsKeepTheirOwnState`, item 111's acceptance test for frame and `--home` runs keeping a private state directory, failed once in a full `make test` run in item 109's worktree and left a `botropolis-state-*` directory in the temporary directory; it passed four times in a row run alone.
 So under load something — most likely the run exiting before its private directory's cleanup finishes, or the test reading the directory before the child has removed it — races.
@@ -32,3 +33,12 @@ The cause is named in this item, the test passes `-count=50` under `make test`'s
 - **Slice 3, the feed** (the manager, from item 110, 2026-10-18): `Run` started the feed, which saves `sessions.json` into the state directory, and never waited for it, so a snapshot under way at shutdown could write into a removed private directory; item 110's leftover held `layout.json` and `sessions.json`.
   `Run` now cancels the feed and waits for it before returning (`startFeed`, unit-tested); the acceptance cases' check that no `botropolis-state-*` directory is left covers `sessions.json` with everything else in it.
 - **Found on the way, not fixed here**: `make test-acceptance` reported `(cached)` after `pkg/render` and `pkg/app` had changed, because the acceptance binary is built by `go build` in `TestMain` and the package imports neither, so Go's test cache cannot see the code it tests. This item's slices were each checked with `go test -count=1 ./testing/acceptance/...`.
+- **The soak after slice 3** (this item's session, 2026-10-18): 49 of 50 at load around 29; the one failure was a `--home` screenshot run that segfaulted (exit 139), GLFW's terminate unloading EGL under a live Mesa thread, and no run left a directory with a clean exit.
+  Item 110's single `--script` failure at `cb0d03d` lost its output and stays unexplained; its 5.51 s fits either crash below.
+- **An A/B under load** (this item's session, 2026-10-18), 60 `--home` screenshot runs each, side by side at load around 29: before slice 1, 3 segfaults, 7 exits of 1 and 13 clean exits that left the directory; after slice 3, 2 segfaults, 9 exits of 1 and none.
+  So the slices did what they should, and the segfault predates them.
+  The exits of 1 are the X server vanishing under the city: concurrent `xvfb-run -a` starts sharing a display, five of eight on `:484`. Xlib then calls C's `exit`, so no Go cleanup can run.
+  Both are filed: the segfault as item 120 (*the city segfaults at teardown in Mesa*) and the collision as item 121 (*tests collide on Xvfb displays*).
+- **Slice 4, best effort** (Aria, 2026-10-18: *"We should do our best to cleanup if possible, but obviously there's no 100% guarantee"*): each private directory names its owner, pid and start time, in `owner`, and `MakePrivate` first removes every one whose owner is gone, a reused pid included; one with no owner file is left alone.
+  Both halves were mutated red.
+- **Done when, revised** (the manager, 2026-10-18): the soak passes at load 30 except for runs that crash in Mesa or lose their X server, each counted and reported, and none of those leaves a directory behind for the next run.
