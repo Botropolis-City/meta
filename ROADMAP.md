@@ -49,6 +49,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [114](roadmap/114-frame-state-test-flakes-under-load.md) | item 111's private-state acceptance test fails under load and leaves a directory behind | — | nobody, a defect |
 | [117](roadmap/117-acceptance-tests-cached-past-code-changes.md) | the acceptance tests report a cached pass after the code they test has changed | — | nobody, a defect |
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
+| [119](roadmap/119-wall-clock-deadlines-fail-under-load.md) | two tests with wall-clock deadlines (demo unstage, the daemon's watcher) fail under load | — | nobody, a defect |
 | [119](roadmap/119-the-website-credits-nobody-for-its-art.md) | the website shows Kenney's art in every frame and credits nobody; a footer line | — | nobody, Aria asked for it |
 | [120](roadmap/120-the-readme-credits-a-retired-kit-and-not-our-own-pieces.md) | the README thanks Kenney for the retired Space Kit and for buildings now drawn here | — | nobody, Aria asked for it |
 | [121](roadmap/121-the-packages-declare-only-mit.md) | the packages declare MIT alone but ship OFL and CC0 work; declare all three | — | nobody, Aria asked for it |
