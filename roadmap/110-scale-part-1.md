@@ -6,5 +6,6 @@ Depends on: 109 (slice 1)
 
 Landed: slice 1 (`d00cd8a`, r623).
 Landed: slice 2 (`cb0d03d`, r626).
+Landed: slice 3 (`add05fb`, r627).
 
 Details: `vision/items/110-scale-part-1.md`, in the private vision repository.
