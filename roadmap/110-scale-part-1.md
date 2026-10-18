@@ -1,6 +1,6 @@
 # 110. Scale, part 1
 
-**Open. Filed 2026-10-17 (r571), a vision item: its details are private. Aria's call: whether to build it at all.**
+**Open. Filed 2026-10-17 (r571), a vision item: its details are private. Nobody's call.**
 
 Depends on: 109 (slice 1)
 
