@@ -1,6 +1,6 @@
 # 104. CI on main has been red since 2026-10-16
 
-**Open. Filed 2026-10-17 (r558), from what item 103 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-17 in the session "item 104". Filed 2026-10-17 (r558), from what item 103 found. Nobody's call — a defect.**
 
 The `ci` workflow in `botropolis/.github/workflows/ci.yml` last passed on main at `fc06ba0`, 2026-10-16 07:30 UTC; 59 of the 60 runs since have failed, so a red run has stopped meaning anything and every item lands on top of it.
 Item 103's `test-lint` job is green; three other things are not.
