@@ -47,7 +47,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [108](roadmap/108-roads-run-alongside-lots-instead-of-between-them.md) | roads run alongside two lots instead of between them; driveways, street paths, and hovering a car shows its path | — | nobody, the design is chosen |
 | [114](roadmap/114-frame-state-test-flakes-under-load.md) | item 111's private-state acceptance test fails under load and leaves a directory behind | — | nobody, a defect |
-| [113](roadmap/113-filmed-scripts-drift-from-the-scenes-clock.md) | a filmed script's timing drifts from the scene's own clock under software GL | — | nobody, a defect |
 | [109](roadmap/109-city-look-part-4.md) | a vision item; details private | 89 (slice 10) | nobody |
 | [110](roadmap/110-scale-part-1.md) | a vision item; details private | 109 (slice 1) | Aria, whether to build it at all |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
