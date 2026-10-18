@@ -4,4 +4,6 @@
 
 Depends on: 109 (slice 1)
 
+Landed: slice 1 (`d00cd8a`, r623).
+
 Details: `vision/items/110-scale-part-1.md`, in the private vision repository.
