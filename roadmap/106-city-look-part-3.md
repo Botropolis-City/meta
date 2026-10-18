@@ -4,5 +4,6 @@
 
 Depends on: 89 (slice 11)
 Landed: slice 1 (`ce429c9`, r588).
+Landed: slice 2 (`7ee59b4`, r589).
 
 Details: `vision/items/106-city-look-part-3.md`, in the private vision repository.
