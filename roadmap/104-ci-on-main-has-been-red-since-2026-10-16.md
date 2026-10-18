@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`99e7125`, r582).
+Landed: slice 2 (`f924fea`, r583).
 
 The `ci` workflow in `botropolis/.github/workflows/ci.yml` last passed on main at `fc06ba0`, 2026-10-16 07:30 UTC; 59 of the 60 runs since have failed, so a red run has stopped meaning anything and every item lands on top of it.
 Item 103's `test-lint` job is green; three other things are not.
