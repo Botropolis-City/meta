@@ -6,6 +6,8 @@ Depends on: nothing
 Landed: slice 1 (`cf1306e`, r616).
 Landed: slice 2 (`fa44392`, r624).
 Landed: slice 4 (`5b304e9`, r628).
+Landed: slice 5 (`21e02b9`, r630).
+Landed: slice 3 (`6fe8816`, r631).
 
 In `botropolis/docs/screenshots/r541-item-100-1600.png`, a fitted 1600 by 900 view of the workday demo, several buildings carry three labels in one spot: a group badge ("lanternfish"), the district's sign on its post, and the group line's station label.
 They are drawn over one another, so none of them can be read; around the middle of the frame, two "lanternfish" plates cover a district board.
