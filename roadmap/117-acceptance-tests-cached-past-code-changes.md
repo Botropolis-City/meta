@@ -15,3 +15,7 @@ Make the cache see the binary's inputs, or bypass it for this package: `-count=1
 Say which, and why.
 
 Tests: change a file under `pkg/render` in a way an acceptance test sees, run `make test-acceptance` twice, and the second run must not report `(cached)`; mutated red on today's Makefile.
+
+## Answered while building
+
+- **The bar** (Aria, 2026-10-18, in item 114's window, relayed by its session): *"Acceptance tests need a new run every time unless the binary itself hasn't changed."* So a cached acceptance result is acceptable only when keyed on the built `botropolis` binary itself — the same binary, the same result — and otherwise the tests run again; `-count=1` on every run also meets it.
