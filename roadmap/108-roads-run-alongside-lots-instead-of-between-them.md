@@ -5,6 +5,7 @@
 Depends on: nothing
 Landed: slice 1 (`7bc9bc4`, r615).
 Landed: slice 2 (`4098d79`, r619).
+Landed: slice 3 (`90f4380`, r622).
 
 A road between two districts is the street traffic between them runs on, and today it can run beside both lots and into neither.
 `routeStreets` in `botropolis/pkg/city/streets.go` takes every street cell touching each district's block (`kerbCells`); when two blocks face each other across one avenue they share kerb cells, and the road becomes that shared stretch, so the cars drive up and down an avenue parallel to both lots.
