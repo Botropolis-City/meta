@@ -53,6 +53,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [120](roadmap/120-the-readme-credits-a-retired-kit-and-not-our-own-pieces.md) | the README thanks Kenney for the retired Space Kit and for buildings now drawn here | — | nobody, Aria asked for it |
 | [121](roadmap/121-the-packages-declare-only-mit.md) | the packages declare MIT alone but ship OFL and CC0 work; declare all three | — | nobody, Aria asked for it |
 | [122](roadmap/122-the-app-credits-nobody-whose-work-it-draws.md) | the app credits nobody whose art it draws; a credit line in the help overlay | — | nobody, Aria asked for it |
+| [123](roadmap/123-no-art-from-image-models.md) | write down and guard Aria's rule: art comes from artists, open packs or hand-built geometry, never image models | — | nobody, Aria decided |
 | [110](roadmap/110-scale-part-1.md) | a vision item; details private | 109 (slice 1) | nobody |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
