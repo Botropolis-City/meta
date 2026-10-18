@@ -28,3 +28,8 @@ So pointing at a car highlights its whole path, driveway to driveway, and recede
 - every lot's driveway should be on its block's camera-facing side, and every car, van and truck path between two lots should pass through both driveways;
 - pointing at a car should highlight exactly its path and recede every district but its two;
 - a frame for Aria of the r541 workday scene, before and after, with one car hovered.
+
+## Answered while building
+
+- **The driveway follows the camera** (manager, 2026-10-18, from the item's reason that a car is seen leaving): each block's driveway is under the middle of the side facing the camera at the current heading, and turning the map re-places the streets; doors and `Route`'s kerb end stay on the south side for now.
+- **The routing and its tree** (manager, 2026-10-18): lot end, driveway, the shortest street walk with a tie-break toward the camera, the other driveway, lot end; the shared-kerb shortcut goes; cars, vans, the merge truck and item 109's skip and mixer trucks all follow the path; hovering a car lights its road and its two districts and recedes every other lot, road and building. Approved with cases that a driveway is paved only while its road is active.
