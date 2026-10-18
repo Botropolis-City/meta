@@ -43,13 +43,14 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
-| [102](roadmap/102-badges-signs-and-line-labels-overlap.md) | group badges, district signs and line labels draw over each other; lay them out together | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [108](roadmap/108-roads-run-alongside-lots-instead-of-between-them.md) | roads run alongside two lots instead of between them; driveways, street paths, and hovering a car shows its path | — | nobody, the design is chosen |
 | [114](roadmap/114-frame-state-test-flakes-under-load.md) | item 111's private-state acceptance test fails under load and leaves a directory behind | — | nobody, a defect |
 | [117](roadmap/117-acceptance-tests-cached-past-code-changes.md) | the acceptance tests report a cached pass after the code they test has changed | — | nobody, a defect |
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
 | [119](roadmap/119-wall-clock-deadlines-fail-under-load.md) | two tests with wall-clock deadlines (demo unstage, the daemon's watcher) fail under load | — | nobody, a defect |
+| [120](roadmap/120-the-city-segfaults-at-teardown-in-mesa.md) | the city sometimes segfaults at teardown, inside Mesa | — | nobody, a defect |
+| [121](roadmap/121-tests-collide-on-xvfb-displays.md) | tests started at the same time collide on one virtual display and lose their X server | — | nobody, a defect |
 | [119](roadmap/119-the-website-credits-nobody-for-its-art.md) | the website shows Kenney's art in every frame and credits nobody; a footer line | — | nobody, Aria asked for it |
 | [120](roadmap/120-the-readme-credits-a-retired-kit-and-not-our-own-pieces.md) | the README thanks Kenney for the retired Space Kit and for buildings now drawn here | — | nobody, Aria asked for it |
 | [121](roadmap/121-the-packages-declare-only-mit.md) | the packages declare MIT alone but ship OFL and CC0 work; declare all three | — | nobody, Aria asked for it |
