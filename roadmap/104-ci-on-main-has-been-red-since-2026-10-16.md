@@ -18,3 +18,8 @@ Item 103's `test-lint` job is green; three other things are not.
 ## Done when
 
 Three consecutive `ci` runs on main are green, and the flaky test passes fifty runs in a row locally (`go test -count=50`).
+
+## Answered while building
+
+- **The bench is out of memory, not time** (item 104's session, 2026-10-17): Ebitengine keeps every draw made outside its game loop in a process-wide list that only the loop flushes, and a Drive never runs the loop, so `make bench` grew to about 48 GB in 100 s. Aria chose to drop that list after each Drive tick through `go:linkname`, isolated in one file naming the Ebitengine internal it reaches; bench figures from item 91 until the fix were skewed by the growing heap.
+- **The bench moves to the release** (Aria, 2026-10-18): it costs nothing on a public repository, but run on every push it gated nothing and compared one noisy run with the last. So the per-push `bench` job is removed, and the release workflow runs `make bench` on the same runner kind, attaches `bench.txt` to the release, and reports a benchstat comparison with the previous release's. The done-when's green runs are of `ci` without it.
