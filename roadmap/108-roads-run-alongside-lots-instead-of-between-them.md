@@ -46,3 +46,4 @@ So pointing at a car highlights its whole path, driveway to driveway, and recede
   New roads route to it, turning the camera does not move it, and neither does a restart.
   A lot with no road yet has no kept driveway and defaults to the side facing the camera.
 - **The hover fades everything not tied to the car** (Aria, 2026-10-18, from item 102's r624 frame): the car, its road and its two districts stay at full strength, and everything else fades, labels and plates included. Item 102's labels ask `Highlight.FadesDistrict` and `FadesRoad`.
+- **The frames passed** (Aria, 2026-10-18, r636), with two changes: a road's tag steps off its car, cars joining the label layout as things labels avoid; and a hovered car's two districts keep their group-line station dots lit while the lines themselves fade. The bridge's T is trusted to its test, since no demo road now reaches the bridge.
