@@ -1,6 +1,6 @@
 # 112. City look, part 5
 
-**Open. Filed 2026-10-18 (r597), a vision item: its details are private. Nobody's call.**
+**Open, in progress since 2026-10-18 in the session "item 112". Filed 2026-10-18 (r597), a vision item: its details are private. Nobody's call.**
 
 Depends on: 106
 
