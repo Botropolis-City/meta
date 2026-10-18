@@ -1,6 +1,6 @@
 # 111. A headless render writes into the real state directory
 
-**Open. Filed 2026-10-18 (r592) at Aria's request, from what item 109 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 111". Filed 2026-10-18 (r592) at Aria's request, from what item 109 found. Nobody's call — a defect.**
 
 A headless or scripted run of `botropolis city` — the way item sessions render frames — reads and writes `~/.local/state/botropolis/`, the state of the person's own city, unless whoever starts it remembers to point `XDG_STATE_HOME` elsewhere.
 On 2026-10-18 Aria's `layout.json` held 76 districts, 53 of them test directories from frames rendered by earlier item sessions (`/home/demo/src/*`, `/home/user/src/*`, `/src/*`, `/w/*`), each with a slot on her plan; since item 109 types every district the first time it is seen, those entries were being typed too.
