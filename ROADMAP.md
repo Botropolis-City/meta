@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [108](roadmap/108-roads-run-alongside-lots-instead-of-between-them.md) | roads run alongside two lots instead of between them; driveways, street paths, and hovering a car shows its path | — | nobody, the design is chosen |
 | [114](roadmap/114-frame-state-test-flakes-under-load.md) | item 111's private-state acceptance test fails under load and leaves a directory behind | — | nobody, a defect |
 | [117](roadmap/117-acceptance-tests-cached-past-code-changes.md) | the acceptance tests report a cached pass after the code they test has changed | — | nobody, a defect |
+| [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
 | [110](roadmap/110-scale-part-1.md) | a vision item; details private | 109 (slice 1) | nobody |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
