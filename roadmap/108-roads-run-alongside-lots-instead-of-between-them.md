@@ -6,6 +6,7 @@ Depends on: nothing
 Landed: slice 1 (`7bc9bc4`, r615).
 Landed: slice 2 (`4098d79`, r619).
 Landed: slice 3 (`90f4380`, r622).
+Landed: slice 4 (`1a2848e`, r629).
 
 A road between two districts is the street traffic between them runs on, and today it can run beside both lots and into neither.
 `routeStreets` in `botropolis/pkg/city/streets.go` takes every street cell touching each district's block (`kerbCells`); when two blocks face each other across one avenue they share kerb cells, and the road becomes that shared stretch, so the cars drive up and down an avenue parallel to both lots.
@@ -40,3 +41,7 @@ So pointing at a car highlights its whole path, driveway to driveway, and recede
 - **The routing and its tree** (manager, 2026-10-18): lot end, driveway, the shortest street walk with a tie-break toward the camera, the other driveway, lot end; the shared-kerb shortcut goes; cars, vans, the merge truck and item 109's skip and mixer trucks all follow the path; hovering a car lights its road and its two districts and recedes every other lot, road and building. Approved with cases that a driveway is paved only while its road is active.
 - **A driveway goes where its roads are shortest** (Aria, 2026-10-18), replacing "always camera-facing": with every driveway facing the camera, a lot directly behind another reached it only by going round its whole depth (ten cells for a one-cell avenue). So each lot's one driveway is on the side that keeps the total length of its roads shortest, the camera-facing side when it ties or is within a cell or two; an even side's middle rounds toward the camera.
 - **Roads join** (Aria, 2026-10-18, from item 115's frame): *"The road should always attach to any other existing road. So we'd need a T piece here."* Wherever a road meets another — the bridge road, another district's road, any paved street — it joins with a T or a crossing, never running beside it unjoined.
+- **Driveways do not move** (Aria, 2026-10-18, in the item's own session: *"We don't want driveways moving"*), replacing "the driveway follows the heading" and refining "where its roads are shortest": a lot's driveway is chosen once, when it first has a road, by the rule above, and kept in the layout beside its district type, as a side of its block and a cell along it.
+  New roads route to it, turning the camera does not move it, and neither does a restart.
+  A lot with no road yet has no kept driveway and defaults to the side facing the camera.
+- **The hover fades everything not tied to the car** (Aria, 2026-10-18, from item 102's r624 frame): the car, its road and its two districts stay at full strength, and everything else fades, labels and plates included. Item 102's labels ask `Highlight.FadesDistrict` and `FadesRoad`.
