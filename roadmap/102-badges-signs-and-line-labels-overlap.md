@@ -1,6 +1,6 @@
 # 102. Group badges, district signs and line labels draw over each other
 
-**Open. Filed 2026-10-17 (r549) at Aria's request, from a frame of item 100's. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 102". Filed 2026-10-17 (r549) at Aria's request, from a frame of item 100's. Nobody's call — a defect.**
 
 In `botropolis/docs/screenshots/r541-item-100-1600.png`, a fitted 1600 by 900 view of the workday demo, several buildings carry three labels in one spot: a group badge ("lanternfish"), the district's sign on its post, and the group line's station label.
 They are drawn over one another, so none of them can be read; around the middle of the frame, two "lanternfish" plates cover a district board.
