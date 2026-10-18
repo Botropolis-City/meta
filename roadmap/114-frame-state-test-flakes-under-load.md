@@ -1,6 +1,6 @@
 # 114. The private-state acceptance test fails under load and leaves a directory behind
 
-**Open. Filed 2026-10-18 (r609), from what item 109 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 114". Filed 2026-10-18 (r609), from what item 109 found. Nobody's call — a defect.**
 
 `TestFrameRunsKeepTheirOwnState`, item 111's acceptance test for frame and `--home` runs keeping a private state directory, failed once in a full `make test` run in item 109's worktree and left a `botropolis-state-*` directory in the temporary directory; it passed four times in a row run alone.
 So under load something — most likely the run exiting before its private directory's cleanup finishes, or the test reading the directory before the child has removed it — races.
