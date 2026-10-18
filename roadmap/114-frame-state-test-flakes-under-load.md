@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`66da47e`, r618).
+Landed: slice 2 (`d79558f`, r621).
 
 `TestFrameRunsKeepTheirOwnState`, item 111's acceptance test for frame and `--home` runs keeping a private state directory, failed once in a full `make test` run in item 109's worktree and left a `botropolis-state-*` directory in the temporary directory; it passed four times in a row run alone.
 So under load something — most likely the run exiting before its private directory's cleanup finishes, or the test reading the directory before the child has removed it — races.
@@ -24,3 +25,5 @@ The cause is named in this item, the test passes `-count=50` under `make test`'s
   A terminal's Ctrl-C reaches Xvfb too, so the city's display dies under it before it can clean up, and a SIGTERM to the parent alone leaves the city orphaned and running; both leave the directory.
   So the parent owns the private directory: it hands it to the child, and on a signal kills the child's process group, waits for it to be gone, then removes it.
 - **Slice 2, the headless parent** (manager, 2026-10-18): a `--headless` city leaked on a signal too, its parent killing the virtual display or orphaning the child; the parent now owns the private directory, hands it to the child through an internal variable no user is meant to set, and on a signal stops only the process group it made for the child, waits, and removes the directory — never touching the terminal's own group.
+- **Slice 2's two cautions** (the manager, 2026-10-18): the variable handing the directory to the child is `BOTROPOLIS_INTERNAL_PRIVATE_STATE`, is no setting, and is honoured only alongside the headless child's own marker; and the parent kills only the process group it made for the child, which each interrupt case checks with a sibling in the terminal's group that has to survive.
+  That sibling check was not mutated red: killing the terminal's group from the city was refused as a permission, so it stands as written.
