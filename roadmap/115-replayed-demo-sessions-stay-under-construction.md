@@ -1,6 +1,6 @@
 # 115. A demo session replayed from a timeline stays washed out for the whole replay
 
-**Open. Filed 2026-10-18 (r613) at Aria's request, from what item 109 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 115". Filed 2026-10-18 (r613) at Aria's request, from what item 109 found. Nobody's call — a defect.**
 
 A session whose timeline `botropolis/demo/scenarios/*.yaml` replays stays washed out, as if its building were still going up, for the whole replay.
 The stager moves a replayed session's timestamps forward as it plays (`pkg/demo/stage.go`), so the city keeps reading it as a session that has only just arrived, and the construction-on-start state never ends.
