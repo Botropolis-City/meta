@@ -1,6 +1,6 @@
 # 107. Everything read from a transcript's tool calls skips lines that repeat a message id
 
-**Open. Filed 2026-10-17 (r571), from what item 89 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-17 in the session "item 107". Filed 2026-10-17 (r571), from what item 89 found. Nobody's call — a defect.**
 
 Claude Code writes one API message's content blocks on separate transcript lines that share the message's id.
 `applyAssistant` in `botropolis/pkg/claude/transcript.go` returns early on a message id it has already seen, so its usage is counted once, and its loop over the message's blocks comes after that return, so every block on a repeat line is skipped.
