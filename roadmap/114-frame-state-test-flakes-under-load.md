@@ -38,7 +38,7 @@ The cause is named in this item, the test passes `-count=50` under `make test`'s
 - **An A/B under load** (this item's session, 2026-10-18), 60 `--home` screenshot runs each, side by side at load around 29: before slice 1, 3 segfaults, 7 exits of 1 and 13 clean exits that left the directory; after slice 3, 2 segfaults, 9 exits of 1 and none.
   So the slices did what they should, and the segfault predates them.
   The exits of 1 are the X server vanishing under the city: concurrent `xvfb-run -a` starts sharing a display, five of eight on `:484`. Xlib then calls C's `exit`, so no Go cleanup can run.
-  Both are filed: the segfault as item 120 (*the city segfaults at teardown in Mesa*) and the collision as item 121 (*tests collide on Xvfb displays*).
+  Both are filed: the segfault as item 125 (*the city segfaults at teardown in Mesa*) and the collision as item 126 (*tests collide on Xvfb displays*).
 - **Slice 4, best effort** (Aria, 2026-10-18: *"We should do our best to cleanup if possible, but obviously there's no 100% guarantee"*): each private directory names its owner, pid and start time, in `owner`, and `MakePrivate` first removes every one whose owner is gone, a reused pid included; one with no owner file is left alone.
   Both halves were mutated red.
 - **Done when, revised** (the manager, 2026-10-18): the soak passes at load 30 except for runs that crash in Mesa or lose their X server, each counted and reported, and none of those leaves a directory behind for the next run.
