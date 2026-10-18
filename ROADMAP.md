@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [102](roadmap/102-badges-signs-and-line-labels-overlap.md) | group badges, district signs and line labels draw over each other; lay them out together | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [108](roadmap/108-roads-run-alongside-lots-instead-of-between-them.md) | roads run alongside two lots instead of between them; driveways, street paths, and hovering a car shows its path | — | nobody, the design is chosen |
-| [111](roadmap/111-renders-write-the-real-state-directory.md) | a headless render writes into the real state directory; renders and --home runs get a private one | — | nobody, a defect |
 | [112](roadmap/112-city-look-part-5.md) | a vision item; details private | 106 | nobody |
 | [113](roadmap/113-filmed-scripts-drift-from-the-scenes-clock.md) | a filmed script's timing drifts from the scene's own clock under software GL | — | nobody, a defect |
 | [109](roadmap/109-city-look-part-4.md) | a vision item; details private | 89 (slice 10) | nobody |
