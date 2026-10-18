@@ -1,6 +1,6 @@
 # 117. The acceptance tests report a cached pass after the code they test has changed
 
-**Open. Filed 2026-10-18 (r626), from what item 114 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 117". Filed 2026-10-18 (r626), from what item 114 found. Nobody's call — a defect.**
 
 `make test-acceptance` (`go test ./testing/acceptance/...` in `botropolis/Makefile`) reports `ok (cached)` after `pkg/render` and `pkg/app` have changed.
 The acceptance package builds the binary it drives with `go build` in its `TestMain`, and imports neither package, so Go's test cache keys the result on files that do not include the code under test, and replays the last pass.
