@@ -1,6 +1,6 @@
 # 108. Roads run alongside two lots instead of from one to the other
 
-**Open. Filed 2026-10-17 (r571) at Aria's request. Nobody's call — the design is chosen.**
+**Open, in progress since 2026-10-18 in the session "item 108". Filed 2026-10-17 (r571) at Aria's request. Nobody's call — the design is chosen.**
 
 A road between two districts is the street traffic between them runs on, and today it can run beside both lots and into neither.
 `routeStreets` in `botropolis/pkg/city/streets.go` takes every street cell touching each district's block (`kerbCells`); when two blocks face each other across one avenue they share kerb cells, and the road becomes that shared stretch, so the cars drive up and down an avenue parallel to both lots.
