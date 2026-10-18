@@ -1,6 +1,6 @@
 # 115. A demo session replayed from a timeline stays washed out for the whole replay
 
-**Open, in progress since 2026-10-18 in the session "item 115". Filed 2026-10-18 (r613) at Aria's request, from what item 109 found. Nobody's call — a defect.**
+**Fixed 2026-10-18 (`210aa77`, r617). Filed 2026-10-18 (r613) at Aria's request, from what item 109 found. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`210aa77`, r617).
@@ -42,3 +42,14 @@ Tests: `TestUnshownPointer` in `pkg/render/unshownpointer_test.go` was red on th
 `TestReplayedSessionIsBuiltOnce` in `testing/integration/demo/stage_test.go` is the item's own test, that a replayed session is built after `SailFor` and `BuildFor`.
 It was green from the start, since the stager was never the cause.
 It stays as a guard, and a build that never ends turns it red.
+
+## Closed
+
+Aria passed it on 2026-10-18, from a true-speed clip of `buildings/residential` filmed on r617.
+Before the fix, at 15.5 s into the shot, kiln, lanternfish and quillmark were faded and tidepool's project card was up, though nothing had been pointed at.
+After it, at the same moment, every district is in full colour with no stray card.
+The replayed buildings go up and finish as they did before, and the shot's pan and zoom are unchanged.
+The changelog says so under Fixed (`a49b200`).
+
+Deviation, flagged for Aria: the fix is not in the stager, as the item proposed, but in how a headless run reads a pointer, because the stager was not the cause.
+Her one note on the clip, a missing T where the new road meets the bridge road, belongs to item 108's routing and was passed there.
