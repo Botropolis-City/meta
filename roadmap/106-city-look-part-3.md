@@ -1,6 +1,6 @@
 # 106. City look, part 3
 
-**Open, in progress since 2026-10-18 in the session "item 106". Filed 2026-10-17 (r567), a vision item: its details are private. Nobody's call.**
+**Done 2026-10-18 (`736aaa9`, r597). Filed 2026-10-17 (r567), a vision item: its details are private.**
 
 Depends on: 89 (slice 11)
 Landed: slice 1 (`ce429c9`, r588).
