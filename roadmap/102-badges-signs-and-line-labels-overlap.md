@@ -29,3 +29,8 @@ From a clip of item 89's, where a district sign covered a drone: *"We should do 
 - **Real things are depth-sorted**: a district sign on its post is part of the map and sorts with buildings, cars and drones. Item 89 puts drones and signs in that sort.
 - **Labels are not real things**: badges, floating names, station labels and tooltips draw over the world, except where a label is clearly far behind what covers it and drawing it on top would look wrong. This item lays them out together so they do not cover one another.
 - **A hotkey turns every label off and on**, as a setting beside the others, so the map can be looked at bare; real signs stay, because they are part of the map.
+
+## Answered while building
+
+- **The layout** (manager, 2026-10-18): badges, station labels and district signs are laid out together in their own file, and badges and station labels draw after the depth pass, over the world; right of way runs sign, then station label, then badge, the front-most badge first; a badge moved past its first ring of neighbours carries a leader back to its building, and one boxed in on every side is left off. The floating plate that stands in for a sign too small to read keeps a sign's right of way, but is an informational label: it draws over the world and the hotkey hides it, while the real sign on its post stays.
+- **The hotkey** (manager, 2026-10-18): `z`, configurable like the other keys, with a settings row "labels: shown / hidden"; `h` still hides the whole interface. Slice 1's tree was approved, with an acceptance test that cannot pass on an empty frame.
