@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-18 in the session "item 108". Filed 2026-10-17 (r571) at Aria's request. Nobody's call — the design is chosen.**
 
+Depends on: nothing
+Landed: slice 1 (`7bc9bc4`, r615).
+
 A road between two districts is the street traffic between them runs on, and today it can run beside both lots and into neither.
 `routeStreets` in `botropolis/pkg/city/streets.go` takes every street cell touching each district's block (`kerbCells`); when two blocks face each other across one avenue they share kerb cells, and the road becomes that shared stretch, so the cars drive up and down an avenue parallel to both lots.
 Only blocks that share no kerb are joined by a walk along the streets (`walkStreets`), and even then the walk starts and ends at any kerb cell, not at a point that reads as the lot's own.
