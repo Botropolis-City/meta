@@ -92,6 +92,14 @@ for index in ('ROADMAP.md', 'CLAUDE.md', 'README.md'):
         note('corpus', '%s is empty' % index)
 
 numbers = {int(os.path.basename(p)[:3]) for p in items}
+# A number is never reused: two files carrying one number mean two sessions
+# numbered at once, and every citation of it is now ambiguous. The two bug 18s
+# predate the rule and are kept as written (CLAUDE.md, "Where writing goes").
+SHARED_BEFORE_THE_RULE = {18}
+for n, paths in sorted(collections.defaultdict(list, {
+        k: [p for p in items if int(os.path.basename(p)[:3]) == k] for k in numbers}).items()):
+    if len(paths) > 1 and n not in SHARED_BEFORE_THE_RULE:
+        note('corpus', 'item %03d has %d files: %s' % (n, len(paths), ', '.join(sorted(paths))))
 tracked = set()
 bound_from_git = False
 try:

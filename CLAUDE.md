@@ -60,6 +60,7 @@ The same goes for the three other lines an item can carry, which `tools/roadmap.
 **`make docs-check` enforces all of this.**
 It verifies that every relative link resolves *from its own file's directory* — into `botropolis/` and the other children too, when they are checked out — that no `§N` citation to the pre-split roadmap survives, that every item declares a status, and that `ROADMAP.md`'s open table lists exactly the items whose status is `Open`.
 It also refuses an empty corpus — the indexes must be non-empty and every item number from 1 to the highest must have a file — because the other checks all pass on nothing.
+And it refuses a number with two files, the two bug 18s aside: on 2026-10-18 two sessions filed 119, 120 and 121 within the hour, one numbering by hand, and every check passed.
 And it fails on any image not on `tools/reviewed-images.txt`, because this repository is public.
 A vision item's stub is checked whatever is checked out, because it is public: its title is an area and a part, it holds only its status, `Depends on:`, `Landed:` and `Details:` lines, and it names its details by its own filename.
 When `vision/` is checked out it also pairs every stub with its details file, both ways; when it is not, it says the pairing went unchecked.
