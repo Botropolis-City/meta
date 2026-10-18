@@ -11,3 +11,7 @@ And a frame run that leaves its private state behind is the leak item 111 exists
 ## Done when
 
 The cause is named in this item, the test passes `-count=50` under `make test`'s load, and no run leaves a `botropolis-state-*` directory behind.
+
+## Answered while building
+
+- **A likely cause** (item 113's session, 2026-10-18): `pkg/render/run.go` calls `os.Exit(0)` from a goroutine as soon as Ebitengine's `Run` returns, which can beat the caller's deferred removal of the private state directory; the `--headless` case is the one seen failing. Confirm it, then make the exit wait for cleanup.
