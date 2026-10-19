@@ -59,3 +59,5 @@ The rest is known work.
 ## Answered while building
 
 - **Slice 1 is the two defects** (Aria, 2026-10-19, through the planning session and confirmed to the manager): the layout file reset in silence (`botropolis/pkg/city/layout.go:172`) and the missing client/daemon version exchange start now; the list and its golden tests wait for her ruling on what is on it.
+
+**Aria on the frame** (2026-10-19): a mismatch should stop the map rather than show a chip — [item 152](152-an-out-of-sync-daemon-stops-the-map.md).
