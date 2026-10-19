@@ -1,6 +1,6 @@
 # 137. Escape skips the sidebar and the hidden interface, and opens settings over them
 
-**Open. Filed 2026-10-19 (r707), from the validation checklist's step 6 run against main before 0.2.0. Nobody's call — a defect.**
+**Open, in progress since 2026-10-19 in the session "item 137". Filed 2026-10-19 (r707), from the validation checklist's step 6 run against main before 0.2.0. Nobody's call — a defect.**
 
 Depends on: nothing
 

@@ -1,6 +1,6 @@
 # 136. The sidebar cuts off every row past the bottom of the window
 
-**Open. Filed 2026-10-19 (r707), from the validation checklist's step 9 run against main before 0.2.0. Nobody's call — a defect.**
+**Open, in progress since 2026-10-19 in the session "item 136". Filed 2026-10-19 (r707), from the validation checklist's step 9 run against main before 0.2.0. Nobody's call — a defect.**
 
 Depends on: nothing
 

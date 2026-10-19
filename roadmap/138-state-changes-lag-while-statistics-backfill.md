@@ -1,6 +1,6 @@
 # 138. A session's change of state shows seconds late while the statistics backfill runs
 
-**Open. Filed 2026-10-19 (r707), from the validation checklist's step 10 run against main before 0.2.0. Nobody's call — a defect, until it is measured as acceptable.**
+**Open, in progress since 2026-10-19 in the session "item 138". Filed 2026-10-19 (r707), from the validation checklist's step 10 run against main before 0.2.0. Nobody's call — a defect, until it is measured as acceptable.**
 
 Depends on: nothing
 

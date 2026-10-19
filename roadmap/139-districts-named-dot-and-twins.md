@@ -1,6 +1,6 @@
 # 139. Sessions with no known folder make a district called ".", and two folders with one name are indistinguishable
 
-**Open. Filed 2026-10-19 (r707), noticed during the validation checklist's run against main before 0.2.0. Nobody's call — a defect.**
+**Open, in progress since 2026-10-19 in the session "item 139". Filed 2026-10-19 (r707), noticed during the validation checklist's run against main before 0.2.0. Nobody's call — a defect.**
 
 Depends on: nothing
 
