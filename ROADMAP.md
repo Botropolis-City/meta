@@ -32,7 +32,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | item | what it wants | depends on | whose call |
 | --- | --- | --- | --- |
 | [69](roadmap/069-the-10-percent-cpu-bar-is-missed.md) | the 10% CPU bar: still the bar, or the wrong number for a busy city? | — | Aria |
-| [70](roadmap/070-atlas-start-up-peak.md) | the start-up peak holds two copies of every atlas page; fix is page-at-a-time | — | nobody, a known fix |
 | [66](roadmap/066-115-mb-private-dirty-curiosity.md) | ~115 MB of private dirty unaccounted for, filed as a curiosity | — | nobody, until it costs something |
 | [74](roadmap/074-night-glow-discs-are-back-in-the-demo-frames.md) | night glow draws as a grid of discs in the demo frames, item 37's shape at fit | — | nobody, a defect to diagnose |
 | [76](roadmap/076-what-the-website-still-needs-filmed.md) | the website's stand-ins: a hero loop, a still per view, a social card, chosen posters, anchors | — | nobody, filming work |
