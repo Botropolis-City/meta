@@ -1,6 +1,6 @@
 # 144. A demolished session stays on the map as ruins
 
-**Open, in progress since 2026-10-19 in the session "item 144". Filed 2026-10-19 (r739), from validating the 0.2.0 release binaries. Nobody's call — a defect, for 0.2.1.**
+**Fixed 2026-10-19 (`705e2b2`, r741). Filed 2026-10-19 (r739), from validating the 0.2.0 release binaries. Nobody's call — a defect, for 0.2.1.**
 
 Depends on: nothing
 
@@ -15,3 +15,15 @@ Demolishing is the user saying the session is gone: `Ledger.Forget(id)`, called 
 Its statistics stay, as item 110's prune rules say — check that `rm` and `prune` agree with them.
 
 Tests: a recorded session that is removed → the ledger should not have it, and the next load should not show it; a recorded session whose transcript Claude Code deleted → it should still show as gone (item 86 unchanged); prune → it should forget what it removes.
+
+## Fixed
+
+`705e2b2` (r741), in botropolis.
+The daemon keeps the ledger in memory and saves it whole, so a client editing `sessions.json` would have been overwritten at the daemon's next save: forgetting goes to the daemon as a `forget` request, the way packing does, and the daemon rescans so every client drops the session at once.
+`d d`, the TUI's demolish, `botropolis rm` and `botropolis prune` each send it after a successful remove, by session id; `rm` given a job id looks up its session in `claude agents --all` first, since a resumed job's id need not start its session's.
+With no daemon running, the demolish is noted in `sessions.json.forgotten` beside the ledger and applied when the daemon next loads it, so only the daemon ever writes the ledger (manager, 2026-10-19).
+A home the run was pointed at keeps no ledger and forgets nothing.
+Statistics already agreed with item 110: prune forgets them and `rm` keeps them, unchanged.
+No tombstone for a transcript that outlives `claude rm` (manager, 2026-10-19).
+
+Tests: `TestLedgerForget` (`pkg/state/forget_test.go`) — forgotten, not in the next load or the saved ledger, a session Claude Code cleaned up still gone, notes applied at first load; `TestServeForget` (`pkg/daemon/forget_test.go`) — over the socket, and a demolish noted while no daemon ran is absent from the daemon's first snapshot, which went red with the notes ignored; `TestDemolished` (`pkg/commands/demolish_test.go`) — session id, job id, failed remove, the map, prune and its dry run.
