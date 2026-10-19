@@ -42,6 +42,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [147](roadmap/147-the-engine-says-the-models-window.md) | a train's engine says its model's context window; other locomotive options for Aria to pick | — | nobody |
 | [149](roadmap/149-what-1-0-0-promises.md) | what 1.0.0 promises: the surface written down, golden tests, and a layout file that is never reset in silence | — | Aria, what is on the list |
+| [150](roadmap/150-a-wagon-behind-the-bridge-draws-over-its-railing.md) | a wagon just behind the bridge draws over the deck's far railing | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria

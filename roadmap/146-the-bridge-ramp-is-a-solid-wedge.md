@@ -36,3 +36,5 @@ The changelog says it in `df1480c`.
 
 For Aria: in h0 and h270, a train piece standing just beyond the deck's far side draws over its railing, as it did in item 132's r707 frame; under the deck the order is right.
 It is not this item's, and would be a separate one.
+
+**Aria's verdict** (2026-10-19): the four r750 frames are approved.
