@@ -47,7 +47,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
 | [124](roadmap/124-wall-clock-deadlines-fail-under-load.md) | two tests with wall-clock deadlines (demo unstage, the daemon's watcher) fail under load | — | nobody, a defect |
 | [125](roadmap/125-the-city-segfaults-at-teardown-in-mesa.md) | the city sometimes segfaults at teardown, inside Mesa | — | nobody, a defect |
-| [126](roadmap/126-tests-collide-on-xvfb-displays.md) | tests started at the same time collide on one virtual display and lose their X server | — | nobody, a defect |
 | [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
 | [121](roadmap/121-the-packages-declare-only-mit.md) | the packages declare MIT alone but ship OFL and CC0 work; declare all three | — | nobody, Aria asked for it |
 | [122](roadmap/122-the-app-credits-nobody-whose-work-it-draws.md) | the app credits nobody whose art it draws; a credit line in the help overlay | — | nobody, Aria asked for it |
