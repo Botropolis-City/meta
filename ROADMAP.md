@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [124](roadmap/124-wall-clock-deadlines-fail-under-load.md) | two tests with wall-clock deadlines (demo unstage, the daemon's watcher) fail under load | — | nobody, a defect |
 | [125](roadmap/125-the-city-segfaults-at-teardown-in-mesa.md) | the city sometimes segfaults at teardown, inside Mesa | — | nobody, a defect |
 | [126](roadmap/126-tests-collide-on-xvfb-displays.md) | tests started at the same time collide on one virtual display and lose their X server | — | nobody, a defect |
+| [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
 | [119](roadmap/119-the-website-credits-nobody-for-its-art.md) | the website shows Kenney's art in every frame and credits nobody; a footer line | — | nobody, Aria asked for it |
 | [120](roadmap/120-the-readme-credits-a-retired-kit-and-not-our-own-pieces.md) | the README thanks Kenney for the retired Space Kit and for buildings now drawn here | — | nobody, Aria asked for it |
 | [121](roadmap/121-the-packages-declare-only-mit.md) | the packages declare MIT alone but ship OFL and CC0 work; declare all three | — | nobody, Aria asked for it |
