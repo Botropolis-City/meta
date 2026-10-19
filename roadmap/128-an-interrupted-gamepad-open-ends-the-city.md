@@ -1,6 +1,6 @@
 # 128. An interrupted gamepad open at start-up ends the city
 
-**Open. Filed 2026-10-18 (r655), from what item 125 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 128". Filed 2026-10-18 (r655), from what item 125 found. Nobody's call — a defect.**
 
 Under load, a city can exit with status 1 and "gamepad: Open failed: interrupted system call" as it starts.
 Ebitengine v2.10.2's `openGamepad` opens every `/dev/input/event*` at start-up and returns `EINTR` from the game loop instead of retrying the open, so a signal arriving during one of those opens ends the city.
