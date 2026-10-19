@@ -4,6 +4,7 @@
 
 Depends on: 134 (slice 1)
 Landed: slice 1 (`4f0e7f9`, r707).
+Landed: slice 2 (`7387a14`, r710).
 
 Aria, 2026-10-19, passing item 78's train frame (`botropolis/docs/screenshots/r674-item-78-train-hovered.png`):
 *"Now that we have a bridge/road leaving the island, we need a solution for when it crosses the train. The easiest is probably to make the train run through a tunnel with a bridge over it and the road on top. Also, The road looks like it just runs into the water. We should make it clearly running on a bridge or find another solution."*
