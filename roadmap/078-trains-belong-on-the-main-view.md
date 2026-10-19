@@ -1,6 +1,6 @@
 # 78. Trains belong on the main view, as the cars do
 
-**Open. Filed 2026-10-10 (r377) at Aria's request: the trains that run round the outside should always be visible, like the cars. Nobody's call — she has asked for it, and the change is small.**
+**Open, in progress since 2026-10-19 in the session "item 78". Filed 2026-10-10 (r377) at Aria's request: the trains that run round the outside should always be visible, like the cars. Nobody's call — she has asked for it, and the change is small.**
 
 Bug 48 put the cars on the main view by adding `NetworkTraffic` to `ViewAttention` in `shown` (`pkg/city/network.go`).
 The freight loop never got the same treatment: `NetworkFreight` is drawn only by `ViewSpend`, so on the view the city opens in, the trains are missing.
