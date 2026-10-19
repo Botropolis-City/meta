@@ -1,6 +1,6 @@
 # 121. The packages declare only MIT, but ship CC0 and OFL work too
 
-**Open. Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
+**Open, in progress since 2026-10-18 in the session "item 121". Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
 
 Aria, 2026-10-18: *"Make sure that for anything we pulled from an asset pack we have followed their licensing and attributed and thanked them."*
 
