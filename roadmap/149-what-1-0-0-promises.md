@@ -1,6 +1,6 @@
 # 149. What 1.0.0 promises is written nowhere, and nothing fails when it changes
 
-**Open. Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Aria's call — what is on the list.**
+**Open, in progress since 2026-10-19 in the session "item 149". Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Aria's call — what is on the list.**
 
 Under Semantic Versioning, 1.0.0 is a promise: what people depend on does not break without a 2.0.0.
 Botropolis has never said what that is.
@@ -53,3 +53,7 @@ But see the second defect.
 
 Aria decides the list: anything above she would rather not promise, and anything missing.
 The rest is known work.
+
+## Answered while building
+
+- **Slice 1 is the two defects** (Aria, 2026-10-19, through the planning session and confirmed to the manager): the layout file reset in silence (`botropolis/pkg/city/layout.go:172`) and the missing client/daemon version exchange start now; the list and its golden tests wait for her ruling on what is on it.
