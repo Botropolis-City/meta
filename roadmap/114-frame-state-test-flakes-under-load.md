@@ -1,6 +1,6 @@
 # 114. The private-state acceptance test fails under load and leaves a directory behind
 
-**Open, in progress since 2026-10-18 in the session "item 114". Filed 2026-10-18 (r609), from what item 109 found. Nobody's call — a defect.**
+**Fixed 2026-10-18 (`e6c8539`, r638). Filed 2026-10-18 (r609), from what item 109 found. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`66da47e`, r618).
@@ -42,3 +42,21 @@ The cause is named in this item, the test passes `-count=50` under `make test`'s
 - **Slice 4, best effort** (Aria, 2026-10-18: *"We should do our best to cleanup if possible, but obviously there's no 100% guarantee"*): each private directory names its owner, pid and start time, in `owner`, and `MakePrivate` first removes every one whose owner is gone, a reused pid included; one with no owner file is left alone.
   Both halves were mutated red.
 - **Done when, revised** (the manager, 2026-10-18): the soak passes at load 30 except for runs that crash in Mesa or lose their X server, each counted and reported, and none of those leaves a directory behind for the next run.
+
+## Closed
+
+Four slices, all in botropolis.
+Slice 1, `66da47e`: a signal stops the game through `ebiten.Termination` rather than exiting from `pkg/render`, and a second signal exits at once and says so (`pkg/interrupt`).
+Slice 2, `d79558f`: a `--headless` city's parent owns the private directory, kills only the process group it made for the child, and removes the directory once that group is gone.
+Slice 3, `5a50f4e`: `Run` waits for the feed, which writes `sessions.json`, before it returns.
+Slice 4, `e6c8539`: each private directory names its owner, and the next run that makes one sweeps those whose owner is gone.
+The user-facing change is in botropolis's changelog, `099e0de`.
+
+The tests: `TestFrameRunsKeepTheirOwnState`, with four interrupt cases (`--home` and `--headless`, SIGINT to the terminal's group and SIGTERM to the process alone) and a case for a dead city's directory, plus `TestGameStop`, `TestContext`, `TestStartFeed` and `TestMakePrivateSweeps`.
+
+The final soak, at load 30 to 43: 45 of 50 passes clean, and the 6 failing cases in the other 5 were all crashes outside the city's control, 4 runs that lost their X server (item 126) and 2 Mesa segfaults at teardown (item 125).
+None of the clean exits left a directory.
+Beside it, 1,980 runs shared one `TMPDIR`: 177 lost their X server and 21 segfaulted, and no directory was left for the next run.
+
+**For Aria, a deviation from "Done when":** `-count=50` does not pass outright at load 30 on this machine, because of those two crashes, and the done-when was revised to count them and to require that each leaves nothing behind for the next run, which is what was soaked.
+The sibling-group check in the interrupt cases was never mutated red, because the permission check refused the mutation; you accepted it as it stands.
