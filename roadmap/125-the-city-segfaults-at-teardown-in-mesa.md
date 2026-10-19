@@ -13,3 +13,7 @@ Find whether it is ours — a GL object or goroutine still alive at teardown, or
 If it is Mesa's, say which version and whether it is reported upstream, and make the tests that hit it report a teardown crash as such rather than as a test failure.
 
 Tests: a headless screenshot run repeated at load should exit 0 every time once the cause is fixed, counted over enough runs to tell 3 in 60 from none.
+
+## Answered while building
+
+- **The cause is ours to fix** (item 125's session, 2026-10-18): Ebitengine terminates GLFW on the main thread, which unloads EGL while the context is still current on the render thread, so Mesa's llvmpipe rasterizers are drawing in code that has just been unmapped; 4 in 60 runs crashed at load, none with llvmpipe's worker threads turned off. The fix keeps the already-loaded GL libraries from being unloaded (`RTLD_NOLOAD|RTLD_NODELETE`, through purego) once the context exists, so teardown cannot unmap them under a running thread. Aria chose not to report it upstream (2026-10-18); the diagnosis and versions stay here.

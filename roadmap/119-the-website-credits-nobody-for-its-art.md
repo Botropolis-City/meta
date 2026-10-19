@@ -24,3 +24,7 @@ Optionally name the typefaces too, Inter and JetBrains Mono, both OFL; web use a
 ## Done when
 
 The footer names Kenney with a link to kenney.nl, a test fails if the line is removed, and the site is deployed with it.
+
+## Answered while building
+
+- **One wording everywhere** (manager, 2026-10-18, from item 120's audit of the atlas): the footer, the README and the app share one credit — Kenney's kits for roads, trees, vehicles, trains, boats and landmarks, with thanks; our own buildings, drone, fountain and building sites; and the typefaces. Aria passed the footer and said push it, with the typefaces credited to their licence holders, "The Inter Project Authors" and "The JetBrains Mono Project Authors", rather than their designers.
