@@ -29,3 +29,5 @@ Zeroing the offset, keeping left, or dropping the mitre each turns them red.
 One older test changed: `TestTrafficCars` (items 85, 108) held every car exactly on the centre line, and now holds it within a lane of it.
 
 **For Aria:** the frame [r769-item-153-cars-keep-right.png](../botropolis/docs/screenshots/r769-item-153-cars-keep-right.png) is a straight road with a T junction from heading 0 and heading 180, traffic both ways and turning, each car where the code puts it, drawn from the atlas rather than in the app, because the staged demo cities have one short road with one car on it.
+
+**Aria's verdict** (2026-10-19): the r769 frame is approved.
