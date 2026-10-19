@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-19 in the session "item 99". Filed 2026-10-16 (r510) at Aria's request, from frames of items 86 and 88. Nobody's call — a defect.**
 
 Landed: slice 1 (`5e70cb3`, r676).
+Landed: slice 2 (`5fd2ef2`, r684).
 
 The "power plant" label is drawn beside the kiln district's plaque rather than on the power plant, in `docs/screenshots/r470-item-86-ladder.png`, `r490-item-86-ladder.png`, `r505-item-86-overgrown.png` and `r488-item-88-district-signs.png`, and the library's label is just as far from the library.
 
