@@ -1,6 +1,6 @@
 # 125. The city sometimes segfaults at teardown, inside Mesa
 
-**Open, in progress since 2026-10-18 in the session "item 125". Filed 2026-10-18 (r636), from what item 114 measured. Nobody's call — a defect.**
+**Fixed 2026-10-18 (`5a99911`, r655). Filed 2026-10-18 (r636), from what item 114 measured. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`5a99911`, r655).
@@ -58,3 +58,13 @@ Mutated red: dropping NOLOAD fails the unit and integration tests; dropping NODE
   so an `open` interrupted under load, by Go's own preemption signal most likely, ends the city.
   It reads the host's devices, so it is not specific to Xvfb.
   It keeps `make soak-teardown` from passing outright; it is not the teardown crash.
+
+## Closed
+
+Fixed in `5a99911` (r655): the cause was ours, Ebitengine's teardown order, and the city now keeps the GL libraries it uses loaded until it exits, so GLFW's `dlclose` cannot unmap Mesa's code under its running threads.
+The proof is the soak: 0 segfaults in 480 runs on the fixed code, against 5 in 180 before, each run on a display of its own; the tests are listed under *What landed*.
+It is not Mesa's alone, so nothing is reported upstream, and Aria chose not to report Ebitengine's part (2026-10-18); the diagnosis above is written to be filed as it stands.
+
+**For Aria, a deviation from "Tests":** the opt-in `make soak-teardown` asks for exit 0 every time, and it does not yet pass outright.
+Its two exit-1s in 360 runs are the gamepad `EINTR` under *Found on the way*, a different defect that the manager is filing as its own item, so the soak's "exit 0 every time" waits on that item, not on this one.
+Also found on the way, and filed by the manager beside it: `gofmt -l` flags `botropolis/pkg/render/shore_test.go` on main, though `make lint` is green.
