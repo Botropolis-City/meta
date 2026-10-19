@@ -1,6 +1,6 @@
 # 131. The acceptance tests run past go test's default timeout under load
 
-**Open. Filed 2026-10-18 (r667), from what item 129 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 131". Filed 2026-10-18 (r667), from what item 129 found. Nobody's call — a defect.**
 
 At a load average of about 63, a local `make test` hit `go test`'s default ten-minute timeout in `testing/acceptance`; the same suite took twelve minutes with `-timeout 40m`. `make test-acceptance` passes no `-timeout`, so on a busy machine the suite panics with a stack dump rather than finishing.
 CI's Linux job takes about four and a half minutes, so CI has room; the problem is local runs while several item sessions test at once, now the normal case.
