@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-18 in the session "item 127". Filed 2026-10-18 (r648), from what item 122 found. Nobody's call — a defect.**
 
+Depends on: nothing
+Landed: slice 1 (`a94e823`, r665).
+
 The help's key list — opened from the Reference index (`?` or F1) by its "keys" term, and laid out by `LayoutHelp` in `botropolis/pkg/ui` — has grown to about 40 rows, and in a 1600 by 1000 window it is clipped at both the top and the bottom with no way to scroll, so some keys cannot be read at all.
 Item 122 found it while placing a credit line under the list's last row, which would have been off-screen for most people; the credit went to the Reference index instead.
 
