@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-18 in the session "item 124". Filed 2026-10-18 (r628), from what item 114 found. Nobody's call — a defect.**
 
+Landed: slice 1 (`e2037b2`, r659).
+Landed: slice 2 (`783c579`, r660).
+
 In thirty uncached runs of the unit and integration suites at a load of 18 to 30, item 114 saw two tests fail on a fixed wall-clock deadline:
 
 - `testing/integration/demo`, `TestStagedHomeLoadsAsTheScenarioSays` / "when the home is unstaged" / "it should leave no session alive" (`stage_test.go:94`): 4 of 30, each at exactly 5.00 s, its `assert.Eventually` deadline. It is the area of item 104's `demo.Unstage` fix.
