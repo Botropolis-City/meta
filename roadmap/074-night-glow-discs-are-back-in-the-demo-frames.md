@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-19 in the session "item 74". Filed 2026-10-10 (r376), from looking at the first `make demo-media` output while building the website. Nobody's call — a defect, to be diagnosed.**
 
+Depends on: nothing
+Landed: slice 1 (`a945b61`, r779).
+
 Item 37 capped each storey's glow at half a storey so a lit building stops wearing a column of merged discs, and it was checked at fit and at zoom.
 The demo frames show the same shape at fit: working buildings at night carry a grid of translucent beige discs, about three across and a storey apart, sitting over the facade and rising above the roof line.
 The discs are beige rather than the white of item 37's saturated column, so this may be a second mechanism rather than item 37 coming back.
