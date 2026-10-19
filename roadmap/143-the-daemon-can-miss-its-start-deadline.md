@@ -30,3 +30,5 @@ Removing the hook exemption made one test fail, and removing the gate made anoth
 Deviation, agreed with the roadmap manager: no partial or "loading" snapshot is ever served.
 No client has a read timeout — the city, bar, TUI, notify, `status`, `find`, `events` and `doctor` dial with a 500 ms connect timeout only — so clients simply wait for the first read.
 The 0.2.0 binary exited 1 after the timeout, not 0; the 0 seen while validating came from the validation loop.
+
+**After closing** (manager, 2026-10-19): CI failed on macOS at `bfc229e`: the new `pkg/appd/start_test.go` pointed `TMPDIR` at a test directory before making the socket's, so every case's socket path ran past macOS's 104 bytes — the fault item 130 fixed in the older test. Fixed in `e928e26` by making the socket's directory under the machine's own temporary directory, taken first; 0.2.1 is cut after it.
