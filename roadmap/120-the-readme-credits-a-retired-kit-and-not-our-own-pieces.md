@@ -1,6 +1,6 @@
 # 120. The README credits a retired kit, and not the pieces drawn here
 
-**Open, in progress since 2026-10-18 in the session "item 120". Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
+**Fixed 2026-10-18 (`80f3526`, r653). Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
 
 Aria, 2026-10-18: *"Make sure that for anything we pulled from an asset pack we have followed their licensing and attributed and thanked them."*
 
@@ -25,3 +25,18 @@ Keep the thank-you and the donate link.
 ## Done when
 
 The README's kit list matches `tools/fetch-kits`'s defaults, and it says which pieces are drawn here.
+
+## Closed
+
+Fixed in two commits, `97e9e66` (r652) and `80f3526` (r653).
+The README's thanks now name the eight kits `tools/fetch-kits` fetches, each by its full name, and no Space Kit.
+It says the roads, trees, cars, trains, boats and landmarks are Kenney's,
+and that every session's building, the drone, the fountain and the building sites are modelled in `tools/render-sprites`.
+The thank-you and the donate link stay.
+`testing/acceptance/credits_test.go` holds it there: it fails if the thanks miss a default kit, name one the pipeline does not fetch, or stop naming `buildings.py`.
+
+Two additions came from the manager during the work.
+The test also pins Inter's credit under the SIL Open Font License,
+and, on Aria's ruling of 2026-10-18, Inter is credited to its licence holder, The Inter Project Authors, rather than its designer.
+JetBrains Mono was proposed for the README too, but it is only the website's font and nothing in the app embeds it, so the website credits it and the README does not.
+The asset inventory sent to the manager, read from both atlas manifests, is the shared source for the credits in items 119 and 122.
