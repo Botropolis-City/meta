@@ -1,6 +1,6 @@
 # 130. The private-state sweep's test fails on macOS, and CI is red
 
-**Open. Filed 2026-10-18 (r667), from what item 129 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 130". Filed 2026-10-18 (r667), from what item 129 found. Nobody's call — a defect.**
 
 `TestMakePrivateSweeps` fails on both macOS runners (`botropolis/pkg/statedir/statedir_test.go:188`, "when a private directory's pid now belongs to another process / it should remove it"), and `ci` on main has been red for three runs since item 114's slice 4 landed (`e6c8539`, r638).
 Item 114's sweep tells a live owner from a reused pid by the process's start time, read from `/proc/<pid>/stat`, which macOS does not have; there the start time cannot be read, so a reused pid looks like a live owner and its directory is kept.
