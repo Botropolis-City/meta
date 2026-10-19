@@ -40,7 +40,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [149](roadmap/149-what-1-0-0-promises.md) | what 1.0.0 promises: the surface written down, golden tests, and a layout file that is never reset in silence | — | Aria, what is on the list |
-| [151](roadmap/151-cars-drive-backwards-along-x.md) | cars drive backwards on roads that run along x (carTurn) | — | nobody, a defect |
 | [152](roadmap/152-an-out-of-sync-daemon-stops-the-map.md) | a daemon out of sync with the map stops it, with Exit and Restart Daemon | 149 (slice 1) | nobody |
 | [153](roadmap/153-cars-keep-to-the-right.md) | cars drive down the middle of the road; every road vehicle keeps to the right | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
