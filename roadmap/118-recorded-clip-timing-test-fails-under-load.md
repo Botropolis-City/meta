@@ -1,6 +1,6 @@
 # 118. The recorded-clip timing test fails under load
 
-**Open. Filed 2026-10-18 (r628), from what items 102 and 108 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 118". Filed 2026-10-18 (r628), from what items 102 and 108 found. Nobody's call — a defect.**
 
 `TestRecordedClipKeepsTheScenesTime`, item 113's acceptance test that a 3-second clip recorded at 10 fps advances the city's clock by 3 s within one tick, failed once in a full uncached run in item 102's worktree (at `fa44392`) and once in item 108's under a load of about 29 on 14 cores; each passed when run alone.
 
