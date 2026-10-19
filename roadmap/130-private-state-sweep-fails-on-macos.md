@@ -1,6 +1,6 @@
 # 130. The private-state sweep's test fails on macOS, and CI is red
 
-**Open, in progress since 2026-10-18 in the session "item 130". Filed 2026-10-18 (r667), from what item 129 found. Nobody's call — a defect.**
+**Fixed 2026-10-19 (`5415e20`, r673; `9cf3655`, r672). Filed 2026-10-18 (r667), from what item 129 found. Nobody's call — a defect.**
 
 Landed: slice 1 (`5415e20`, r673).
 Landed: slice 2 (`5415e20`, r673).
@@ -33,3 +33,17 @@ The manager ruled all three in scope here, since the item is done only when ever
 - slice 3: `TestDaemonStart` makes the socket's directory before it moves `TMPDIR`.
 
 macOS is proven only by CI, so the item closes after three consecutive `ci` runs on main that are green on every runner.
+
+## Closed (2026-10-19)
+
+`pkg/proc.StartTime` is now the one place that reads when a process started: `/proc/<pid>/stat` on Linux, `sysctl` `kern.proc.pid` on macOS, and nothing elsewhere.
+`statedir`'s sweep and the demo's stand-ins both call it, and their two copies of the `/proc` parser are gone (`5415e20`, r673).
+`TestDaemonStart` makes its socket's directory before it moves `TMPDIR` (`9cf3655`, r672).
+`pkg/proc`'s `TestStartTime` runs on every runner, and `ci` on main was green on every runner, both macOS ones included, three runs in a row: 39205791635 (r673), 39225611785 and 39227516940.
+
+Two deviations from the tree, both approved by the manager.
+The child's case reads "it should not give an earlier time than this process's", because Linux counts in 10 ms ticks and a child can share its parent's tick.
+`TestUnstage`'s "not yet become sleep" and "is a sleep" cases now have the same fixture, since the process name was all that told them apart and `unstage` stopped reading it in item 124; both were kept.
+
+**Left for later:** `pkg/app`'s `groupAlive` still reads only `/proc`, so on macOS it waits out its limit rather than seeing the group exit.
+That is safe but slower, and `pkg/proc` is the obvious place to fix it.
