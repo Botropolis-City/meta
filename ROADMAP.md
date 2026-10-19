@@ -38,7 +38,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [75](roadmap/075-a-road-label-is-drawn-under-a-tower.md) | a road's label is drawn under the tower beside it | — | nobody, a defect |
 | [76](roadmap/076-what-the-website-still-needs-filmed.md) | the website's stand-ins: a hero loop, a still per view, a social card, chosen posters, anchors | — | nobody, filming work |
 | [78](roadmap/078-trains-belong-on-the-main-view.md) | the trains run only on the Spend view; put them on the main view as bug 48 did the cars | — | nobody, Aria asked for it |
-| [93](roadmap/093-a-heavy-codex-history-takes-seconds-to-load.md) | 2,000 Codex rollouts take ~3 s to decode at every daemon start; decode lazily | — | nobody, a known fix |
 | [95](roadmap/095-the-global-shortcut-on-macos.md) | the global shortcut on macOS: registering is solved, coming forward needs a Mac run | — | nobody, needs a Mac |
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |

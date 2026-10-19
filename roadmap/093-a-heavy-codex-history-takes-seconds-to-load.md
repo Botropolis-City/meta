@@ -1,9 +1,10 @@
 # 93. A heavy Codex history takes seconds to load at every daemon start
 
-**Open, in progress since 2026-10-19 in the session "item 93". Filed 2026-10-16 (r455) at Aria's request, from a measurement item 86 made. Nobody's call — the cost is accepted for now and the levers are known.**
+**Fixed 2026-10-19 (`c6d6306`, r679). Filed 2026-10-16 (r455) at Aria's request, from a measurement item 86 made.**
 
 Depends on: nothing
 Landed: slice 1 (`0b536c7`, r675).
+Landed: slice 2 (`c6d6306`, r679).
 
 Item 86 stopped taking old sessions off the map, so the Codex loader now reads every rollout there is.
 Measured on a synthetic history: 2,000 rollouts of about 100 KB took 3.2 s to load the first time; 400 rollouts of 1 MB took 0.75 s once item 86 gave Codex the 64 KB head-and-tail window Claude's catalogue reads (`c3223ba`), against 4.4 s read whole.
@@ -37,5 +38,16 @@ On 14 cores the first load took **1.3 s** before this item, against item 86's 3.
   The work counter "rollout lines decoded" holds the loader to exactly the lines used.
   A byte search for the record types across the whole line was tried first and was slower than decoding, because tool output is full of quotes.
 
-The manager's rule (2026-10-19): build slice 2, decoding in parallel, only if the first load is still over about half a second, which it is.
+- **Slice 2, decoding rollouts in parallel** (r679): **0.28–0.44 s**.
+  It does no less work, so the benchmark is its only measure, and its tests hold the snapshot's order, its power, the cache's reuse and a skipped rollout under `-race`.
+  On 14 cores it gains only about 2×, because what remains is mostly allocation and the collector rather than decoding.
+
+The manager's rule (2026-10-19) was to build slice 2 only if the first load was still over about half a second after slice 1, which it was.
 **Lever 3, show first and fill later, is not to be built**: it changes what the daemon's first snapshot means, and the cheaper levers are enough.
+
+## Closed
+
+Fixed in two slices, skipping lines before decoding them (`0b536c7`) and decoding rollouts in parallel (`c6d6306`), with the changelog line in `bf7d7c7`.
+On the rebuilt benchmark the first load fell from 1.3 s to 0.28–0.44 s.
+`TestDecodingOnlyWhatIsUsed` holds the decoding to exactly the lines used, and `TestLoadingManyRollouts` holds the parallel snapshot to the serial one.
+**For Aria:** the 3.2 s baseline came from item 86's own synthetic rollouts, which were not kept, so the rebuilt history measured 1.3 s before this item on this machine; the two numbers are not one benchmark.
