@@ -17,7 +17,7 @@ I have not installed or restarted anything on Aria's machine for this.
 | 6 | `b`, `t`, `s`, `?`, `h`, `r`, `n`, `/` — each opens, closes with Escape, none leaves the map wrong | needs Aria |
 | 7 | `d d` on a parked container: gone from the map and from `claude agents --json --all` | needs Aria |
 | 8 | `botropolis bar` in waybar: the class changes colour when a session needs you | **run 2026-09-29, passes** |
-| 9 | `b` with more projects than fit: the sidebar scrolls and the cursor row stays visible | needs Aria |
+| 9 | `b` with more projects than fit: the wheel over the sidebar and PageUp, PageDown, Home and End scroll it, "N more above" and "N more below" say what is out of view, the arrows still pan, and `tab` keeps the selected session's row in view | needs Aria |
 | 10 | type `!` in a session, then look at the map: it reads as working, not needs-you (bug 12) | needs Aria |
 
 ## Step 1, run 2026-09-29
