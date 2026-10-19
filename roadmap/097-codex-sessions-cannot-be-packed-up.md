@@ -1,6 +1,6 @@
 # 97. Codex sessions cannot be packed up
 
-**Open. Filed 2026-10-16 (r510) at Aria's request, from item 86. Nobody's call — the Claude side shows how.**
+**Open, in progress since 2026-10-19 in the session "item 97". Filed 2026-10-16 (r510) at Aria's request, from item 86. Nobody's call — the Claude side shows how.**
 
 Item 86 added *pack up*, which takes a session off the map into the depot, and *unpack*.
 A pack is recorded in the daemon's ledger, and only the Claude loader reads the ledger, so a Codex session (`pkg/harness/codex`) offers no *pack up* and a merged pull request never packs it.

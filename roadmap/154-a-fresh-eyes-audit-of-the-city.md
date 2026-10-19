@@ -1,6 +1,6 @@
 # 154. Nobody has looked at the whole city since r96: a fresh-eyes audit for small defects
 
-**Open. Filed 2026-10-19 (r777) at Aria's request, on the road to 1.0.0. Nobody's call — the audit finds; Aria judges what it files.**
+**Open, in progress since 2026-10-19 in the session "item 154". Filed 2026-10-19 (r777) at Aria's request, on the road to 1.0.0. Nobody's call — the audit finds; Aria judges what it files.**
 
 The last audit of the whole app was [audit-r96](audit-r96.md), on 2026-09-18, about 680 revisions ago.
 Since then the city gained a finder, a reading pane, groups, the journal, packing up, heft-sized buildings, the train on the map, the bridge and the statistics.
