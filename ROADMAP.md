@@ -46,6 +46,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [138](roadmap/138-state-changes-lag-while-statistics-backfill.md) | a session's change of state shows 6–15 s late while the statistics backfill runs | — | nobody, a defect |
 | [139](roadmap/139-districts-named-dot-and-twins.md) | sessions with no folder make a district called ".", and two folders with one name are indistinguishable | — | nobody, a defect |
 | [140](roadmap/140-the-docked-card-leaves-the-sidebar-no-room.md) | in a short window the docked card leaves the sidebar no room for a single row | — | nobody, a defect |
+| [141](roadmap/141-a-live-transcript-is-re-read-whole-on-every-change.md) | a live session's transcript is re-read whole every time it changes (339 MB, 3.7 s CPU a rescan) | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
