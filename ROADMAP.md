@@ -47,7 +47,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [130](roadmap/130-private-state-sweep-fails-on-macos.md) | the private-state sweep's test fails on macOS, and CI is red | — | nobody, a defect |
-| [131](roadmap/131-acceptance-tests-time-out-under-load.md) | the acceptance tests run past go test's default timeout under load | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
