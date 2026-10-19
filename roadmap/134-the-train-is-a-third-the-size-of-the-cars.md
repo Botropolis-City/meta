@@ -1,9 +1,10 @@
 # 134. The train is a third the size it should be beside the cars
 
-**Open, in progress since 2026-10-19 in the session "item 134". Filed 2026-10-19 (r685) at Aria's request, from item 132's pause. Nobody's call — the scale is measured and the change is small.**
+**Fixed 2026-10-19 (`a637ff2`, r699). Filed 2026-10-19 (r685) at Aria's request, from item 132's pause. Nobody's call — the scale is measured and the change is small.**
 
 Depends on: nothing
 Landed: slice 1 (`67fb3d5`, r696).
+Landed: slice 2 (`a637ff2`, r699).
 
 Aria, 2026-10-19, on item 78's frame (`botropolis/docs/screenshots/r674-item-78-train-hovered.png`): *"The train is way too small compared to that road. Is the train just too small, or is that road really big compared to other roads/cars."*
 The train is too small; the road is right.
@@ -52,6 +53,14 @@ The tests are `TestVehicleScale` (`botropolis/pkg/assets/kits_test.go`): the wag
 Putting the old 0.72-tile spacing back turns the second red, and putting the old scale back into the manifest turns the first.
 The loop on the smallest test city is 204 tiles; a six-wagon train and its gap take about 25.
 
+## Frames, and the manager's verdicts (2026-10-19)
+
+The frames are in `botropolis/docs/screenshots/` (`7ed2100`, r697): `r685-item-134-train-before.png` and `r696-item-134-train-after.png`, the workday demo zoomed toward the loop with the bridge road and a car in view, and `r696-item-134-message-carriage-options.png`, a sheet of the message carriage at today's size and grown with the train beside the van, a loop wagon and a sedan — a sheet rather than a map frame, because no demo scenario sends messages.
+Aria delegated judging them to the manager that night, and these are the manager's verdicts, which she can reopen:
+
+- **0.35 passes.** The wagons are separate and read clearly against the cars, which answers "way too small", and 0.40 would make them wider than real beside a car.
+- **A message's carriage keeps today's size**, 0.61 cells long (slice 2). It rides the group lines over lots, badges and station dots, and at a loop wagon's size it would cover the badges. `TestMessageCarriage` holds the length against the atlas's footprint, so it does not grow with the next change of scale either.
+
 The kit stays the Kenney Train Kit (`botropolis/design/art-sources.md`); its pieces are chunky, so the train stays shorter than a real one in proportion, as the cars are.
 
 ## Tests and frames
@@ -59,3 +68,10 @@ The kit stays the Kenney Train Kit (`botropolis/design/art-sources.md`); its pie
 - A test that a wagon's footprint is at least the car's width ratio says it should be: wagon width over sedan width, read from the atlas, within a band around 3.3 m / 1.8 m, so the scale cannot drift back.
 - A test that the longest trains fit the loop with a gap, on the smallest test island.
 - Frames for Aria: item 78's frame again, at r685 and after, with a car and the bridge road in view.
+
+## Closed
+
+Fixed in two slices: the Train Kit at 0.35 with every carriage spaced by its own footprint and the gauge set under its body (`67fb3d5`, r696), and a message's carriage held at its old size (`a637ff2`, r699); the changelog entry is `84938b8`.
+`TestVehicleScale`, `TestTrainOnTheLoop` and `TestMessageCarriage` hold them, and the frames are `7ed2100` (r697).
+
+**For Aria, deviations from what was filed:** the scale is 0.35, not about 0.40; the spacing is read from the atlas rather than set as a larger `wagonGap`, because the shipped wagons already overlapped; and both of the frame's calls — 0.35, and the message carriage at its old size — were the manager's that night, so either can be reopened.
