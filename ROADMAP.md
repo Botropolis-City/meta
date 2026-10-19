@@ -44,7 +44,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
-| [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
 | [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [130](roadmap/130-private-state-sweep-fails-on-macos.md) | the private-state sweep's test fails on macOS, and CI is red | — | nobody, a defect |
