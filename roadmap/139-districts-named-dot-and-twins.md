@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-19 in the session "item 139". Filed 2026-10-19 (r707), noticed during the validation checklist's run against main before 0.2.0. Nobody's call — a defect.**
 
 Depends on: nothing
+Landed: slice 1 (`63267da`, r729).
 
 On Aria's machine on 2026-10-19 the sidebar's first district was named **"."**, holding two sessions whose record carries no working directory (`botropolis status --all --json` gives them `cwd: ""`): one removed with `claude rm` the day before, and one older.
 `filepath.Base("")` is `"."`, so a session the city knows only from the statistics store or a record without a folder lands in a district named after an empty path.
