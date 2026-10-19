@@ -47,7 +47,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
 | [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
 | [128](roadmap/128-an-interrupted-gamepad-open-ends-the-city.md) | an interrupted gamepad open at start-up ends the city | — | nobody, a defect |
-| [129](roadmap/129-lint-does-not-check-formatting.md) | lint does not check that the Go is formatted; two files are not | — | nobody, a defect |
 | [123](roadmap/123-no-art-from-image-models.md) | write down and guard Aria's rule: art comes from artists, open packs or hand-built geometry, never image models | — | nobody, Aria decided |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
