@@ -42,7 +42,8 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
-| [132](roadmap/132-the-bridge-road-crosses-the-rail-and-ends-in-the-water.md) | the bridge road crosses the rail at grade and runs into the water: a tunnel under an overpass, and a deck that reads as a bridge | — | Aria, with the design session: train and road scale first |
+| [132](roadmap/132-the-bridge-road-crosses-the-rail-and-ends-in-the-water.md) | the bridge road crosses the rail at grade and runs into the water: the bridge starts at an abutment and its first span crosses the rail | 134 | nobody |
+| [134](roadmap/134-the-train-is-a-third-the-size-of-the-cars.md) | the train is a third the size it should be beside the cars: Train Kit scale 0.25 → about 0.40 | — | nobody, a measured fix |
 | [133](roadmap/133-the-lint-test-fails-when-two-sessions-test-at-once.md) | the lint test fails when two sessions run the tests at once (golangci-lint's machine lock) | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
