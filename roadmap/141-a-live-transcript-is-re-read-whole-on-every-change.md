@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`48fda48`, r746).
+Landed: slice 2 (`e51b6da`, r747).
 
 Item 138 measured the daemon on Aria's machine (`~/.claude`, 2.1 GB) and found a standing cost under the backfill it was fixing: when a live session's transcript changes, the loader re-reads that transcript from the start (`botropolis/pkg/state/loader.go:332`).
 The roadmap manager's own session has a 339 MB transcript, and one rescan spent **3.7 s of CPU — 20 s of wall time on a contended machine** — re-reading it, on every write that session made.
