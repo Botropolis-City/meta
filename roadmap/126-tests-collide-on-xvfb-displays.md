@@ -11,3 +11,7 @@ It only shows when several sessions or packages run acceptance tests at once, wh
 Give each test its own display without a race: start Xvfb with `-displayfd` so the server itself reports the number it took, or have each test pick a display it owns (`xvfb-run -n` with a number from a lock), in the helper every test uses.
 
 Tests: many headless runs started at once should each get a display of their own and none lose its X server; a guard that no test calls `xvfb-run -a` directly.
+
+## Answered while building
+
+- **The fix** (manager, 2026-10-18): a `pkg/xvfb` starts the server with `-displayfd`, so the server itself reports the display it took, and a random authorisation cookie written in Go, so no other local user can connect; every headless city and every test that needs a display goes through it, and a guard refuses `xvfb-run` anywhere in the code, the Makefile, `tools/` or the workflows. The `xvfb-run` dependency goes from every package for the one that ships Xvfb itself; `tools/measure-render`'s deliberately named display stays.
