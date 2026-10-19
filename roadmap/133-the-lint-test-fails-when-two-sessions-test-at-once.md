@@ -1,6 +1,6 @@
 # 133. The lint test fails when two sessions run the tests at once
 
-**Open, in progress since 2026-10-19 in the session "item 133". Filed 2026-10-19 (r678), from items 78 and 99. Nobody's call — a defect.**
+**Fixed 2026-10-19 (`2b03796`, r686). Filed 2026-10-19 (r678), from items 78 and 99. Nobody's call — a defect.**
 
 Depends on: nothing
 
@@ -13,3 +13,12 @@ Items 78 and 99 each hit it on 2026-10-19 and passed on a rerun; with several it
 Run the probe's golangci-lint with `--allow-parallel-runners` (or its own `--allow-serial-runners` wait), and give it its own cache directory under the scratch copy (`GOLANGCI_LINT_CACHE`), so it neither fails on nor waits for another run's lock; `make lint` keeps its own behaviour.
 
 Tests: hold golangci-lint's lock from the test (start a long run, or take the lock file) and run the probe beside it → it should still name the unformatted file; mutate red by removing the flag.
+
+## Closed
+
+`make lint` takes `GOLANGCI_LINT_FLAGS`, which is empty by default, so `make lint` itself behaves as before.
+The format probe passes `--allow-parallel-runners` and its own `GOLANGCI_LINT_CACHE`.
+golangci-lint's lock is a flock on `$TMPDIR/golangci-lint.lock`, so `TestLintChecksFormatting` gives the probe its own `TMPDIR` and holds that lock itself, under the new context *and another golangci-lint holds the machine's lock*; it never blocks another session's lint.
+A new assertion, *it should not report a parallel run*, says why it fails when it does.
+Red before the fix, and red again with the flag dropped from the probe.
+One deviation: the cache sits in the probe's `TMPDIR`, not under the scratch copy, so it can never be linted as part of the module.
