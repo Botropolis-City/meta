@@ -1,10 +1,11 @@
 # 117. The acceptance tests report a cached pass after the code they test has changed
 
-**Open, in progress since 2026-10-18 in the session "item 117". Filed 2026-10-18 (r626), from what item 114 found. Nobody's call — a defect.**
+**Fixed 2026-10-18 (`5b28ff6`, r648). Filed 2026-10-18 (r626), from what item 114 found. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`be84355`, r633).
 Landed: slice 2 (`3603eb5`, r639).
+Landed: slice 3 (`5b28ff6`, r648).
 
 `make test-acceptance` (`go test ./testing/acceptance/...` in `botropolis/Makefile`) reports `ok (cached)` after `pkg/render` and `pkg/app` have changed.
 The acceptance package builds the binary it drives with `go build` in its `TestMain`, and imports neither package, so Go's test cache keys the result on files that do not include the code under test, and replays the last pass.
@@ -30,3 +31,15 @@ Tests: change a file under `pkg/render` in a way an acceptance test sees, run `m
 - **As built, slice 2** (item 117's session, 2026-10-18): fixtures were already seen, since `LiveFixtureHome` and `stage()` read them in-process. `helpers.Tool` opens a `tools/` script and the `tools/` directory, so a sibling the script runs, such as `check_docs.py`, is in the key too, and the docs, demo and release-aliases tests take their paths from it. `demo_test` also opens `.publishable-tokens`, present or not. The packaging tests go-build the binary too, so they reference `app.Main` as well, and `shell_test` opens the shim bash sources, before any skip. Two guards parse the tests: no `exec.Command` names a `tools/` script except through `helpers.Tool`, and every package that go-builds `cmd/botropolis` references `app.Main`. Scratch-module probes cover the demo script, the shim and the packaging binary, each red before its fix (manager, 2026-10-18).
 - **Slice 3's mechanism, corrected** (item 117's session, 2026-10-18): `go tool covdata pkglist` lists every package instrumented, run or not, so a test with nothing run still listed all 35. The map takes the packages with a counter above zero from `go tool covdata textfmt` instead, which keeps Aria's design and corrects only the tool (manager, 2026-10-18). Every test touches `pkg/city`, `pkg/group` and `pkg/hotkey`, whose `init` runs in every binary, so a change there selects every test. The map is per working tree, in a git-ignored `.cache/`, because a shared one would be stamped with one tree's revision while another runs different code (manager, 2026-10-18).
 - **As built, slice 3** (item 117's session, 2026-10-18): `make test-acceptance-map` and `make test-acceptance-changed` run `tools/acceptance-targets`. `go test -cover` points `GOCOVERDIR` at a directory of its own, so `TestMain` takes the tool's directory from `BOTROPOLIS_ACCEPTANCE_COVER` and sends the binary's coverage there. A full map of the 33 tests took 3 m 42 s, four at a time. It waits on item 114's close because it changes how `TestMain` builds the binary.
+
+## Closed
+
+Fixed in three slices, each red before its fix.
+The acceptance and packaging test binaries reference `app.Main`, so `go test` replays a result only when the code the built binary runs is unchanged (`be84355`, r633).
+`testing/acceptance/cache_test.go` changes `app.Run` and `render.Run` in a scratch module and requires the next run not to be cached.
+Scripts and files only a subprocess reads are opened by their tests, through `helpers.Tool` for `tools/`, with guards against running a script bare or building the binary without the reference (`3603eb5`, r639).
+`make test-acceptance-map` and `make test-acceptance-changed` run targeted acceptance tests from a coverage map, falling back to a full run that says why (`5b28ff6`, r648); a full map of the 33 tests ran clean after item 114 closed.
+
+Deviations, for Aria: the red test runs `go test -run '^TestStatus$'` in a scratch module instead of `make test-acceptance` three times, since the Makefile line adds nothing the cache sees.
+And the map uses `covdata textfmt`, not `pkglist`, which lists every package instrumented whether it ran or not.
+`make test-acceptance` is unchanged and still caches; it is now honest about it.
