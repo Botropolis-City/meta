@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-19 in the session "item 147". Filed 2026-10-19 (r748) at Aria's request, from item 134's frames. Nobody's call.**
 
 Depends on: nothing
+Landed: slice 1 (`1a739df`, r749).
 
 Each train on the loop is one model, and its wagons count that model's spend today ([item 78](078-trains-belong-on-the-main-view.md), [item 134](134-the-train-is-a-third-the-size-of-the-cars.md), item 116's cost wagons).
 Aria, 2026-10-19, reviewing item 134's frames: models allow very different context windows (a million tokens against a few hundred thousand, and less), and the train should say so. Chosen among options: **the engine's class follows the model's window**, with wagons still counting spend. And: *"I don't love the train engine (front), is there a different sprite option?"*
