@@ -77,3 +77,5 @@ The released `botropolis-0.2.0-linux-amd64.tar.gz`, unpacked into a scratch fold
 | 10 | **passes** during the first-run backfill: 1.2 s once, then 0.23 s (item 138) |
 
 Also found: the daemon can miss its 10 s start deadline on a large, busy home and exit — 3 of 6 fresh starts tonight ([item 143](143-the-daemon-can-miss-its-start-deadline.md)). Items 143 and 144 make 0.2.1.
+
+**Step 7 again, on 0.2.2 and 0.2.1.** 0.2.1 (item 144) still left a removed session on the map when it had a conversation, because `claude rm` keeps the transcript ([item 145](145-a-demolished-session-with-a-transcript-comes-back.md)). On the 0.2.2 release a prompted session, stopped and removed, left the daemon within 3 s with its transcript still on disk, and stayed off after a daemon restart: **step 7 passes**. 0.2.1's start fix held 6 of 6 fresh starts under the same load.
