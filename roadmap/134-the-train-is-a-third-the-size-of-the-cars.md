@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-19 in the session "item 134". Filed 2026-10-19 (r685) at Aria's request, from item 132's pause. Nobody's call — the scale is measured and the change is small.**
 
+Depends on: nothing
+Landed: slice 1 (`67fb3d5`, r696).
+
 Aria, 2026-10-19, on item 78's frame (`botropolis/docs/screenshots/r674-item-78-train-hovered.png`): *"The train is way too small compared to that road. Is the train just too small, or is that road really big compared to other roads/cars."*
 The train is too small; the road is right.
 
@@ -27,6 +30,27 @@ So roads, cars and lots agree with each other, and the train is about a third of
 - `MaxWagons` is 6, so the longest train becomes about 8 cells; check the loop still holds every model's train with gaps between them on the smallest island the tests build.
 - `drawMessage` (`botropolis/pkg/render/pullrequests.go`) also draws `kitWagons[0]`, at 0.9, for a message on a group's line: decide with a frame whether that carriage grows with the train or keeps today's size by its shrink.
 - The Watercraft Kit shares 0.25 in `SCALE` and is out of scope.
+
+## Remeasured, and decided (2026-10-19)
+
+The table above reads the code's constants in the wrong unit.
+`wagonGap` and `railGauge` are multiples of `city.Tile`, and a cell is three tiles (`BuildingSize`), so the shipped train already stood each wagon two thirds over the one behind it, 0.72 tile apart for a wagon two tiles long.
+Raising `wagonGap` to 1.15 would have left them overlapping, and the gauge was a body 3.4 times its width, not twice.
+
+Measured on the models in Blender: the sedan is 1.50 × 2.55 kit units, a wagon 1.00 × 2.70 and the locomotives 1.0–1.2 × 2.40.
+The kit's wagon is stubby and its sedan wide, so no one scale matches a real wagon's width beside a car (about 1.7 times) and its length (about 3.3 times).
+At 0.40 a wagon is 2.2 times the sedan's width and 3.5 its length, wider than a real wagon; at 0.31 the width is right and it stays short, which is what Aria complained of.
+**The scale is 0.35** (the manager, for Aria, 2026-10-19): 1.9 times the width and 3.1 times the length, about a tenth off real on each.
+
+So the fix changed shape, approved by the manager the same day:
+
+- the pipeline records each car and train piece's footprint in the atlas (`foot`), and `assets.Footprints()` reads it from the manifest alone;
+- carriages are spaced by half of each one's length plus a coupling, so the spacing cannot drift from the scale again; trains run a wagon and a half clear of each other;
+- the gauge is 0.55 of the wagon's width, from the same footprint.
+
+The tests are `TestVehicleScale` (`botropolis/pkg/assets/kits_test.go`): the wagon is 1.6–2.1 times the sedan's width and 2.8–3.6 its length, and a locomotive is at least four fifths a wagon's width; and `TestTrainOnTheLoop` (`botropolis/pkg/render/rails_test.go`): no two neighbouring carriages overlap, the gauge is between half the wagon's width and its width, and three six-wagon trains on the smallest test city's loop are each a wagon's length clear of the next.
+Putting the old 0.72-tile spacing back turns the second red, and putting the old scale back into the manifest turns the first.
+The loop on the smallest test city is 204 tiles; a six-wagon train and its gap take about 25.
 
 The kit stays the Kenney Train Kit (`botropolis/design/art-sources.md`); its pieces are chunky, so the train stays shorter than a real one in proportion, as the cars are.
 
