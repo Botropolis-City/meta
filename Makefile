@@ -32,10 +32,27 @@ test :: test-unit test-acceptance
 test-unit ::
 	$(LOG) "Running the unit tests"
 	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools -p '*_test.py'
+	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s performance/tools -p '*_test.py'
 
 test-acceptance ::
 	$(LOG) "Running the acceptance tests"
 	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s testing/acceptance -p '*_test.py'
+
+PERF_SECONDS ?= 600
+
+perf-env ::
+	@performance/tools/perf-env
+
+perf-daemon ::
+	$(LOG) "Sampling botropolisd for ${PERF_SECONDS}s (performance/method.md, run 1)"
+	@out=$${XDG_STATE_HOME:-$$HOME/.local/state}/botropolis-perf/daemon-$$(date +%Y%m%d-%H%M%S); mkdir -p "$$out"; \
+		performance/tools/perf-env >"$$out/env.txt"; \
+		performance/tools/perf-sample --name botropolisd --interval 1 --duration ${PERF_SECONDS} --out "$$out/samples.csv"; \
+		performance/tools/perf-report "$$out/samples.csv" | tee "$$out/report.md"
+
+perf-city ::
+	$(LOG) "Opening the city and sampling it for ${PERF_SECONDS}s (performance/method.md, run 3)"
+	@performance/tools/perf-city --seconds ${PERF_SECONDS}
 
 publishable :: docs-check
 	$(LOG) "Checking nothing unpublishable is in the repository"

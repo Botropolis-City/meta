@@ -18,6 +18,7 @@ present = {c: os.path.isdir(os.path.join(c, '.git')) for c in CHILDREN}
 
 docs = ['ROADMAP.md', 'CLAUDE.md', 'README.md']
 docs += sorted(glob.glob('roadmap/*.md'))
+docs += sorted(glob.glob('performance/**/*.md', recursive=True))
 if present['vision']:
     docs += sorted(glob.glob('vision/*.md'))
     docs += sorted(glob.glob('vision/items/*.md'))
@@ -127,6 +128,7 @@ linked = set()
 for p in docs:
     linked.update(targets(p))
 candidates = sorted(glob.glob('roadmap/*.md'))
+candidates += sorted(glob.glob('performance/**/*.md', recursive=True))
 if present['vision']:
     candidates += sorted(glob.glob('vision/*.md'))
 for p in candidates:

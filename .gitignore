@@ -14,5 +14,6 @@
 !/.claude/commands/
 !/.claude/settings.json
 !/testing/
+!/performance/
 
 __pycache__/

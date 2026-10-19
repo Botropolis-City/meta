@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+
+bin=$(command -v botropolis || true)
+seconds=600
+hide_after=0
+interval=2
+out=""
+headless=0
+extra=()
+
+usage() {
+	cat <<USAGE
+Usage: performance/tools/perf-city [options] [-- extra city flags]
+
+Open the city, sample it and the daemon for a while, and write a run directory.
+
+  --bin PATH          botropolis binary to run (default: ${bin:-botropolis on PATH})
+  --seconds N         how long to sample (default: ${seconds})
+  --hide-after N      after N seconds, move the window to i3's scratchpad so the
+                      rest of the run measures a hidden window (default: never)
+  --interval N        seconds between samples (default: ${interval})
+  --headless          run on a virtual display (llvmpipe: CPU and memory are NOT
+                      representative of a real GPU; use only to compare two builds)
+  --out DIR           run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  -h, --help          this
+
+The run directory holds:
+  env.txt       machine, versions, display, GPU, config, session counts
+  samples.csv   perf-sample output for the city's process tree and botropolisd
+  city.log      the city's stderr: GODEBUG=gctrace=1 and BOTROPOLIS_FRAMETIME=1 lines
+  report.md     perf-report of the above
+
+The window opens on the real display unless --headless. On i3 it gets focus as
+any new window does; a city that drew zero frames is not a measurement, and the
+report says how many FRAME lines it printed so you can tell.
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	--bin) bin="$2"; shift 2 ;;
+	--seconds) seconds="$2"; shift 2 ;;
+	--hide-after) hide_after="$2"; shift 2 ;;
+	--interval) interval="$2"; shift 2 ;;
+	--headless) headless=1; shift ;;
+	--out) out="$2"; shift 2 ;;
+	-h | --help) usage; exit 0 ;;
+	--) shift; extra=("$@"); break ;;
+	*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
+	esac
+done
+
+[[ -x "${bin}" ]] || { echo "no botropolis binary at '${bin}'; pass --bin" >&2; exit 1; }
+pgrep -x botropolisd >/dev/null || { echo "botropolisd is not running; start it first (systemctl --user start botropolisd)" >&2; exit 1; }
+if pgrep -a -x botropolis | grep -q ' city'; then
+	echo "a city is already open; close it first so the run measures one window" >&2
+	exit 1
+fi
+
+out="${out:-${XDG_STATE_HOME:-$HOME/.local/state}/botropolis-perf/$(date +%Y%m%d-%H%M%S)}"
+mkdir -p "${out}"
+
+"${here}/perf-env" >"${out}/env.txt"
+
+args=(city)
+[[ "${headless}" == 1 ]] && args+=(--headless)
+[[ ${#extra[@]} -gt 0 ]] && args+=("${extra[@]}")
+
+city=""
+sampler=""
+cleanup() {
+	[[ -n "${city}" ]] && kill "${city}" 2>/dev/null || true
+	[[ -n "${sampler}" ]] && kill "${sampler}" 2>/dev/null || true
+	wait 2>/dev/null || true
+}
+trap cleanup EXIT
+
+GODEBUG=gctrace=1 BOTROPOLIS_FRAMETIME=1 "${bin}" "${args[@]}" >/dev/null 2>"${out}/city.log" &
+city=$!
+echo "# city pid ${city}, run directory ${out}" >&2
+
+"${here}/perf-sample" --tree "${city}" --name botropolisd --interval "${interval}" --duration "${seconds}" --out "${out}/samples.csv" &
+sampler=$!
+
+if [[ "${hide_after}" -gt 0 && "${headless}" == 0 ]]; then
+	sleep "${hide_after}"
+	if command -v i3-msg >/dev/null; then
+		i3-msg "[pid=${city}] move scratchpad" >/dev/null && echo "# hidden at ${hide_after}s" >&2
+		echo "hidden_at_s=${hide_after}" >>"${out}/env.txt"
+	fi
+fi
+
+wait "${sampler}" || true
+sampler=""
+kill -0 "${city}" 2>/dev/null || echo "# the city exited before the run finished; see city.log" >&2
+
+{
+	echo "# Run ${out##*/}"
+	echo
+	echo "frames drawn (last BOTROPOLIS_FRAMETIME count): $(awk '/^FRAME /{n=$2} END{print n+0}' "${out}/city.log")"
+	echo "ms/frame of drawing, last report: $(awk '/^FRAME /{v=$4} END{print v}' "${out}/city.log")"
+	echo "QUIET lines (drew nothing): $(grep -c 'QUIET' "${out}/city.log" || true)"
+	echo
+	"${here}/perf-report" "${out}/samples.csv" --gctrace "${out}/city.log"
+} >"${out}/report.md"
+echo "${out}/report.md"

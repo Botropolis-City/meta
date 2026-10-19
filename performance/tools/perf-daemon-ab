@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+
+seconds=300
+interval=2
+cold=0
+out=""
+bins=()
+
+usage() {
+	cat <<USAGE
+Usage: performance/tools/perf-daemon-ab [options] LABEL=BINARY [LABEL=BINARY ...]
+
+Run several botropolisd builds side by side against the same live ~/.claude
+and sample each one, so every build sees exactly the same session activity.
+Comparing two daemons run at different times compares two afternoons.
+
+Each daemon gets its own socket, runtime dir and config copy, and a copy of
+the real state directory (so none starts cold or writes back to yours). A
+stub 'claude' that exits 1 goes first on its PATH, so no daemon spawns a
+usage probe or a summary: those cost tokens and would be counted twice.
+~/.claude is only ever read.
+
+  --seconds N     how long to sample (default: ${seconds})
+  --interval N    seconds between samples (default: ${interval})
+  --cold          start each daemon with an EMPTY state directory, as on a new
+                  user's first launch, and stop once every daemon has been
+                  under 1% CPU for 60s (or --seconds runs out)
+  --out DIR       run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  -h, --help      this
+
+Example, comparing two releases built with 'git archive TAG | tar -x' and 'go build ./cmd/botropolisd':
+  performance/tools/perf-daemon-ab v0.1.7=/tmp/v0.1.7/botropolisd v0.2.2=/tmp/v0.2.2/botropolisd
+
+Each daemon runs under GODEBUG=gctrace=1, so <label>.log counts its collections.
+Writes <label>.csv per daemon, <label>.log for its stderr, env.txt and report.md.
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	--seconds) seconds="$2"; shift 2 ;;
+	--interval) interval="$2"; shift 2 ;;
+	--out) out="$2"; shift 2 ;;
+	--cold) cold=1; shift ;;
+	-h | --help) usage; exit 0 ;;
+	*=*) bins+=("$1"); shift ;;
+	*) echo "unknown argument: $1" >&2; usage >&2; exit 2 ;;
+	esac
+done
+[[ ${#bins[@]} -gt 0 ]] || { usage >&2; exit 2; }
+
+out="${out:-${XDG_STATE_HOME:-$HOME/.local/state}/botropolis-perf/daemon-ab-$(date +%Y%m%d-%H%M%S)}"
+mkdir -p "${out}"
+"${here}/perf-env" >"${out}/env.txt"
+
+work=$(mktemp -d)
+pids=()
+samplers=()
+cleanup() {
+	for p in "${samplers[@]}" "${pids[@]}"; do kill "${p}" 2>/dev/null || true; done
+	wait 2>/dev/null || true
+	rm -rf "${work}"
+}
+trap cleanup EXIT
+
+mkdir -p "${work}/stub"
+printf '#!/bin/sh\nexit 1\n' >"${work}/stub/claude"
+chmod +x "${work}/stub/claude"
+
+real_state="${XDG_STATE_HOME:-$HOME/.local/state}/botropolis"
+real_config="${XDG_CONFIG_HOME:-$HOME/.config}/botropolis/config.toml"
+
+for pair in "${bins[@]}"; do
+	label="${pair%%=*}"
+	bin="${pair#*=}"
+	[[ -x "${bin}" ]] || { echo "${label}: no executable at ${bin}" >&2; exit 1; }
+	d="${work}/${label}"
+	mkdir -p "${d}/state" "${d}/run" "${d}/config/botropolis"
+	[[ "${cold}" == 0 && -d "${real_state}" ]] && cp -r "${real_state}" "${d}/state/botropolis"
+	[[ -f "${real_config}" ]] && cp "${real_config}" "${d}/config/botropolis/config.toml"
+	flags=(--socket "${d}/run/botropolis.sock")
+	# --config arrived after 0.1.7; XDG_CONFIG_HOME covers builds without it.
+	"${bin}" --help 2>&1 | grep -q -- '--config' && flags+=(--config "${d}/config/botropolis/config.toml")
+	GODEBUG=gctrace=1 PATH="${work}/stub:${PATH}" XDG_STATE_HOME="${d}/state" XDG_RUNTIME_DIR="${d}/run" XDG_CONFIG_HOME="${d}/config" \
+		"${bin}" "${flags[@]}" >"${out}/${label}.log" 2>&1 &
+	pids+=($!)
+	echo "# ${label}: pid $! (${bin})" >&2
+	echo "build_${label}=$("${bin}" --version 2>/dev/null || echo "${bin}")" >>"${out}/env.txt"
+done
+
+for i in "${!bins[@]}"; do
+	label="${bins[$i]%%=*}"
+	until_idle=()
+	[[ "${cold}" == 1 ]] && until_idle=(--until-idle 60)
+	"${here}/perf-sample" --pid "${pids[$i]}" --interval "${interval}" --duration "${seconds}" "${until_idle[@]}" --out "${out}/${label}.csv" &
+	samplers+=($!)
+done
+sleep 5
+for i in "${!bins[@]}"; do
+	kill -0 "${pids[$i]}" 2>/dev/null || { echo "${bins[$i]%%=*} exited at start:" >&2; cat "${out}/${bins[$i]%%=*}.log" >&2; exit 1; }
+done
+wait "${samplers[@]}" || true
+samplers=()
+
+{
+	echo "# Daemon A/B $(basename "${out}")"
+	echo
+	echo "Same live ~/.claude, same ${seconds}s window, sampled every ${interval}s."
+	[[ "${cold}" == 1 ]] && echo "Cold start: every daemon began with an empty state directory." && for pair in "${bins[@]}"; do
+		l="${pair%%=*}"
+		echo "- ${l}: last sample at $(tail -n 1 "${out}/${l}.csv" | cut -d, -f2)s; read $(awk -F, 'NR>1 && $15!="" {s+=$15*'"${interval}"'} END {printf "%.0f", s/1024}' "${out}/${l}.csv") MiB in all"
+	done
+	echo
+	for pair in "${bins[@]}"; do
+		label="${pair%%=*}"
+		echo "# ${label}"
+		echo
+		"${here}/perf-report" "${out}/${label}.csv" --gctrace "${out}/${label}.log" | sed 's/^## /### /'
+	done
+} >"${out}/report.md"
+echo "${out}/report.md"

@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+	cat <<USAGE
+Usage: performance/tools/perf-pprof-build REV [OUTDIR]
+
+Build botropolis and botropolisd at REV with a pprof endpoint, without touching
+the botropolis checkout: the tree comes from 'git archive', one file is added
+to each command, and the binaries land in OUTDIR (default /tmp/perf-pprof-REV).
+
+The endpoint listens only when PERF_PPROF is set, so the binaries otherwise
+behave as REV does:
+
+  PERF_PPROF=127.0.0.1:6061 GODEBUG=gctrace=1 OUTDIR/botropolis city
+  go tool pprof -top -inuse_space OUTDIR/botropolis http://127.0.0.1:6061/debug/pprof/heap
+
+To run a second city beside one already open, give it its own runtime dir,
+because the city is single-instance and otherwise raises the open one:
+
+  XDG_RUNTIME_DIR=\$(mktemp -d) PERF_PPROF=... OUTDIR/botropolis city \\
+    --socket \$XDG_RUNTIME_DIR/botropolis/botropolis.sock   # the real daemon's socket
+
+Wrap it in 'xvfb-run -a' to keep it off the desktop; the Go heap does not
+depend on which GPU draws, so a virtual display is fine for a heap profile and
+wrong for everything else.
+USAGE
+}
+
+[[ "${1:-}" == "-h" || "${1:-}" == "--help" || $# -lt 1 ]] && { usage; exit 0; }
+rev="$1"
+outdir="${2:-/tmp/perf-pprof-${rev//\//-}}"
+repo="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)/botropolis"
+[[ -d "${repo}/.git" ]] || { echo "no botropolis checkout at ${repo}" >&2; exit 1; }
+
+src="${outdir}/src"
+rm -rf "${src}"
+mkdir -p "${src}"
+git -C "${repo}" archive "${rev}" | tar -x -C "${src}"
+
+for cmd in botropolis botropolisd; do
+	cat >"${src}/cmd/${cmd}/zz_perf_pprof.go" <<'GO'
+package main
+
+import (
+	"net/http"
+	_ "net/http/pprof"
+	"os"
+)
+
+func init() {
+	if addr := os.Getenv("PERF_PPROF"); addr != "" {
+		go func() { _ = http.ListenAndServe(addr, nil) }()
+	}
+}
+GO
+	(cd "${src}" && go build -o "${outdir}/${cmd}" "./cmd/${cmd}")
+done
+echo "${outdir}/botropolis"
+echo "${outdir}/botropolisd"

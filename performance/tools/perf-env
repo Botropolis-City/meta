@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+usage() {
+	cat <<USAGE
+Usage: performance/tools/perf-env
+
+Print what a performance run needs written beside it: the machine, the
+versions, the display and GPU, the botropolis config and the size of the
+city it draws. Every number in a report is a measurement of one desk, so
+the desk goes with it.
+
+It prints counts and sizes only. It never prints a hostname, a user name,
+a project path or a session title, because reports are committed to a
+public repository.
+USAGE
+}
+
+[[ "${1:-}" == "-h" || "${1:-}" == "--help" ]] && { usage; exit 0; }
+
+kv() { printf '%s=%s\n' "$1" "$2"; }
+
+kv date "$(date -Iseconds)"
+kv kernel "$(uname -r)"
+kv os "$(. /etc/os-release 2>/dev/null && echo "${PRETTY_NAME:-unknown}")"
+kv cpu "$(awk -F': ' '/^model name/ {print $2; exit}' /proc/cpuinfo)"
+kv cpus "$(nproc)"
+kv mem_total_mib "$(awk '/^MemTotal/ {print int($2/1024)}' /proc/meminfo)"
+kv mem_available_mib "$(awk '/^MemAvailable/ {print int($2/1024)}' /proc/meminfo)"
+kv swap_used_mib "$(awk '/^SwapTotal/ {t=$2} /^SwapFree/ {f=$2} END {print int((t-f)/1024)}' /proc/meminfo)"
+kv gpus "$(lspci 2>/dev/null | grep -i -E 'vga|3d controller' | sed 's/^[^:]*: [^:]*: //' | paste -sd';')"
+kv display "${DISPLAY:-none}"
+if [[ -n "${DISPLAY:-}" ]]; then
+	kv screen "$(xdpyinfo 2>/dev/null | awk '/dimensions:/ {print $2; exit}')"
+	kv gl_renderer "$(glxinfo -B 2>/dev/null | awk -F': ' '/OpenGL renderer/ {print $2; exit}')"
+fi
+kv wm "$(pgrep -x i3 >/dev/null && echo i3 || echo unknown)"
+kv botropolis "$(botropolis version 2>/dev/null || botropolis --version 2>/dev/null | head -1)"
+kv botropolis_package "$(pacman -Q botropolis 2>/dev/null || dpkg-query -W botropolis 2>/dev/null || rpm -q botropolis 2>/dev/null || echo none)"
+kv go "$(go version 2>/dev/null | awk '{print $3}')"
+kv daemon_pid "$(pgrep -x botropolisd || echo none)"
+pid=$(pgrep -x botropolisd | head -1)
+if [[ -n "${pid}" ]]; then
+	kv daemon_uptime_s "$(ps -o etimes= -p "${pid}" | tr -d ' ')"
+	kv daemon_cpu_total_s "$(awk -v t="$(getconf CLK_TCK)" '{print ($14+$15)/t}' "/proc/${pid}/stat")"
+fi
+config="${XDG_CONFIG_HOME:-$HOME/.config}/botropolis/config.toml"
+if [[ -f "${config}" ]]; then
+	grep -E '^(detail|projection|parked_days|reduced_motion|render_scale|usage_refresh|signage|district_type)\b' "${config}" | sed -E "s/ *= */=/; s/'//g; s/^/config_/"
+fi
+claude="${HOME}/.claude/projects"
+if [[ -d "${claude}" ]]; then
+	kv transcripts "$(find "${claude}" -name '*.jsonl' | wc -l)"
+	kv transcripts_mib "$(du -sm "${claude}" | cut -f1)"
+	kv transcripts_touched_last_hour "$(find "${claude}" -name '*.jsonl' -mmin -60 | wc -l)"
+	kv transcripts_touched_last_7d "$(find "${claude}" -name '*.jsonl' -mtime -7 | wc -l)"
+	kv projects "$(find "${claude}" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+fi
+kv claude_processes "$(pgrep -x claude | wc -l)"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/botropolis"
+[[ -f "${state}/stats.db" ]] && kv stats_db_mib "$(du -cm "${state}"/stats.db* | tail -1 | cut -f1)"
+[[ -f "${state}/sessions.json" ]] && kv sessions_json_kib "$(du -k "${state}/sessions.json" | cut -f1)"

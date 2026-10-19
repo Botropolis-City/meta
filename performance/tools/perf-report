@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+import argparse
+import csv
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+import perf  # noqa: E402
+
+DESCRIPTION = '''Summarise a perf-sample CSV, and optionally a GODEBUG=gctrace=1 log.
+
+For each process name it prints first, last, min, max, mean, p50, p95 and
+the least-squares slope per minute of CPU, Private_Dirty, Pss, swap, GPU
+memory, threads and fds. A positive Private_Dirty or GPU slope that holds
+over a long run is the leak signal; a short run's slope is mostly start-up.
+
+With --gctrace, it also reports the Go live heap after each collection,
+which separates memory the Go program holds from memory the GL driver,
+cgo or the runtime's unreturned pages hold.'''
+
+
+def fmt(v):
+    if v is None:
+        return '-'
+    return '%.1f' % v if isinstance(v, float) else str(v)
+
+
+def table(summary):
+    lines = []
+    for comm, stats in sorted(summary.items()):
+        lines.append('## %s  (%d samples, pids %s)' % (comm, stats['samples'], ', '.join(stats['pids'])))
+        lines.append('')
+        lines.append('| metric | first | last | min | max | mean | p50 | p95 | slope/min |')
+        lines.append('| --- | --- | --- | --- | --- | --- | --- | --- | --- |')
+        for _, name, _ in perf.SUMMARY_METRICS:
+            if name in stats:
+                s = stats[name]
+                lines.append('| %s | %s |' % (name, ' | '.join(fmt(s[k]) for k in ('first', 'last', 'min', 'max', 'mean', 'p50', 'p95', 'slope_per_min'))))
+        lines.append('')
+    return '\n'.join(lines)
+
+
+def gc_table(path):
+    points = []
+    with open(path, errors='replace') as f:
+        for line in f:
+            p = perf.parse_gctrace_line(line)
+            if p:
+                points.append(p)
+    if not points:
+        return '## Go heap\n\nno gctrace lines found in %s\n' % path
+    live = [p['live_mb'] for p in points]
+    slope = perf.slope_per_minute([p['at_s'] for p in points], live)
+    return '\n'.join([
+        '## Go heap (gctrace)',
+        '',
+        '| collections | per minute | first live MB | last live MB | max live MB | max goal MB | live slope MB/min |',
+        '| --- | --- | --- | --- | --- | --- | --- |',
+        '| %d | %s | %d | %d | %d | %d | %s |' % (len(points), fmt(per_minute(points)), live[0], live[-1], max(live), max(p['goal_mb'] for p in points), fmt(slope)),
+        '',
+    ])
+
+
+def per_minute(points):
+    span = points[-1]['at_s'] - points[0]['at_s']
+    return None if span <= 0 else (len(points) - 1) / span * 60
+
+
+def main():
+    ap = argparse.ArgumentParser(description=DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('csv', help='a CSV written by perf-sample')
+    ap.add_argument('--gctrace', help='stderr of a run under GODEBUG=gctrace=1')
+    ap.add_argument('--since', type=float, default=0.0, help='ignore samples before this many seconds, to drop start-up')
+    ap.add_argument('--by-pid', action='store_true', help='summarise each process separately, not each name')
+    ap.add_argument('--json', action='store_true', help='print the summary as JSON instead of a Markdown table')
+    args = ap.parse_args()
+
+    with open(args.csv, newline='') as f:
+        rows = [r for r in csv.DictReader(f) if float(r['elapsed_s']) >= args.since]
+    summary = perf.summarise(rows, by_pid=args.by_pid)
+    if args.json:
+        json.dump(summary, sys.stdout, indent=2)
+        print()
+        return
+    print(table(summary))
+    if args.gctrace:
+        print(gc_table(args.gctrace))
+
+
+if __name__ == '__main__':
+    main()
