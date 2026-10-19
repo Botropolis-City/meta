@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-19 in the session "item 70". Filed 2026-09-29 out of adjudicating the eight unresolved entries in [audit-r96.md](audit-r96.md). Nobody's call — a known defect with a known fix.**
 
+Depends on: nothing
+Landed: slice 1 (`df34981`, r764).
+
 Found inside bug 27 and looked at at r160, where the real remedy was identified, deliberately deferred as "not in this phase", and then never written down anywhere.
 The phase it was deferred out of ended nine phases ago.
 
