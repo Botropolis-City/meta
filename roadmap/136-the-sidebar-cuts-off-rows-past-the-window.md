@@ -46,3 +46,5 @@ so the selected row cannot be kept in view there; the acceptance test runs at 10
 
 **A follow-up, the manager's note:** when scrolled, a district's session rows can sit at the top with its header out of view (in the paged frame, "Sea conditions…" under "1 more above"),
 so the top district's header could stick.
+
+**Aria's verdict** (2026-10-19, reviewing the frames the roadmap manager passed overnight): approved.

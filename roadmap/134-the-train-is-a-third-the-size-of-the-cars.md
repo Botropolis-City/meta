@@ -75,3 +75,5 @@ Fixed in two slices: the Train Kit at 0.35 with every carriage spaced by its own
 `TestVehicleScale`, `TestTrainOnTheLoop` and `TestMessageCarriage` hold them, and the frames are `7ed2100` (r697).
 
 **For Aria, deviations from what was filed:** the scale is 0.35, not about 0.40; the spacing is read from the atlas rather than set as a larger `wagonGap`, because the shipped wagons already overlapped; and both of the frame's calls — 0.35, and the message carriage at its old size — were the manager's that night, so either can be reopened.
+
+**Aria's verdict** (2026-10-19, reviewing the frames the roadmap manager passed overnight): the 0.35 scale and the smaller message carriage (A) are approved; she asked for an engine class by context window, and for other locomotive options, in [item 147](147-the-engine-says-the-models-window.md).

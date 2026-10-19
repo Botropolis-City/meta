@@ -38,3 +38,5 @@ The white one is not a second needs-you line: it is the status notice `tab` leav
 
 Tests: `TestSidebarFloor` and `TestDockCard` in `botropolis/pkg/ui/dock_test.go`, a case per rung; `TestSidebarCard` in `botropolis/testing/acceptance/sidebar_test.go`, at 1024×600 and 1024×900, checks four rows, the selected row, the card whole on screen, clear of the list, the lens panel and the stream, and `i` at 600.
 Disabling the compact rung fails it at 600.
+
+**Aria's verdict** (2026-10-19, reviewing the frames the roadmap manager passed overnight): approved.

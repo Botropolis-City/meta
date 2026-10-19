@@ -64,3 +64,5 @@ The changelog says it in `5706b1c`.
 **Passed by the roadmap manager on Aria's behalf (2026-10-19)**, so she can reopen it: both complaints are answered at all four headings.
 For Aria: the abutment reads as a steep solid wedge, a toy overpass as agreed; a gentler or more open ramp would be a follow-up.
 The demo set predates it and waits for the release re-film.
+
+**Aria's verdict** (2026-10-19, reviewing the frames the roadmap manager passed overnight): the crossing is right, but the ramp should be gentler — [item 146](146-the-bridge-ramp-is-a-solid-wedge.md).

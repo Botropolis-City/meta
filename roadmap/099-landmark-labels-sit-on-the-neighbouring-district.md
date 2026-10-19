@@ -39,3 +39,5 @@ The frames are `botropolis/docs/screenshots/r692-item-99-lettered-h0.png`, `-h90
 The roadmap manager passed them on 2026-10-19, judging frames for Aria that night; reopen it if they do not suit you.
 **For Aria:** at the home heading the plant's name is stacked, POWER over PLANT, and at heading 90 the library's is on half its band, both because city hall stands in front; both are small, about 11 px at zoom 1, above the floor and readable, in case you want them bigger.
 The release's demo set predates this and is re-filmed with the release.
+
+**Aria's verdict** (2026-10-19, reviewing the frames the roadmap manager passed overnight): approved.
