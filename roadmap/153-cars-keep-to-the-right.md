@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-19 in the session "item 153". Filed 2026-10-19 (r765) at Aria's request. Nobody's call.**
 
 Depends on: nothing
+Landed: slice 1 (`b473c0a`, r769).
 
 Aria, 2026-10-19: *"Cars should travel on the correct side of the road rather than the middle. Assume all our roads are two way and make all cars travel on the right side (meaning right as opposed to left). That way if cars are going in different directions they don't overlap in the middle."*
 Today every road vehicle follows its road's centre line, so two cars going opposite ways on one road pass through each other (`botropolis/docs/screenshots/r762-item-151-cars-both-ways.png`).
