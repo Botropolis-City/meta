@@ -29,3 +29,7 @@ Arch's [PKGBUILD guidelines](https://wiki.archlinux.org/title/PKGBUILD#license) 
 ## Done when
 
 All four packages declare all three licences, `namcap` is clean on the built Arch packages, and `tools/check-packages` fails if the nfpm or Homebrew field drops one.
+
+## Answered while building
+
+- **The AUR packages wait for the release** (Aria, 2026-10-18): the licence change to `botropolis` and `botropolis-bin` is committed locally in their AUR checkouts now, without a `pkgrel` bump, and pushed only with the next version, so nobody rebuilds an unchanged version for its metadata.
