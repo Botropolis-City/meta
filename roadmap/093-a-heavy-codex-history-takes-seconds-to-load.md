@@ -1,6 +1,6 @@
 # 93. A heavy Codex history takes seconds to load at every daemon start
 
-**Open. Filed 2026-10-16 (r455) at Aria's request, from a measurement item 86 made. Nobody's call — the cost is accepted for now and the levers are known.**
+**Open, in progress since 2026-10-19 in the session "item 93". Filed 2026-10-16 (r455) at Aria's request, from a measurement item 86 made. Nobody's call — the cost is accepted for now and the levers are known.**
 
 Item 86 stopped taking old sessions off the map, so the Codex loader now reads every rollout there is.
 Measured on a synthetic history: 2,000 rollouts of about 100 KB took 3.2 s to load the first time; 400 rollouts of 1 MB took 0.75 s once item 86 gave Codex the 64 KB head-and-tail window Claude's catalogue reads (`c3223ba`), against 4.4 s read whole.
