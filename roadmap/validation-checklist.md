@@ -39,3 +39,23 @@ Nothing is missing and nothing disagrees.
 `botropolis bar` emits waybar JSON with `"class":"needs-you"` and a tooltip naming each one, so the class does change with state.
 
 **Sampled simultaneously with `botropolis status`** rather than minutes apart, because the first comparison appeared to show `bar` calling two sessions needs-you that `status` called working — which was two samples of a changing state, not a disagreement. Taken in the same instant, the two agree exactly: 11 needs-you each, none in one and not the other.
+
+## Steps 2-10, a dry run before 0.2.0, 2026-10-19
+
+Run by the roadmap manager overnight, at Aria's request, against a build of main (r704) rather than the release, to find what 0.2.0 should fix before it is cut; the run against the release itself follows.
+Nothing was installed: the binaries ran from a scratch folder, beside a scratch daemon with its own socket, state directory and a copy of the config, on Aria's display, with every key pressed by the city's own `--keys` and `--script` cues rather than injected into the desktop.
+Sessions were made for it in a scratch folder (`~/workspaces/botropolis-validation/valley`), so attach, new, demolish and `!` touched only those.
+
+| # | result |
+| --- | --- |
+| 2 | **passes**: the selected needs-you session's Enter opened terminator running `claude attach`; ending the client left the session running |
+| 3 | **passes**: `c` started a background session in that folder, and the stream said `started` |
+| 4 | not run yet |
+| 5 | not run yet: item 116 is rewriting the breakdown's cost, so it is run against the release |
+| 6 | **two fail**: Escape leaves the sidebar open and opens settings on top, and with the interface hidden it opens settings invisibly ([item 137](137-escape-skips-the-sidebar-and-the-hidden-interface.md)); the rest close or are one-shot |
+| 7 | **passes** by its own path: `botropolis rm` on a stopped session removed it from `claude agents --all` and from the daemon within 3 s; `d d` itself could not be scripted, because its 3 s arming is wall-clock and a hidden window records a frame every ~14 s |
+| 8 | **passes**: `bar` gives class `needs-you` and names each one |
+| 9 | **fails**: the sidebar cuts off every row past the window's bottom, with no scroll ([item 136](136-the-sidebar-cuts-off-rows-past-the-window.md)) |
+| 10 | **passes** once settled (0.15-1.1 s), but **6-15 s late** while the first-run statistics backfill runs ([item 138](138-state-changes-lag-while-statistics-backfill.md)) |
+
+Also seen: a district named "." and two districts named botropolis ([item 139](139-districts-named-dot-and-twins.md)).

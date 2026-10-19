@@ -42,6 +42,10 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [132](roadmap/132-the-bridge-road-crosses-the-rail-and-ends-in-the-water.md) | the bridge road crosses the rail at grade and runs into the water: the bridge starts at an abutment and its first span crosses the rail | 134 (slice 1) | nobody |
+| [136](roadmap/136-the-sidebar-cuts-off-rows-past-the-window.md) | the sidebar cuts off every row past the bottom of the window; the hidden section is unreachable | — | nobody, a defect |
+| [137](roadmap/137-escape-skips-the-sidebar-and-the-hidden-interface.md) | Escape skips the sidebar and the hidden interface, and opens settings over them | — | nobody, a defect |
+| [138](roadmap/138-state-changes-lag-while-statistics-backfill.md) | a session's change of state shows 6–15 s late while the statistics backfill runs | — | nobody, a defect |
+| [139](roadmap/139-districts-named-dot-and-twins.md) | sessions with no folder make a district called ".", and two folders with one name are indistinguishable | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
