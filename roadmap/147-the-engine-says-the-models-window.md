@@ -16,3 +16,11 @@ Aria, 2026-10-19, reviewing item 134's frames: models allow very different conte
 3. The train's card names the model's window beside its spend.
 
 Tests: each window class gets its engine; an unknown window gets the default and the card says unknown; the wagon count is unchanged by the engine; frames for Aria.
+
+## Decided
+
+- **Where the window comes from** (the manager, 2026-10-19): the largest window any session on the model knew in the train's period, then the model table's, then unknown; the card says which.
+  The store records a model without the `[1m]` suffix a session's model can carry, so the suffix is dropped to match them.
+- **The class picks the engine and the hue colours the wagons** (the manager, 2026-10-19), so two models in one class share an engine and are told apart by their wagons and their cards.
+- **The engines** (Aria, 2026-10-19, from `botropolis/docs/screenshots/r749-item-147-engine-options-both-sides.png`): up to 200k, `train-diesel-c`; up to 1M, `train-electric-bullet-a`; over 1M, `train-electric-double-a`; an unknown window, `train-locomotive-a`.
+  The atlas carries these four and drops the diesels nothing draws, and every engine runs nose first.
