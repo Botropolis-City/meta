@@ -45,7 +45,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
-| [124](roadmap/124-wall-clock-deadlines-fail-under-load.md) | two tests with wall-clock deadlines (demo unstage, the daemon's watcher) fail under load | — | nobody, a defect |
 | [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
 | [128](roadmap/128-an-interrupted-gamepad-open-ends-the-city.md) | an interrupted gamepad open at start-up ends the city | — | nobody, a defect |
 | [129](roadmap/129-lint-does-not-check-formatting.md) | lint does not check that the Go is formatted; two files are not | — | nobody, a defect |
