@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-19 in the session "item 135". Filed 2026-10-19 (r685), from item 99. Nobody's call — a defect.**
 
 Depends on: nothing
+Landed: slice 1 (`ac84348`, r688).
 
 `botropolis/tools/check-publishable` failed once saying `docs/screenshots/r460-item-87-new-session.png` "is not on the reviewed list" though it is, then passed three times in a row (item 99, 2026-10-19).
 The script runs under `set -o pipefail`, and line 251 reads `printf '%s\n' "${reviewed}" | grep -qxF "${img}"`: `grep -q` exits on its first match, and if `printf` is still writing it dies of SIGPIPE, so the pipeline fails although grep matched.
