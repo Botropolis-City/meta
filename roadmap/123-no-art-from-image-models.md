@@ -1,6 +1,6 @@
 # 123. Write down the art rule: no art from image models
 
-**Open. Filed 2026-10-18 (r628), Aria's decision after the art audit of items 119–122. Nobody's call — Aria has decided; this records and guards it.**
+**Open, in progress since 2026-10-18 in the session "item 123". Filed 2026-10-18 (r628), Aria's decision after the art audit of items 119–122. Nobody's call — Aria has decided; this records and guards it.**
 
 Aria, 2026-10-18: *"document my art decision to not use ai generated art but to instead use real artists or open source assets or generate art only by generating polygons and such through blender just as an artist would and so we don't rely on any models trained on art they may inadvertantly use other's art."*
 
