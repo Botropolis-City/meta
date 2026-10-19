@@ -1,6 +1,6 @@
 # 141. A live session's transcript is re-read whole every time it changes
 
-**Open. Filed 2026-10-19 (r711), from item 138's measurements. Nobody's call — a defect.**
+**Open, in progress since 2026-10-19 in the session "item 141". Filed 2026-10-19 (r711), from item 138's measurements. Nobody's call — a defect.**
 
 Depends on: nothing
 
