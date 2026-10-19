@@ -1,6 +1,6 @@
 # 122. The app credits nobody whose work it draws
 
-**Open. Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
+**Open, in progress since 2026-10-18 in the session "item 122". Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
 
 Aria, 2026-10-18: *"Make sure that for anything we pulled from an asset pack we have followed their licensing and attributed and thanked them."*
 
