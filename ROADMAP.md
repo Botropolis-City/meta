@@ -41,6 +41,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [141](roadmap/141-a-live-transcript-is-re-read-whole-on-every-change.md) | a live session's transcript is re-read whole every time it changes (339 MB, 3.7 s CPU a rescan) | — | nobody, a defect |
+| [143](roadmap/143-the-daemon-can-miss-its-start-deadline.md) | the daemon can miss its 10 s start deadline on a large home and exit (0.2.0) | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
