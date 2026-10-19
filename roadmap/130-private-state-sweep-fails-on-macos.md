@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-10-18 in the session "item 130". Filed 2026-10-18 (r667), from what item 129 found. Nobody's call — a defect.**
 
+Landed: slice 1 (`5415e20`, r673).
+Landed: slice 2 (`5415e20`, r673).
 Landed: slice 3 (`9cf3655`, r672).
 
 `TestMakePrivateSweeps` fails on both macOS runners (`botropolis/pkg/statedir/statedir_test.go:188`, "when a private directory's pid now belongs to another process / it should remove it"), and `ci` on main has been red for three runs since item 114's slice 4 landed (`e6c8539`, r638).
