@@ -1,6 +1,6 @@
 # 123. Write down the art rule: no art from image models
 
-**Open, in progress since 2026-10-18 in the session "item 123". Filed 2026-10-18 (r628), Aria's decision after the art audit of items 119–122. Nobody's call — Aria has decided; this records and guards it.**
+**Done 2026-10-18 (`e1c6472`, r661). Filed 2026-10-18 (r628), Aria's decision after the art audit of items 119–122. Nobody's call — Aria has decided; this records and guards it.**
 
 Aria, 2026-10-18: *"document my art decision to not use ai generated art but to instead use real artists or open source assets or generate art only by generating polygons and such through blender just as an artist would and so we don't rely on any models trained on art they may inadvertantly use other's art."*
 
@@ -48,3 +48,21 @@ None of them is a breach of this rule.
 ## Done when
 
 The design document is written and listed, both `CLAUDE.md` files point at it, and the asset-source check fails on an unlicensed image and passes on the tree.
+
+## Closed
+
+Done 2026-10-18 in botropolis `e1c6472`, r661, in one slice.
+
+- `botropolis/design/art-sources.md` holds the three sources, what is ruled out and why, what the rule covers, and what guards it; `DESIGN.md`'s *What exists* table lists it.
+- `botropolis/CLAUDE.md` has an *Art* section pointing at it,
+  and the manager added the line to `botropolis.city/CLAUDE.md` (botropolis.city `60d541b`).
+- [art-direction.md](art-direction.md) notes that the Quaternius robots held in reserve are source 2 and pass.
+- `tools/check-asset-sources`, run by `make lint` and by `testing/acceptance/asset_sources_test.go`, walks `pkg/assets/` on the filesystem and fails, by name, on any image (by extension or leading bytes) with neither a non-empty licence file beside it nor a `kits-z*.json` manifest in `pkg/assets/kits/` naming it as a page; it also fails on a missing or image-less `pkg/assets/`.
+  On the tree it reports 3 licensed images and 8 rendered pages.
+- Mutated red: an unlicensed PNG added to the real `pkg/assets/` failed by name, and the test's seven fixture mutations (unlicensed PNG, JPEG and SVG, a PNG renamed `.bin`, an unmanifested page beside the atlases, a manifest outside `kits/`, an empty licence file) each fail.
+  Five faults put into the guard itself — accepting an empty licence, dropping the leading-bytes check, accepting any `kits-z` name anywhere, passing an empty corpus, passing a missing `pkg/assets/` — were each caught by their own test.
+  A row in `TestScriptsAreInTheCacheKey` makes an edit to the script re-run the test.
+
+No deviation from the item.
+The guard cannot tell whether a picture came from an image model, and the design document says so: the written rule is the guard for that.
+No changelog entry, because nothing a user of Botropolis sees changed.

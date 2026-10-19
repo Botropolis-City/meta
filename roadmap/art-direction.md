@@ -31,3 +31,5 @@ Workers are bots, not characters.
 That is the line between Factorio and Animal Crossing, and the whole point of the redesign is to be on the Factorio side of it.
 
 Kenney has no robot or drone character pack; the catalogue was checked, not remembered.
+
+The pack held in reserve, Quaternius's CC0 robots, is source 2 of the art rule, an openly licensed asset pack, and so passes it (item 123, [`design/art-sources.md`](https://github.com/Botropolis-City/botropolis/blob/main/design/art-sources.md)).
