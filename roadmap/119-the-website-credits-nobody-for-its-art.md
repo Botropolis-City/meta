@@ -1,6 +1,6 @@
 # 119. The website credits nobody for its art
 
-**Open, in progress since 2026-10-18 in the session "item 119". Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
+**Done 2026-10-18 (botropolis.city `2a51d0c`, r25). Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
 
 Aria, 2026-10-18: *"Make sure that for anything we pulled from an asset pack we have followed their licensing and attributed and thanked them."*
 
@@ -28,3 +28,13 @@ The footer names Kenney with a link to kenney.nl, a test fails if the line is re
 ## Answered while building
 
 - **One wording everywhere** (manager, 2026-10-18, from item 120's audit of the atlas): the footer, the README and the app share one credit — Kenney's kits for roads, trees, vehicles, trains, boats and landmarks, with thanks; our own buildings, drone, fountain and building sites; and the typefaces. Aria passed the footer and said push it, with the typefaces credited to their licence holders, "The Inter Project Authors" and "The JetBrains Mono Project Authors", rather than their designers.
+
+## Closed
+
+The footer's `.small` row now carries the credit, in wording agreed with items 120 and 122 so all three say the same thing:
+*"Roads, trees, vehicles, trains, boats and landmarks by Kenney (kenney.nl), CC0 — thank you. Session buildings, the drone, the fountain and the building sites are modelled for Botropolis. Set in Inter by The Inter Project Authors and JetBrains Mono by The JetBrains Mono Project Authors (SIL OFL 1.1)."*
+"Kenney" links kenney.nl and "thank you" links kenney.nl/donate, text only, with no logo.
+The typefaces are credited to the copyright holders their licence files name, at Aria's call when she passed the frames on 2026-10-18; the item had suggested no particular holder.
+Four tests in `botropolis.city/testing/acceptance/site/page.spec.ts`, under "and the reader reaches the footer", pin both links, the typeface line, and that the credit holds no image; each failed before the change.
+The site workflow deployed it, and the same four pass against https://botropolis.city.
+There is no changelog entry, because `botropolis/CHANGELOG.md` covers the app and this changed only the website.
