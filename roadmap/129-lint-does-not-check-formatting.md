@@ -2,6 +2,10 @@
 
 **Open, in progress since 2026-10-18 in the session "item 129". Filed 2026-10-18 (r655), from what item 125 found. Nobody's call — a defect.**
 
+Depends on: nothing
+
+Landed: slice 1 (`9ca362f`, r658).
+
 `gofmt -l` lists `pkg/render/reference.go` and `pkg/render/shore_test.go` on main, and `make lint` is green: `golangci-lint` runs without a formatting linter configured in `botropolis/.golangci.yml`, and nothing else in the `lint` target runs `gofmt`.
 So unformatted code lands, and every later edit to those files carries an unrelated formatting diff.
 
