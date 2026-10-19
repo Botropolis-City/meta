@@ -1,6 +1,6 @@
 # 125. The city sometimes segfaults at teardown, inside Mesa
 
-**Open. Filed 2026-10-18 (r636), from what item 114 measured. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 125". Filed 2026-10-18 (r636), from what item 114 measured. Nobody's call — a defect.**
 
 A headless or `--home` screenshot run sometimes exits with status 139, a segfault, as it shuts down: GLFW's terminate unloads EGL (`dlclose`) while a Mesa gallium thread is still running, inside `RunGame`'s teardown.
 Item 114 counted it in 2 or 3 of 60 runs at a load of about 29, and found nine core dumps of `botropolis` on this machine from one afternoon, across several sessions' acceptance runs.
