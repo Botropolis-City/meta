@@ -1,6 +1,6 @@
 # 122. The app credits nobody whose work it draws
 
-**Open, in progress since 2026-10-18 in the session "item 122". Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
+**Done 2026-10-18 (`f78040b`, r649). Filed 2026-10-18 (r628), from the art audit Aria asked for. Nobody's call — Aria asked for it.**
 
 Depends on: nothing
 Landed: slice 1 (`f78040b`, r649).
@@ -37,6 +37,13 @@ The stop-word list in `pkg/group/stopwords` is not drawn, so it is not credited 
 Slice 1 is the layout and its tests: `NewReference` takes the credit for the index entry, and `LayoutReference` wraps it at the panel's measure in `Small`, one grid under the hint, growing the panel by a grid plus a line per wrapped line, at theme scales 1 and 2; another entry, or an empty credit, lays out none.
 Slice 2 is the frame, `botropolis/docs/screenshots/r649-item-122-reference-credit.png`, from the synthetic home.
 The overlay does not depend on the camera's heading or zoom, so one frame shows it for all of them.
+
+## Closed
+
+Done in `f78040b` (r649): the reference's index ends with the credit, wrapped and dimmed under its hint, with the layout tests in `pkg/ui/reference_test.go`.
+The frame landed in `e72f66c` (r650), and Aria passed it on 2026-10-18: *"Pass, close it."*
+The changelog entry is `9cd2407`.
+The deviation, flagged above and ruled by the manager: the credit is on the index, the overlay's front page, rather than under the key list, which overflows the window and is its own defect.
 
 ## Done when
 

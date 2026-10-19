@@ -49,7 +49,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [125](roadmap/125-the-city-segfaults-at-teardown-in-mesa.md) | the city sometimes segfaults at teardown, inside Mesa | — | nobody, a defect |
 | [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
 | [121](roadmap/121-the-packages-declare-only-mit.md) | the packages declare MIT alone but ship OFL and CC0 work; declare all three | — | nobody, Aria asked for it |
-| [122](roadmap/122-the-app-credits-nobody-whose-work-it-draws.md) | the app credits nobody whose art it draws; a credit line in the help overlay | — | nobody, Aria asked for it |
 | [123](roadmap/123-no-art-from-image-models.md) | write down and guard Aria's rule: art comes from artists, open packs or hand-built geometry, never image models | — | nobody, Aria decided |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
