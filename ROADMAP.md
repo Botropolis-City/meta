@@ -44,7 +44,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [99](roadmap/099-landmark-labels-sit-on-the-neighbouring-district.md) | the power plant's and library's labels sit on the neighbouring district | — | nobody, a defect |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
-| [108](roadmap/108-roads-run-alongside-lots-instead-of-between-them.md) | roads run alongside two lots instead of between them; driveways, street paths, and hovering a car shows its path | — | nobody, the design is chosen |
 | [114](roadmap/114-frame-state-test-flakes-under-load.md) | item 111's private-state acceptance test fails under load and leaves a directory behind | — | nobody, a defect |
 | [117](roadmap/117-acceptance-tests-cached-past-code-changes.md) | the acceptance tests report a cached pass after the code they test has changed | — | nobody, a defect |
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |

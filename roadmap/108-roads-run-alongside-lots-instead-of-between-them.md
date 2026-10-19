@@ -1,6 +1,6 @@
 # 108. Roads run alongside two lots instead of from one to the other
 
-**Open, in progress since 2026-10-18 in the session "item 108". Filed 2026-10-17 (r571) at Aria's request. Nobody's call — the design is chosen.**
+**Done 2026-10-18 (`1671d78`, r643). Filed 2026-10-17 (r571) at Aria's request.**
 
 Depends on: nothing
 Landed: slice 1 (`7bc9bc4`, r615).
@@ -47,3 +47,17 @@ So pointing at a car highlights its whole path, driveway to driveway, and recede
   A lot with no road yet has no kept driveway and defaults to the side facing the camera.
 - **The hover fades everything not tied to the car** (Aria, 2026-10-18, from item 102's r624 frame): the car, its road and its two districts stay at full strength, and everything else fades, labels and plates included. Item 102's labels ask `Highlight.FadesDistrict` and `FadesRoad`.
 - **The frames passed** (Aria, 2026-10-18, r636), with two changes: a road's tag steps off its car, cars joining the label layout as things labels avoid; and a hovered car's two districts keep their group-line station dots lit while the lines themselves fade. The bridge's T is trusted to its test, since no demo road now reaches the bridge.
+
+## Closed
+
+Aria passed it on 2026-10-18, from the r643 hovered frame: *"Pass, close it."*
+Every lot has one driveway, chosen when it first has a road on the side that keeps its roads shortest (the camera-facing side unless another is more than two cells shorter), and kept in the layout through new roads, turns of the camera and restarts (`7bc9bc4`, r615; `90f4380`, r622; `1a2848e`, r629).
+A road is lot end, driveway, the shortest walk along the streets, driveway, lot end, paved with a pad into each lot while it is used; cars, vans, the merge truck and item 109's skip truck and mixer all follow it (`4098d79`, r619), and a road reaching the bridge's landing joins it with a T (`90f4380`, r622).
+Pointing at a car lights its road and its two districts, their group-line stations included, and fades everything else through one fader in `drawIso`, labels included through item 102's `Highlight.FadesDistrict` and `FadesRoad`; the road's tag steps off the car (`1a2848e`, r629; `d744328`, r636; `1671d78`, r643).
+The changelog entry is `afb4ecd`, r646.
+
+The frames, from the staged buildings scene rather than the workday one, which has no roads (manager, 2026-10-18): `botropolis/docs/screenshots/r614-item-108-before.png`, `r636-item-108-after.png` and `r643-item-108-car-hovered.png`.
+The tests are `TestDriveways`, `TestRoadsRunLotToLot`, `TestDrivewaysAreKept`, `TestRoadsJoin`, `TestRoadJoinsTheBridge` and `TestCarHighlight` in `botropolis/pkg/city`, and `TestJobTrucksUseTheDriveway`, `TestCarHoverGround`, `TestCarScriptTarget`, `TestFader`, `TestKeepsUnderACar` and `TestLabelsStepOffCars` in `botropolis/pkg/render`.
+
+Flagged for Aria: a lot's driveway may now be on its back, while doors and `Route` stay on the south, so its trucks cross the lot from the back; tidepool's does in the staged scene.
+The bridge's T is shown by its test only, since no demo road now reaches the bridge.
