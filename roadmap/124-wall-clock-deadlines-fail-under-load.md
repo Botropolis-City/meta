@@ -13,3 +13,8 @@ For each test, find which it is: if the code under test is waiting on something 
 ## Done when
 
 Each test's cause is named here, and both pass `-count=50` at a load like the one they failed under.
+
+## Answered while building
+
+- **Both are missed signals, not slow machines** (item 124's session, 2026-10-18). Unstage read a stand-in's name before the kernel had renamed the child — 1,342 of 3,000 times even unloaded — and skipped it; it now matches the process's start time, recorded when the stand-in started, which also guards a reused pid. The daemon began serving before its directory watches were in place, so a change landing during start-up went unseen until the next write: a product bug, fixed by scanning, watching, waiting until watching, and scanning again before serving.
+- **The deadlines** (manager, 2026-10-18): the daemon test waits on the daemon's own update rather than polling; both keep a 30 s backstop, out of reach when working, so a hang is a readable failure rather than the test runner's ten-minute panic.
