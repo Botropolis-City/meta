@@ -40,6 +40,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [149](roadmap/149-what-1-0-0-promises.md) | what 1.0.0 promises: the surface written down, golden tests, and a layout file that is never reset in silence | — | Aria, what is on the list |
+| [154](roadmap/154-a-fresh-eyes-audit-of-the-city.md) | a fresh-eyes audit of every scene, panel and mode, filing each small defect as its own item; no performance | — | nobody, the audit finds |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
