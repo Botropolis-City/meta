@@ -1,6 +1,6 @@
 # 133. The lint test fails when two sessions run the tests at once
 
-**Open. Filed 2026-10-19 (r678), from items 78 and 99. Nobody's call — a defect.**
+**Open, in progress since 2026-10-19 in the session "item 133". Filed 2026-10-19 (r678), from items 78 and 99. Nobody's call — a defect.**
 
 Depends on: nothing
 

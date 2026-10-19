@@ -1,6 +1,6 @@
 # 134. The train is a third the size it should be beside the cars
 
-**Open. Filed 2026-10-19 (r685) at Aria's request, from item 132's pause. Nobody's call — the scale is measured and the change is small.**
+**Open, in progress since 2026-10-19 in the session "item 134". Filed 2026-10-19 (r685) at Aria's request, from item 132's pause. Nobody's call — the scale is measured and the change is small.**
 
 Aria, 2026-10-19, on item 78's frame (`botropolis/docs/screenshots/r674-item-78-train-hovered.png`): *"The train is way too small compared to that road. Is the train just too small, or is that road really big compared to other roads/cars."*
 The train is too small; the road is right.
