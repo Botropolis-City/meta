@@ -1,6 +1,6 @@
 # 136. The sidebar cuts off every row past the bottom of the window
 
-**Open, in progress since 2026-10-19 in the session "item 136". Filed 2026-10-19 (r707), from the validation checklist's step 9 run against main before 0.2.0. Nobody's call — a defect.**
+**Fixed 2026-10-19 (`27fe1de`, r721). Filed 2026-10-19 (r707), from the validation checklist's step 9 run against main before 0.2.0. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`5352172`, r720).
@@ -17,3 +17,32 @@ Item 127's answer for the key list, applied here: the sidebar scrolls with the w
 Update step 9's wording in the checklist to what the sidebar is.
 
 Tests: a layout with more rows than fit → it should mark how many are below; scrolled → it should show the rows after the fold and mark those above; with a selection below the fold → it should scroll to keep it in view; the hidden section is reachable by scrolling.
+
+## Answered while building
+
+- **The keys** (manager, 2026-10-19): neither the arrows nor arrows-while-pointing; PageUp, PageDown, Home and End scroll the sidebar while it is open, the arrows keep panning, and the wheel over the panel scrolls it instead of zooming.
+- **The card squeezing the list** (manager, 2026-10-19): filed as its own item rather than fixed here.
+
+## Closed
+
+Slice 1 (`5352172`, r720) made the sidebar scroll.
+`ui.LayoutSidebar` lays out every row, then shows a window of whole rows with "N more above" and "N more below"; it takes the scroll and a flag to reveal the selection, and keeps both in range.
+The wheel over the panel scrolls it and no longer zooms the map, PageUp and PageDown move a page (the rows that fit between both marks), Home and End go to either end, and the arrows still pan.
+When the selection changes, from the map, `tab` or the finder, the list scrolls just far enough to show its row, once, so it can be scrolled away from after.
+Slice 2 (`27fe1de`, r721) fixed what the first frame showed: the panel ran down under the footer's needs-you line, hiding the "more below" mark, and now ends where the footer begins.
+And the page keys no longer clamp against the last drawn layout, so a key pressed before the panel's first draw still counts.
+Step 9 of the checklist now describes the sidebar as it is.
+
+Frames, passed by the manager for Aria (2026-10-19): `botropolis/docs/screenshots/r721-item-136-sidebar-top.png`, `…-paged.png` and `…-end.png`, the metropolis demo at 1280×800.
+
+Tests: `botropolis/pkg/ui/sidebar_test.go` covers the marks, the rows clear of them, scrolling, clamping, the hidden section reached at the end, the page size, and revealing a selection below, above and already in view.
+`botropolis/testing/acceptance/sidebar_test.go` drives PageDown, PageUp, Home, End and the wheel on the metropolis demo at 1024×900.
+It checks the camera neither moves nor zooms, the up arrow still pans, the panel stays clear of the footer, and each selection `tab` walks to has its row in view.
+The reveal and the wheel hook were each removed to watch their tests fail.
+
+**Left open, for the item the manager files:** in short windows the selection's card, docked at the sidebar's foot, leaves the list no room.
+At 1024×600 on the metropolis demo, with a session selected, the list is 25 to 40 px tall and shows zero rows,
+so the selected row cannot be kept in view there; the acceptance test runs at 1024×900, where it holds.
+
+**A follow-up, the manager's note:** when scrolled, a district's session rows can sit at the top with its header out of view (in the paged frame, "Sea conditions…" under "1 more above"),
+so the top district's header could stick.
