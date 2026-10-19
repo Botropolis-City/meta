@@ -1,6 +1,6 @@
 # 132. The bridge road crosses the rail at grade and runs into the water
 
-**Open, in progress since 2026-10-19 in the session "item 132". Filed 2026-10-19 (r678) at Aria's request, from item 78's frame. Nobody's call — Aria decided the design on 2026-10-19.**
+**Fixed 2026-10-19 (`4f0e7f9`, r707). Filed 2026-10-19 (r678) at Aria's request, from item 78's frame. Nobody's call — Aria decided the design on 2026-10-19.**
 
 Depends on: 134 (slice 1)
 Landed: slice 1 (`4f0e7f9`, r707).
@@ -44,3 +44,23 @@ So the scale of the train against the road comes first, then which crosses which
 
 The design session measured the scale and recommended: rescale the train (item 134), keep the bridge, road over rail on the bridge's first span from an abutment on the landing cell, no station.
 Aria: *"yes do it."*
+
+## Closed (2026-10-19)
+
+Item 132's session measured the crossing at r696: the landing is the westmost avenue cell, the rail's west leg the next cell, then four land cells before the shallows.
+The manager settled two questions for Aria before the tests were written: the ramp climbs over the landing cell's outer half, so the avenue's T junction stays at ground at the cell's centre, drawn as a wedge with its sides; and the deck stays at clearance all the way out to the far end.
+
+Slice 1 (`4f0e7f9`, r707) built it.
+`City.Bridge` carries its abutment, its deck cells from the rail out to the far end, and a `Rise` the truck rides by.
+The deck is the roads kit's straight piece raised on girders, piers and railings drawn in code, and its underside clears the tallest train piece's roof, measured from both atlases at every heading, with 15% headroom.
+It moved from the flat street layer into the depth sort, where each drawable now has a level: of two things on one patch of ground the higher draws after, so the train passes beneath and the truck rides on top.
+`TestBridgeOverTheRail`, `TestBridgeDrawOrder` and `TestBridgeClearance` hold it, and each was mutated red.
+One test was added to the agreed tree: no tree is planted on the abutment or under the deck, because the test cities had trees there that would have stood through the bridge.
+
+Slice 2 (`7387a14`, r710) is the frames, `botropolis/docs/screenshots/r707-item-132-bridge-h0.png`, `-h90`, `-h180` and `-h270`.
+The fixture has no spend and no merge, so the train under the first span and the trucks on the deck were placed by a staging hook that was not committed.
+The changelog says it in `5706b1c`.
+
+**Passed by the roadmap manager on Aria's behalf (2026-10-19)**, so she can reopen it: both complaints are answered at all four headings.
+For Aria: the abutment reads as a steep solid wedge, a toy overpass as agreed; a gentler or more open ramp would be a follow-up.
+The demo set predates it and waits for the release re-film.
