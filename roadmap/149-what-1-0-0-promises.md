@@ -1,6 +1,8 @@
 # 149. What 1.0.0 promises is written nowhere, and nothing fails when it changes
 
-**Open, in progress since 2026-10-19 in the session "item 149". Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Aria's call — what is on the list.**
+**Open. Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Aria's call — what is on the list.**
+
+Landed: slice 1 (`89df7a6`, r760).
 
 Under Semantic Versioning, 1.0.0 is a promise: what people depend on does not break without a 2.0.0.
 Botropolis has never said what that is.
