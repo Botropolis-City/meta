@@ -59,3 +59,21 @@ Sessions were made for it in a scratch folder (`~/workspaces/botropolis-validati
 | 10 | **passes** once settled (0.15-1.1 s), but **6-15 s late** while the first-run statistics backfill runs ([item 138](138-state-changes-lag-while-statistics-backfill.md)) |
 
 Also seen: a district named "." and two districts named botropolis ([item 139](139-districts-named-dot-and-twins.md)).
+
+## Steps 2-10 against the 0.2.0 release, 2026-10-19
+
+The released `botropolis-0.2.0-linux-amd64.tar.gz`, unpacked into a scratch folder and run the same way as the dry run above: a scratch daemon on a fresh state directory (as an upgrade from 0.1.7 starts), Aria's display, the city's own key cues, and sessions in `~/workspaces/botropolis-validation/valley`. The machine was loaded (average 15-20) by a demo film and a package build running beside it.
+
+| # | result |
+| --- | --- |
+| 2 | **passes**: Enter on the selected needs-you session opened `claude attach` in terminator |
+| 3 | **passes**: `c` started a background session in that folder |
+| 4 | **passes** for the notification: `botropolis notify` sent "val needs-you needs you" over D-Bus when the session handed back; the map's away panel on refocus cannot be shown from a locked screen and is unchecked |
+| 5 | **passes**: the plant's 24 h figure ($428.94 at API list prices, 5,377 messages) is the strip's, and no row prices millions of tokens at $0.00 |
+| 6 | **passes**: Escape now closes the sidebar and brings the hidden interface back (item 137) |
+| 7 | **fails**: a removed session leaves `claude agents --all` but stays on the map as ruins, because the ledger never forgets it ([item 144](144-a-demolished-session-stays-on-the-map.md)) |
+| 8 | **passes**: `bar` gives class `needs-you` and names each one |
+| 9 | **passes**: PageDown scrolls the sidebar with "N more above / below" (item 136) |
+| 10 | **passes** during the first-run backfill: 1.2 s once, then 0.23 s (item 138) |
+
+Also found: the daemon can miss its 10 s start deadline on a large, busy home and exit — 3 of 6 fresh starts tonight ([item 143](143-the-daemon-can-miss-its-start-deadline.md)). Items 143 and 144 make 0.2.1.
