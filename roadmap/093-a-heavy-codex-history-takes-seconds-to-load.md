@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-19 in the session "item 93". Filed 2026-10-16 (r455) at Aria's request, from a measurement item 86 made. Nobody's call — the cost is accepted for now and the levers are known.**
 
+Depends on: nothing
+Landed: slice 1 (`0b536c7`, r675).
+
 Item 86 stopped taking old sessions off the map, so the Codex loader now reads every rollout there is.
 Measured on a synthetic history: 2,000 rollouts of about 100 KB took 3.2 s to load the first time; 400 rollouts of 1 MB took 0.75 s once item 86 gave Codex the 64 KB head-and-tail window Claude's catalogue reads (`c3223ba`), against 4.4 s read whole.
 Reloads after that take milliseconds.
@@ -22,3 +25,17 @@ The window bounds the bytes per rollout; what remains is `session.apply` running
 A cache written to disk would make every start after the first fast, but it is a copy derived from another tool's data, which the project avoids; it is listed here so that it is not reached for first.
 
 The benchmark item 86 recorded is the measure: re-run it, and record the number beside 3.2 s.
+
+## Measured
+
+`BenchmarkLoadAHeavyHistory`, in botropolis's `testing/acceptance` so that the release's `make bench` tracks it, rebuilds item 86's history, since item 86's own rollouts were never kept: 2,000 rollouts of about 100 KB each, mostly tool output and reasoning.
+On 14 cores the first load took **1.3 s** before this item, against item 86's 3.2 s on its own rollouts.
+
+- **Slice 1, skipping lines before decoding them** (r675): **0.55–0.76 s**.
+  Codex writes every line as `{"timestamp":T,"type":X,"payload":{"type":Y`, so the loader reads that header in place and decodes only the records it uses.
+  A line of any other shape is decoded whole.
+  The work counter "rollout lines decoded" holds the loader to exactly the lines used.
+  A byte search for the record types across the whole line was tried first and was slower than decoding, because tool output is full of quotes.
+
+The manager's rule (2026-10-19): build slice 2, decoding in parallel, only if the first load is still over about half a second, which it is.
+**Lever 3, show first and fill later, is not to be built**: it changes what the daemon's first snapshot means, and the cheaper levers are enough.
