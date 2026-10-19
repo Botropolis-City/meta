@@ -4,6 +4,8 @@
 
 Depends on: 149 (slice 1)
 
+Landed: slice 1 (`5cddccc`, r766).
+
 [Item 149](149-what-1-0-0-promises.md)'s slice 1 (`89df7a6`, r760) exchanges a release and a protocol version on every request; on the manager's ruling a release mismatch only showed a strip chip, "daemon is 0.2.2, this is 0.2.3: restart it to update" (`botropolis/docs/screenshots/r760-item-149-daemon-notice.png`).
 Aria, 2026-10-19, judging that frame: *"I think this is probably something that's worth preventing start. It could lead to unforeseen issues if they're not in sync. What if we prevent the whole thing from loading and instead show a popup menu stating they are out of sync. And asking the user to restart the daemon. Then we'll have two buttons that say "Exit" and "Restart Daemon". Exit will just exit the app. Restart Daemon will exit, restart the daemon and reload the app."*
 
