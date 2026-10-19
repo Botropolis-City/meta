@@ -1,6 +1,6 @@
 # 124. Two tests with wall-clock deadlines fail under load
 
-**Open. Filed 2026-10-18 (r628), from what item 114 found. Nobody's call — a defect.**
+**Open, in progress since 2026-10-18 in the session "item 124". Filed 2026-10-18 (r628), from what item 114 found. Nobody's call — a defect.**
 
 In thirty uncached runs of the unit and integration suites at a load of 18 to 30, item 114 saw two tests fail on a fixed wall-clock deadline:
 
