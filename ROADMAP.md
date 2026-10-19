@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [118](roadmap/118-recorded-clip-timing-test-fails-under-load.md) | the recorded-clip timing test fails under load | — | nobody, a defect |
 | [127](roadmap/127-the-key-list-overflows-the-window.md) | the help's key list runs off the window and cannot be scrolled | — | nobody, a defect |
-| [128](roadmap/128-an-interrupted-gamepad-open-ends-the-city.md) | an interrupted gamepad open at start-up ends the city | — | nobody, a defect |
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [130](roadmap/130-private-state-sweep-fails-on-macos.md) | the private-state sweep's test fails on macOS, and CI is red | — | nobody, a defect |
 | [131](roadmap/131-acceptance-tests-time-out-under-load.md) | the acceptance tests run past go test's default timeout under load | — | nobody, a defect |

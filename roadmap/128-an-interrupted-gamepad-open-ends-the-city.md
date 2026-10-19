@@ -1,6 +1,6 @@
 # 128. An interrupted gamepad open at start-up ends the city
 
-**Open, in progress since 2026-10-18 in the session "item 128". Filed 2026-10-18 (r655), from what item 125 found. Nobody's call — a defect.**
+**Fixed 2026-10-18 (`bb837cb`, r666). Filed 2026-10-18 (r655), from what item 125 found. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`bb837cb`, r666).
@@ -36,3 +36,10 @@ Synchronous signals and the real-time ones are left alone, and on any other syst
 `make soak-gamepad` (`TestStartUnderSignals`) starts 40 `--home` screenshot cities one after another while the test keeps the input devices busy and floods each city's main thread with `SIGURG`.
 Before the fix, 12 of 40 exited 1 with "gamepad: Open failed: interrupted system call"; after it, 40 of 40 exited 0.
 `make soak-teardown` then passed three times running, 360 of 360 runs, at a load of 65 to 88.
+
+## Closed
+
+Fixed in botropolis `bb837cb` (r666): the city's main thread holds asynchronous signals for the life of the game loop, so an open of an input device can no longer be interrupted.
+`make soak-gamepad` shows it, 12 failures in 40 before and none after, and `make soak-teardown` now exits 0, 360 runs of 360.
+No deviation from what the item asked: Ebitengine still opens the gamepads, because nothing upstream lets the city stop it, and what we carry is `pkg/sighold`, about twenty lines.
+The gamepad soak is opt-in like the teardown soak, at the manager's word, so `pkg/sighold`'s unit test is what guards the fix on every run.
