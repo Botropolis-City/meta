@@ -44,7 +44,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [116](roadmap/116-scale-part-2.md) | a vision item; details private | 110 | nobody |
 | [132](roadmap/132-the-bridge-road-crosses-the-rail-and-ends-in-the-water.md) | the bridge road crosses the rail at grade and runs into the water: the bridge starts at an abutment and its first span crosses the rail | 134 | nobody |
 | [134](roadmap/134-the-train-is-a-third-the-size-of-the-cars.md) | the train is a third the size it should be beside the cars: Train Kit scale 0.25 → about 0.40 | — | nobody, a measured fix |
-| [135](roadmap/135-publishable-can-fail-on-a-reviewed-image.md) | make publishable can fail on a reviewed image: a pipe race under pipefail | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
