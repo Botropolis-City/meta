@@ -37,7 +37,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [76](roadmap/076-what-the-website-still-needs-filmed.md) | the website's stand-ins: a hero loop, a still per view, a social card, chosen posters, anchors | — | nobody, filming work |
 | [95](roadmap/095-the-global-shortcut-on-macos.md) | the global shortcut on macOS: registering is solved, coming forward needs a Mac run | — | nobody, needs a Mac |
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
-| [97](roadmap/097-codex-sessions-cannot-be-packed-up.md) | Codex sessions cannot be packed up; the ledger is read only for Claude | — | nobody |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [149](roadmap/149-what-1-0-0-promises.md) | what 1.0.0 promises: the surface written down, golden tests, and a layout file that is never reset in silence | — | Aria, what is on the list |
 | [154](roadmap/154-a-fresh-eyes-audit-of-the-city.md) | a fresh-eyes audit of every scene, panel and mode, filing each small defect as its own item; no performance | — | nobody, the audit finds |
