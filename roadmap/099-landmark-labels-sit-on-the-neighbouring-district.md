@@ -5,6 +5,7 @@
 Landed: slice 1 (`5e70cb3`, r676).
 Landed: slice 2 (`5fd2ef2`, r684).
 Landed: slice 3 (`e5f0e5a`, r692).
+Landed: slice 4 (`631b41a`, r701).
 
 The "power plant" label is drawn beside the kiln district's plaque rather than on the power plant, in `docs/screenshots/r470-item-86-ladder.png`, `r490-item-86-ladder.png`, `r505-item-86-overgrown.png` and `r488-item-88-district-signs.png`, and the library's label is just as far from the library.
 
