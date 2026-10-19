@@ -1,6 +1,6 @@
 # 75. A road's label is drawn under the tower beside it
 
-**Open. Filed 2026-10-10 (r376), from the demo frames. Nobody's call — a defect.**
+**Open, in progress since 2026-10-19 in the session "item 75". Filed 2026-10-10 (r376), from the demo frames. Nobody's call — a defect.**
 
 The traffic label `1 file` on the avenue between thistledown and copperleaf is drawn before thistledown's tower, so the tower covers its right half.
 Labels are chrome and should draw over the city, or move off whatever stands on them, the way the tower signage in [later.md](later.md) does.
