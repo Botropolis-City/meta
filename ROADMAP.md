@@ -68,6 +68,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
 | [184](roadmap/184-the-bar-names-a-session-triage-skips.md) | `bar` names and counts sessions triage has marked done or snoozed, so it disagrees with the footer | — | nobody, a defect |
 | [185](roadmap/185-the-landmarks-stay-dark-at-night.md) | the landmarks (library, City Hall, power plant) stay dark at night | 166 | nobody |
+| [186](roadmap/186-item-sessions-land-side-by-side-and-time-out.md) | item sessions run full suites side by side and time out: `make land` with a lock, serial lint, and the kickoff | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
