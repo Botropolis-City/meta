@@ -4,6 +4,8 @@
 
 Depends on: nothing
 
+Landed: slice 2 (`9221556`, r799).
+
 Ruling on what 1.0.0 promises ([item 149](149-what-1-0-0-promises.md)), Aria, 2026-10-20: *"I think my biggest concern with the commands is how many there are. … even if we just wrap a claude thing, asking a user to do a claude command feels like a leaky abstraction. So it's not that I necessarily want to remove commands that have a function. I just want to do a full analysis of the commands that we have and the flags and make sure we haven't spread out too much. That way end users can actually learn and memorize. We also should be creating and shipping man pages with all of this if we don't already."*
 Today `botropolis` has 19 commands (`attach`, `bar`, `city`, `completion`, `doctor`, `events`, `find`, `help`, `install-hooks`, `new`, `notify`, `prune`, `resume`, `rm`, `shell-init`, `status`, `stop`, `tui`, `version`), and every config key is also a global flag on every one of them (about 40), so `botropolis status --help` lists city-drawing flags. No man page is built or packaged.
 
@@ -331,3 +333,9 @@ A unit test walks the tree and fails on a command with no page, and the package 
 5. **In-app capture is its own item**: a sharing mode offering PNG, GIF and a clip, filed by the manager. `p` stays as it is here.
 
 The `status --help` rendering and the README's environment variables and key list are fixed in slice 2 as well.
+
+## Answered while building
+
+- **Slice 2 lands in three parts, numbered as slices 2, 3 and 4** on the `Landed:` lines, which take only a number: 2 is the command shape, 3 the `devtools` build tag, 4 the man pages, packaging and the README.
+  The test tree for all three was approved by the manager on 2026-10-20, with one catch: `completion` stays, hidden, with nothing on stderr, because packagers run it.
+- **A job id no listing has yet is attached as given** (slice 2): a job started a moment ago may not be in `claude agents` yet, so `attach` falls back to `claude attach <id>` rather than failing with "no session", which keeps a plain `claude` from depending on timing.
