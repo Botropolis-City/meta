@@ -1,6 +1,6 @@
 # 186. Item sessions run full suites side by side and time each other out
 
-**Open. Filed 2026-10-20 (r787), from the load of 2026-10-20. Nobody's call — a defect in how items land.**
+**Open, in progress since 2026-10-20 in the session "item 186". Filed 2026-10-20 (r787), from the load of 2026-10-20. Nobody's call — a defect in how items land.**
 
 Depends on: nothing
 
