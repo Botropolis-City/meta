@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-20 in the session "item 186". Filed 2026-10-20 (r787), from the load of 2026-10-20. Nobody's call — a defect in how items land.**
 
 Depends on: nothing
+Landed: slice 1 (`4739efc`, r819).
 
 On 2026-10-20 fourteen item sessions ran on one 14-core machine, and the load average reached 178: each landing ran the full `make lint && make test` at once, the acceptance suite hit its 40-minute limit with no assertion failing, sessions retried, and the load stayed up. Parallel `make lint` runs also failed on golangci-lint's machine-wide lock ("parallel golangci-lint is running").
 The manager's stopgap — land one at a time behind `/tmp/botropolis-land.lock` with `flock … sh -c 'git …'` — cannot run from a worktree session (its guard refuses git inside `sh -c`), so sessions improvised holders and scripts; one (item 174) landed with `make test | tail`, whose pipe hid a failing exit code.

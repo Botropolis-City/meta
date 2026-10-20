@@ -98,6 +98,19 @@ Each rebases onto `github/main` and pushes `HEAD:main` to land: still trunk-base
 Claude Code refuses a worktree session's writes to its repository's main checkout, so its work reaches only its own branch and, from there, `main` on GitHub.
 After an agent lands, the main checkout is behind until someone runs `git pull` in it.
 
+**In botropolis, items land one at a time, with `make land`** (item 186).
+On 2026-10-20 fourteen item sessions on one 14-core machine each ran the full `make lint && make test` to land, all at once.
+The load average reached 178, the acceptance suite ran into its 40-minute limit with no assertion failing, sessions retried,
+and the load stayed up.
+A lock taken by hand could not help, because a worktree session refuses git inside `sh -c`.
+And one session's `make test | tail` hid a failing exit code.
+So `make land` is one plain command that takes `/tmp/botropolis-land.lock` itself and, holding it, fetches, rebases, runs the gate and pushes, with nothing piped.
+A session killed while holding it releases it.
+The lock only holds off sessions that take it: the first landing through `make land` passed its whole gate and was then refused, because another item pushed twice without the lock during its 25 minutes.
+A refused push changes nothing, and `make land` again rebases and reruns the gate.
+While developing, a session runs only the packages it touches, so the full suite runs once per slice, inside the lock.
+`make lint` waits for another session's golangci-lint instead of failing on its lock.
+
 **The session that launches an item manages it** (Aria, 2026-10-16).
 Item sessions do not wait on Aria in their own windows: they send their questions, their test trees and a line per landed slice to the session named in their kickoff, the one that ran `roadmap-start`.
 That manager answers from what is already decided — the item, its details, the vision, these documents — records each answer in the item so it is not asked twice, and brings Aria only what nothing settles, plus every frame to judge (`roadmap-manage`).
