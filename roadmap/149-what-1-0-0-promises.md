@@ -74,4 +74,11 @@ Interviewed by the roadmap manager:
 - **Removal is caught both ways:** computed from the golden files (anything gone from a set fails `make version-check` unless the major version rose) **and** declared — a removal also needs a *Removed* entry in the changelog, which the check reads.
 - **Out of the promise**, as proposed: the daemon protocol (versioned and checked since items 149 and 152), the map's look and art, the TUI's layout, and the city's key bindings (their config keys are promised).
 
+Ruled on 2026-10-20, through the roadmap manager, while slice 2 was planned:
+
+- **The command line waits for [item 167](167-the-cli-has-spread-and-ships-no-man-pages.md)**, which analyses and consolidates it, with man pages, before 1.0 promises it; the command-tree golden file and the removal of `version` move there.
+- **`status --json` promises a documented subset**: `id`, `pid`, `harness`, `title`, `state`, `cwd`, `branch`, `model`, `contextPercent`, `startedAt`, `lastActivity` and `prs`. The rest of the session model is still emitted, and listed as unpromised.
+- **The frame and test flags** (`--screenshot`, `--keys`, `--hover`, `--record`, `--headless`, `--window`, `--script`) are hidden, unpromised, and built only into dev and debug builds — item 167's to do, with the command tree.
+- **This slice's own removals go unchecked by the computed rule**, because v0.2.3 has no golden files to compare with; the *Removed* entries are written anyway, and the rule bites from the next release.
+
 **The command tree waits for item 167** (Aria, 2026-10-20): she wants the commands and flags analysed and consolidated, with man pages, before 1.0 promises them, so the command-tree golden file and the removal of `version` follow [item 167](167-the-cli-has-spread-and-ships-no-man-pages.md); the other surfaces go ahead.
