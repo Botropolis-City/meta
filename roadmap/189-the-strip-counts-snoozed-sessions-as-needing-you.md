@@ -27,3 +27,5 @@ and clicking the "needs you" chip skips set-aside sessions, so it jumps to the o
 The window title still recomputes only when a snapshot arrives, so a snooze running out shows there at the next update from the daemon, seconds later.
 
 Frame for Aria: [`r831-item-189-strip-set-aside.png`](../botropolis/docs/screenshots/r831-item-189-strip-set-aside.png) (`925d23d`, r834), the hamlet's strip and Attention panel before and after triage snoozes the longest-waiting session.
+
+**Aria approved the frame** (2026-10-20): the strip's plain "1 set aside" chip and the Attention panel agreeing with it.
