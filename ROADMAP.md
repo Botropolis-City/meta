@@ -51,6 +51,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [165](roadmap/165-a-daemon-test-writes-into-the-real-state-directory.md) | a daemon test writes into the developer's real statistics store | — | nobody, a defect |
 | [166](roadmap/166-lit-windows-are-round-halos-not-windows.md) | lit windows at night are round halos, not the building's windows; a mockup of every building first | — | nobody |
 | [167](roadmap/167-the-cli-has-spread-and-ships-no-man-pages.md) | the command line has spread out (19 commands, ~40 global flags on each) and ships no man pages | — | Aria, the shape the analysis proposes |
+| [168](roadmap/168-share-the-city-as-a-picture-gif-or-clip.md) | share the city as a picture, GIF or clip, in a sharing mode that hides names and spend | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
