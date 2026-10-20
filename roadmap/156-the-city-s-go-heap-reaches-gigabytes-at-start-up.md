@@ -35,3 +35,5 @@ On integrated graphics the GPU's share is system RAM too (item 162), so the Go h
 3. Find what the first frames draw that later frames do not — a static layer composed in one frame, every label laid out before the camera settles — and spread it, cache it, or draw it once into an image instead of as triangles.
 
 Tests: `testing/acceptance/memory_test.go` already gates the atlas's start-up heap (item 70); add a measure test of the Go heap's peak over the first ten seconds of the largest demo, whose limit comes from the budget, not from today's figure.
+
+**The demo's start-up gate now sits at its limit** (item 182, 2026-10-20). `TestStartUpPeak` (Go heap at GC start, limit 240 MB) measured 239 207 209 226 226 MB in five isolated runs on main before item 182's slice 2, so it passes by 1 MB at best and failed at 258 MB under full-suite load. Item 70 measured 205 MB. The limit is the goal and stays; what moved the start-up heap by ~35 MB since is part of this item's bisection. Held with the rest of the performance work for Aria's pass, so until then this gate can fail a landing on load alone: rerun, don't raise it.
