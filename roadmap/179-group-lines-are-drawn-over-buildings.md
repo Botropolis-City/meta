@@ -1,6 +1,6 @@
 # 179. Group lines are drawn over the buildings they pass behind
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its matters of taste, at Aria's request. Nobody's call.**
+**Open, in progress since 2026-10-20 in the session "item 179". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its matters of taste, at Aria's request. Nobody's call.**
 
 Depends on: nothing
 

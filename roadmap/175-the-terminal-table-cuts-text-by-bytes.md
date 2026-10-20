@@ -1,6 +1,6 @@
 # 175. The terminal table cuts titles and lines by bytes, so a title with an accent or a dash can end in a broken character
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 175". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
 
 Depends on: nothing
 

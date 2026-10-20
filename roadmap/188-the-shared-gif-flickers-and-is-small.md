@@ -1,6 +1,6 @@
 # 188. The shared GIF flickers, and is too small
 
-**Open. Filed 2026-10-20 (r816) from Aria's verdict on [item 168](168-share-the-city-as-a-picture-gif-or-clip.md)'s GIF. Nobody's call: she ruled the size.**
+**Open, in progress since 2026-10-20 in the session "item 188". Filed 2026-10-20 (r816) from Aria's verdict on [item 168](168-share-the-city-as-a-picture-gif-or-clip.md)'s GIF. Nobody's call: she ruled the size.**
 
 Depends on: nothing
 
