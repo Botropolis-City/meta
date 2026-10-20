@@ -53,7 +53,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [173](roadmap/173-new-session-names-a-session-by-its-id.md) | New session explains its group guess with a session id instead of a title | — | nobody, a defect |
 | [175](roadmap/175-the-terminal-table-cuts-text-by-bytes.md) | the terminal table cuts titles and lines by bytes, breaking non-ASCII text | — | nobody, a defect |
 | [176](roadmap/176-the-terminal-table-does-not-scroll.md) | the terminal table does not scroll; past the window it loses its header and the cursor | — | nobody, a defect |
-| [177](roadmap/177-the-layers-stills-show-the-wrong-lenses.md) | the demo's "Spend" and "Context pressure" stills show Work and Cost, and the website publishes them so | — | nobody, a defect |
 | [179](roadmap/179-group-lines-are-drawn-over-buildings.md) | group lines are drawn over the buildings they pass behind | — | nobody |
 | [180](roadmap/180-the-lens-panels-wording-disagrees-with-the-strip.md) | Attention, Work and Cost panels say things that read as wrong beside the strip | — | nobody |
 | [181](roadmap/181-small-polish-mcp-calls-f-and-0-model-ids-finder-rows.md) | small polish: "6 mcp" is calls, `f` and `0` listed twice, full model ids in `status`, finder rows cut with no ellipsis | — | nobody |
