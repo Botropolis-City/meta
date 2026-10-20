@@ -13,6 +13,7 @@ Its live heap sits near the cap whenever it works, so the collector runs continu
 - Side by side in the same five minutes, `GOMEMLIMIT=256MiB` took 0.2.2 from **6.3% of a core to 0.6%**, and p95 from 45% to 4.5%, for 0.8 MiB more `Private_Dirty`.
 - First launch on the 265U: **10,778 collections, 32 CPU-seconds, a peak of 358% of a core**; with `GOMEMLIMIT=256MiB`, 357 collections, 10.8 CPU-seconds, a peak of 115%. The same 3.6 GB was read either way.
 - Settled with no hook pushes on the 265U: 41 collections a minute against 2.6 for 0.1.7.
+- The production 0.2.2 daemon on the 265U, with sessions working: **17.0% of a core mean and 52% at p95** over fifteen minutes, in 70 bursts.
 
 **The budgets it breaks** ([budgets.md](../performance/budgets.md)): daemon CPU ≤ 2% of a core mean and ≤ 25% at p95; first launch ≤ 1 core in all.
 The memory budget is **≤ 64 MiB `Private_Dirty`, "spent on caches that save CPU, not on a tight heap"**, so the cap is defending a number the budget no longer asks for: 0.2.2 settles at 13–18 MiB with it and 15–21 MiB without it.
