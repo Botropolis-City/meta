@@ -13,3 +13,4 @@ docs/references/179-group-lines-are-drawn-over-buildings.png
 docs/references/180-the-lens-panels-wording-disagrees-with-the-strip.png
 docs/references/181-small-polish.png
 docs/references/182-the-reading-pane-shows-markdown-raw.png
+docs/references/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.png
