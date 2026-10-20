@@ -1,5 +1,7 @@
+import json
 import os
 import re
+import sys
 
 UNITS_KIB = {'B': 1 / 1024, 'KiB': 1, 'kB': 1, 'MiB': 1024, 'GiB': 1024 * 1024}
 
@@ -238,3 +240,18 @@ class IdleClock:
 
     def idle(self):
         return self.quiet_since is not None and self.last - self.quiet_since >= self.needed_s
+
+
+def i3_window_ids(tree):
+    ids = []
+    stack = [tree]
+    while stack:
+        node = stack.pop()
+        if node.get('window'):
+            ids.append(node['window'])
+        stack.extend(node.get('nodes', []) + node.get('floating_nodes', []))
+    return ids
+
+
+if __name__ == '__main__' and sys.argv[1:2] == ['i3-window-ids']:
+    print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))

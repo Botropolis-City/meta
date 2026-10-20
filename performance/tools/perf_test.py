@@ -1,6 +1,11 @@
+import os
+import subprocess
+import tempfile
 import unittest
 
 import perf
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 SMAPS_ROLLUP = """309ff8000000-7ffc63834000 ---p 00000000 00:00 0                          [rollup]
 Rss:               28672 kB
@@ -164,6 +169,26 @@ class WhenSummarisingByPid(unittest.TestCase):
             {'elapsed_s': '0', 'comm': 'botropolisd', 'pid': '2', 'cpu_pct': '20'},
         ]
         self.assertEqual(sorted(perf.summarise(rows, by_pid=True)), ['botropolisd[1]', 'botropolisd[2]'])
+
+
+I3_TREE = {'window': None, 'nodes': [
+    {'window': None, 'nodes': [{'window': 11, 'nodes': [], 'floating_nodes': []}], 'floating_nodes': [
+        {'window': None, 'nodes': [{'window': 22, 'nodes': [], 'floating_nodes': []}], 'floating_nodes': []}]},
+], 'floating_nodes': []}
+
+
+class WhenListingI3Windows(unittest.TestCase):
+    def test_it_should_find_tiled_and_floating_windows(self):
+        self.assertEqual(sorted(perf.i3_window_ids(I3_TREE)), [11, 22])
+
+
+class WhenDescribingTheDesk(unittest.TestCase):
+    def test_and_the_state_directory_has_no_sessions_file_it_should_exit_zero(self):
+        with tempfile.TemporaryDirectory() as home:
+            os.makedirs(os.path.join(home, 'state', 'botropolis'))
+            env = dict(os.environ, HOME=home, XDG_STATE_HOME=os.path.join(home, 'state'))
+            done = subprocess.run([os.path.join(HERE, 'perf-env')], env=env, capture_output=True)
+        self.assertEqual(done.returncode, 0)
 
 
 if __name__ == '__main__':

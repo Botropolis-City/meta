@@ -40,6 +40,16 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [149](roadmap/149-what-1-0-0-promises.md) | what 1.0.0 promises: the surface written down, golden tests, and a layout file that is never reset in silence | — | Aria, what is on the list |
 | [154](roadmap/154-a-fresh-eyes-audit-of-the-city.md) | a fresh-eyes audit of every scene, panel and mode, filing each small defect as its own item; no performance | — | nobody, the audit finds |
 | [155](roadmap/155-windows-light-as-each-floor-is-finished.md) | a building's windows should light as each floor is finished, and frames should show lit buildings | — | nobody |
+| [156](roadmap/156-the-city-s-go-heap-reaches-gigabytes-at-start-up.md) | the city's Go heap reaches gigabytes in its first seconds and keeps them; bisect r409..r745 | — | nobody, a defect to diagnose |
+| [157](roadmap/157-the-daemon-s-heap-cap-keeps-it-collecting.md) | the daemon's 16 MiB heap cap and per-rescan release keep its collector running | — | nobody |
+| [158](roadmap/158-group-detection-reruns-pairwise-on-every-prompt.md) | group detection re-runs pairwise on every prompt in any session | — | nobody |
+| [159](roadmap/159-first-launch-takes-the-machine.md) | first launch: ≤ 1 core, ≤ 256 MiB, resumable, a map in 5 s, real progress | 157 | nobody, the budget is set |
+| [160](roadmap/160-the-usage-probe-starts-every-mcp-server.md) | the usage probe starts every MCP server and is over the helper budget | — | nobody, the budget is set |
+| [161](roadmap/161-drawing-a-frame-costs-41-ms-of-cpu.md) | drawing costs 41 ms a frame in 0.2.2 against a 10 ms, 10%-of-a-core budget | — | nobody, the budget is set |
+| [162](roadmap/162-the-city-holds-gigabytes-of-gpu-memory.md) | the city holds 0.7–3 GB of GPU memory, system RAM on integrated graphics | — | nobody, the budget is set |
+| [163](roadmap/163-a-hidden-city-keeps-all-of-its-memory.md) | a hidden city keeps all of its memory; ≤ 256 MiB within 30 s | — | nobody, the budget is set |
+| [164](roadmap/164-no-soak-test-for-the-growth-budget.md) | an 8-hour soak test for the growth budget, on a release checklist | — | nobody, the budget is set |
+| [165](roadmap/165-a-daemon-test-writes-into-the-real-state-directory.md) | a daemon test writes into the developer's real statistics store | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria

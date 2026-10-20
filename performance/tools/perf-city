@@ -87,9 +87,20 @@ sampler=$!
 
 if [[ "${hide_after}" -gt 0 && "${headless}" == 0 ]]; then
 	sleep "${hide_after}"
-	if command -v i3-msg >/dev/null; then
-		i3-msg "[pid=${city}] move scratchpad" >/dev/null && echo "# hidden at ${hide_after}s" >&2
+	hidden=0
+	if command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
+		for id in $(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-window-ids); do
+			if [[ "$(xprop -id "${id}" _NET_WM_PID 2>/dev/null)" == *"= ${city}" ]]; then
+				i3-msg "[id=${id}] move scratchpad" | grep -q '"success":true' && hidden=1
+			fi
+		done
+	fi
+	if [[ "${hidden}" == 1 ]]; then
+		echo "# hidden at ${hide_after}s" >&2
 		echo "hidden_at_s=${hide_after}" >>"${out}/env.txt"
+	else
+		echo "# could not hide the window at ${hide_after}s (needs i3 and xprop); the rest of the run is NOT a hidden window" >&2
+		echo "hide_failed_at_s=${hide_after}" >>"${out}/env.txt"
 	fi
 fi
 

@@ -58,5 +58,9 @@ if [[ -d "${claude}" ]]; then
 fi
 kv claude_processes "$(pgrep -x claude | wc -l)"
 state="${XDG_STATE_HOME:-$HOME/.local/state}/botropolis"
-[[ -f "${state}/stats.db" ]] && kv stats_db_mib "$(du -cm "${state}"/stats.db* | tail -1 | cut -f1)"
-[[ -f "${state}/sessions.json" ]] && kv sessions_json_kib "$(du -k "${state}/sessions.json" | cut -f1)"
+if [[ -f "${state}/stats.db" ]]; then
+	kv stats_db_mib "$(du -cm "${state}"/stats.db* | tail -1 | cut -f1)"
+fi
+if [[ -f "${state}/sessions.json" ]]; then
+	kv sessions_json_kib "$(du -k "${state}/sessions.json" | cut -f1)"
+fi
