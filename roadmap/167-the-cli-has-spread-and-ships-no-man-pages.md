@@ -5,6 +5,7 @@
 Depends on: nothing
 
 Landed: slice 2 (`9221556`, r799).
+Landed: slice 3 (`0a09ee5`, r806).
 
 Ruling on what 1.0.0 promises ([item 149](149-what-1-0-0-promises.md)), Aria, 2026-10-20: *"I think my biggest concern with the commands is how many there are. … even if we just wrap a claude thing, asking a user to do a claude command feels like a leaky abstraction. So it's not that I necessarily want to remove commands that have a function. I just want to do a full analysis of the commands that we have and the flags and make sure we haven't spread out too much. That way end users can actually learn and memorize. We also should be creating and shipping man pages with all of this if we don't already."*
 Today `botropolis` has 19 commands (`attach`, `bar`, `city`, `completion`, `doctor`, `events`, `find`, `help`, `install-hooks`, `new`, `notify`, `prune`, `resume`, `rm`, `shell-init`, `status`, `stop`, `tui`, `version`), and every config key is also a global flag on every one of them (about 40), so `botropolis status --help` lists city-drawing flags. No man page is built or packaged.
@@ -339,3 +340,4 @@ The `status --help` rendering and the README's environment variables and key lis
 - **Slice 2 lands in three parts, numbered as slices 2, 3 and 4** on the `Landed:` lines, which take only a number: 2 is the command shape, 3 the `devtools` build tag, 4 the man pages, packaging and the README.
   The test tree for all three was approved by the manager on 2026-10-20, with one catch: `completion` stays, hidden, with nothing on stderr, because packagers run it.
 - **A job id no listing has yet is attached as given** (slice 2): a job started a moment ago may not be in `claude agents` yet, so `attach` falls back to `claude attach <id>` rather than failing with "no session", which keeps a plain `claude` from depending on timing.
+- **The `devtools` tag stops at the entry points** (slice 3): the frame flags are registered only with it, and without it the city reads them as not asked for, but the render code behind them stays compiled, since [item 168](168-share-the-city-as-a-picture-gif-or-clip.md) reuses it for sharing and it is about 30 KB.
