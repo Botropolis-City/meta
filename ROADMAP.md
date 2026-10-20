@@ -50,7 +50,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [181](roadmap/181-small-polish-mcp-calls-f-and-0-model-ids-finder-rows.md) | small polish: "6 mcp" is calls, `f` and `0` listed twice, full model ids in `status`, finder rows cut with no ellipsis | — | nobody |
 | [182](roadmap/182-the-reading-pane-shows-markdown-raw.md) | the reading pane shows Claude's Markdown as raw text | — | nobody |
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
-| [184](roadmap/184-the-bar-names-a-session-triage-skips.md) | `bar` names and counts sessions triage has marked done or snoozed, so it disagrees with the footer | — | nobody, a defect |
 | [185](roadmap/185-the-landmarks-stay-dark-at-night.md) | the landmarks (library, City Hall, power plant) stay dark at night | 166 | nobody |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [189](roadmap/189-the-strip-counts-snoozed-sessions-as-needing-you.md) | the strip, title and state card still count snoozed sessions as needing you; the bar won't after 184 | 184 | nobody, a defect |

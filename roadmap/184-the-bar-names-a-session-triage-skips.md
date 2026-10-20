@@ -1,6 +1,6 @@
 # 184. The status bar names and counts sessions that triage has marked done or snoozed
 
-**Open, in progress since 2026-10-20 in the session "item 184". Filed 2026-10-20 (r786), while working item 174. Nobody's call — a defect.**
+**Fixed 2026-10-20 (`2acd1c6`, r828). Filed 2026-10-20 (r786), while working item 174. Nobody's call — a defect.**
 
 `botropolis bar` counts every live needs-you session and names the one that has waited longest (`Summarize`, `botropolis/pkg/commands/bar.go`).
 Triage leaves two kinds of needs-you session out of its walk (`inTriage`, `botropolis/pkg/city/triage.go`):
@@ -19,3 +19,17 @@ The count probably follows the walk, as the footer's "+N more" does; the item th
 `bar_test.go` should pin it with a done session and a snoozed one that would otherwise be named first.
 
 **Also in the bar** (found by item 171, 2026-10-20): `botropolis bar` prints its counts with the raw state name (`fmt.Sprintf("%d %s", c.N, c.State)` in `botropolis/pkg/commands/bar.go`), so it reads "2 needs-you · 1 working" where the city says "2 need you"; route it through `city.CountLabel` with the rest of this item.
+
+## Closed
+
+The done-and-snoozed test moved out of `inTriage` into `Layout.SetAside` (`botropolis/pkg/city/layout.go`), which triage and `Summarize` both call.
+`botropolis bar` reads the layout for every line it prints, so a new mark or a snooze that runs out shows on the next line in watch mode,
+and a layout that cannot be read sets nothing aside.
+A set-aside session leaves the needs-you count, the name and the tooltip, and is counted as a trailing "N set aside", as in "○ 1 working · 2 set aside" (the wording is the manager's, for Aria to see).
+With nothing else live the line reads "2 set aside", class `idle`.
+The counts go through `city.CountLabel`, so the bar reads "2 need you" as the city does.
+`bar_test.go` and `layout_test.go` pin it.
+The JSON's keys and classes are unchanged, so the surface golden stands, and `CHANGELOG.md` says so under *Changed*.
+
+Left over: the city's top strip, window title and state card still count a snoozed session as needing you, so they disagree with the bar until the snooze runs out.
+The manager is filing that.
