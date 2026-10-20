@@ -33,3 +33,5 @@ Frames, at r782 (`aa8c3dc`), filmed at 22:30 from the demo corpus once the start
 They are cited as paths because the main botropolis checkout had not pulled them when this closed.
 
 **For Aria:** a storey's windows switch on when it is finished rather than fading in.
+
+**Aria on the frames** (2026-10-19): the timing is right, but the glow must be the windows themselves — [item 166](166-lit-windows-are-round-halos-not-windows.md).

@@ -49,6 +49,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [163](roadmap/163-a-hidden-city-keeps-all-of-its-memory.md) | a hidden city keeps all of its memory; ≤ 256 MiB within 30 s | — | nobody, the budget is set |
 | [164](roadmap/164-no-soak-test-for-the-growth-budget.md) | an 8-hour soak test for the growth budget, on a release checklist | — | nobody, the budget is set |
 | [165](roadmap/165-a-daemon-test-writes-into-the-real-state-directory.md) | a daemon test writes into the developer's real statistics store | — | nobody, a defect |
+| [166](roadmap/166-lit-windows-are-round-halos-not-windows.md) | lit windows at night are round halos, not the building's windows; a mockup of every building first | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
