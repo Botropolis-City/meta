@@ -321,3 +321,13 @@ A unit test walks the tree and fails on a command with no page, and the package 
 3. `prune` into `rm --older-than`, or keep `prune` (14 visible): `prune` is a familiar word from git and docker.
 4. Whether `setup` starts the daemon itself (`systemctl --user enable --now botropolisd`, or `brew services start`), making setup one command, or only says how.
 5. The in-app capture: 1, 2 or 3 above.
+
+## Aria's ruling (2026-10-20, through the roadmap manager)
+
+1. **The shape above, all of it:** 13 visible commands, `--set key=value` in place of the per-key flags, `attach` in this terminal absorbing `resume`, old names deprecated through 0.x and removed at 1.0.0 with *Removed* entries, `shell-init` keeping its name, man pages in every package, and the frame tooling behind the `devtools` build tag with its guard.
+2. **`tui` folds into `status --live`.**
+3. **`prune` folds into `rm --older-than`.**
+4. **`setup` starts the daemon itself** (`systemctl --user enable --now botropolisd`, or `brew services start botropolis`), and says exactly what it ran.
+5. **In-app capture is its own item**: a sharing mode offering PNG, GIF and a clip, filed by the manager. `p` stays as it is here.
+
+The `status --help` rendering and the README's environment variables and key list are fixed in slice 2 as well.
