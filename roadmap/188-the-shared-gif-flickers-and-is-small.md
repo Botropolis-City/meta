@@ -1,6 +1,6 @@
 # 188. The shared GIF flickers, and is too small
 
-**Open, in progress since 2026-10-20 in the session "item 188". Filed 2026-10-20 (r816) from Aria's verdict on [item 168](168-share-the-city-as-a-picture-gif-or-clip.md)'s GIF. Nobody's call: she ruled the size.**
+**Fixed 2026-10-20 (`5722fe5`, r823). Filed 2026-10-20 (r816) from Aria's verdict on [item 168](168-share-the-city-as-a-picture-gif-or-clip.md)'s GIF. Nobody's call: she ruled the size.**
 
 Depends on: nothing
 
@@ -22,3 +22,29 @@ Two likely causes, each to be shown red before it is fixed:
 - Size: report the file size at 1080p; if it goes past what sharing sites take (GitHub's 10 MB inline limit is the useful bar), say so and propose the trade (length or fps) rather than shrinking the picture back.
 
 Tests: a static region's pixels are identical across every frame of a recorded GIF (red on today's encoder); frame delay matches the chosen rate; the GIF's size is 1920×1080. A new GIF for Aria.
+
+## Decided while building
+
+- **Measured, 2026-10-20**: on the workday demo, shared at 1600×1000, 0.24% of pixels change between consecutive source frames, and 17.3% changed in r805's GIF, mostly by 16 shades or fewer.
+  Cause 1, the palette per frame, was nearly all of the flicker.
+- **30 fps, not 25 or 50** (manager, approved with the test tree): the city ticks at 30 (`liveTPS`), not 60, so a GIF takes a frame every tick, with delays cycling 3, 3, 4 hundredths.
+  Other rates would mean changing the clock.
+- **The clip stays at the window's size**: only the GIF was asked for at 1080p.
+- **A framed view keeps its framing** (`Scene.Reframe`): an untouched view refits to 1920×1080, and one the user panned or zoomed keeps its centre and shows the same height of the city.
+  While the GIF records, the window shows the 1080p frame letterboxed, and it snaps back when the GIF ends.
+- **The shade bound is a measurement**: one palette for the clip keeps each channel within 16 of 255 (`gifShade`, measured 15) when the frames share their colours, as the city's do; frames whose colours differ share the palette and cost more (42 for three unlike gradients).
+
+## Closed
+
+`g` in sharing mode now saves a 1920×1080 GIF, four seconds at 30 fps (120 frames), on one palette for the whole clip, with each frame after the first only the box that changed.
+On the workday demo, 0.1% of pixels change between frames, against 17.3% in r805's GIF, and the file is 319 KB, far under GitHub's 10 MB, so there was no trade to propose.
+`TestGIFWriter` was red on the old encoder for a still region drawn the same in every frame, for one palette, and for frames cropped to what changed; `TestShareGIF` and the acceptance test hold the size, the frame count and the delays.
+Two mutations went red before the tests were trusted: the scene laid out for the window while drawn at 1080p, and `Reframe` reduced to a plain resize.
+The acceptance test also caught one bug the unit rig had hidden: Ebitengine updates between layout and draw, so the first frame came at the window's size and set the clip's.
+The rig now lays out in Ebitengine's order, and a GIF skips any frame not drawn at its size.
+
+Frame: `botropolis/docs/screenshots/r820-item-188-workday-shared.gif`, named before landing; it was rendered from the code that landed at r823 and itself landed at r824.
+
+For Aria:
+- **The GIF** to judge.
+- **The window jumps while a GIF records**: it shows the 1080p frame letterboxed for the four seconds, then snaps back to its own fit.
