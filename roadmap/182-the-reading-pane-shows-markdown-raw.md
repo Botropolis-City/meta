@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`a170852`, r826).
+Landed: slice 2 (`fa3796f`, r832).
 
 The reading pane (`o`, or *read* on a card) shows a session's conversation without leaving the city.
 Claude's replies are Markdown, and the pane prints them as typed: `**Step 1: refactor.**` with its asterisks, `` `to_html` `` with its backticks, and list markers as plain hyphens.
