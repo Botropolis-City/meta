@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-20 in the session "item 149". Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Nobody's call: Aria ruled on the list on 2026-10-20.**
 
 Landed: slice 1 (`89df7a6`, r760).
+Landed: slice 2 (`2f26c80`, r808).
 
 Under Semantic Versioning, 1.0.0 is a promise: what people depend on does not break without a 2.0.0.
 Botropolis has never said what that is.
