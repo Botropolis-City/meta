@@ -38,3 +38,5 @@ Frames, before and after, at r780 (`1db46d9`): [the hamlet hero](../botropolis/d
 **For Aria:** the windows now light at the end of a build (0.88–1 of it), after the scaffolding comes down. If they should come on as the floors rise, that is one line in `SiteAt`.
 Why the stills catch sessions mid-arrival at all is item 154's finding, filed separately: the city sails every live session in at start-up.
 Once that is fixed, the hero shows those sessions standing and lit.
+
+**Aria on the frames** (2026-10-19): every finished part of a building should light, floor by floor, and the frames should show lit buildings — [item 155](155-windows-light-as-each-floor-is-finished.md).
