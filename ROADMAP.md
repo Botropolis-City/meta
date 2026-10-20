@@ -49,7 +49,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [163](roadmap/163-a-hidden-city-keeps-all-of-its-memory.md) | a hidden city keeps all of its memory; ≤ 256 MiB within 30 s | — | nobody, the budget is set |
 | [164](roadmap/164-no-soak-test-for-the-growth-budget.md) | an 8-hour soak test for the growth budget, on a release checklist | — | nobody, the budget is set |
 | [165](roadmap/165-a-daemon-test-writes-into-the-real-state-directory.md) | a daemon test writes into the developer's real statistics store | — | nobody, a defect |
-| [166](roadmap/166-lit-windows-are-round-halos-not-windows.md) | lit windows at night are round halos, not the building's windows; a mockup of every building first | — | nobody |
 | [167](roadmap/167-the-cli-has-spread-and-ships-no-man-pages.md) | the command line has spread out (19 commands, ~40 global flags on each) and ships no man pages | — | Aria, the shape the analysis proposes |
 | [168](roadmap/168-share-the-city-as-a-picture-gif-or-clip.md) | share the city as a picture, GIF or clip, in a sharing mode that hides names and spend | — | nobody |
 | [169](roadmap/169-the-city-opens-with-every-session-arriving.md) | the city opens with every live session sailing in and being built, so they are bare lots for seven seconds | — | nobody, a defect; next patch |
