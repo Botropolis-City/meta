@@ -1,6 +1,6 @@
 # 173. New session explains its group guess with a session id instead of a title
 
-**Open, in progress since 2026-10-20 in the session "item 173". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
+**Fixed 2026-10-20 (`af7edfa`, r817). Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
 
 Depends on: nothing
 
@@ -21,3 +21,11 @@ Everywhere else names the session by title: `status --json` gives the same group
 
 The fix passes the title lookup the card and the board already use.
 A test on `why` with a guess whose reason has a `With` should assert the title appears and the id does not.
+
+## Fixed
+
+`state.TitleOf` is the lookup `groupViews` used privately, now exported, and `(*newSession).why` passes it over the city's sessions instead of the identity.
+So New session names the session as the board and `status --json` do: by its title, or by its short id when it has none or is not in the city.
+`TestNewSession` in `botropolis/pkg/render/newsession_test.go` asserts the title appears and the id does not, and the short-id fallback.
+
+Frames, `metropolis`, `shift+N`, the item's crop, approved by Aria on 2026-10-20: `botropolis/docs/screenshots/r786-item-173-new-session-before.png` names the session `55866aad-8efd-4b59-8e09-d3772f7c11a0`, and `botropolis/docs/screenshots/r817-item-173-new-session-after.png` names it *JSON output for the report*.

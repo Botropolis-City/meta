@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [162](roadmap/162-the-city-holds-gigabytes-of-gpu-memory.md) | the city holds 0.7–3 GB of GPU memory, system RAM on integrated graphics | — | nobody, the budget is set |
 | [163](roadmap/163-a-hidden-city-keeps-all-of-its-memory.md) | a hidden city keeps all of its memory; ≤ 256 MiB within 30 s | — | nobody, the budget is set |
 | [164](roadmap/164-no-soak-test-for-the-growth-budget.md) | an 8-hour soak test for the growth budget, on a release checklist | — | nobody, the budget is set |
-| [173](roadmap/173-new-session-names-a-session-by-its-id.md) | New session explains its group guess with a session id instead of a title | — | nobody, a defect |
 | [175](roadmap/175-the-terminal-table-cuts-text-by-bytes.md) | the terminal table cuts titles and lines by bytes, breaking non-ASCII text | — | nobody, a defect |
 | [176](roadmap/176-the-terminal-table-does-not-scroll.md) | the terminal table does not scroll; past the window it loses its header and the cursor | — | nobody, a defect |
 | [179](roadmap/179-group-lines-are-drawn-over-buildings.md) | group lines are drawn over the buildings they pass behind | — | nobody |
