@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-19 in the session "item 155". Filed 2026-10-19 (r780) at Aria's request, from item 74's frames. Nobody's call.**
 
 Depends on: nothing
+Landed: slice 1 (`5954bc5`, r781).
 
 [Item 74](074-night-glow-discs-are-back-in-the-demo-frames.md) (`a945b61`, r779) stopped night glow being drawn over buildings that aren't standing, and lights a new building only at the end of its build (`Site.Lights`, 0.88–1).
 Aria, 2026-10-19, judging its frames: *"Any part of the building that is done should light up (when expected). All I see in this PR is some glow rings being removed from assets that have a lot with no building."*
