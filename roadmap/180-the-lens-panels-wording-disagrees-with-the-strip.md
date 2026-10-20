@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-20 in the session "item 180". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its matters of taste, at Aria's request. Nobody's call.**
 
 Depends on: nothing
+Landed: slice 1 (`e4bea15`, r827).
 
 Each lens's panel, top left, carries a count and a hint, built in `botropolis/pkg/city/lens.go`.
 Three of them read as wrong next to the strip above them, though each is right on its own terms.
