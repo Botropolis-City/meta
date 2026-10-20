@@ -52,6 +52,16 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [166](roadmap/166-lit-windows-are-round-halos-not-windows.md) | lit windows at night are round halos, not the building's windows; a mockup of every building first | — | nobody |
 | [167](roadmap/167-the-cli-has-spread-and-ships-no-man-pages.md) | the command line has spread out (19 commands, ~40 global flags on each) and ships no man pages | — | Aria, the shape the analysis proposes |
 | [168](roadmap/168-share-the-city-as-a-picture-gif-or-clip.md) | share the city as a picture, GIF or clip, in a sharing mode that hides names and spend | — | nobody |
+| [169](roadmap/169-the-city-opens-with-every-session-arriving.md) | the city opens with every live session sailing in and being built, so they are bare lots for seven seconds | — | nobody, a defect; next patch |
+| [170](roadmap/170-the-minimap-spills-out-of-its-panel-after-a-turn.md) | after a turn the minimap comes up at fit and its map spills out of its panel onto the footer | — | nobody, a defect |
+| [171](roadmap/171-the-strip-says-1-need-you-and-1-prs.md) | the strip reads "1 need you", "1 prs", "1 errors", "1 subagents" | — | nobody, a defect |
+| [172](roadmap/172-the-key-reference-misses-u-and-rebound-keys.md) | the key reference leaves out `u` and shows five rebindable keys at their defaults | — | nobody, a defect |
+| [173](roadmap/173-new-session-names-a-session-by-its-id.md) | New session explains its group guess with a session id instead of a title | — | nobody, a defect |
+| [174](roadmap/174-the-status-bar-names-the-first-alphabetically.md) | `bar` names the waiting session first in the alphabet, not the one waiting longest | — | nobody, a defect |
+| [175](roadmap/175-the-terminal-table-cuts-text-by-bytes.md) | the terminal table cuts titles and lines by bytes, breaking non-ASCII text | — | nobody, a defect |
+| [176](roadmap/176-the-terminal-table-does-not-scroll.md) | the terminal table does not scroll; past the window it loses its header and the cursor | — | nobody, a defect |
+| [177](roadmap/177-the-layers-stills-show-the-wrong-lenses.md) | the demo's "Spend" and "Context pressure" stills show Work and Cost, and the website publishes them so | — | nobody, a defect |
+| [178](roadmap/178-the-design-docs-still-describe-nine-views.md) | `DESIGN.md` and `design/info-views.md` still describe nine views and two projections | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria

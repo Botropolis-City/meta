@@ -4,3 +4,8 @@
 docs/references/chimney-skirt.png
 docs/references/curb-geometry.png
 docs/references/probe-tugs-aground.png
+# Item 154's audit, 2026-10-20: demo homes only, filmed in the sealed container; each looked at before adding.
+docs/references/169-the-city-opens-with-a-fleet.png
+docs/references/170-minimap-after-a-turn.png
+docs/references/173-new-session-names-a-session-by-its-id.png
+docs/references/177-the-layers-stills-show-the-wrong-lenses.png
