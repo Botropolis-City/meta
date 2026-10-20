@@ -1,6 +1,6 @@
 # 171. The strip's counts read "1 need you", "1 prs", "1 errors" and "1 subagents"
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 171". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
 
 Depends on: nothing
 

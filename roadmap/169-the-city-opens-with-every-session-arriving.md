@@ -1,6 +1,6 @@
 # 169. The city opens with every live session arriving by tug, so for its first seven seconds they are bare lots
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect, for the next patch release (the manager, 2026-10-20).**
+**Open, in progress since 2026-10-20 in the session "item 169". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect, for the next patch release (the manager, 2026-10-20).**
 
 Depends on: nothing
 

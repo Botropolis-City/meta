@@ -1,6 +1,6 @@
 # 177. The demo's "Spend" and "Context pressure" stills show the Work and Cost lenses, and the website publishes them so
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 177". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
 
 Depends on: nothing
 

@@ -1,6 +1,6 @@
 # 174. The status bar names the waiting session that comes first alphabetically, not the one waiting longest
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 174". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
 
 Depends on: nothing
 

@@ -1,6 +1,6 @@
 # 178. `DESIGN.md` and `design/info-views.md` still describe nine views and two projections
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 178". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
 
 Depends on: nothing
 
