@@ -12,7 +12,7 @@ Aria, 2026-10-20: *"Let's go 1080p. Also there's something weird with the render
 Two likely causes, each to be shown red before it is fixed:
 
 1. **A palette per frame.** Item 168 encodes each frame with its own median-cut palette, so the water's and the island's colours are quantised differently from one frame to the next, and flat areas shimmer even where nothing moved. Measure: the share of pixels that change between consecutive frames over a static region (the sea far from boats, the island's grass) — near zero in the source frames, high in the GIF.
-2. **15 fps.** 60 frames over 4 s is 15 fps, while the city animates at 60; the water and boats step visibly. GIF delays are in hundredths of a second, so 25 fps (4 cs) or 33 fps (3 cs) are the even choices; 50 fps (2 cs) is the most most viewers honour.
+2. **15 fps.** 60 frames over 4 s is 15 fps, while the city animates at 60; the water and boats step visibly. GIF delays are in hundredths of a second, so 25 fps (4 cs) or 33 fps (3 cs) are the even choices; 50 fps (2 cs) is the fastest most viewers honour.
 
 ## The fix
 
