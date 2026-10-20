@@ -19,3 +19,5 @@ Tests: `make land` in a scratch clone with a fake remote — two at once, the se
 
 4. **`make test-unit` has go test's default 10-minute timeout.** At load ~150 `pkg/render` hit it — the fault item 131 fixed for acceptance. Give the unit and integration targets the same explicit timeout acceptance has.
 5. **golangci-lint's parallel-run lock lives in the shared `TMPDIR`**, so a lint inside the land lock still fails while another session lints during development. `TMPDIR=<own dir> make lint` works around it; `--allow-serial-runners` (point 2) makes it wait instead — decide which, and test two lints at once from two worktrees.
+
+6. **An Xvfb flake under load** (item 178, 2026-10-20): `testing/integration/xvfb` TestStart "when a server is closed, it should stop answering" failed once in an unlocked run and passed twice alone — probably colliding Xvfb displays across parallel suites. Check its display choice holds with two suites at once.
