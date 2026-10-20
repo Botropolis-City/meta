@@ -53,6 +53,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [184](roadmap/184-the-bar-names-a-session-triage-skips.md) | `bar` names and counts sessions triage has marked done or snoozed, so it disagrees with the footer | — | nobody, a defect |
 | [185](roadmap/185-the-landmarks-stay-dark-at-night.md) | the landmarks (library, City Hall, power plant) stay dark at night | 166 | nobody |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
+| [189](roadmap/189-the-strip-counts-snoozed-sessions-as-needing-you.md) | the strip, title and state card still count snoozed sessions as needing you; the bar won't after 184 | 184 | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
