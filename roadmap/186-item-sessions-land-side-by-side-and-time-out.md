@@ -14,3 +14,8 @@ The manager's stopgap — land one at a time behind `/tmp/botropolis-land.lock` 
 3. **The roadmap-start kickoff** tells every item to land with `make land`, and to run only its own packages while developing; `../CLAUDE.md`'s working arrangement says why.
 
 Tests: `make land` in a scratch clone with a fake remote — two at once, the second waits for the first's lock; a failing test stops before push; no pipe in the recipe (the gate's exit code is the push's condition). Two `make lint` at once both pass.
+
+**Two more, from item 167 (2026-10-20):**
+
+4. **`make test-unit` has go test's default 10-minute timeout.** At load ~150 `pkg/render` hit it — the fault item 131 fixed for acceptance. Give the unit and integration targets the same explicit timeout acceptance has.
+5. **golangci-lint's parallel-run lock lives in the shared `TMPDIR`**, so a lint inside the land lock still fails while another session lints during development. `TMPDIR=<own dir> make lint` works around it; `--allow-serial-runners` (point 2) makes it wait instead — decide which, and test two lints at once from two worktrees.
