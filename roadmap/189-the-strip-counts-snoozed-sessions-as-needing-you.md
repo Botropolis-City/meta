@@ -1,6 +1,6 @@
 # 189. The strip counts snoozed sessions as needing you
 
-**Open. Filed 2026-10-20 (r825), found while working item 184. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 189". Filed 2026-10-20 (r825), found while working item 184. Nobody's call — a defect.**
 
 Depends on: 184
 

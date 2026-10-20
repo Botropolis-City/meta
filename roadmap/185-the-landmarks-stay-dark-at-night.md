@@ -1,6 +1,6 @@
 # 185. The landmarks stay dark at night
 
-**Open. Filed 2026-10-20 (r787) at Aria's request, from item 166's frames. Nobody's call.**
+**Open, in progress since 2026-10-20 in the session "item 185". Filed 2026-10-20 (r787) at Aria's request, from item 166's frames. Nobody's call.**
 
 Depends on: 166
 
