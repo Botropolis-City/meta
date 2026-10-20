@@ -9,3 +9,7 @@ docs/references/169-the-city-opens-with-a-fleet.png
 docs/references/170-minimap-after-a-turn.png
 docs/references/173-new-session-names-a-session-by-its-id.png
 docs/references/177-the-layers-stills-show-the-wrong-lenses.png
+docs/references/179-group-lines-are-drawn-over-buildings.png
+docs/references/180-the-lens-panels-wording-disagrees-with-the-strip.png
+docs/references/181-small-polish.png
+docs/references/182-the-reading-pane-shows-markdown-raw.png

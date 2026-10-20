@@ -62,6 +62,10 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [176](roadmap/176-the-terminal-table-does-not-scroll.md) | the terminal table does not scroll; past the window it loses its header and the cursor | — | nobody, a defect |
 | [177](roadmap/177-the-layers-stills-show-the-wrong-lenses.md) | the demo's "Spend" and "Context pressure" stills show Work and Cost, and the website publishes them so | — | nobody, a defect |
 | [178](roadmap/178-the-design-docs-still-describe-nine-views.md) | `DESIGN.md` and `design/info-views.md` still describe nine views and two projections | — | nobody, a defect |
+| [179](roadmap/179-group-lines-are-drawn-over-buildings.md) | group lines are drawn over the buildings they pass behind | — | nobody |
+| [180](roadmap/180-the-lens-panels-wording-disagrees-with-the-strip.md) | Attention, Work and Cost panels say things that read as wrong beside the strip | — | nobody |
+| [181](roadmap/181-small-polish-mcp-calls-f-and-0-model-ids-finder-rows.md) | small polish: "6 mcp" is calls, `f` and `0` listed twice, full model ids in `status`, finder rows cut with no ellipsis | — | nobody |
+| [182](roadmap/182-the-reading-pane-shows-markdown-raw.md) | the reading pane shows Claude's Markdown as raw text | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
