@@ -1,6 +1,6 @@
 # 149. What 1.0.0 promises is written nowhere, and nothing fails when it changes
 
-**Open. Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Aria's call — what is on the list.**
+**Open, in progress since 2026-10-20 in the session "item 149". Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Nobody's call: Aria ruled on the list on 2026-10-20.**
 
 Landed: slice 1 (`89df7a6`, r760).
 
@@ -61,3 +61,15 @@ The rest is known work.
 - **Slice 1 is the two defects** (Aria, 2026-10-19, through the planning session and confirmed to the manager): the layout file reset in silence (`botropolis/pkg/city/layout.go:172`) and the missing client/daemon version exchange start now; the list and its golden tests wait for her ruling on what is on it.
 
 **Aria on the frame** (2026-10-19): a mismatch should stop the map rather than show a chip — [item 152](152-an-out-of-sync-daemon-stops-the-map.md).
+
+## Aria's ruling on the list (2026-10-20)
+
+Interviewed by the roadmap manager:
+
+- **Commands and their flags are promised**, every one, except **`version`, which is removed before 1.0**: `botropolis --version` stays and is promised.
+- **Machine-readable output:** `status --json` and **`bar`'s JSON** (its text, tooltip and class names, which status bars parse) are both promised; `bar` was missing from the table.
+- **Config keys:** every current key and its values, except **`projection`, which is removed before 1.0** (deprecated since the top-down view went), so 1.0 does not promise a dead key.
+- **Data files** (`stats.db`, the layout file, the session ledger `sessions.json` — not `ledger.json` as the table says): **readable forward and never lost**. Any later 1.x reads every earlier 1.x file and migrates it, and a newer file is refused by name, never reset; the files' internal shape is not promised.
+- **Install surfaces:** the APT, RPM and Homebrew package names, the fixed release asset names, the systemd units (`botropolisd.service`, `botropolis-notify.service`) and the hook command `botropolis-hook` are promised. **The AUR package names (`botropolis`, `botropolis-bin`) are not**: they are published to the AUR, not by this repository, so they are third-party even though Aria maintains both.
+- **Removal is caught both ways:** computed from the golden files (anything gone from a set fails `make version-check` unless the major version rose) **and** declared — a removal also needs a *Removed* entry in the changelog, which the check reads.
+- **Out of the promise**, as proposed: the daemon protocol (versioned and checked since items 149 and 152), the map's look and art, the TUI's layout, and the city's key bindings (their config keys are promised).
