@@ -1,6 +1,6 @@
 # 172. The key reference leaves out `u`, and shows five keys at their defaults however they are set
 
-**Open, in progress since 2026-10-20 in the session "item 172". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
+**Fixed 2026-10-20 (`f246ebd`, r797). Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154. Nobody's call — a defect.**
 
 Depends on: nothing
 
@@ -15,3 +15,13 @@ The reference (`?` or F1) is built from `bindings` in `botropolis/pkg/render/key
 
 The fix adds `u` to `bindings` and routes the other five through `findChords()` the way `planBinding` and `labelsBinding` are.
 A test that rebinds every configurable key and asserts each appears in `helpKeys` under its new name would keep the next one from being missed.
+
+## Closed
+
+Fixed in `f246ebd` (r797).
+The reference lists `u` beside the power breakdown,
+and `helpKeys` now takes every rebindable row from one table — the City Plan, labels, triage, the journal, the stream, New session and explain — so each is spelled as configured, with explain as `hold <key>`.
+`pkg/render/helpkeys_test.go` sets every field of `config.Chords` to its own chord by reflection and asserts each appears in the reference,
+so a chord added later without a row fails it.
+Defaults read exactly as before.
+No frame: it is a text change in the reference panel, and the manager agreed none was needed.

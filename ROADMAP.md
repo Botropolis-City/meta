@@ -51,7 +51,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [167](roadmap/167-the-cli-has-spread-and-ships-no-man-pages.md) | the command line has spread out (19 commands, ~40 global flags on each) and ships no man pages | — | Aria, the shape the analysis proposes |
 | [168](roadmap/168-share-the-city-as-a-picture-gif-or-clip.md) | share the city as a picture, GIF or clip, in a sharing mode that hides names and spend | — | nobody |
 | [169](roadmap/169-the-city-opens-with-every-session-arriving.md) | the city opens with every live session sailing in and being built, so they are bare lots for seven seconds | — | nobody, a defect; next patch |
-| [172](roadmap/172-the-key-reference-misses-u-and-rebound-keys.md) | the key reference leaves out `u` and shows five rebindable keys at their defaults | — | nobody, a defect |
 | [173](roadmap/173-new-session-names-a-session-by-its-id.md) | New session explains its group guess with a session id instead of a title | — | nobody, a defect |
 | [175](roadmap/175-the-terminal-table-cuts-text-by-bytes.md) | the terminal table cuts titles and lines by bytes, breaking non-ASCII text | — | nobody, a defect |
 | [176](roadmap/176-the-terminal-table-does-not-scroll.md) | the terminal table does not scroll; past the window it loses its header and the cursor | — | nobody, a defect |
