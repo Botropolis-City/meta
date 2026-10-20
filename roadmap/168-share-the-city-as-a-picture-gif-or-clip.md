@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-20 in the session "item 168". Filed 2026-10-20 (r786) at Aria's request, from item 167's analysis. Nobody's call.**
 
 Depends on: nothing
+Landed: slice 1 (`6be1962`, r801).
 
 Item 167's command-line analysis found that `p` already saves a PNG of the city, and offered a recording key and a "for sharing" mode as options.
 Aria, 2026-10-20: *"I like the idea of sharing mode. That allows you to take a png or gif or clip."*
