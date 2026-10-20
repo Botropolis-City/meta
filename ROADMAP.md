@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [162](roadmap/162-the-city-holds-gigabytes-of-gpu-memory.md) | the city holds 0.7–3 GB of GPU memory, system RAM on integrated graphics | — | nobody, the budget is set |
 | [163](roadmap/163-a-hidden-city-keeps-all-of-its-memory.md) | a hidden city keeps all of its memory; ≤ 256 MiB within 30 s | — | nobody, the budget is set |
 | [164](roadmap/164-no-soak-test-for-the-growth-budget.md) | an 8-hour soak test for the growth budget, on a release checklist | — | nobody, the budget is set |
-| [176](roadmap/176-the-terminal-table-does-not-scroll.md) | the terminal table does not scroll; past the window it loses its header and the cursor | — | nobody, a defect |
 | [180](roadmap/180-the-lens-panels-wording-disagrees-with-the-strip.md) | Attention, Work and Cost panels say things that read as wrong beside the strip | — | nobody |
 | [181](roadmap/181-small-polish-mcp-calls-f-and-0-model-ids-finder-rows.md) | small polish: "6 mcp" is calls, `f` and `0` listed twice, full model ids in `status`, finder rows cut with no ellipsis | — | nobody |
 | [182](roadmap/182-the-reading-pane-shows-markdown-raw.md) | the reading pane shows Claude's Markdown as raw text | — | nobody |
