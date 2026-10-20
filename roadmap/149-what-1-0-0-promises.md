@@ -1,9 +1,10 @@
 # 149. What 1.0.0 promises is written nowhere, and nothing fails when it changes
 
-**Open, in progress since 2026-10-20 in the session "item 149". Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Nobody's call: Aria ruled on the list on 2026-10-20.**
+**Done 2026-10-20 (`449d9f4`, r811). Filed 2026-10-19 (r748), at Aria's request, on the road to 1.0.0. Aria ruled on the list on 2026-10-20.**
 
 Landed: slice 1 (`89df7a6`, r760).
 Landed: slice 2 (`2f26c80`, r808).
+Landed: slice 3 (`449d9f4`, r811).
 
 Under Semantic Versioning, 1.0.0 is a promise: what people depend on does not break without a 2.0.0.
 Botropolis has never said what that is.
@@ -83,3 +84,24 @@ Ruled on 2026-10-20, through the roadmap manager, while slice 2 was planned:
 - **This slice's own removals go unchecked by the computed rule**, because v0.2.3 has no golden files to compare with; the *Removed* entries are written anyway, and the rule bites from the next release.
 
 **The command tree waits for item 167** (Aria, 2026-10-20): she wants the commands and flags analysed and consolidated, with man pages, before 1.0 promises them, so the command-tree golden file and the removal of `version` follow [item 167](167-the-cli-has-spread-and-ships-no-man-pages.md); the other surfaces go ahead.
+
+## Closed
+
+**Slice 1, the two defects** (`956bbe4`, `89df7a6`, r760).
+`layout.json` and the session ledger carry a version and the oldest version that reads them, as `stats.db` does: an older file migrates, a newer one this build can read keeps its version when saved, and one it cannot read is refused by name; the map exits rather than save an empty layout over it.
+The ledger, a bare map until then, gained its envelope.
+The client and the daemon exchange release and protocol on every request; item 152 then turned a mismatch into the dialog Aria asked for, and the strip chip in `botropolis/docs/screenshots/r760-item-149-daemon-notice.png` went with it.
+
+**Slice 2, the list and its guards** (`e321219`, `2f26c80`, r808).
+[`botropolis/docs/compatibility.md`](https://github.com/Botropolis-City/botropolis/blob/main/docs/compatibility.md), linked from `DESIGN.md` and the README, is the list as ruled.
+Each surface is a golden file in `botropolis/testing/acceptance/testdata/surface/` that `TestSurface` regenerates: `status --json`'s documented subset, `bar`'s JSON, every config key with its type and named values, and the install names.
+`make version-check` compares them with the last `v*` tag: a line gone needs its name under *Removed* in the changelog, and from 1.0.0 on a higher major; a tag without golden files says removals went unchecked, and no tag fails, so CI's lint job now fetches the whole history.
+The `projection` key and flag are removed, with a *Removed* entry; a config file still setting it loads.
+
+**Slice 3, the command line** (`449d9f4`, r811), walked from item 167's reshaped root with Hidden and Deprecated left out, so the 1.0 removals of `version`, `tui` and the rest will each show up once, as their own *Removed* entries.
+
+Deviations, for Aria:
+
+- **No `stats.db` schema golden.** The item asked for one from `sqlite_master`, but her ruling made the data files' shape unpromised and "readable forward and never lost" the promise. So instead `testdata/data/` holds a file of every version each store has written (layout 1, ledger 1 and 2, stats 1–3, the old stats ones built from each schema in history), `TestSurface` loads each and checks its session survived, and `data.txt` lists them, so dropping support for one is a removal. Mutated: breaking the bare-map ledger read failed it.
+- **Config defaults are not pinned**, only each key's type and named values, because her ruling put the key bindings' defaults outside the promise.
+- **The computed rule could not check this item's own removals**: v0.2.3 has no golden files. It bites from the next release.

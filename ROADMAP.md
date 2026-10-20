@@ -37,7 +37,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [95](roadmap/095-the-global-shortcut-on-macos.md) | the global shortcut on macOS: registering is solved, coming forward needs a Mac run | — | nobody, needs a Mac |
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
-| [149](roadmap/149-what-1-0-0-promises.md) | what 1.0.0 promises: the surface written down, golden tests, and a layout file that is never reset in silence | — | nobody |
 | [156](roadmap/156-the-city-s-go-heap-reaches-gigabytes-at-start-up.md) | the city's Go heap reaches gigabytes in its first seconds and keeps them; bisect r409..r745 | — | nobody, a defect to diagnose |
 | [157](roadmap/157-the-daemon-s-heap-cap-keeps-it-collecting.md) | the daemon's 16 MiB heap cap and per-rescan release keep its collector running | — | nobody |
 | [158](roadmap/158-group-detection-reruns-pairwise-on-every-prompt.md) | group detection re-runs pairwise on every prompt in any session | — | nobody |
