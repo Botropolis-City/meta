@@ -1,6 +1,6 @@
 # 165. A daemon test writes into the developer's real statistics store
 
-**Open. Filed 2026-10-19 (r780), found while measuring 0.2.2 for the performance reports. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 165". Filed 2026-10-19 (r780), found while measuring 0.2.2 for the performance reports. Nobody's call — a defect.**
 
 Depends on: nothing
 
