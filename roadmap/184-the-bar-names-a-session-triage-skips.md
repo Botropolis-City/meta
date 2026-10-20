@@ -1,6 +1,6 @@
 # 184. The status bar names and counts sessions that triage has marked done or snoozed
 
-**Open. Filed 2026-10-20 (r786), while working item 174. Nobody's call — a defect.**
+**Open, in progress since 2026-10-20 in the session "item 184". Filed 2026-10-20 (r786), while working item 174. Nobody's call — a defect.**
 
 `botropolis bar` counts every live needs-you session and names the one that has waited longest (`Summarize`, `botropolis/pkg/commands/bar.go`).
 Triage leaves two kinds of needs-you session out of its walk (`inTriage`, `botropolis/pkg/city/triage.go`):
