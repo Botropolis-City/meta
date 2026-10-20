@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-20 in the session "item 185". Filed 2026-10-20 (r787) at Aria's request, from item 166's frames. Nobody's call.**
 
 Depends on: 166
+Landed: slice 1 (`5a920bd`, r835).
 
 [Item 166](166-lit-windows-are-round-halos-not-windows.md) lights a session's building at night by redrawing its own window panes at day brightness (option A). The landmarks — the library, City Hall and the power plant — are not sessions, so they stay dark (`botropolis/docs/screenshots/r788-item-166-district-at-night.png`).
 Aria, 2026-10-20, approving item 166: *"Approve, and light the landmarks too."*
