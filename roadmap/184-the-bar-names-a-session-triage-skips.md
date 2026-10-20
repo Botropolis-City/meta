@@ -17,3 +17,5 @@ A fix would pull the done-and-snoozed test out of `inTriage` into a function tha
 Watch mode would read the layout again on every snapshot, so a snooze that runs out shows up on the bar's next line.
 The count probably follows the walk, as the footer's "+N more" does; the item that fixes this should say so in its test tree.
 `bar_test.go` should pin it with a done session and a snoozed one that would otherwise be named first.
+
+**Also in the bar** (found by item 171, 2026-10-20): `botropolis bar` prints its counts with the raw state name (`fmt.Sprintf("%d %s", c.N, c.State)` in `botropolis/pkg/commands/bar.go`), so it reads "2 needs-you · 1 working" where the city says "2 need you"; route it through `city.CountLabel` with the rest of this item.
