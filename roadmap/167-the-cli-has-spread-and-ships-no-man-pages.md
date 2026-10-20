@@ -1,6 +1,6 @@
 # 167. The command line has spread out, and ships no man pages
 
-**Open, in progress since 2026-10-20 in the session "item 167". Filed 2026-10-20 (r784) at Aria's request, on the road to 1.0.0. Aria's call — the shape the analysis proposes.**
+**Done 2026-10-20 (`e313f5f`, r814). Filed 2026-10-20 (r784) at Aria's request, on the road to 1.0.0.**
 
 Depends on: nothing
 
@@ -341,3 +341,23 @@ The `status --help` rendering and the README's environment variables and key lis
   The test tree for all three was approved by the manager on 2026-10-20, with one catch: `completion` stays, hidden, with nothing on stderr, because packagers run it.
 - **A job id no listing has yet is attached as given** (slice 2): a job started a moment ago may not be in `claude agents` yet, so `attach` falls back to `claude attach <id>` rather than failing with "no session", which keeps a plain `claude` from depending on timing.
 - **The `devtools` tag stops at the entry points** (slice 3): the frame flags are registered only with it, and without it the city reads them as not asked for, but the render code behind them stays compiled, since [item 168](168-share-the-city-as-a-picture-gif-or-clip.md) reuses it for sharing and it is about 30 KB.
+
+## Closed (2026-10-20)
+
+Slice 2 landed in three parts, as the `Landed:` lines above say, and the man pages closed it: `e313f5f`, r814.
+
+- **The shape Aria picked** (slice 2, `9221556`): 13 commands in four help groups, and `--config`, `--set`, `--home` and `--socket` the only global flags.
+  `attach` attaches here and resumes a resting session, so the shell integration no longer calls `claude attach`; `rm --older-than` took over `prune`, `status --live` took over `tui`, and `setup` registers the hooks, starts the daemon and says what it ran.
+  Every old name and per-key flag still works, hidden, naming its replacement on stderr, until 1.0.0; `completion` stays hidden with a clean stderr for packagers.
+  Tests: `pkg/cli/shape_test.go`, `pkg/config/set_test.go`, `pkg/commands/open_test.go` and `daemon_test.go`.
+- **The frame tooling in `devtools` builds only** (slice 3, `0a09ee5`); `testing/acceptance/release_build_test.go` builds a release binary and fails unless `city --screenshot` is an unknown flag.
+- **Man pages** (slice 4, `e313f5f`): `make man` writes `botropolis(1)`, a page per command, `botropolisd(1)`, `botropolis-hook(1)` and `botropolis-config(5)`, which nfpm and the Homebrew formula install.
+  `testing/acceptance/manpages_test.go` fails on a command with no page, and `packages_man_test.go` on a page no package installs.
+
+**For Aria:**
+
+- **Try a plain `claude` in a real terminal a few times.** It now attaches through `botropolis attach`, which no test drives against the real `claude`.
+- **Only CI has checked the built packages.** `nfpm` is not installed on this machine, so `check-packages`, the deb and rpm install tests and the Homebrew test, which now look for the man pages, have run only in CI.
+  The install tests switch off the Debian and Fedora images' no-docs settings, which would otherwise drop man pages.
+- **The AUR PKGBUILDs need two lines at the next release:** `make man`, then install `bin/man/*.1.gz` and `*.5.gz` under `/usr/share/man/man1` and `man5`.
+- **The `devtools` tag stops at the entry points**, as recorded above, rather than also tagging the recorder, the driver and the Xvfb launcher as the analysis proposed: item 168 reuses that code, and it is about 30 KB.
