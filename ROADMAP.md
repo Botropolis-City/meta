@@ -66,6 +66,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [180](roadmap/180-the-lens-panels-wording-disagrees-with-the-strip.md) | Attention, Work and Cost panels say things that read as wrong beside the strip | — | nobody |
 | [181](roadmap/181-small-polish-mcp-calls-f-and-0-model-ids-finder-rows.md) | small polish: "6 mcp" is calls, `f` and `0` listed twice, full model ids in `status`, finder rows cut with no ellipsis | — | nobody |
 | [182](roadmap/182-the-reading-pane-shows-markdown-raw.md) | the reading pane shows Claude's Markdown as raw text | — | nobody |
+| [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
