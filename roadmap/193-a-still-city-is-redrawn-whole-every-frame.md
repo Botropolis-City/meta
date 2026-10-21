@@ -60,3 +60,18 @@ The design, approved by the roadmap manager for Aria:
 - **The identity check** compares each frame with the still layer off and on, within 192's tolerance of 3.
 
 Tests: `TestInk`, `TestDirtyRects`, `TestStillLayer` and `TestRawDrawSites` (a source guard on the parsed calls) in `pkg/render`; `botropolis-demo sheet --check-frames` (`TestTheStillCityMatchesTheCityDrawnDirectly`) over 60 frames by day and by night, with a car hovered, a view up and a building selected, and a mover passing behind a building; `TestTheStillLayerAFrameKeeps`; item 194's ceilings lowered and its 1.25× case added.
+
+## Slice 2 (2026-10-21)
+
+Slice 1 landed at r863; Aria approved its frames (`botropolis/docs/screenshots/r863-item-193-*.png`, landed at r864).
+It measured a settled frame by phase, metropolis against hamlet, in commands: movers drawn again 43 against 17, map labels 2 against 2 (1,608 indices against 300), chrome 15 against 9, and by night the lights laid again 49 against 9.
+
+The plan, approved by the roadmap manager:
+
+- **A whole-pixel pan shifts the layers** — ground, still city, its lights, group lines — and composes only the strips it exposes; positions are hashed relative to the camera's origin, so a whole-pixel move leaves every hash as it was.
+- **The rectangles of movers are played as one stream**, in the frame's order, so draws from one source merge across them; the night's lights the same.
+- **Each map label is cached as one image.**
+- **Chrome must stop growing with the city too** (the roadmap manager, for Aria): not by leaving it out of the comparison, since a target is never loosened quietly. First, draw the status dots in one pass and the text in another, which is exact; or cache the panel. Only if neither suffices, nearest-filtered dots with a crop to Aria.
+- Culling and reusing the draw list, reported by the benchmark.
+
+Tests: `TestStillShift`, `TestDirtyStream` and `TestLabelCache`; the frame check's variant panning a pixel a frame; *when the camera pans with an arrow held, it should compose only strips*, reporting the pan's counts against the targets.
