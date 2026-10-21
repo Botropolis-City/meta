@@ -11,6 +11,7 @@
 !/.claude/
 /.claude/*
 !/.claude/skills/
+!/.claude/agents/
 !/.claude/commands/
 !/.claude/settings.json
 !/testing/

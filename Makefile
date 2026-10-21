@@ -58,6 +58,24 @@ publishable :: docs-check
 	$(LOG) "Checking nothing unpublishable is in the repository"
 	@tools/check-publishable
 
+AGENT = claude --agent $(1) -n "$(2)" $(if ${REMOTE},--remote-control)
+
+roadmap-manager ::
+	$(LOG) "Starting the roadmap manager (docs/roles.md)"
+	@$(call AGENT,roadmap-manager,roadmap manager)
+
+design-agent ::
+	$(LOG) "Starting the design agent (docs/roles.md)"
+	@$(call AGENT,design-agent,design agent)
+
+performance-manager ::
+	$(LOG) "Starting the performance manager (docs/roles.md)"
+	@$(call AGENT,performance-manager,performance manager)
+
+auditor ::
+	$(LOG) "Starting the auditor (docs/roles.md)"
+	@$(call AGENT,auditor,auditor)
+
 statusline ::
 	$(LOG) "Wiring Claude Code's status line into each checked-out repository"
 	@tools/wire-statusline

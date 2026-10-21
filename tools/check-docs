@@ -28,6 +28,10 @@ Checks, all against the working tree:
      column agrees with each item's own Depends on line
  10. every claim on a status line has the shape roadmap-start writes, and no
      closed item is still claimed
+ 11. docs/roles.md and .claude/agents/ name the same roles; each agent file
+     carries its role's name and a description, pins no model, keeps no
+     project memory, and names only skills that exist (one only vision/
+     could hold is reported as unchecked when vision/ is not here)
 
 Exit 0 if all hold, 1 otherwise, naming every failure.
 USAGE

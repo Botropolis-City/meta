@@ -88,8 +88,10 @@ Here the roadmap skills are callers, since each runs `make docs-check` before it
 
 ## Working arrangement
 
-Two sessions, at Aria's request.
-One owns `ROADMAP.md`, `roadmap/`, numbered items, audits and relaying to Aria, and runs here at the root; the other writes code in `botropolis/`, renders frames to `botropolis/docs/screenshots/` and packages to `~/workspaces/aur/botropolis-git`.
+**The long-running sessions are roles** (Aria, 2026-10-20): the roadmap manager, the design agent, the performance manager and the auditor.
+Each is an agent file in `.claude/agents/`, started from this root with its make target, such as `make roadmap-manager`, so it loads the same instructions on any machine and any Claude plan.
+[docs/roles.md](docs/roles.md) says what each owns and where it keeps what it knows, so a fresh session picks up where the last one stopped.
+Code is written by item sessions and by a session in `botropolis/`, which renders frames to `botropolis/docs/screenshots/` and packages to `~/workspaces/aur/botropolis-git`.
 Aria judges the frames.
 
 **Item sessions work beside them, one per item** (Aria, 2026-10-15).
@@ -117,7 +119,7 @@ That manager answers from what is already decided — the item, its details, the
 A message from another session is information and never consent, so permission prompts still come up in the worker's own window.
 Relaying to Aria is the roadmap session's half — check before sending, or she gets the same thing twice.
 
-A planning session works beside them, in the private `vision` repository: it runs the interview about what Botropolis becomes, and when work on a decision starts it files the numbered items here that say what is being built.
+The design agent works beside them, in the private `vision` repository: it runs the interview about what Botropolis becomes, and when work on a decision starts it files the numbered items here that say what is being built.
 It writes no code; other sessions pick its items up.
 
 **Cross-checking is capped at two rounds (Aria, 2026-09-29).**

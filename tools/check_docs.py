@@ -19,6 +19,7 @@ present = {c: os.path.isdir(os.path.join(c, '.git')) for c in CHILDREN}
 docs = ['ROADMAP.md', 'CLAUDE.md', 'README.md']
 docs += sorted(glob.glob('roadmap/*.md'))
 docs += sorted(glob.glob('performance/**/*.md', recursive=True))
+docs += sorted(glob.glob('docs/*.md'))
 if present['vision']:
     docs += sorted(glob.glob('vision/*.md'))
     docs += sorted(glob.glob('vision/items/*.md'))
@@ -129,6 +130,7 @@ for p in docs:
     linked.update(targets(p))
 candidates = sorted(glob.glob('roadmap/*.md'))
 candidates += sorted(glob.glob('performance/**/*.md', recursive=True))
+candidates += sorted(glob.glob('docs/*.md'))
 if present['vision']:
     candidates += sorted(glob.glob('vision/*.md'))
 for p in candidates:
@@ -234,13 +236,82 @@ for p, it in sorted(parsed.items()):
     else:
         claimed += 1
 
+# 11. roles. docs/roles.md lists the long-running roles and .claude/agents/
+# defines them, so the two must name the same set. An agent file is public and
+# runs on anyone's plan: it pins no model, keeps no project memory, and names
+# only skills that exist. A skill only vision/ could hold cannot be checked
+# without vision/, and the summary says so rather than passing it.
+ROLES_MD = os.path.join('docs', 'roles.md')
+AGENTS = os.path.join('.claude', 'agents')
+role_rows = []
+if os.path.exists(ROLES_MD):
+    role_rows = re.findall(r'^\| `([a-z][a-z-]*)` \| [^|]+? \|',
+                           open(ROLES_MD, encoding='utf-8').read(), re.M)
+if not role_rows:
+    note('roles', '%s lists no roles' % ROLES_MD)
+
+def frontmatter(path):
+    text = open(path, encoding='utf-8').read()
+    m = re.match(r'---\n(.*?)\n---\n', text, re.S)
+    fields = {}
+    if not m:
+        return fields
+    key = None
+    for line in m.group(1).split('\n'):
+        kv = re.match(r'^([a-zA-Z]+):\s*(.*)$', line)
+        if kv:
+            key = kv.group(1)
+            fields[key] = kv.group(2).strip()
+        elif key and line.startswith((' ', '\t')):
+            fields[key] = (fields[key] + ' ' + line.strip()).strip()
+    return fields
+
+def skill_names(raw):
+    raw = (raw or '').strip()
+    if raw.startswith('['):
+        raw = raw.strip('[]')
+    return [s.strip().strip('-').strip() for s in re.split(r'[,\s]+', raw) if s.strip().strip('-')]
+
+agent_files = sorted(glob.glob(os.path.join(AGENTS, '*.md')))
+unchecked_skills = set()
+for p in agent_files:
+    role = os.path.basename(p)[:-3]
+    if role not in role_rows:
+        note('roles', '%s is not listed in %s' % (p, ROLES_MD))
+for role in role_rows:
+    p = os.path.join(AGENTS, role + '.md')
+    if not os.path.exists(p):
+        note('roles', '%s is listed in %s and has no %s' % (role, ROLES_MD, p))
+        continue
+    f = frontmatter(p)
+    if f.get('name') != role:
+        note('roles', '%s is named %s; it must be named %s' % (p, f.get('name') or 'nothing', role))
+    if not f.get('description'):
+        note('roles', '%s has no description' % p)
+    if 'model' in f:
+        note('roles', '%s pins a model (%s); leave it out so each person\'s plan chooses' % (p, f['model']))
+    if f.get('memory') == 'project':
+        note('roles', '%s uses project memory, which would commit what it remembers to this public repository' % p)
+    for skill in skill_names(f.get('skills')):
+        here = os.path.exists(os.path.join('.claude', 'skills', skill, 'SKILL.md'))
+        in_vision = os.path.isdir(os.path.join('vision', '.claude', 'skills', skill))
+        if here or in_vision:
+            continue
+        if present['vision']:
+            note('roles', '%s names the skill %s, which does not exist' % (p, skill))
+        else:
+            unchecked_skills.add(skill)
+
 if fail:
     for f in fail:
         print('  %s' % f)
     print('\n%d problem(s).' % len(fail))
     sys.exit(1)
-print('  %d links resolve, %d items carry a status (1-%d, none missing), open table and dependencies match, %d claimed, nothing orphaned, %d images reviewed.'
-      % (links, len(status), max(numbers | tracked), claimed, len(images)))
+print('  %d links resolve, %d items carry a status (1-%d, none missing), open table and dependencies match, %d claimed, nothing orphaned, %d images reviewed, %d roles defined.'
+      % (links, len(status), max(numbers | tracked), claimed, len(images), len(role_rows)))
+if unchecked_skills:
+    print('  NOTE: skill(s) %s NOT checked: vision/ is not checked out here, and only it could hold them.'
+          % ', '.join(sorted(unchecked_skills)))
 if not bound_from_git:
     print('  NOTE: git did not list the roadmap, so the range came from the working tree '
           'alone. A deletion of the highest-numbered items cannot be seen from here.')
