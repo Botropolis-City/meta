@@ -28,3 +28,34 @@ Item 194's counts, which should stop growing with the number of buildings, and f
 
 **This item does not close while any target case in `TestTheWorkAFrameTakes` still skips** (item 194; the roadmap manager, 2026-10-21).
 Each of 191, 192 and 193 lowers that test's ceilings to what it reached; this one also adds its case that the metropolis costs no more than 1.25× the hamlet.
+
+## How it is being built (2026-10-21)
+
+**Measured first**, the metropolis at 1600×900, settled, by day at r862: 131 commands and 34,002 indices.
+The group lines are 20,520 of those indices, in one run drawn after the sort, and the whole sorted list is 7,374: the bridge 3,300, trees 1,794, the plant's stack 1,542, buildings 528 and movers about 200.
+Chrome text is about 5,000 and map labels 1,104.
+By night it is 188 commands, and the 57 extra are the lights laid one op at a time.
+The hamlet is 69 commands and 10,644 indices.
+Render-target switches already meet their target (6 and 8 against 30), so fix 5 is confirmed, not rebuilt.
+
+The design, approved by the roadmap manager for Aria:
+
+- **A dry pass.** Every drawable runs each frame exactly as before, onto a stand-in destination: each raw draw skips the GPU and instead widens the drawable's screen box and hashes what it would have drawn (source, transform, colour, vertices, words).
+  Every side effect — hits in depth order, the night's light ops, words seen, boards signed, looks baked — happens there, once, as before, so hit testing needs no replay.
+- **Still or moving, by kind.** Cars, drones and their shadows, trains, boats, tugs, hauls, messages, couriers, inspectors, deliveries, ribbons, the fountain, power-line sparks, overgrowth and a building with a live step this frame move; everything else is still.
+  The still layer's key is the ground layer's key and the hash of every still's dry draws in order, so it is composed again exactly when something still would paint differently.
+  This supersedes the list in the fix ("camera, view, night, hover, or a building's look"), and is strictly more complete: there is no hand-kept signature to go stale.
+- **Composing**: the ground and every still drawn into one image, in depth order. A settled frame is one blit of it.
+- **Occlusion by dirty rectangles, replayed exactly.** Each mover's box is merged into rectangles; in each, the ground is copied back and every drawable whose box meets it, still or moving, is drawn again in the frame's order, clipped to the rectangle, so inside it the same draws land in the same order.
+  A clipped destination is a scissor in Ebitengine 2.10, and draws to different regions merge into one command.
+  Two approaches were rejected.
+  Redrawing only the occluders in front over the mover double-blends their soft edges, by up to about 64 levels.
+  A depth image and a shader cannot hold the pairwise order a scalar depth cannot encode (bug 42), and drop soft edges.
+- **Night**: the stills' light ops are laid once into a lights image of their own; each frame it is copied, and inside each rectangle cleared and laid again from the ops of the drawables in it.
+- **The hover fade** works the same in composing and in replay, its layer sized to the frame.
+- **Group lines are part of the standing city** (the roadmap manager): a layer of their own over the movers, keyed by their dry hash. A line that animates would be a mover, and the session says which and what it costs.
+- **Slices**: 1, all of the above with the ceilings lowered; 2, culling off-screen drawables before the sort, reusing the draw list and caching label text; 3, only if needed, the hamlet comparison and what is left.
+- **Reported, not gated**: a benchmark of the dry pass's time and allocations on the settled metropolis against the draw it replaces, since the budget is 10 ms of CPU and item 194's counts do not see CPU; if hashing costs more than the submission it saves, the session says so before slice 2. Also the layers' memory at 1600×900 and in a 4K window against the 512 MiB budget, and the panning numbers, as 192 reported them.
+- **The identity check** compares each frame with the still layer off and on, within 192's tolerance of 3.
+
+Tests: `TestInk`, `TestDirtyRects`, `TestStillLayer` and `TestRawDrawSites` (a source guard on the parsed calls) in `pkg/render`; `botropolis-demo sheet --check-frames` (`TestTheStillCityMatchesTheCityDrawnDirectly`) over 60 frames by day and by night, with a car hovered, a view up and a building selected, and a mover passing behind a building; `TestTheStillLayerAFrameKeeps`; item 194's ceilings lowered and its 1.25× case added.
