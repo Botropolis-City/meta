@@ -63,6 +63,21 @@ for _role, _name in roles():
     globals()[_case.__name__] = _case
 
 
+class WhenTheAgentsAreStartedTogether(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.plan = make_dry_run('agents')
+
+    def test_it_should_open_design_roadmap_and_benchmark_in_that_order(self):
+        self.assertRegex(self.plan, r'for w in design:design-agent roadmap:roadmap-manager benchmark:performance-manager;')
+
+    def test_it_should_start_each_with_remote_control(self):
+        self.assertRegex(self.plan, r'make -C \S+ \$role REMOTE=1')
+
+    def test_it_should_put_them_in_one_tmux_session(self):
+        self.assertIn('tmux new-session -d -s "botropolis"', self.plan)
+
+
 def first_role(tree):
     return roles(tree)[0][0]
 

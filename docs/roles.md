@@ -18,6 +18,9 @@ make roadmap-manager REMOTE=1  # also reachable from claude.ai/code and the Clau
 
 `REMOTE=1` adds Remote Control, which needs a claude.ai subscription login rather than an API key.
 
+`make agents` opens a tmux session, `botropolis` (set `AGENTS_TMUX` to change it), with design in window 1, the roadmap manager in 2 and the performance manager in 3, named `benchmark`, all with Remote Control.
+Run it again to reattach; it starts nothing new while that session exists.
+
 ## What the roles keep, and where
 
 A role holds nothing a restart would lose.

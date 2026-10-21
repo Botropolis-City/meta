@@ -76,6 +76,29 @@ auditor ::
 	$(LOG) "Starting the auditor (docs/roles.md)"
 	@$(call AGENT,auditor,auditor)
 
+AGENTS_TMUX ?= botropolis
+AGENT_WINDOWS := design:design-agent roadmap:roadmap-manager benchmark:performance-manager
+
+agents ::
+	$(LOG) "Starting design, roadmap and benchmark in tmux session ${AGENTS_TMUX}, with Remote Control"
+	@if ! tmux has-session -t "=${AGENTS_TMUX}" 2>/dev/null; then \
+		i=1; \
+		for w in ${AGENT_WINDOWS}; do \
+			name=$${w%%:*}; role=$${w#*:}; \
+			cmd="make -C $(CURDIR) $$role REMOTE=1; exec $$SHELL"; \
+			if [ $$i = 1 ]; then \
+				tmux new-session -d -s "${AGENTS_TMUX}" -n "$$name" -c "$(CURDIR)" "$$cmd"; \
+				[ "$$(tmux display-message -p -t "=${AGENTS_TMUX}:$$name" '#I')" = 1 ] \
+					|| tmux move-window -s "=${AGENTS_TMUX}:$$name" -t "=${AGENTS_TMUX}:1"; \
+			else \
+				tmux new-window -t "=${AGENTS_TMUX}:$$i" -n "$$name" -c "$(CURDIR)" "$$cmd"; \
+			fi; \
+			i=$$((i + 1)); \
+		done; \
+		tmux select-window -t "=${AGENTS_TMUX}:1"; \
+	fi
+	@if [ -n "$$TMUX" ]; then tmux switch-client -t "=${AGENTS_TMUX}"; else tmux attach-session -t "=${AGENTS_TMUX}"; fi
+
 statusline ::
 	$(LOG) "Wiring Claude Code's status line into each checked-out repository"
 	@tools/wire-statusline
