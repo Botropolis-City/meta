@@ -1,6 +1,6 @@
 # 192. A building is drawn from many pieces every frame, though its look rarely changes
 
-**Open. Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161. Nobody's call — the session proposes the cache key and the night lights.**
+**Open, in progress since 2026-10-21 in the session "item 192". Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161. Nobody's call — the session proposes the cache key and the night lights.**
 
 Depends on: 191
 
