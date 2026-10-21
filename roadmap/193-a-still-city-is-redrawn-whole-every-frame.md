@@ -1,6 +1,6 @@
 # 193. A still city is redrawn whole every frame; only what moves should be
 
-**Open. Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161. Nobody's call — the approach is set; the session proposes the occlusion detail.**
+**Open, in progress since 2026-10-21 in the session "item 193". Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161. Nobody's call — the approach is set; the session proposes the occlusion detail.**
 
 Depends on: 192
 
