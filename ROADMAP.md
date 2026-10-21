@@ -50,6 +50,10 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
+| [191](roadmap/191-the-world-s-shapes-are-anti-aliased-vector-paths-every-frame.md) | world shapes as anti-aliased vector paths every frame: their geometry is most of the heap; draw them as stamps | — | nobody, the fix is known |
+| [192](roadmap/192-a-building-is-drawn-from-many-pieces-every-frame.md) | a building drawn from many pieces every frame; cache its look as one image, capped in bytes | 191 | nobody |
+| [193](roadmap/193-a-still-city-is-redrawn-whole-every-frame.md) | a still city redrawn whole every frame; cache the standing city, draw only movers, cull | 192 | nobody |
+| [194](roadmap/194-nothing-counts-the-work-a-frame-takes.md) | no test counts a frame's indices, draw commands and target switches | — | Aria, the targets |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
@@ -58,6 +62,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 - **The validation checklist** has its own file, [`validation-checklist.md`](roadmap/validation-checklist.md). **Steps 1 and 8 pass** — step 1 now reconciles by session id rather than by title, which is what item 71 bought. **The other eight need her hands on the keyboard**, and the file says which keys.
 - **The plant frames are rendered and waiting** — `docs/screenshots/r320-plant-fountain-aligned.png` and `r320-plant-fountain-behind.png`, the camera turned 180° between them so the fountain moves out from under the flange. If the flange reads as an underside in the first and not the second, the fountain's alignment is the cause; if it reads the same in both, the flange is. Read the premise note on items 23 and 33 first — the flange description was derived from a piece that is no longer the one drawn.
 - **Item 149** — what 1.0.0 promises: strike or add entries on its list.
+- **Item 194** — the targets for indices, draw commands and target switches a frame, once its session measures and proposes them.
 - **Item 69** — whether 10% is still the bar for a busy city, or was always the bar for an idle one.
 
 The nine unadjudicated entries were read one by one on 2026-09-29 and all nine are now closed: item 24 by Aria's ruling that the six undrawn pieces are a deliberate reserve, and items 22, 23, 26, 27, 28, 29, 31 and 33 by adjudication, each with the reason on its own file.

@@ -59,3 +59,5 @@ Measured on the 265U at r844 (`bd67029`), headless (Xvfb, llvmpipe), the `metrop
 
 The forced-off build is an upper bound: it drops anti-aliasing from every vector call, chrome included, and nobody has looked at the frames.
 The fix this points at is fewer anti-aliased fills in the world (non-AA where the zoom hides the difference, or shapes baked once into images), measured by indices per frame.
+
+**Proposed fix, filed 2026-10-21:** items 191 (world shapes as stamps), 192 (a building's look cached), 193 (a still city cached, only movers drawn) and 194 (counting a frame's work). This item stays open for the start-up burst on the real display, and closes on measurement.

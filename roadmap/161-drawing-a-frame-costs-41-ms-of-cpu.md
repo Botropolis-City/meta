@@ -30,3 +30,5 @@ Judge it with `perf-city` focused on integrated graphics, and quote ms/frame wit
 
 Headless at r844 with Ebitengine's debug log, forcing anti-aliasing off in `vector.FillPath` cut the indices a frame 6.6× (734,811 to 112,135) with the same 476–478 draw commands, and the city drew 227 frames in 120 s against 101 (item 156 has the table and the method).
 The debug log slows both builds, so the frame rate is a ratio, not a cost; a focused real-display `perf-city` run of the same two builds would give the ms/frame.
+
+**Proposed fix, filed 2026-10-21:** items 191–194; this item closes when a focused city on integrated graphics meets the budget.
