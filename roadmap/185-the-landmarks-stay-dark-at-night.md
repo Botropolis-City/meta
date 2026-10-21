@@ -51,3 +51,5 @@ The manifests were remeasured from the committed atlas pages with render.py's ow
 **Frames**: `botropolis/docs/screenshots/r842-item-185-plaza-at-night.png`, with twelve sessions working, and `r842-item-185-plaza-nobody-working.png`, the plant dark.
 **For Aria:** these follow her verdict on the r838 frames and have not been judged yet.
 The tint is softer than the session buildings' yellow, as "a little yellow" asked; reopen this if it should be stronger or weaker.
+
+**Aria approved the r842 frames** (2026-10-20): the soft warm tint at night and the plant without its glow.
