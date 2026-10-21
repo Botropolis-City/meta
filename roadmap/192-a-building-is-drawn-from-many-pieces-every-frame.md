@@ -1,6 +1,6 @@
 # 192. A building is drawn from many pieces every frame, though its look rarely changes
 
-**Open, in progress since 2026-10-21 in the session "item 192". Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161. Nobody's call — the session proposes the cache key and the night lights.**
+**Done 2026-10-21 (`1b004a9`, r861). Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161. Nobody's call — the session proposed the cache key and the night lights.**
 
 Depends on: 191
 Landed: slice 1 (`1b004a9`, r861).
@@ -45,3 +45,32 @@ The design, approved by the roadmap manager for Aria:
   The cache builds on item 195's cuts once they land, painting a bake with the cut-noting switched off and punching the finished image instead.
 
 Tests: `TestLookCache`, `TestLookCacheCap`, `TestLookKey` and `TestBuildingSteps` in `pkg/render`; `TestBuildingLooksCached` through `botropolis-demo sheet --check-looks`, and the existing lights checks run with the cache on; item 194's ceilings lowered, and *when the metropolis has settled at fit, and up close, it should bake nothing*.
+
+## Closed (2026-10-21)
+
+Done at `1b004a9` (r861): each building is drawn as steps in its paint order, each still run of them baked once into an image of its own and blitted after, through a 32 MiB least-recently-used cache.
+`botropolis-demo sheet --check-looks` (`TestBuildingLooksCached`) holds every look, from every heading at zoom 1 and 2, by day and by night, to the building drawn directly, as first seen, baked, kept and changed; `TestTheLooksAFrameKeeps` gates that a settled metropolis bakes nothing at fit and three notches in.
+Aria judged the frames (`botropolis/docs/screenshots/r861-item-192-*.png`, landed at r862) and approved them, the hoist column included.
+
+**Item 194's counts**, the metropolis at 1600×900, worst settled frame, day / night:
+
+| per frame | item 191 | item 192 |
+| --- | --- | --- |
+| indices | 75,504 / 78,570 | 34,008–53,772 / 37,290–57,012 |
+| draw commands | 277 / 334 | 131–136 / 188–210 |
+| render-target switches | 5 / 7 | 4–5 / 7 |
+
+Indices are bimodal: a mover's frame in the window adds about 20,000, with no cache miss in it.
+The ceilings came down to 54,900 / 58,200 indices and 139 / 215 commands.
+The cache keeps 0.3 MiB at fit and 2.3 MiB three notches in.
+
+**For item 193, the moving camera**, reported and not gated (the roadmap manager, 2026-10-21): a pan by a held arrow keeps every look, 30 hits and no bakes a frame.
+A wheel zoom draws every building straight while it moves, as before this item, since a look is baked only once its key has held a frame; the frame after it stops bakes all 30 at once, about 430 commands, 86,000 indices and 58 switches, and about ten frames later Ebitengine moves each new look onto its atlas, one copy each, which is why item 194's test now counts from frame 20.
+
+Deviations, each agreed with the manager or recorded here:
+
+- At night a baked look cuts the lights behind it at its own alpha, where item 195 cuts a line as a bar a pixel wider, so beside a hoist line one more column of light shows; the night identity check leaves out what a building paints after its own lights.
+- Three float ties made a scaffold's lamps, braces and hoist change corners with the camera's rounding, so a pan could flip them; each now treats heights within half a pixel as equal.
+- `buildingItem` went: the work is a building's own steps, in its one place in the depth sort.
+- `TestDrive` no longer compares how many sprites cut the lights, which settles as the looks bake.
+- The see-through night check stands its buildings on whole pixels: off the grid, its notion of a solid pixel took in a soft edge.
