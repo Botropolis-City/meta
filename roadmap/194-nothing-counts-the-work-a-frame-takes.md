@@ -1,6 +1,6 @@
 # 194. Nothing counts the work a frame takes, so a regression in drawing passes every test
 
-**Open. Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement. Nobody's call — Aria ruled on the targets, below.**
+**Open, in progress since 2026-10-21 in the session "item 194". Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement. Nobody's call — Aria ruled on the targets, below.**
 
 Depends on: nothing
 

@@ -1,6 +1,6 @@
 # 191. The world's shapes are drawn as anti-aliased vector paths every frame, and their geometry is most of the city's heap
 
-**Open. Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement. Nobody's call — the fix is known.**
+**Open, in progress since 2026-10-21 in the session "item 191". Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement. Nobody's call — the fix is known.**
 
 Depends on: nothing
 
