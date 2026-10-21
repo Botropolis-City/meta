@@ -1,6 +1,6 @@
 # 185. The landmarks stay dark at night
 
-**Open, in progress since 2026-10-20 in the session "item 185". Filed 2026-10-20 (r787) at Aria's request, from item 166's frames. Nobody's call.**
+**Done 2026-10-20 (`565aa78`, r842). Filed 2026-10-20 (r787) at Aria's request, from item 166's frames.**
 
 Depends on: 166
 Landed: slice 1 (`5a920bd`, r835).
@@ -33,3 +33,21 @@ Slice 4 replaced it after a mock-up of four tints,
 and the check now also requires the lit glass to be redder than blue.
 And the power plant's round glow is gone.
 Its spend stays visible on the strip's "$… 24h" chip and in the Cost lens, so nothing it said at a glance is lost.
+
+## Done
+
+**At night the landmarks light their own windows** (`f599a23`, r838; tint and glow `6aa638b`, r841, and `565aa78`, r842).
+Each landmark's panes are its own sprite's pixels, drawn again from the atlas page through item 166's lights layer in one draw, so anything in front cuts them out, and tinted a soft yellow at night only (`botropolis/pkg/render/landmarklights.go`).
+The library and City Hall are lit all night.
+The plant is lit while any session is working, faded over a second by the scene (`botropolis/pkg/city/plantlights.go`).
+The plant's round glow is gone.
+
+**The plant's windows are now measured** (`5a920bd`, r835): the atlas measured panes for the commercial pieces only, so it had none.
+`tools/render-sprites/render.py` now measures all three landmarks, and a pane must hold glass bluer than green, which drops six false panes on City Hall's green cross and the library's awning.
+The manifests were remeasured from the committed atlas pages with render.py's own functions, because a full `make sprites` took 91 minutes under the day's load and moved a few pixels elsewhere, within `make sprites-check`'s tolerance.
+
+**Tests**, each mutated red: the atlas carries the plant's panes and no green ones (`botropolis/pkg/assets/landmarkpanes_test.go`); the lights' timing, every pane lit from the right heading and page, one draw per landmark, and the map lighting them at night and not by day (`botropolis/pkg/render/landmarklights_test.go`, `botropolis/pkg/city/plantlights_test.go`); no glow on the plant; and `botropolis-demo sheet --check-lights`, which now draws each landmark at every heading and fails on a lit pixel off its panes, windows that light nothing, light on its painted name (item 99), a lit City Hall showing through a dark building in front, or lit glass that is not warmer than by day and redder than blue.
+
+**Frames**: `botropolis/docs/screenshots/r842-item-185-plaza-at-night.png`, with twelve sessions working, and `r842-item-185-plaza-nobody-working.png`, the plant dark.
+**For Aria:** these follow her verdict on the r838 frames and have not been judged yet.
+The tint is softer than the session buildings' yellow, as "a little yellow" asked; reopen this if it should be stronger or weaker.

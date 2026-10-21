@@ -48,7 +48,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [164](roadmap/164-no-soak-test-for-the-growth-budget.md) | an 8-hour soak test for the growth budget, on a release checklist | — | nobody, the budget is set |
 | [181](roadmap/181-small-polish-mcp-calls-f-and-0-model-ids-finder-rows.md) | small polish: "6 mcp" is calls, `f` and `0` listed twice, full model ids in `status`, finder rows cut with no ellipsis | — | nobody |
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
-| [185](roadmap/185-the-landmarks-stay-dark-at-night.md) | the landmarks (library, City Hall, power plant) stay dark at night | 166 | nobody |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
