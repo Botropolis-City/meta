@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-21 in the session "item 195". Filed 2026-10-21 (r852) by Aria, from item 191's night frames. Nobody's call — a defect.**
 
 Depends on: nothing
+Landed: slice 1 (`76cfde9`, r853).
 
 In `botropolis/docs/screenshots/r851-item-191-night-3x.png` (both halves, so it predates item 191), the tower behind the "orchard / your move" district sign shows its lit windows straight through the sign: yellow panes run across the sign's board and its words.
 Aria, 2026-10-21: *"the window lights are drawn over the label. The label should be in front."*
@@ -14,3 +15,22 @@ The lit windows come from [item 166](166-lit-windows-are-round-halos-not-windows
 Everything that should sit in front of a lit building either cuts its shape from the lights layer or is drawn after the layer is composited. Labels and signs should be after it, since they are not part of the scene's depth.
 
 Tests: `--check-lights` gains a lit tower with a district sign in front: no lit pixel inside the sign's board. The same for a station label and a badge over a lit building. A night frame for Aria at the same crop.
+
+## Diagnosis
+
+Only sprites cut the lights layer: `punch` is called from the sprite draws, and the sign was painted, so it never cut.
+The district sign is in the depth sort, as item 88 placed it, and its board was a plain `vector.FillRect`, which goes around `pkg/shapes`' painter.
+The audit found the same fault in everything painted in the depth sort.
+A building's own painted name, beacon, flags and smoke are painted after its own windows are noted.
+So are a scaffold's tubes, boards and ladder, a monument's paint, a spire, bridge decks and fountain rings.
+Station plates, badges, map labels, group lines and stations (item 179), the tower plate and the hover card are drawn after the layer is laid, so they were already in front.
+
+## The decision
+
+The fix is at the painter, not per offender (the manager, for Aria, 2026-10-21).
+Every shape the painter draws while the lights are noted, and every painted word, cuts the lights at its own alpha.
+A half-transparent shape dims the light behind it rather than putting it out, and a glow is light, so it does not cut.
+The sign stays in the depth sort and cuts, rather than moving after the layer.
+It has stood in the depth order since item 88, so a building in front of a sign still hides it.
+The item's other option, drawing it after the layer, would paint it over buildings that stand in front of it.
+Cuts may not push item 194's frame counts past their ceilings: a failure to fix, not a ceiling to raise.
