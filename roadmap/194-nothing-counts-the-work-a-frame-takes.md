@@ -1,6 +1,6 @@
 # 194. Nothing counts the work a frame takes, so a regression in drawing passes every test
 
-**Open. Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement. Aria's call — the targets, from the first measurement.**
+**Open. Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement. Nobody's call — Aria ruled on the targets, below.**
 
 Depends on: nothing
 
@@ -16,3 +16,9 @@ The first answer the item needs is the targets: the session measures, proposes t
 Once item 193 lands, the counts should not grow with the number of buildings, and the test should say so.
 
 It lands first, so items 191–193 can each show what they changed.
+
+## Answered
+
+- **The targets** (Aria, 2026-10-21: *"I don't fully understand 194, but we should do all we can"*): she does not set numbers.
+  The session sets each target as tight as items 191–193 can reach, derived from the budget's 10 ms of CPU a frame on integrated graphics, never from today's count, and writes the reasoning here.
+  When a fix lands, the target tightens to what it reached, so the counts can only go down.
