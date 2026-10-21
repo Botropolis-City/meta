@@ -1,6 +1,6 @@
 # 195. Lit windows are drawn over district signs at night
 
-**Open, in progress since 2026-10-21 in the session "item 195". Filed 2026-10-21 (r852) by Aria, from item 191's night frames. Nobody's call — a defect.**
+**Fixed 2026-10-21 (`76cfde9`, r853). Filed 2026-10-21 (r852) by Aria, from item 191's night frames. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`76cfde9`, r853).
@@ -34,3 +34,22 @@ The sign stays in the depth sort and cuts, rather than moving after the layer.
 It has stood in the depth order since item 88, so a building in front of a sign still hides it.
 The item's other option, drawing it after the layer, would paint it over buildings that stand in front of it.
 Cuts may not push item 194's frame counts past their ceilings: a failure to fix, not a ceiling to raise.
+
+## Fixed
+
+**What is painted in front of a lit window cuts it** (`76cfde9`, r853).
+The painter tells the lights of every shape it draws, and `g.sign` of every word, and each cuts the lights laid behind it in depth order, at its own alpha.
+Render's hard-edged rectangles and lines moved onto the painter too, and `TestNothingIsDrawnAroundThePainter` fails on any vector call in render but the night wash.
+`g.paintUncut` turns cutting off for painting somewhere other than the screen, which item 192's cached looks use.
+
+**Tests**, each mutated red: the painter reports each kind of shape and not a glow, and render notes a cut only over a lit pane.
+`--check-lights` draws a lit tower behind a district sign, its own painted name, painted shapes, a hard-edged box and a half-transparent shape, and under a station label and a badge.
+It fails where more light shows than the thing in front leaves uncovered, and where the half-transparent shape leaves other than half.
+Every case in the depth sort went red with cutting switched off; the two labels do not, because they are drawn after the lights, and they pass drawn before them too, since their boxes now cut.
+
+**Cost**, on item 194's metropolis demo at night: 317 commands and 79,884 indices a frame, against 329 and 78,612 before and ceilings of 341 and 80,200; by day, 268 commands, from 277.
+
+**Frame**, approved by Aria on 2026-10-21: `botropolis/docs/screenshots/r853-item-195-night-3x.png` (landed at r854), the crop of r851's, main on the left.
+
+**Known limit**: a sprite fading in or out by its tint, such as a building arriving on a truck, still cuts the light behind it at full strength while it fades.
+That predates this item.
