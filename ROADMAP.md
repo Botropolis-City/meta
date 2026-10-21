@@ -53,6 +53,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [191](roadmap/191-the-world-s-shapes-are-anti-aliased-vector-paths-every-frame.md) | world shapes as anti-aliased vector paths every frame: their geometry is most of the heap; draw them as stamps | — | nobody, the fix is known |
 | [192](roadmap/192-a-building-is-drawn-from-many-pieces-every-frame.md) | a building drawn from many pieces every frame; cache its look as one image, capped in bytes | 191 | nobody |
 | [193](roadmap/193-a-still-city-is-redrawn-whole-every-frame.md) | a still city redrawn whole every frame; cache the standing city, draw only movers, cull | 192 | nobody |
+| [195](roadmap/195-lit-windows-are-drawn-over-district-signs.md) | at night, lit windows show through district signs (and possibly other labels) drawn in front of them | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
