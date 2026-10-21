@@ -15,6 +15,8 @@ Someone whose laptop stalls the first time will not open the app again.
 | Core Ultra 7 255H | 1.2 GiB | ~8 | 391% | 26.5 | 954 MiB | [laptop](../performance/reports/2026-10-19-laptop-igpu-0.2.2.md) |
 | Core Ultra 7 265U | 2.4 GiB | 15 | 358% | 32.0 | 3,645 MiB | [265U](../performance/reports/2026-10-19-ultra7-265u-igpu-0.2.2.md) |
 
+0.2.3, on the 265U on 2026-10-21, as a real first launch after the store was removed (item 190): 30 s at half a core or more, a peak of 414%, 103 CPU-seconds, 4,526 MiB read, `Private_Dirty` at most 25 MiB.
+
 On a four-core machine with a slower disk that is the whole machine for much longer, and it grows with the history.
 
 **Where the cores come from.** The ingest itself is one goroutine on a locked thread (`storedHefts.pass`, `pkg/state/storedheft.go`, and `wholeRead.pass`, `pkg/state/wholeread.go`).
