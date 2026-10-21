@@ -50,7 +50,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
-| [191](roadmap/191-the-world-s-shapes-are-anti-aliased-vector-paths-every-frame.md) | world shapes as anti-aliased vector paths every frame: their geometry is most of the heap; draw them as stamps | — | nobody, the fix is known |
 | [192](roadmap/192-a-building-is-drawn-from-many-pieces-every-frame.md) | a building drawn from many pieces every frame; cache its look as one image, capped in bytes | 191 | nobody |
 | [193](roadmap/193-a-still-city-is-redrawn-whole-every-frame.md) | a still city redrawn whole every frame; cache the standing city, draw only movers, cull | 192 | nobody |
 | [195](roadmap/195-lit-windows-are-drawn-over-district-signs.md) | at night, lit windows show through district signs (and possibly other labels) drawn in front of them | — | nobody, a defect |

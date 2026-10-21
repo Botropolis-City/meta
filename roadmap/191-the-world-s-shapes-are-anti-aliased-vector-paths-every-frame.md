@@ -1,6 +1,6 @@
 # 191. The world's shapes are drawn as anti-aliased vector paths every frame, and their geometry is most of the city's heap
 
-**Open, in progress since 2026-10-21 in the session "item 191". Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement. Nobody's call — the fix is known.**
+**Done 2026-10-21 (`afb0540`, r851). Filed 2026-10-21 (r844) at Aria's request, from the design session's reading of items 156 and 161 and the benchmark session's measurement.**
 
 Depends on: nothing
 Landed: slice 1 (`afb0540`, r851).
@@ -66,3 +66,16 @@ The Go live heap, from `gctrace` over the same demo, went from about 255 MB to a
 
 The guard and the lowered ceilings landed with slice 1, at r851.
 Frames for Aria, before on the left: `botropolis/docs/screenshots/r851-item-191-*.png`.
+
+## Closed (2026-10-21)
+
+Done at `afb0540` (r851): every per-frame anti-aliased vector call in the module is a mesh or a stamp drawn through `pkg/shapes`, and `make lint` keeps them out.
+Item 194's `TestTheWorkAFrameTakes` shows the counts above, and its ceilings were lowered to them.
+Aria judged the frames (`botropolis/docs/screenshots/r851-item-191-*.png`, landed at r852): *"All those changes look solid."*
+
+Deviations from the item as filed, each agreed with the manager:
+lines, quads and rings are fringed meshes rather than stamps, so every edge stays smooth;
+there is no soft-disc glow, so glows look as they did;
+filled shapes read about half a pixel larger, the price of no seams;
+and slices 1 and 2 landed as one.
+The bug Aria spotted in the night crop, lit windows drawn over a district sign, was there before this item and is filed on its own.
