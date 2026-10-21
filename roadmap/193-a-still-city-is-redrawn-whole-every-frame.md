@@ -25,3 +25,6 @@ The benchmark also counted 175 render-target switches a frame, from the hover fa
 ## Judged by
 
 Item 194's counts, which should stop growing with the number of buildings, and frames to Aria of movers passing behind buildings, by day and night.
+
+**This item does not close while any target case in `TestTheWorkAFrameTakes` still skips** (item 194; the roadmap manager, 2026-10-21).
+Each of 191, 192 and 193 lowers that test's ceilings to what it reached; this one also adds its case that the metropolis costs no more than 1.25× the hamlet.
