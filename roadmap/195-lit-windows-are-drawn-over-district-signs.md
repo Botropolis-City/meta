@@ -1,6 +1,6 @@
 # 195. Lit windows are drawn over district signs at night
 
-**Open. Filed 2026-10-21 (r852) by Aria, from item 191's night frames. Nobody's call — a defect.**
+**Open, in progress since 2026-10-21 in the session "item 195". Filed 2026-10-21 (r852) by Aria, from item 191's night frames. Nobody's call — a defect.**
 
 Depends on: nothing
 
