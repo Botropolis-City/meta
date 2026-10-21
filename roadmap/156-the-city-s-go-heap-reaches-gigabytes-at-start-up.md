@@ -38,3 +38,24 @@ Tests: `testing/acceptance/memory_test.go` already gates the atlas's start-up he
 
 **The demo's start-up gate now sits at its limit** (item 182, 2026-10-20). `TestStartUpPeak` (Go heap at GC start, limit 240 MB) measured 239 207 209 226 226 MB in five isolated runs on main before item 182's slice 2, so it passes by 1 MB at best and failed at 258 MB under full-suite load. Item 70 measured 205 MB. The limit is the goal and stays; what moved the start-up heap by ~35 MB since is part of this item's bisection. Held with the rest of the performance work for Aria's pass, so until then this gate can fail a landing on load alone: rerun, don't raise it.
 - Item 185, same day: 290 MB under load on its first `make land`; passed 4 of 4 alone and on the retry.
+
+## Measured 2026-10-21: anti-aliased vector fills are the volume, not the command count
+
+The design session proposed a mechanism: about 100 of `pkg/render`'s vector calls are anti-aliased, Ebitengine v2.10 defers each one per destination and flushes it through several jittered stencil passes, and drawing in depth order makes every shape flush on its own.
+Measured on the 265U at r844 (`bd67029`), headless (Xvfb, llvmpipe), the `metropolis` demo at 1600×900, the city built with `-tags 'ebitenginedebug devtools'`, every draw command counted per frame from Ebitengine's own log, 120 s per build:
+
+| per frame, after the first 20 | HEAD | HEAD with `AntiAlias` forced off in `vector.FillPath` |
+| --- | --- | --- |
+| draw-triangles commands | 478 | 476 |
+| render-target switches | 175 | 175 |
+| indices | 734,811 | 112,135 |
+| Go live heap | 418 MB | 142 MB |
+| frames drawn in 120 s | 101 | 227 |
+
+- **Anti-aliasing is most of the heap**: forcing it off took the live heap from 418 to 142 MB and the indices a frame down 6.6×, with the same commands.
+- **It is not more commands or more batch breaks**: both counts are identical with it off. The 175 target switches a frame are there either way, from the other causes the design session named (the fader layer, the night lights' punches, one texture per kit page), and are a separate cost.
+- So a gate on **commands per frame would not have caught this; indices (or vertices) per frame would**. Both are counts of work, not seconds, and the debug log gives both.
+- The first five frames issue about as many commands as later ones (415 against 478), so this headless run does not show the real display's start-up burst; that still needs the real-display profile in step 2 of the fix.
+
+The forced-off build is an upper bound: it drops anti-aliasing from every vector call, chrome included, and nobody has looked at the frames.
+The fix this points at is fewer anti-aliased fills in the world (non-AA where the zoom hides the difference, or shapes baked once into images), measured by indices per frame.

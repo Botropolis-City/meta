@@ -25,3 +25,8 @@ That is a quarter of 0.2.2's cost and half of 0.1.7's, so this is not only a reg
 3. Make `BenchmarkDrawAFrame`, or a measure test beside it, gate at the budget's 10 ms rather than report.
 
 Judge it with `perf-city` focused on integrated graphics, and quote ms/frame with the frame count.
+
+## Measured 2026-10-21
+
+Headless at r844 with Ebitengine's debug log, forcing anti-aliasing off in `vector.FillPath` cut the indices a frame 6.6× (734,811 to 112,135) with the same 476–478 draw commands, and the city drew 227 frames in 120 s against 101 (item 156 has the table and the method).
+The debug log slows both builds, so the frame rate is a ratio, not a cost; a focused real-display `perf-city` run of the same two builds would give the ms/frame.
