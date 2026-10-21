@@ -22,6 +22,8 @@ It lands first, so items 191–193 can each show what they changed.
 - **The targets** (Aria, 2026-10-21: *"I don't fully understand 194, but we should do all we can"*): she does not set numbers.
   The session sets each target as tight as items 191–193 can reach, derived from the budget's 10 ms of CPU a frame on integrated graphics, never from today's count, and writes the reasoning here.
   When a fix lands, the target tightens to what it reached, so the counts can only go down.
+- **The metropolis against the hamlet** (Aria, 2026-10-21, ruling on item 193's question: *"Hold movers equal"*): the 1.25× case compares the two cities with the same activity, so the still city must not grow with the city's size, and more activity may cost more.
+  The case draws both cities with the same movers and is named for what it measures; the absolute targets go on gating with every mover drawn.
 
 ## The counts and the targets
 

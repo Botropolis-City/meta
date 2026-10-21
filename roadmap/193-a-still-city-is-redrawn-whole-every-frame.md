@@ -4,6 +4,7 @@
 
 Depends on: 192
 Landed: slice 1 (`b8f2f33`, r863).
+Landed: slice 2 (`a58bb78`, r868).
 
 ## What is wrong
 
@@ -77,3 +78,9 @@ The plan, approved by the roadmap manager:
 Tests: `TestStillShift`, `TestDirtyStream` and `TestLabelCache`; the frame check's variant panning a pixel a frame; *when the camera pans with an arrow held, it should compose only strips*, reporting the pan's counts against the targets.
 
 **Aria, 2026-10-21, on the 1.25× ratio** (with movers about 20 draw calls in the metropolis against 5 in the hamlet after slice 2): *"Hold movers equal."* The ratio compares the two cities with the same activity: the standing city must not grow with the size of the city, and more activity may cost more. The absolute targets still gate with movers as they are. She also approved the r867 night before/after.
+
+Slice 2 landed at r868: by day 34 commands and 5,232 indices, by night 51 and 6,084, a held arrow's pan 41 and 7,302, every absolute target met.
+Against r862 from the same staged moment no pixel differs by more than 3 levels by night or 2 by day, and Aria approved that frame (`botropolis/docs/screenshots/r867-item-193-night-before-after.png`, 2026-10-21).
+
+**Hold movers equal** (Aria, 2026-10-21, quoted as she ruled it): what was left over 1.25× the hamlet was the movers themselves — the metropolis has twice the activity — so the comparison holds the movers equal and is named for it, *when the hamlet and the metropolis have the same movers, it should cost the metropolis no more than 1.25× the hamlet*; the absolute targets go on gating with every mover drawn.
+And the switches over the hamlet's in the counted window are Ebitengine moving item 192's freshly baked looks onto its atlas, so slice 3 puts the looks on pages of their own, as slice 2 did the labels (the roadmap manager, 2026-10-21: removing the cause rather than moving the window).
