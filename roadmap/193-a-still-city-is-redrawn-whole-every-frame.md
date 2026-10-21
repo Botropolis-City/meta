@@ -75,3 +75,5 @@ The plan, approved by the roadmap manager:
 - Culling and reusing the draw list, reported by the benchmark.
 
 Tests: `TestStillShift`, `TestDirtyStream` and `TestLabelCache`; the frame check's variant panning a pixel a frame; *when the camera pans with an arrow held, it should compose only strips*, reporting the pan's counts against the targets.
+
+**Aria, 2026-10-21, on the 1.25× ratio** (with movers about 20 draw calls in the metropolis against 5 in the hamlet after slice 2): *"Hold movers equal."* The ratio compares the two cities with the same activity: the standing city must not grow with the size of the city, and more activity may cost more. The absolute targets still gate with movers as they are. She also approved the r867 night before/after.
