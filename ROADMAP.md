@@ -50,6 +50,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
+| [196](roadmap/196-a-settled-daemon-bursts-to-several-cores-on-rescans.md) | a settled daemon bursts to 100–300% CPU on rescans (mean ~20% vs a 2% budget) | 157, 158 | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
