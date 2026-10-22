@@ -1,6 +1,6 @@
 # 202. Main's CI has been red since `make land` landed, and nobody saw
 
-**Open, in progress since 2026-10-22 in the session "item 202". Filed 2026-10-22 (r892) by the roadmap manager, overnight. Nobody's call — a defect; a release cannot be cut while CI is red.**
+**Fixed 2026-10-22 (`9e84b83`, r903). Filed 2026-10-22 (r892) by the roadmap manager, overnight. Nobody's call — a defect; a release cannot be cut while CI is red.**
 
 Depends on: nothing
 Landed: slice 1 (`e68c868`, r896).
@@ -34,8 +34,30 @@ The fix then belongs to the key that flips, not to the test's window (the manage
 **A third cause: the acceptance suite outgrew CI's ten-minute timeout.**
 Six of the seven runs from `b7e71d3` on ended at 601 s, the package panicking on `ACCEPTANCE_TIMEOUT=10m` with no test hung, and the `--- FAIL` lines that printed before the panic made them look like `TestTestTimeouts` alone.
 The suite on CI took 440 s at `4f3ff83`, 423 s at `e8c170a`, 516 to 534 s at `e28335b`, `d100abf` and `e625afd`, 379 s at `7118d4f`, then past 600 s from `b7e71d3` (item 197, slice 3), whose `TestAnUnwatchedCityUnderAStreamOfSnapshots` runs two serial cases of 20 s settling and 30 s streaming.
+Allowed 20 minutes, it took 739 s at `9e84b83`.
 `ci.yml` still said the suite takes about four and a half minutes.
 A test timeout is a hang detector, not a performance target, so CI's goes to 20 minutes, with the comment saying what the suite measures; item 201, which reworks that test, carries a note on its cost (the manager, for Aria).
 If the suite keeps climbing, the measuring tests may want a CI job of their own.
 
 **`make land` now says what main's CI last concluded** (slice 3) and records it in botropolis's git common directory, where the status line shows `ci red <commit>`, `ci ?`, or `ci unchecked` when no landing has recorded one, with its age once a record is more than a day old.
+
+## Closed (2026-10-22)
+
+Main's `ci` is green at `9e84b83`, run 39791745453, on every job, and green again on its rerun (attempt 2): the first green since `c878d4f`.
+The rerun stands in for a second push, since only item 162 was landing overnight (the manager, for Aria).
+
+- **Slice 1** (`e68c868`): `TestTestTimeouts` runs `make` with `ACCEPTANCE_TIMEOUT` and `TEST_TIMEOUT` cleared, passes with them set in its own environment and without, and asserts that `ACCEPTANCE_TIMEOUT` in make's environment wins.
+  Mutating the filter turns it red.
+- **Slice 2** (`c597409`): the debug build prints a `look-miss` line per missed look, with the frame, the tick and the key fields that changed, and the frame tests log those for settled frames.
+  It named the flake on its first red run: `changed=piece` on 16 runs at frame 19.
+- **Slice 3** (`ffece5e`, and meta `5758de6`): `make land` runs `tools/ci-status` after its fetch, which prints main's last `ci` result and records it for the status line, and never gates.
+- **Slice 4** (`4214c5c`): CI's `ACCEPTANCE_TIMEOUT` is 20 minutes, with the comment saying what the suite measures.
+- **Slice 5** (`9e84b83`): a recording (`--record` or `--screenshot`) opens the city only on a snapshot whose history is read, so its heights cannot change mid-shot; after 30 s it opens on what it holds and says so, and the frame tests fail on that.
+  Item 159's first-launch test films the read itself, so it sets the debug-build `BOTROPOLIS_FRAME_OPEN_UNREAD` (the manager, for Aria).
+
+**For Aria:**
+- Slice 5 changes when every scripted film and frame starts: each now waits for the first snapshot with the history read, about one two-second poll on a staged demo home.
+  The recording flags are left out of release builds, so nothing in the changelog changes.
+- The acceptance suite on CI is still climbing, 739 s at `9e84b83`, and item 201 carries the note on its two-minute measuring test.
+  If it keeps climbing, the measuring tests may want a CI job of their own.
+- Two things the item did not ask for: a third cause (the timeout), and slice 5's change to recordings, both settled with the manager.
