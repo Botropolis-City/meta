@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-21 in the session "item 159". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the first-launch budget Aria set the same day. Nobody's call — the budget is set; this item meets it.**
 
 Depends on: 157
+Landed: slice 1 (`e0b4d05`, r876).
 
 Aria, 2026-10-19: first launch must never overwhelm the machine, even to build a cache.
 Throttle it, run it in the background, make it resumable, show a map within 5 s, and show a loading bar with real progress for any wait before the first frame.
@@ -52,3 +53,26 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
 - **cold start, until idle**: 73 CPU-seconds and a peak of 114% of a core in 1-second samples (r871: 265 and 394%), against ≤ 1 core in all; 509 collections (r871: 23,956);
 - the whole 3.2 GiB history read in about 250 s, 4.2 GiB read in all;
 - `Private_Dirty` peaked at 33 MiB, against ≤ 256 MiB.
+
+## What landed
+
+- **Slice 1, throttle:** both background passes work at most half the wall clock (`pkg/state/pace.go`): at each yield the pass sleeps as long as it worked since the last one, and time waiting at the load gate is not counted as work.
+  The other half of a core is left for the collector and the loads, so the process stays under one core whatever `GOMAXPROCS` is.
+  The whole read, which had no yield inside a pass, now paces after each file.
+  On Linux the pass's thread also goes to nice 10, or stays where it is if the process is already lower.
+  Item 138's inversion test (`pkg/daemon/backfill_linux_test.go`: one core, four busy loops, a bound of 600 ms), with its slow ingest now yielding every MiB as the real one does, measured no nice at 101–126 ms, nice 10 at 101–135 ms and nice 19 at 105–271 ms.
+  `testing/acceptance/firstlaunch_test.go` starts the daemon on an empty state directory over 256 MiB of synthetic history and holds every 1 s sample to one core and 256 MiB of `Private_Dirty`: 59% and 29 MiB paced, 103% with the pacer off.
+  `BOTROPOLIS_FIRST_LAUNCH_GB=3` runs it at this item's size for a report.
+
+## Deviations
+
+- **macOS has the pacer but no background CPU priority yet** (manager, 2026-10-21).
+  The only call that needs no cgo, `setpriority(PRIO_DARWIN_THREAD, 0, PRIO_DARWIN_BG)`, throttles a thread at least as hard as nice 19, which is the inversion item 138 hit.
+  So item 138's inversion test is to be ported to darwin and run on CI's macOS runners with it applied; it ships only if it holds the bound there.
+  Until then the pacer alone keeps the pass to half a core on macOS.
+- **With statistics off, a relaunch reads stopped transcripts whole again** (manager, 2026-10-21, from what is already ruled), instead of persisting the whole read's hefts.
+  Someone who turned statistics off chose to have Botropolis keep no store of their history, and a heft cache would be that store under another name.
+  The re-read is paced and at background priority.
+  "Quitting part-way loses nothing" holds with statistics on, which is the default.
+- **A possible follow-up:** a pacer that raises its share while the machine is otherwise idle would make the first read fast and still never take the machine.
+  Worth filing if the wait feels long once progress shows.
