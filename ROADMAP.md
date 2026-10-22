@@ -41,7 +41,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [157](roadmap/157-the-daemon-s-heap-cap-keeps-it-collecting.md) | the daemon's 16 MiB heap cap and per-rescan release keep its collector running | — | nobody |
 | [158](roadmap/158-group-detection-reruns-pairwise-on-every-prompt.md) | group detection re-runs pairwise on every prompt in any session | — | nobody |
 | [159](roadmap/159-first-launch-takes-the-machine.md) | first launch: ≤ 1 core, ≤ 256 MiB, resumable, a map in 5 s, real progress | 157 | nobody, the budget is set |
-| [160](roadmap/160-the-usage-probe-starts-every-mcp-server.md) | the usage probe starts every MCP server and is over the helper budget | — | nobody, the budget is set |
 | [161](roadmap/161-drawing-a-frame-costs-41-ms-of-cpu.md) | drawing costs 41 ms a frame in 0.2.2 against a 10 ms, 10%-of-a-core budget | — | nobody, the budget is set |
 | [162](roadmap/162-the-city-holds-gigabytes-of-gpu-memory.md) | the city holds 0.7–3 GB of GPU memory, system RAM on integrated graphics | — | nobody, the budget is set |
 | [163](roadmap/163-a-hidden-city-keeps-all-of-its-memory.md) | a hidden city keeps all of its memory; ≤ 256 MiB within 30 s | — | nobody, the budget is set |
