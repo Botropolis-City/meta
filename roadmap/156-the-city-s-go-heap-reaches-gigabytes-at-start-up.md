@@ -1,6 +1,6 @@
 # 156. The city's Go heap reaches several gigabytes within seconds of start-up and keeps gigabytes of it
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — a defect; what causes it is not yet established.**
+**Fixed 2026-10-21 (`458454f`, r871), by items 191–193, measured on the 265U. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — a defect; what causes it is not yet established.**
 
 Depends on: nothing
 
@@ -61,3 +61,10 @@ The forced-off build is an upper bound: it drops anti-aliasing from every vector
 The fix this points at is fewer anti-aliased fills in the world (non-AA where the zoom hides the difference, or shapes baked once into images), measured by indices per frame.
 
 **Proposed fix, filed 2026-10-21:** items 191 (world shapes as stamps), 192 (a building's look cached), 193 (a still city cached, only movers drawn) and 194 (counting a frame's work). This item stays open for the start-up burst on the real display, and closes on measurement.
+
+## Closed
+
+Measured on the Core Ultra 7 265U's integrated graphics at botropolis `458454f` (r871), on the real history ([report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)): the city's own memory plus GPU in its first 10 s is **403–414 MiB**, against the 1 GB start-up budget. The Go heap peaks at 368–434 MB with 186–218 MB live, where 0.2.2 the same evening peaked at 3,111 MB with 2,517 MB live.
+The fix was items 191 (shapes as meshes and stamps, most of the start-up geometry), 192 and 193; no bisection was needed once the geometry was found.
+What is still over budget once the city settles is [item 162](162-the-city-holds-gigabytes-of-gpu-memory.md)'s, not this item's.
+The demo's `TestStartUpPeak` gate (240 MB) stays as it is.

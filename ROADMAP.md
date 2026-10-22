@@ -37,7 +37,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [95](roadmap/095-the-global-shortcut-on-macos.md) | the global shortcut on macOS: registering is solved, coming forward needs a Mac run | — | nobody, needs a Mac |
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
-| [156](roadmap/156-the-city-s-go-heap-reaches-gigabytes-at-start-up.md) | the city's Go heap reaches gigabytes in its first seconds and keeps them; bisect r409..r745 | — | nobody, a defect to diagnose |
 | [159](roadmap/159-first-launch-takes-the-machine.md) | first launch: ≤ 1 core, ≤ 256 MiB, resumable, a map in 5 s, real progress | 157 | nobody, the budget is set |
 | [161](roadmap/161-drawing-a-frame-costs-41-ms-of-cpu.md) | drawing costs 41 ms a frame in 0.2.2 against a 10 ms, 10%-of-a-core budget | — | nobody, the budget is set |
 | [162](roadmap/162-the-city-holds-gigabytes-of-gpu-memory.md) | the city holds 0.7–3 GB of GPU memory, system RAM on integrated graphics | — | nobody, the budget is set |
@@ -48,6 +47,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
 | [196](roadmap/196-a-settled-daemon-bursts-to-several-cores-on-rescans.md) | a settled daemon bursts to 100–300% CPU on rescans (mean ~20% vs a 2% budget) | 157, 158 | nobody |
+| [197](roadmap/197-the-city-lays-itself-out-again-on-every-snapshot.md) | the city lays itself out again on every daemon snapshot, even hidden (76% of a hidden city's CPU) | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria

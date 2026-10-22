@@ -29,3 +29,5 @@ No one has broken the figure down yet.
 3. Size offscreen layers to the window, not the island, and drop what a hidden window does not need (item 163).
 
 Tests: a measure test that counts the bytes of live images in a settled demo city, whose limit is the budget's share for textures; judge on the real display with `perf-city`, quoting `gpu_mib` with the GPU named.
+
+**Re-measured after items 191–195** (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)): GPU alone is down to 196–331 MiB (0.2.2: 1,265–1,669), but **own plus GPU settled is 715–817 MiB against 512**. At 60 s, 96 MB of the heap is kit-page pixels kept after upload (`kits.uploadNext` → Ebitengine's `bytesPool`), and 51 MB is HarfBuzz shaping for the group-review panel.

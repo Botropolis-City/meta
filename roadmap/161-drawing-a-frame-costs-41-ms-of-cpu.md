@@ -32,3 +32,5 @@ Headless at r844 with Ebitengine's debug log, forcing anti-aliasing off in `vect
 The debug log slows both builds, so the frame rate is a ratio, not a cost; a focused real-display `perf-city` run of the same two builds would give the ms/frame.
 
 **Proposed fix, filed 2026-10-21:** items 191–194; this item closes when a focused city on integrated graphics meets the budget.
+
+**Re-measured after items 191–195** (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)): on the metropolis demo a frame now takes 6–15 ms (settled, pan, zoom), against 20–172 ms in 0.2.2. **On the real history (198 transcripts, 144 projects) it is still 17–48 ms focused, 18–30 settled, 41–54 panning, 25–31 zooming**, 2–5× the 10 ms budget, and a focused city uses 83% of a core against 10%. So item 194's gate, which measures the demo, passes while the real history misses: the demo is too small to stand for it. Part of the 83% is the city laid out again on every daemon snapshot (item 197).

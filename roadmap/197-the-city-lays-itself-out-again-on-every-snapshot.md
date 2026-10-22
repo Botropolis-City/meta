@@ -1,0 +1,19 @@
+# 197. The city lays itself out again on every daemon snapshot, even hidden
+
+**Open. Filed 2026-10-21 (r876), from the laptop benchmark at r871. Nobody's call — a defect against the city's CPU budgets.**
+
+Depends on: nothing
+
+A 60 s profile of the city on the real history (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)) puts **76% of an unfocused or hidden city's CPU in `Scene.SetSnapshot` → `city.build`**, which lays the whole city out again for every snapshot the daemon sends, whether or not anything that shapes the city changed. Within it:
+
+- `group.Order`: 38% — regular expressions run over every site's words, and one regular expression **compiled per site and version** in `tagged`;
+- `plan.Make` → `plantGround`: 29%.
+
+It is most of [item 163](163-a-hidden-city-keeps-all-of-its-memory.md)'s CPU (a hidden city at 7.9% of a core, spikes to 34%, against 1%) and part of [item 161](161-drawing-a-frame-costs-41-ms-of-cpu.md)'s (a focused city at 83% of a core against 10%).
+
+## The fix
+
+Make a snapshot cost what changed in it: compile the regular expressions once; keep the ordering and the plan between snapshots and redo them only when their inputs change (sessions joining or leaving, groups, the layout); and, while the city is hidden, take snapshots without laying out until it is shown again.
+From-scratch layout stays available as the oracle, as item 158 did for grouping.
+
+Tests: a snapshot that changes only a session's state (working → waiting) lays out nothing again, and the city it draws equals the one built from scratch; a benchmark of `SetSnapshot` on a city the size of the real history (about 200 sessions in 150 projects) before and after; and an acceptance measure of a hidden city's **process CPU** under a stream of snapshots, against the 1% budget.

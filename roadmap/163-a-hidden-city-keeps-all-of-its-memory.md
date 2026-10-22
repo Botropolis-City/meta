@@ -26,3 +26,5 @@ On the way back, rebuild with the loading bar budgets.md asks for before any wai
 Items 156 and 162 shrink what there is to drop; this item is about letting go of whatever is left, so it can land before or after them.
 
 Tests: a measure test that drives a demo city to hidden and asserts the live heap and the bytes of live images fall under the budget's share within the settle time; judge it with `perf-city --hide-after`, quoting `private_dirty_mib` and `gpu_mib` 30 s after the hide.
+
+**Re-measured after items 191–195** (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)): 30 s and 300 s after hiding, the city keeps 462–464 MiB of its own plus 315 MiB of GPU (budget ≤ 256 MiB own) and uses 7.9% of a core with spikes to 34% (budget ≤ 1%). Most of that CPU is the city laid out again on every daemon snapshot, which is item 197.
