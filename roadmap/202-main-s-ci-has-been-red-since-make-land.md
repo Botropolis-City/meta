@@ -1,6 +1,6 @@
 # 202. Main's CI has been red since `make land` landed, and nobody saw
 
-**Open. Filed 2026-10-22 (r892) by the roadmap manager, overnight. Nobody's call — a defect; a release cannot be cut while CI is red.**
+**Open, in progress since 2026-10-22 in the session "item 202". Filed 2026-10-22 (r892) by the roadmap manager, overnight. Nobody's call — a defect; a release cannot be cut while CI is red.**
 
 Depends on: nothing
 
