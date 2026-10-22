@@ -31,3 +31,5 @@ Aria, 2026-10-19: "if it were to take 2 minutes to update every 5 minutes, that 
 3. Fix the comment on `RefreshUtilization`, and hold the one-helper-at-a-time rule across the probe and summaries, not just within each.
 
 Tests: a fake `claude` on `PATH` that records its arguments, asserting the probe passes `--strict-mcp-config` and an empty `--setting-sources`; a test that a refresh never starts while a summary runs, or the reverse.
+
+**Aria, 2026-10-21, on getting the probe under budget:** *"Probe less often."* Botropolis keeps using `claude -p /usage` (isolated, with no settings and no MCP servers), runs it only while the city is open and less often, and accepts the ~420 MiB that Claude Code itself needs while a probe runs. It does not read `~/.claude/.credentials.json` or call the usage endpoint directly, which was offered and declined.
