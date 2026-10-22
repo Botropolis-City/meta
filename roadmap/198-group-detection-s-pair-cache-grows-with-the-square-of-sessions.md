@@ -1,6 +1,6 @@
 # 198. Group detection's pair cache grows with the square of every session ever shown
 
-**Open. Filed 2026-10-21 (r876), found by item 196. Nobody's call — a defect against the daemon's memory budget.**
+**Open, in progress since 2026-10-22 in the session "item 198". Filed 2026-10-21 (r876), found by item 196. Nobody's call — a defect against the daemon's memory budget.**
 
 Depends on: nothing
 

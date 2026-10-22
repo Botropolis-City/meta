@@ -1,6 +1,6 @@
 # 203. The daemon's first load runs unpaced and holds back the map for about 9 s
 
-**Open. Filed 2026-10-22 (r898), from item 159's report on Aria's real history. Nobody's call — two budgets are set (first launch ≤ 1 core; a map within 5 s), and this item meets both.**
+**Open, in progress since 2026-10-22 in the session "item 203". Filed 2026-10-22 (r898), from item 159's report on Aria's real history. Nobody's call — two budgets are set (first launch ≤ 1 core; a map within 5 s), and this item meets both.**
 
 Depends on: 159
 

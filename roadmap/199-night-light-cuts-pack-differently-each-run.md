@@ -1,6 +1,6 @@
 # 199. Night-light cuts land on shared textures in a different order each run, so the frame's draw count varies
 
-**Open. Filed 2026-10-21 (r880), found by item 162. Nobody's call — a defect in a gate's determinism.**
+**Open, in progress since 2026-10-22 in the session "item 199". Filed 2026-10-21 (r880), found by item 162. Nobody's call — a defect in a gate's determinism.**
 
 Depends on: nothing
 

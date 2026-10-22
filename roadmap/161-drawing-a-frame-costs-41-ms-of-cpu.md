@@ -1,6 +1,6 @@
 # 161. Drawing a frame costs 41 ms of CPU in 0.2.2, against 21.6 ms in 0.1.7 and a budget of 10
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city CPU budget Aria set the same day. Nobody's call — the budget is set.**
+**Open, in progress since 2026-10-22 in the session "item 161". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city CPU budget Aria set the same day. Nobody's call — the budget is set.**
 
 Depends on: nothing
 

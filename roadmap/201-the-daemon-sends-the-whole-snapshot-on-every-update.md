@@ -1,6 +1,6 @@
 # 201. The daemon sends the whole snapshot on every update, so a watching city can't idle
 
-**Open. Filed 2026-10-22 (r889), from item 197's measurements. Nobody's call — Aria's dashboard ruling sets the budget.**
+**Open, in progress since 2026-10-22 in the session "item 201". Filed 2026-10-22 (r889), from item 197's measurements. Nobody's call — Aria's dashboard ruling sets the budget.**
 
 Depends on: 197
 
