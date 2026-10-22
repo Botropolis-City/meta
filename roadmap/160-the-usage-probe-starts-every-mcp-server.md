@@ -4,6 +4,8 @@
 
 Depends on: nothing
 
+Landed: slice 1 (`ac51be9`, r872).
+
 `RefreshUtilization` (`pkg/claude/usage.go:262`) runs `claude -p /usage` with no other flags, from the city's gauges (`pkg/render/gauges.go:406`) every `usage_refresh` interval when one is set.
 `Summarise` (`pkg/claude/summary.go:160`) already passes `--setting-sources ""`, `--strict-mcp-config` and `--tools ""` for exactly this reason, and its comment says why: without them every connected MCP server comes along.
 The probe passes none of them, so every refresh starts Claude Code with the user's settings, hooks, plugins and MCP servers.
