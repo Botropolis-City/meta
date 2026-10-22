@@ -121,6 +121,38 @@ class WhenDescribingGit(unittest.TestCase):
                 self.assertEqual(statusline.describe_git(info, worktree), want)
 
 
+class WhenReadingMainsCIRecord(unittest.TestCase):
+    def test_it_should_read_the_state_the_commit_and_when_it_was_checked(self):
+        checked = datetime.datetime(2026, 10, 22, 11, 0, tzinfo=datetime.timezone.utc)
+        for text, want in [
+            ('red abc1234 2026-10-22T11:00:00Z\n', statusline.CI('red', 'abc1234', checked)),
+            ('green abc1234 2026-10-22T11:00:00Z', statusline.CI('green', 'abc1234', checked)),
+            ('unknown - 2026-10-22T11:00:00Z', statusline.CI('unknown', None, checked)),
+            ('', None),
+            ('purple abc1234 2026-10-22T11:00:00Z', None),
+            ('red abc1234 yesterday', None),
+        ]:
+            with self.subTest(text=text):
+                self.assertEqual(statusline.parse_ci(text), want)
+
+
+class WhenDescribingMainsCI(unittest.TestCase):
+    def test_it_should_say_what_a_landing_last_saw_of_it(self):
+        now = datetime.datetime(2026, 10, 22, 12, 0, tzinfo=datetime.timezone.utc)
+        fresh, old = now - datetime.timedelta(hours=1), now - datetime.timedelta(days=2, hours=1)
+        for ci, want in [
+            (None, 'ci unchecked'),
+            (statusline.CI('green', 'abc1234', fresh), None),
+            (statusline.CI('green', 'abc1234', old), 'ci green 2d ago'),
+            (statusline.CI('red', 'abc1234', fresh), 'ci red abc1234'),
+            (statusline.CI('red', 'abc1234', old), 'ci red abc1234, 2d ago'),
+            (statusline.CI('unknown', None, fresh), 'ci ?'),
+            (statusline.CI('unknown', None, old), 'ci ?, 2d ago'),
+        ]:
+            with self.subTest(ci=ci):
+                self.assertEqual(statusline.describe_ci(ci, now), want)
+
+
 class WhenRenderingWithoutColour(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -131,7 +163,7 @@ class WhenRenderingWithoutColour(unittest.TestCase):
             session='item 82', item=82, item_name='Find a session', item_claim=('2026-10-15', 'item 82'),
             git=statusline.Git('worktree-item-82', 2, 1, 0, 0), summary=summary, live={'item 82'},
             city={'needs-you': 1, 'working': 2}, sharing=1, revision=412, release='v0.1.7 +3',
-            context=34, five_hour=23.5, seven_day=None, decided=None, board=None)
+            context=34, five_hour=23.5, seven_day=None, decided=None, board=None, ci='ci red abc1234')
         cls.lines = statusline.render(facts, statusline.Paint(False), datetime.date(2026, 10, 15))
 
     def test_it_should_print_two_lines(self):
@@ -148,6 +180,9 @@ class WhenRenderingWithoutColour(unittest.TestCase):
 
     def test_it_should_show_the_city(self):
         self.assertIn('1 needs you · 2 working', self.lines[1])
+
+    def test_it_should_show_mains_ci(self):
+        self.assertIn('r412 · v0.1.7 +3 · ci red abc1234', self.lines[1])
 
     def test_it_should_contain_no_escape_codes(self):
         self.assertNotIn('\033', ''.join(self.lines))

@@ -28,7 +28,34 @@ Where = collections.namedtuple('Where', 'repo root worktree')
 Git = collections.namedtuple('Git', 'branch changed ahead behind unsigned')
 Summary = collections.namedtuple('Summary', 'open ready blocked aria parked claims')
 Facts = collections.namedtuple('Facts', 'where session item item_name item_claim git summary live city sharing '
-                                        'revision release context five_hour seven_day decided board')
+                                        'revision release context five_hour seven_day decided board ci')
+CI = collections.namedtuple('CI', 'state commit checked')
+CI_RECORD = 'botropolis-ci'
+CI_STATES = ('green', 'red', 'unknown')
+
+
+def parse_ci(text):
+    """Main's CI as botropolis's tools/ci-status last recorded it, or None if it never did (item 202)."""
+    parts = text.split()
+    if len(parts) != 3 or parts[0] not in CI_STATES:
+        return None
+    try:
+        checked = datetime.datetime.strptime(parts[2], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=datetime.timezone.utc)
+    except ValueError:
+        return None
+    return CI(parts[0], None if parts[1] == '-' else parts[1], checked)
+
+
+def describe_ci(ci, now):
+    """What a landing last saw of main's CI: silent only when it was green within the day."""
+    if ci is None:
+        return 'ci unchecked'
+    days = (now - ci.checked).days
+    old = '%dd ago' % days if days >= 1 else ''
+    if ci.state == 'green':
+        return 'ci green ' + old if old else None
+    said = 'ci red ' + (ci.commit or '?') if ci.state == 'red' else 'ci ?'
+    return said + (', ' + old if old else '')
 
 
 def where(cwd, meta=META):
@@ -152,7 +179,8 @@ def render(f, paint, today):
     for n in stale(s.claims, f.live):
         second.append(paint('33', '⚠ %d: its session is gone' % n))
     if f.revision is not None:
-        second.append('r%d' % f.revision + (' · ' + f.release if f.release else ''))
+        second.append('r%d' % f.revision + (' · ' + f.release if f.release else '')
+                      + (' · ' + paint('31;1' if f.ci.startswith('ci red') else '33', f.ci) if f.ci else ''))
     if f.city:
         city = []
         if f.city.get('needs-you'):
@@ -223,6 +251,18 @@ def release_facts(meta):
     return (int(revision) if revision and revision.strip().isdigit() else None), release
 
 
+def ci_facts(meta, now):
+    app = os.path.join(meta, 'botropolis')
+    if not os.path.isdir(os.path.join(app, '.git')):
+        return None
+    common = (run(['git', '-C', app, 'rev-parse', '--path-format=absolute', '--git-common-dir']) or '').strip()
+    try:
+        text = open(os.path.join(common, CI_RECORD), encoding='utf-8').read() if common else ''
+    except OSError:
+        text = ''
+    return describe_ci(parse_ci(text), now)
+
+
 def vision_facts(meta):
     try:
         text = open(os.path.join(meta, 'vision', 'README.md'), encoding='utf-8').read()
@@ -254,6 +294,7 @@ def gather(data, meta=META):
         git_result = git_facts(ex, w.root) if w.root else (lambda: None)
         city = ex.submit(city_facts)
         rel = ex.submit(release_facts, meta)
+        ci = ex.submit(ci_facts, meta, datetime.datetime.now(datetime.timezone.utc))
         g, sessions, (revision, release) = git_result(), city.result(), rel.result()
     live, counts, sharing = None, None, 0
     if sessions is not None:
@@ -266,7 +307,7 @@ def gather(data, meta=META):
     return Facts(w, session, n, it.name if it else None, it.claim if it else None, g, summarise(items, rows),
                  live, counts, sharing, revision, release, number(data, 'context_window', 'used_percentage'),
                  number(data, 'rate_limits', 'five_hour', 'used_percentage'),
-                 number(data, 'rate_limits', 'seven_day', 'used_percentage'), decided, board)
+                 number(data, 'rate_limits', 'seven_day', 'used_percentage'), decided, board, ci.result())
 
 
 def main():
