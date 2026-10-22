@@ -1,6 +1,6 @@
 # 157. The daemon's 16 MiB heap cap and a forced release after every rescan keep it collecting garbage
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
+**Open, in progress since 2026-10-21 in the session "item 157". Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
 
 Depends on: nothing
 

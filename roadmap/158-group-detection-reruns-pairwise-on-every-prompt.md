@@ -1,6 +1,6 @@
 # 158. Group detection compares every pair of sessions again on every prompt in any session
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
+**Open, in progress since 2026-10-21 in the session "item 158". Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
 
 Depends on: nothing
 
