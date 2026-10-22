@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-21 in the session "item 157". Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
 
 Depends on: nothing
+Landed: slice 1 (`be5360c`, r873).
 
 The daemon caps its own Go heap at 16 MiB (`DefaultMemoryLimit`, `pkg/appd/daemon.go:42`, set in `RunDaemon` unless `GOMEMLIMIT` is in the environment), and `Daemon.Rescan` calls `debug.FreeOSMemory()` after every load (`pkg/daemon/daemon.go:226`).
 Its live heap sits near the cap whenever it works, so the collector runs continuously.
