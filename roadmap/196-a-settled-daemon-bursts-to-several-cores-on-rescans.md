@@ -1,6 +1,6 @@
 # 196. A settled daemon bursts to several cores on rescans, far over its CPU budget
 
-**Open, in progress since 2026-10-21 in the session "item 196". Filed 2026-10-21 (r873), from item 158's live profile. Nobody's call — the budget is set (daemon ≤ 2% of a core, mean, settled); this item meets it.**
+**Fixed 2026-10-22 (`e625afd`, r890). Filed 2026-10-21 (r873), from item 158's live profile. Nobody's call — the budget is set (daemon ≤ 2% of a core, mean, settled); this item meets it.**
 
 Depends on: 157, 158
 Landed: slice 1 (`cedcaaf`, r879).
@@ -52,3 +52,24 @@ The test home is the synthetic fixture plus 200 stopped sessions of 300 replies,
 On the live home ([the 2026-10-22 report](../performance/reports/2026-10-22-ultra7-265u-igpu-item-196.md)), r890 settled at **0.7% of a core mean and 5.4% at p95**, against ≤ 2% and ≤ 25%, with r873 at 1.6% and 11.9% beside it, and reads fell from 1.0 to 0.1 MiB/s.
 That was a quiet night, though: r873 read 7.6% in the busier item 157 run, so 0.7% is not the busy case.
 The loaded measure is the acceptance test, where r890 used 1.2–1.8% of a core with the machine at load 20–26, against r878's 8.6–14.5%; it now holds the quieter of two 30 s windows to the 2% limit, since other work only adds to the daemon's CPU time, and logs both.
+
+## Closed
+
+Fixed in four slices in botropolis:
+- `cedcaaf` (r879): the store records which sessions moved, and a pass reads only those.
+- `4f3ff83` (r880): rescans at most once a second, and transcripts found through a directory index instead of globs.
+- `e625afd` (r890): a no-change stats pass went from ~15 ms to ~4 ms, each load allocates a third less, and `TestSettledDaemonUnderAStreamOfChanges` landed.
+- `81f4de8` (r894): that test holds the quieter of two windows to the limit.
+
+The test fails on r878 (8.6–14.5% of a core) and passes on r890 (1.2–1.8% under load).
+It also asserts that no transcript that did not change is opened, watched with inotify.
+The live home settled at 0.7% mean and 5.4% at p95 on a quiet night, in [the 2026-10-22 report](../performance/reports/2026-10-22-ultra7-265u-igpu-item-196.md).
+
+Deviations, all agreed with the roadmap manager:
+- The rescan pace of one a second is a change the item did not ask for.
+- Listings are invalidated by the directory's modification time, a tick after it last changed, rather than by the watcher's events.
+- The CPU test is judged on the quieter of two windows.
+
+Left for later:
+- **Making a load incremental per file.** What remains settled is each rescan's `Build`, the catalogue's stat of every stopped transcript, and the collector.
+- **Group detection's n² pair cache.** It is [item 198](198-group-detection-s-pair-cache-grows-with-the-square-of-sessions.md).
