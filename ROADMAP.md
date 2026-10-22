@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
-| [197](roadmap/197-the-city-lays-itself-out-again-on-every-snapshot.md) | the city lays itself out again on every daemon snapshot, even hidden (76% of a hidden city's CPU) | — | nobody, a defect |
 | [198](roadmap/198-group-detection-s-pair-cache-grows-with-the-square-of-sessions.md) | group detection's pair cache grows with the square of sessions: 415 MB at 2,000 | — | nobody, a defect |
 | [199](roadmap/199-night-light-cuts-pack-differently-each-run.md) | night-light cuts pack onto shared textures differently each run, so night draw counts vary 40–42 | — | nobody, a defect |
 | [200](roadmap/200-first-launch-runs-at-full-priority-on-macos.md) | on macOS the first-launch ingest runs at normal priority: measure the options against item 138's inversion and ship the winner | 159 (slice 1) | nobody |

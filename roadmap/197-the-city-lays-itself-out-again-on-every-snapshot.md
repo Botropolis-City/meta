@@ -1,11 +1,12 @@
 # 197. The city lays itself out again on every daemon snapshot, even hidden
 
-**Open, in progress since 2026-10-21 in the session "item 197". Filed 2026-10-21 (r876), from the laptop benchmark at r871. Nobody's call — a defect against the city's CPU budgets.**
+**Fixed 2026-10-22 (`137078f`, r893). Filed 2026-10-21 (r876), from the laptop benchmark at r871. Nobody's call — a defect against the city's CPU budgets.**
 
 Depends on: nothing
 Landed: slice 1 (`ccca0c7`, r878).
 Landed: slice 2 (`e28335b`, r882).
 Landed: slice 3 (`b7e71d3`, r892).
+Landed: slice 4 (`137078f`, r893).
 
 A 60 s profile of the city on the real history (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)) puts **76% of an unfocused or hidden city's CPU in `Scene.SetSnapshot` → `city.build`**, which lays the whole city out again for every snapshot the daemon sends, whether or not anything that shapes the city changed. Within it:
 
@@ -40,3 +41,18 @@ Inside `group.Order`, `released` ran again for every pair of sites, `bumps` ran 
    Item 201 (the daemon sends deltas) is what brings the unfocused case under; a first fixture with no live session streamed nothing and passed at 0.6%, so the test now checks the snapshots reached the city.
 4. **A hidden city lets its subscription go**, and attaches for one snapshot every 5 s, so its title says within 5 s that someone needs you, and at once when it is shown again; events are taken from the newest the feed has seen, so none is lost or handed on twice (the roadmap manager, 2026-10-22).
    The hidden case becomes a plain gate at 1%.
+
+## Closed
+
+Fixed in four slices, r878–r893.
+A snapshot of a real-sized city went from 1.42 s to 8.3 ms when one session's state changes (`BenchmarkSetSnapshot`), and the scene's city is tested against one built from scratch.
+`TestAnUnwatchedCityUnderAStreamOfSnapshots` gates a hidden city at 1% of a core: 0.63–0.70% on the 265U under Xvfb, from 6.0%, against a daemon of 200 sessions in 150 projects, 25 of them live, with a change every 200 ms.
+
+**Deviations, for Aria:**
+
+- **An unfocused city now draws, as a dashboard** (her ruling in the item 197 session, 2026-10-21): it paints one frame per change, and nothing moves in between.
+  It does not meet 1% yet: under Xvfb it measured 6.8–19.8% outside Mesa's software rasteriser, which includes Mesa's work on the city's own thread, so the figure overstates a real GPU's.
+  On her desktop it is untested.
+  That case stays a skipping target in the test and is carried by [item 201](201-the-daemon-sends-the-whole-snapshot-on-every-update.md), and the redraw rate is the lever if 201 is not enough.
+- **A hidden city's title is up to 5 s behind**, because it looks at the daemon every 5 s instead of taking every update.
+- **The test's skip margin**: an unmet target fails as met only below 0.8%, so run-to-run noise cannot fail someone else's landing.
