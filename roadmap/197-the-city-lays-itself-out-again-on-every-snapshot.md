@@ -5,6 +5,7 @@
 Depends on: nothing
 Landed: slice 1 (`ccca0c7`, r878).
 Landed: slice 2 (`e28335b`, r882).
+Landed: slice 3 (`b7e71d3`, r892).
 
 A 60 s profile of the city on the real history (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)) puts **76% of an unfocused or hidden city's CPU in `Scene.SetSnapshot` → `city.build`**, which lays the whole city out again for every snapshot the daemon sends, whether or not anything that shapes the city changed. Within it:
 
@@ -33,3 +34,9 @@ Inside `group.Order`, `released` ran again for every pair of sites, `bumps` ran 
    **An unfocused city that can be seen is a dashboard** (Aria, 2026-10-21: *"I do want this to be able to just sit unfocused on another monitor so I can watch it as a dashboard"*), which supersedes [item 22](022-cpu-and-memory-while-unwatched.md)'s rule that an unfocused city draws nothing.
    Asked how it should draw, she chose **changes only**: it lays out each snapshot and paints one frame for it, and nothing moves in between.
    The acceptance measure runs both, hidden and unfocused under a change every 200 ms, each gated at 1% of a core; if the unfocused one cannot make it, the redraw rate under a stream is the lever, and that choice goes to her.
+   Landed r892, measured under Xvfb against a daemon of 200 sessions in 150 projects, 25 live: hidden went from 6.0% to 1.1–1.8%, and a profile puts 86% of what is left in decoding the daemon's whole snapshot each second.
+   Unfocused is 19.8% outside Mesa's software rasteriser threads, which includes Mesa's work on the city's own thread, and 47.6% in them.
+   Both are targets that skip, printing the gap, until they are met by 0.8% or better, so a lucky run cannot fail someone else's landing.
+   Item 201 (the daemon sends deltas) is what brings the unfocused case under; a first fixture with no live session streamed nothing and passed at 0.6%, so the test now checks the snapshots reached the city.
+4. **A hidden city lets its subscription go**, and attaches for one snapshot every 5 s, so its title says within 5 s that someone needs you, and at once when it is shown again; events are taken from the newest the feed has seen, so none is lost or handed on twice (the roadmap manager, 2026-10-22).
+   The hidden case becomes a plain gate at 1%.
