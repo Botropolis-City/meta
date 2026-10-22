@@ -5,6 +5,7 @@
 Depends on: 157, 158
 Landed: slice 1 (`cedcaaf`, r879).
 Landed: slice 2 (`4f3ff83`, r880).
+Landed: slice 3 (`e625afd`, r890).
 
 After [item 157](157-the-daemon-s-heap-cap-keeps-it-collecting.md) (the collector) and [item 158](158-group-detection-reruns-pairwise-on-every-prompt.md) (grouping), the daemon's settled mean is still far over budget.
 In a 600 s A/B under `perf-daemon-ab` with item sessions working on the machine, both builds **burst together to 100–300% CPU for 30–60 s at the same moments, reading up to 70 MB/s, and sit at 0% between**: means of 23% and 20% of a core against a budget of 2%.
@@ -28,3 +29,19 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
 - **settled, 600 s**: CPU 7.6% of a core mean and 65% at p95 (r871: 23.8% and 140%), against ≤ 2% and ≤ 25%; 38 collections a minute (r871: 1,104); `Private_Dirty` 26 MiB mean;
 - without the first minute, 4.7% mean, with minutes 3–5, when sessions were busiest, at 10–16%;
 - the collector's share of the CPU is 0% in gctrace, so what remains is the rescans' own work.
+
+## What triggered the bursts
+
+Every watched write (a transcript line, a `sessions/*.json` record) was its own rescan, because the watcher's 100 ms debounce restarts on each event, and every rescan started a stats pass.
+On the live home a rescan cost ~75 ms of CPU and the pass ~140 ms (ingest ~60, `Hefts` ~85), so a session writing several lines a second was the 100–300% burst, and nothing written was 0%.
+It was all sessions because neither the ingest nor `Hefts` knew what had changed.
+
+## Decided while working
+
+- **Rescans come at most once a second** (the roadmap manager, for Aria, 2026-10-21): the first after a quiet spell still within the 100 ms debounce, and every change within the second coalesced into one, so the last write of a burst is read within a second.
+  Hooks still change a building at once; only token counts, the plant and a transcript-only session's first appearance can lag by up to a second.
+  This keeps the cost flat however many sessions write: on the acceptance home it was ~1.2% of a core where five rescans a second were ~6%.
+- **The store records which sessions moved**, in a `moved` table kept by triggers, so a prune from another process and an older build's writes are caught; it is made on every open and leaves the schema version alone, so an older build opens the file as before (item 149).
+- **Directory listings are trusted only a tick after the directory last changed** (2 s), so an entry added in the same modification-time tick as a listing is found; this works on filesystems with no inotify, which invalidating on the watcher's events alone would not.
+
+The test home is the synthetic fixture plus 200 stopped sessions of 300 replies, settled, one session writing every 200 ms: r878 used 8.6–14.5% of a core there, r890 1.2–1.8% with the machine at load 20–26.
