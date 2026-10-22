@@ -5,6 +5,7 @@
 Depends on: 157
 Landed: slice 1 (`e0b4d05`, r876).
 Landed: slice 2 (`e1eed8e`, r877).
+Landed: slice 3 (`e8c170a`, r881).
 
 Aria, 2026-10-19: first launch must never overwhelm the machine, even to build a cache.
 Throttle it, run it in the background, make it resumable, show a map within 5 s, and show a loading bar with real progress for any wait before the first frame.
@@ -69,6 +70,13 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
   A reply written on both sides of a checkpoint is upserted, so it is held once, as it was last written.
   `Store.IngestContext` stops at the next yield once its context is done, and `Ingest` wraps it, so `StatsSource` did not change (item 196 is changing it).
   `TestFirstLaunchResumes` kills a daemon 40 MiB into 96 MiB of 48 MiB transcripts and starts it again: 113 MiB read in all, 141 MiB with the checkpoints off, against 103 MiB for one uninterrupted launch.
+- **Slice 3, progress:** the statistics store counts, during an ingest, the bytes it has to read and the bytes read so far, and the whole read counts its stopped transcripts the same way.
+  The loader puts them on the snapshot as `Scan` while a pass with at least 32 MiB to read is running, so the small pass that every rescan starts shows nothing.
+  While one runs, the daemon re-sends its last snapshot once a second with `Scan` moved on, without loading again (`pkg/daemon/progress.go`).
+  The footer draws "Reading your history · 42% · about 6 min left · statistics fill in as it reads" over a thin bar filled to the fraction read, on top of the needs-you line, and estimates the time left only once it has watched the rate for 20 s.
+  **Aria approved the frame on 2026-10-21** (`botropolis/docs/screenshots/r877-item-159-first-launch-reading.png`, mid-scan): the wording, the footer placement and the bar, and the same line with statistics off.
+  `TestFirstLaunchCity` opens the debug city on a daemon mid-scan and holds the percentage on every frame until the read is done, moving and never going backwards (red with the daemon's re-send off).
+  Item 197's slice 2 adds the case of a snapshot that carries only progress, which lays nothing out again.
 
 ## Deviations
 
@@ -80,5 +88,10 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
   Someone who turned statistics off chose to have Botropolis keep no store of their history, and a heft cache would be that store under another name.
   The re-read is paced and at background priority.
   "Quitting part-way loses nothing" holds with statistics on, which is the default.
+- **"A map within 5 s" is measured for a report, not gated in wall-clock seconds** (manager, 2026-10-21).
+  On this machine at a load of 40, a city on an empty home, with no daemon and no scan, took 12–15 s to draw, so a stopwatch in `make test` would fail other sessions' landings at random.
+  The wall-clock limits run only with `BOTROPOLIS_FIRST_LAUNCH_TIMED=1`.
+  What gates is work: the CPU-seconds the city spends before it draws the city, read from `/proc`, which load barely moves (0.14–0.29 measured).
+  Slice 3 set that limit at 5 CPU-seconds, derived from 5 s on the budget's machine; **Aria's note (2026-10-21) was that a guard with 15× headroom can't fail**, so slice 4 lowers it to 1 CPU-second, about 3.5× the measured worst.
 - **A possible follow-up:** a pacer that raises its share while the machine is otherwise idle would make the first read fast and still never take the machine.
   Worth filing if the wait feels long once progress shows.
