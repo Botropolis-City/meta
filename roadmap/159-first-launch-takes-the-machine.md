@@ -1,6 +1,6 @@
 # 159. First launch takes up to four cores, starts over after a quit, and shows no progress
 
-**Open, in progress since 2026-10-21 in the session "item 159". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the first-launch budget Aria set the same day. Nobody's call — the budget is set; this item meets it.**
+**Fixed 2026-10-22 (`a6bbb78`, r898). Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the first-launch budget Aria set the same day. Nobody's call — the budget is set; this item meets it.**
 
 Depends on: 157
 Landed: slice 1 (`e0b4d05`, r876).
@@ -57,6 +57,12 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
 - the whole 3.2 GiB history read in about 250 s, 4.2 GiB read in all;
 - `Private_Dirty` peaked at 33 MiB, against ≤ 256 MiB.
 
+## Fixed
+
+All four slices landed, r876–r898: the first read is paced to half a core at nice 10 on Linux, a quit keeps what it read, the footer shows how far it has got with a bar and the time left, and every wait before the first drawn city shows a panel with real progress.
+Aria approved both frames.
+**For Aria, three deviations below**: the first 9 s on a large home (item 203), macOS priority (item 200), and no resume with statistics off, by decision.
+
 ## What landed
 
 - **Slice 1, throttle:** both background passes work at most half the wall clock (`pkg/state/pace.go`): at each yield the pass sleeps as long as it worked since the last one, and time waiting at the load gate is not counted as work.
@@ -87,7 +93,21 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
   **Aria approved the frame on 2026-10-22** (`botropolis/docs/screenshots/r881-item-159-opening-reading-sessions.png`), the sweep included.
   `TestFirstLaunchCityWaiting` opens the debug city on a stand-in daemon that says 40 of 120 and never sends a snapshot: every frame carried the line and none drew the city, against none and 106 before.
 
+## Measured on Aria's history
+
+[The 2026-10-22 report](../performance/reports/2026-10-22-ultra7-265u-igpu-item-159.md), on the Core Ultra 7 265U with 3,312 MiB of history and item sessions working, r898 against r873, side by side, holding the landing lock:
+
+- **cold start, until idle**: from 10 s on, the paced ingest held 48–55% of a core in every 1 s sample; r873 had 28 samples over 100% through its first 42 s, r898 had 8, all in its first 9 s (see the deviations). 44.6 CPU-seconds against 47.4, idle at 172 s against 210 s;
+- **memory**: `Private_Dirty` peaked at 53 MiB, against ≤ 256 MiB;
+- **quit at 60 s and relaunch**: 4,825 MiB read in all against 4,010 MiB uninterrupted. About 750 MiB of the difference is the first load run again, so the ingest itself read about 64 MiB twice; 0.2.2's relaunch read 89% of a whole run again, r898's 53%, nearly all of it new.
+
 ## Deviations
+
+- **The first 9 s of a first launch still take more than one core, and the first map comes at about 9 s, on a 3.3 GiB home** (manager, 2026-10-22).
+  That is the daemon's first load, not the read this item paces: it reads a window of every stored transcript and every live transcript whole, at about 100 MiB/s, before any paced pass starts, so 8 samples ran at 100–112%.
+  The suite's synthetic home has few transcripts, so its first load is instant and no test here could see it.
+  Pacing it would trade the core budget for the map's, so the fix is to make it smaller, which serves both: [item 203](203-the-first-load-runs-unpaced-before-the-map.md).
+  Meanwhile the city shows "Reading your sessions · N of M" through it instead of an empty window.
 
 - **macOS has the pacer but no background CPU priority yet** (manager, 2026-10-21).
   The only call that needs no cgo, `setpriority(PRIO_DARWIN_THREAD, 0, PRIO_DARWIN_BG)`, throttles a thread at least as hard as nice 19, which is the inversion item 138 hit.
