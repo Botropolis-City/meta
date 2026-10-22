@@ -1,6 +1,6 @@
 # 200. On macOS the first-launch ingest runs at normal priority, unmeasured
 
-**Open. Filed 2026-10-22 (r882) at Aria's request, from item 159's macOS deviation. Nobody's call — the budget is set; this item measures and meets it on macOS.**
+**Open, in progress since 2026-10-22 in the session "item 200". Filed 2026-10-22 (r882) at Aria's request, from item 159's macOS deviation. Nobody's call — the budget is set; this item measures and meets it on macOS.**
 
 Depends on: 159 (slice 1)
 
