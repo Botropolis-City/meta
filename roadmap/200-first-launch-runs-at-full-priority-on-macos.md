@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-22 in the session "item 200". Filed 2026-10-22 (r882) at Aria's request, from item 159's macOS deviation. Nobody's call — the budget is set; this item measures and meets it on macOS.**
 
 Depends on: 159 (slice 1)
+Landed: slice 1 (`7118d4f`, r891).
 
 [Item 159](159-first-launch-takes-the-machine.md) put the first-launch ingest at nice 10 on Linux, after measuring that it doesn't bring back [item 138](138-state-changes-lag-while-statistics-backfill.md)'s inversion (Go's stop-the-world waiting on a low-priority thread). On macOS it ships with the pacer alone (≤ half a core), because the only no-cgo call, `setpriority(PRIO_DARWIN_THREAD, 0, PRIO_DARWIN_BG)`, throttles hard and nobody has a Mac to measure it on. So "at background priority" is unmet on macOS.
 
