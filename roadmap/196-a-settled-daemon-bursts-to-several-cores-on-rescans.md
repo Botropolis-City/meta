@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-21 in the session "item 196". Filed 2026-10-21 (r873), from item 158's live profile. Nobody's call — the budget is set (daemon ≤ 2% of a core, mean, settled); this item meets it.**
 
 Depends on: 157, 158
+Landed: slice 1 (`cedcaaf`, r879).
 
 After [item 157](157-the-daemon-s-heap-cap-keeps-it-collecting.md) (the collector) and [item 158](158-group-detection-reruns-pairwise-on-every-prompt.md) (grouping), the daemon's settled mean is still far over budget.
 In a 600 s A/B under `perf-daemon-ab` with item sessions working on the machine, both builds **burst together to 100–300% CPU for 30–60 s at the same moments, reading up to 70 MB/s, and sit at 0% between**: means of 23% and 20% of a core against a budget of 2%.
