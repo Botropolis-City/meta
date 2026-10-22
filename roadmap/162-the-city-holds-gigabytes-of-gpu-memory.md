@@ -3,6 +3,9 @@
 **Open, in progress since 2026-10-21 in the session "item 162". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — the budget is set.**
 
 Depends on: nothing
+Landed: slice 1 (`b2ec8b6`, r886).
+Landed: slice 2 (`c47a2a3`, r884).
+Landed: slice 3 (`d100abf`, r889).
 
 On integrated graphics, textures and buffers come out of system RAM and appear in no RSS or `Private_Dirty` figure; `perf-sample` reads them as `drm-total-*` from the DRM fdinfo.
 The reference machine (budgets.md) is integrated graphics, so this is memory the user's laptop does not have.
