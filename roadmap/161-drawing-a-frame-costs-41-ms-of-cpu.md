@@ -36,3 +36,14 @@ The debug log slows both builds, so the frame rate is a ratio, not a cost; a foc
 **Re-measured after items 191–195** (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)): on the metropolis demo a frame now takes 6–15 ms (settled, pan, zoom), against 20–172 ms in 0.2.2. **On the real history (198 transcripts, 144 projects) it is still 17–48 ms focused, 18–30 settled, 41–54 panning, 25–31 zooming**, 2–5× the 10 ms budget, and a focused city uses 83% of a core against 10%. So item 194's gate, which measures the demo, passes while the real history misses: the demo is too small to stand for it. Part of the 83% is the city laid out again on every daemon snapshot (item 197).
 
 **Re-measured at r905** (`e6bde10`, 265U iGPU, focused, real history, [report](../performance/reports/2026-10-22-ultra7-265u-igpu-r905.md)): drawing takes **8.7 ms a frame at fit** (in budget; r871 17–48) but **18.9 ms at full zoom**, and a focused city uses **61% of a core at fit and 84% at full zoom**, against 10%. Draw is multi-threaded, so about 15 ms of CPU a frame; of Draw, text drawn every frame (`note` → `text/v2.Draw`) is 25%, the journal panel 16%, the group-review panel 9%. The metropolis demo: 5.5–6.1 ms a frame, but still 36% of a core.
+
+## Slices (item session, 2026-10-22)
+
+The real-history profiles at r905 (re-taken 2026-10-22, settled and focused, 60 s at fit and at full zoom) put the cost in two places.
+At fit, `Game.text` is 28% of Draw's CPU, and 78% of that is the journal and group-review panels, each glyph a `DrawImage` every frame.
+At full zoom, building shutters (`drawBuilding` → `drawRun` → `drawSteps` → `shutter`) are 36% of Draw, filled every frame outside item 192's look cache.
+Group lines are 1.1% of Draw at fit and under 0.1% at full zoom.
+
+- **Slice 1, text**: a panel is recorded rather than drawn, and baked once its record holds; the manager has the test tree.
+- **Slice 2, shutters**: into the look cache, with item 162, which is changing it too.
+- **Later, group lines** (parked): on a synthetic history with many more grouped sessions than Aria's, the group lines were 71% of Draw, because the dry pass tessellates and hashes every dash every frame only for the overlay to find its hash unchanged. The manager approved a tree that lays them out only when what they paint changes, relative to the camera's whole-pixel origin. Under it **a hovered car still lays them out every frame**, as now, because the city recedes under it in fade groups. The red test is on the local branch `item-161-lines-parked`.
