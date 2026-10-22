@@ -44,3 +44,11 @@ The statistics store resumes per file (`Store.Ingest` keeps `read_to`), but the 
 
 Tests: a measure test of a cold start over a synthetic history of a few GB whose limits are the budget's (peak CPU ≤ 100% of a core, `Private_Dirty` ≤ 256 MiB); a test that a daemon stopped part-way and restarted reads no byte twice; a test that the city's first frame arrives within 5 s with a percentage on it.
 Judge it with `perf-daemon-ab --cold` and the quit-and-relaunch comparison above, and write the numbers into a new report.
+
+## Baseline after item 157
+
+From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-item-157.md), on the Core Ultra 7 265U with 3.2 GiB of history and item sessions working, r873 against r871 (before item 157):
+
+- **cold start, until idle**: 73 CPU-seconds and a peak of 114% of a core in 1-second samples (r871: 265 and 394%), against ≤ 1 core in all; 509 collections (r871: 23,956);
+- the whole 3.2 GiB history read in about 250 s, 4.2 GiB read in all;
+- `Private_Dirty` peaked at 33 MiB, against ≤ 256 MiB.

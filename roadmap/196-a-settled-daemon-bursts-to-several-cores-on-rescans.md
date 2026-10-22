@@ -18,3 +18,11 @@ So a rescan in a settled daemon looks for every transcript by globbing and reads
 Find what triggers the bursts first (which event, how often, and why it is all sessions rather than the one that changed), then make a settled rescan cost what changed: transcripts located once and kept (invalidated by the watcher), heft rows read for the sessions that moved, not all of them. The ingest's read of 70 MB/s at a moment nothing new was written says the store is re-reading what it already has.
 
 Tests: an acceptance measure like item 157's — a daemon on a copy of the synthetic fixture with one session writing, measured by **process CPU time** (not load), ≤ 2% of a core mean over the run, plus "it should read no transcript that did not change". Re-measure with `perf-daemon-ab` (settled) and record it in `performance/reports/`.
+
+## Baseline after item 157
+
+From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-item-157.md), on the Core Ultra 7 265U with 3.2 GiB of history and item sessions working, r873 against r871 (before item 157):
+
+- **settled, 600 s**: CPU 7.6% of a core mean and 65% at p95 (r871: 23.8% and 140%), against ≤ 2% and ≤ 25%; 38 collections a minute (r871: 1,104); `Private_Dirty` 26 MiB mean;
+- without the first minute, 4.7% mean, with minutes 3–5, when sessions were busiest, at 10–16%;
+- the collector's share of the CPU is 0% in gctrace, so what remains is the rescans' own work.

@@ -1,6 +1,6 @@
 # 157. The daemon's 16 MiB heap cap and a forced release after every rescan keep it collecting garbage
 
-**Open, in progress since 2026-10-21 in the session "item 157". Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
+**Fixed 2026-10-21 (`be5360c`, r873). Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
 
 Depends on: nothing
 Landed: slice 1 (`be5360c`, r873).
@@ -28,3 +28,15 @@ The comment on `DefaultMemoryLimit` cites a 20 MB target in `design/what-it-cost
 Tests: a measure test whose limit is the budget, not today's figure — collections per minute of a daemon fed a steady stream of transcript changes, and `Private_Dirty` settled under 64 MiB.
 
 Judge the fix with `perf-daemon-ab` against 0.1.7 and against today's build, settled and `--cold`, and write the numbers into a new report rather than editing these.
+
+## Closed
+
+`DefaultMemoryLimit` is now 256 MiB, the first-launch budget, with `GOMEMLIMIT` still overriding it, and its comment cites both budgets; `Daemon.Rescan` no longer calls `FreeOSMemory`, so the hook path's settle timer is the one place memory is handed back.
+`TestDaemonUnderAStreamOfChanges` runs the daemon on a copy of the synthetic fixture with one session writing a line every 200 ms for 30 s, and gates its own CPU time at ≤ 2% of a core, collections at ≤ 30 a minute (0.1.7 made 19) and settled `Private_Dirty` under 64 MiB.
+It went from 299 collections a minute and 2.7% of a core to 18 and 1.1%, at 21 MiB.
+`TestMemoryLimit` holds the limit at or above 256 MiB unless `GOMEMLIMIT` is set.
+
+[The report](../performance/reports/2026-10-21-ultra7-265u-igpu-item-157.md) judges it against r871: settled, collections went from 1,104 to 38 a minute and CPU from 23.8% to 7.6% of a core mean; cold, from 23,956 collections and 265 CPU-seconds to 509 and 73, with a peak of 114% of a core against 394%.
+The collector is gone from the profile, but **the daemon budgets still do not hold**: what is left is the rescans' own work, which is [item 196](196-a-settled-daemon-bursts-to-several-cores-on-rescans.md) settled and [item 159](159-first-launch-takes-the-machine.md) at first launch, and both now start from this report's numbers.
+
+Deviation: 0.1.7 could not be compared, because it times out at start-up on this machine's 3.2 GiB history, settled or cold.
