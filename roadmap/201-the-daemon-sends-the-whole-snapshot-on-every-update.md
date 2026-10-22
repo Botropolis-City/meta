@@ -43,3 +43,5 @@ Planned with the roadmap manager on 2026-10-22, which approved the test trees an
    The rest of `build` (placing groups, lines and streets, and the garbage it makes) is not incremental yet; it would be its own item.
    The test now settles on the frame timer's first line instead of 20 s and streams 15 s instead of 30. Its two cases stay serial, because the X helpers set `XAUTHORITY` for the process, which `t.Parallel` forbids.
 3. **A hidden city's subscription**: measure staying subscribed while hidden against the 5 s glance, and drop the glance if it costs no more.
+
+**Measured on the real GPU, quiet desk** (benchmark session, 2026-10-22, 265U iGPU, real history, unfocused and visible, 450 s): r910 used **0.90% of a core** mean (p95 2.9%, max 15.6%), r905 0.80% — only one or two transcripts were written during the runs, so this is the quiet case and the two builds cannot be told apart; a controlled busy run (replayed writes) is being taken. Of r910's 0.90%, the Go side is about 0.33%; the rest is GL driver and C time. Raw: `~/.local/state/botropolis-perf/unfocused-r910-real-20261022-171721/`.
