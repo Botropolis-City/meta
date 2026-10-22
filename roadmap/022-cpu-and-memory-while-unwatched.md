@@ -32,6 +32,8 @@ Visible is 18.8% on the agent's rig and was 40.7–46.1% on Aria's for the same 
 What is left is the sorted list, which is the other half of the frame profile and is deliberately still drawn every frame — its drawables interleave with the things that move, so caching it needs each mover to redraw the static pieces it passes in front of. That is its own item with its own ordering guard, carried to phase 19, where [phase-19-info-views.md](phase-19-info-views.md) says a view that hides four networks has less to draw anyway.
 The numbers and the conditions they were taken under are in [../design/what-it-costs.md](../botropolis/design/what-it-costs.md) under "What it costs"; the two rigs disagree by a third on the visible figure and agree to a tenth of a percent on the hidden one. **Measure on `DISPLAY=:0`, not under Xvfb** — see bug 26; a software rasteriser cannot see a draw-call optimisation, and its focus semantics are not a desktop's.
 
+**Superseded in part on 2026-10-21 by [item 197](197-the-city-lays-itself-out-again-on-every-snapshot.md):** an unfocused city that can be seen is a dashboard on another monitor (Aria), so it lays out each snapshot and paints one frame for it, still against 1% of a core; only a hidden or minimised city draws nothing.
+
 ---
 
 Full investigation as originally filed: `git show 99cecc7:ROADMAP.md`

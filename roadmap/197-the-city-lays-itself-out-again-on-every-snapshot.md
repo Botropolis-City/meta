@@ -27,6 +27,7 @@ Inside `group.Order`, `released` ran again for every pair of sites, `bumps` ran 
 1. **`group.Order` reads each site once** (r878): 4.6 s to 28 ms for a group of 25 sites, and 1.42 s to 136 ms a snapshot.
    The order before is kept in `pkg/group/order_oracle_test.go`, and 400 generated groups read the same through both.
 2. **The scene remembers its plans and its groups' orders**, and makes or reads them again only when their inputs change; a wait on a site being done follows the site's state on every snapshot.
-3. **A city nobody is watching holds its snapshots**, and lays out the newest once when it is watched again; the window title follows every snapshot.
-   Nobody watching includes unfocused, because item 22 decided an unfocused city draws nothing, against the budget for a minimised or unfocused city (the roadmap manager, for Aria, 2026-10-21).
-   So the acceptance measure runs the city unfocused.
+3. **A city nobody can see holds its snapshots**: hidden (unmapped, as i3's scratchpad leaves it) or minimised, it lays out the newest once it can be seen again, and the window title follows every snapshot.
+   **An unfocused city that can be seen is a dashboard** (Aria, 2026-10-21: *"I do want this to be able to just sit unfocused on another monitor so I can watch it as a dashboard"*), which supersedes [item 22](022-cpu-and-memory-while-unwatched.md)'s rule that an unfocused city draws nothing.
+   Asked how it should draw, she chose **changes only**: it lays out each snapshot and paints one frame for it, and nothing moves in between.
+   The acceptance measure runs both, hidden and unfocused under a change every 200 ms, each gated at 1% of a core; if the unfocused one cannot make it, the redraw rate under a stream is the lever, and that choice goes to her.
