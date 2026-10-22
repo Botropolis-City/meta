@@ -50,6 +50,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [197](roadmap/197-the-city-lays-itself-out-again-on-every-snapshot.md) | the city lays itself out again on every daemon snapshot, even hidden (76% of a hidden city's CPU) | — | nobody, a defect |
 | [198](roadmap/198-group-detection-s-pair-cache-grows-with-the-square-of-sessions.md) | group detection's pair cache grows with the square of sessions: 415 MB at 2,000 | — | nobody, a defect |
 | [199](roadmap/199-night-light-cuts-pack-differently-each-run.md) | night-light cuts pack onto shared textures differently each run, so night draw counts vary 40–42 | — | nobody, a defect |
+| [200](roadmap/200-first-launch-runs-at-full-priority-on-macos.md) | on macOS the first-launch ingest runs at normal priority: measure the options against item 138's inversion and ship the winner | 159 (slice 1) | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
