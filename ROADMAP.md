@@ -50,6 +50,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [201](roadmap/201-the-daemon-sends-the-whole-snapshot-on-every-update.md) | the daemon sends the whole snapshot on every update (~220 KB/s), so a watching city can't idle: send deltas | 197 | nobody |
 | [202](roadmap/202-main-s-ci-has-been-red-since-make-land.md) | main's CI has been red since `make land` (4739efc): a timeout test reads CI's env, and frame counts fail on CI's runner | — | nobody, a defect |
 | [203](roadmap/203-the-first-load-runs-unpaced-before-the-map.md) | the daemon's first load runs unpaced (100–112% for ~9 s) and holds the map to ~9 s on a 3.3 GiB home | 159 | nobody |
+| [204](roadmap/204-the-ingest-could-run-in-a-child-process.md) | the ingest shares the daemon's process, so its CPU priority can't be lowered on macOS: run it as a child process | 200 | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
