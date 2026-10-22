@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`ccca0c7`, r878).
+Landed: slice 2 (`e28335b`, r882).
 
 A 60 s profile of the city on the real history (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)) puts **76% of an unfocused or hidden city's CPU in `Scene.SetSnapshot` → `city.build`**, which lays the whole city out again for every snapshot the daemon sends, whether or not anything that shapes the city changed. Within it:
 
@@ -26,7 +27,8 @@ Inside `group.Order`, `released` ran again for every pair of sites, `bumps` ran 
 
 1. **`group.Order` reads each site once** (r878): 4.6 s to 28 ms for a group of 25 sites, and 1.42 s to 136 ms a snapshot.
    The order before is kept in `pkg/group/order_oracle_test.go`, and 400 generated groups read the same through both.
-2. **The scene remembers its plans and its groups' orders**, and makes or reads them again only when their inputs change; a wait on a site being done follows the site's state on every snapshot.
+2. **The scene remembers its plans and its groups' orders** (r882), and makes or reads them again only when their inputs change; a wait on a site being done follows the site's state on every snapshot.
+   A snapshot that changes one session's state went from 136 ms to 8.3 ms, and one that shapes nothing new, such as item 159's progress-only snapshots, makes no plan and reads no order.
 3. **A city nobody can see holds its snapshots**: hidden (unmapped, as i3's scratchpad leaves it) or minimised, it lays out the newest once it can be seen again, and the window title follows every snapshot.
    **An unfocused city that can be seen is a dashboard** (Aria, 2026-10-21: *"I do want this to be able to just sit unfocused on another monitor so I can watch it as a dashboard"*), which supersedes [item 22](022-cpu-and-memory-while-unwatched.md)'s rule that an unfocused city draws nothing.
    Asked how it should draw, she chose **changes only**: it lays out each snapshot and paints one frame for it, and nothing moves in between.
