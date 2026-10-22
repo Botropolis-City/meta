@@ -45,3 +45,9 @@ It was all sessions because neither the ingest nor `Hefts` knew what had changed
 - **Directory listings are trusted only a tick after the directory last changed** (2 s), so an entry added in the same modification-time tick as a listing is found; this works on filesystems with no inotify, which invalidating on the watcher's events alone would not.
 
 The test home is the synthetic fixture plus 200 stopped sessions of 300 replies, settled, one session writing every 200 ms: r878 used 8.6–14.5% of a core there, r890 1.2–1.8% with the machine at load 20–26.
+
+## Measured after
+
+On the live home ([the 2026-10-22 report](../performance/reports/2026-10-22-ultra7-265u-igpu-item-196.md)), r890 settled at **0.7% of a core mean and 5.4% at p95**, against ≤ 2% and ≤ 25%, with r873 at 1.6% and 11.9% beside it, and reads fell from 1.0 to 0.1 MiB/s.
+That was a quiet night, though: r873 read 7.6% in the busier item 157 run, so 0.7% is not the busy case.
+The loaded measure is the acceptance test, where r890 used 1.2–1.8% of a core with the machine at load 20–26, against r878's 8.6–14.5%; it now holds the quieter of two 30 s windows to the 2% limit, since other work only adds to the daemon's CPU time, and logs both.
