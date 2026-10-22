@@ -18,3 +18,21 @@ Two failures, from `gh run view --log-failed`:
 Fix both, then **make CI's state visible**: `make land` (or the roadmap status line) reports the result of the last `ci` run on `main`, so a red main is seen the day it goes red, not a day later.
 
 Tests: `TestTestTimeouts` passes with `ACCEPTANCE_TIMEOUT` set in the environment and without; the frame tests pass in CI on two consecutive pushes; the last CI result appears where landings look.
+
+## What working it found (2026-10-22)
+
+**The frame counts are flaky on CI, not broken.**
+A sweep of 40 `ci` runs on `main` found the frame tests failing at `7118d4f` and again at `e68c868`, with the same counts both times (24,312 indices, 136 commands, 4 switches), and passing in the runs between.
+`MostWork` takes each count's maximum per field, so it is one frame drawing 16 of the 30 look runs straight and the next baking them, while the still layer redid three rectangles: one event, sometimes landing inside the settled window.
+None of these reproduced it locally: a re-offered identical snapshot from the no-daemon feed's two-second poll, staging the demo 0 to 130 s in the past, `GOMAXPROCS=1`, the light, `litCourse`, or `kill(pid, 0)` liveness.
+So slice 2 makes the next failure name its cause: the debug build prints a `look-miss` line with the frame, the tick and the key fields that changed, and the frame tests log those lines for settled frames.
+The fix then belongs to the key that flips, not to the test's window (the manager, for Aria).
+
+**A third cause: the acceptance suite outgrew CI's ten-minute timeout.**
+Six of the seven runs from `b7e71d3` on ended at 601 s, the package panicking on `ACCEPTANCE_TIMEOUT=10m` with no test hung, and the `--- FAIL` lines that printed before the panic made them look like `TestTestTimeouts` alone.
+The suite on CI took 440 s at `4f3ff83`, 423 s at `e8c170a`, 516 to 534 s at `e28335b`, `d100abf` and `e625afd`, 379 s at `7118d4f`, then past 600 s from `b7e71d3` (item 197, slice 3), whose `TestAnUnwatchedCityUnderAStreamOfSnapshots` runs two serial cases of 20 s settling and 30 s streaming.
+`ci.yml` still said the suite takes about four and a half minutes.
+A test timeout is a hang detector, not a performance target, so CI's goes to 20 minutes, with the comment saying what the suite measures; item 201, which reworks that test, carries a note on its cost (the manager, for Aria).
+If the suite keeps climbing, the measuring tests may want a CI job of their own.
+
+**`make land` now says what main's CI last concluded** (slice 3) and records it in botropolis's git common directory, where the status line shows `ci red <commit>`, `ci ?`, or `ci unchecked` when no landing has recorded one, with its age once a record is more than a day old.
