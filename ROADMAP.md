@@ -52,6 +52,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [199](roadmap/199-night-light-cuts-pack-differently-each-run.md) | night-light cuts pack onto shared textures differently each run, so night draw counts vary 40–42 | — | nobody, a defect |
 | [200](roadmap/200-first-launch-runs-at-full-priority-on-macos.md) | on macOS the first-launch ingest runs at normal priority: measure the options against item 138's inversion and ship the winner | 159 (slice 1) | nobody |
 | [201](roadmap/201-the-daemon-sends-the-whole-snapshot-on-every-update.md) | the daemon sends the whole snapshot on every update (~220 KB/s), so a watching city can't idle: send deltas | 197 | nobody |
+| [202](roadmap/202-main-s-ci-has-been-red-since-make-land.md) | main's CI has been red since `make land` (4739efc): a timeout test reads CI's env, and frame counts fail on CI's runner | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
