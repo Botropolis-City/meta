@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-22 in the session "item 198". Filed 2026-10-21 (r876), found by item 196. Nobody's call — a defect against the daemon's memory budget.**
 
 Depends on: nothing
+Landed: slice 1 (`4f0cdb1`, r906).
 
 [Item 158](158-group-detection-reruns-pairwise-on-every-prompt.md) made group detection incremental by caching every pair's score (`group.scorePair`). Item 196 measured it with **2,000 small sessions: the pair cache holds 415 MB live**, above the daemon's 256 MiB memory limit, so the collector runs back to back at 200–350% of a core.
 The pairs are n² over every session ever shown, and `d.next` is rebuilt in full on each detection. Aria's home has about 185 transcripts and does not hit it; a heavy user does.
