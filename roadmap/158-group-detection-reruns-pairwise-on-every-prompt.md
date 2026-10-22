@@ -1,6 +1,6 @@
 # 158. Group detection compares every pair of sessions again on every prompt in any session
 
-**Open, in progress since 2026-10-21 in the session "item 158". Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
+**Fixed 2026-10-21 (`76b01b8`, r875). Filed 2026-10-19 (r780), from the 0.2.2 performance reports. Nobody's call — a defect against the daemon budgets.**
 
 Depends on: nothing
 Landed: slice 1 (`76b01b8`, r875).
@@ -52,3 +52,15 @@ That is not grouping, and it was reported to the roadmap manager rather than fix
 A 600-second `perf-daemon-ab` of main against this item, both without item 157, showed means of 23% and 20%, with the same bursts at the same moments: the bursts are not grouping.
 
 Profile before and after with `perf-pprof-build` and `go tool pprof -top` on `/debug/pprof/profile?seconds=60`, with sessions working, and judge the result with `perf-daemon-ab`.
+
+## Closed
+
+Fixed in `76b01b8` (r875), in one slice, as described under *As built*.
+The tests that show it are `pkg/group/detector_test.go`, where every incremental result equals a fresh `group.Detect`, including over a replayed history, and a prompt scores at most n−1 pairs;
+`pkg/state/groups_prompt_test.go`, the loader after an appended prompt;
+`pkg/claude/history_reader_test.go`, where reading only appended lines equals a full read, through replacement, truncation and a same-size rewrite;
+and `testing/acceptance/group_cost_test.go`, which allows at most 50 ms of CPU per prompt with 100 sessions on the map, and fails at 157 ms with the fix reverted.
+
+Deviations, for Aria:
+- The fix went further than the item asked. It also caches the reference regexes, cuts naming short, and reads `history.jsonl` incrementally, because the pair cache alone left a prompt at about 47 ms of a 50 ms limit.
+- The daemon budget is still not met with sessions working: the remaining bursts come from `storedHefts.pass`, not from grouping. They were reported to the roadmap manager, to be filed separately.

@@ -38,7 +38,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
 | [105](roadmap/105-the-demo-cannot-record-or-stage-an-agent-team.md) | the demo cannot record or stage an agent team, so team messages cannot be filmed | 89 (slice 5) | nobody |
 | [156](roadmap/156-the-city-s-go-heap-reaches-gigabytes-at-start-up.md) | the city's Go heap reaches gigabytes in its first seconds and keeps them; bisect r409..r745 | — | nobody, a defect to diagnose |
-| [158](roadmap/158-group-detection-reruns-pairwise-on-every-prompt.md) | group detection re-runs pairwise on every prompt in any session | — | nobody |
 | [159](roadmap/159-first-launch-takes-the-machine.md) | first launch: ≤ 1 core, ≤ 256 MiB, resumable, a map in 5 s, real progress | 157 | nobody, the budget is set |
 | [161](roadmap/161-drawing-a-frame-costs-41-ms-of-cpu.md) | drawing costs 41 ms a frame in 0.2.2 against a 10 ms, 10%-of-a-core budget | — | nobody, the budget is set |
 | [162](roadmap/162-the-city-holds-gigabytes-of-gpu-memory.md) | the city holds 0.7–3 GB of GPU memory, system RAM on integrated graphics | — | nobody, the budget is set |
