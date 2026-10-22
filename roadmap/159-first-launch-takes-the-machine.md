@@ -1,6 +1,6 @@
 # 159. First launch takes up to four cores, starts over after a quit, and shows no progress
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the first-launch budget Aria set the same day. Nobody's call — the budget is set; this item meets it.**
+**Open, in progress since 2026-10-21 in the session "item 159". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the first-launch budget Aria set the same day. Nobody's call — the budget is set; this item meets it.**
 
 Depends on: 157
 
