@@ -1,6 +1,6 @@
 # 197. The city lays itself out again on every daemon snapshot, even hidden
 
-**Open. Filed 2026-10-21 (r876), from the laptop benchmark at r871. Nobody's call — a defect against the city's CPU budgets.**
+**Open, in progress since 2026-10-21 in the session "item 197". Filed 2026-10-21 (r876), from the laptop benchmark at r871. Nobody's call — a defect against the city's CPU budgets.**
 
 Depends on: nothing
 
