@@ -6,6 +6,7 @@ Depends on: 157
 Landed: slice 1 (`e0b4d05`, r876).
 Landed: slice 2 (`e1eed8e`, r877).
 Landed: slice 3 (`e8c170a`, r881).
+Landed: slice 4 (`a6bbb78`, r898).
 
 Aria, 2026-10-19: first launch must never overwhelm the machine, even to build a cache.
 Throttle it, run it in the background, make it resumable, show a map within 5 s, and show a loading bar with real progress for any wait before the first frame.
@@ -77,12 +78,20 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
   **Aria approved the frame on 2026-10-21** (`botropolis/docs/screenshots/r877-item-159-first-launch-reading.png`, mid-scan): the wording, the footer placement and the bar, and the same line with statistics off.
   `TestFirstLaunchCity` opens the debug city on a daemon mid-scan and holds the percentage on every frame until the read is done, moving and never going backwards (red with the daemon's re-send off).
   Item 197's slice 2 adds the case of a snapshot that carries only progress, which lays nothing out again.
+- **Slice 4, the wait before the first frame:** two waits came before the city was drawn: the atlas pages going up, which drew the void, and the daemon's first load, which every request but a hook event waits for (item 143) and which drew an empty island.
+  Each now draws a centred panel on the void, over the same thin bar as the footer's.
+  "Opening the city" fills by the pages of the zoom's level that are up (`kits.progress`; 2 pages at the usual zoom and 6 from 1.98, since item 162 puts up only the level in use).
+  "Reading your sessions · 40 of 120" fills by the sessions the daemon's load has read of those it found: the loader counts as it loads, and the daemon answers a new `loading` request with that count while it holds everything else.
+  Where nothing counts (a daemon from before the request, or a city reading the home itself), the line is "Reading your sessions" and the bar sweeps instead of filling.
+  No panel shows for a wait under 300 ms, and a daemon of another release still gets item 152's dialog instead.
+  **Aria approved the frame on 2026-10-22** (`botropolis/docs/screenshots/r881-item-159-opening-reading-sessions.png`), the sweep included.
+  `TestFirstLaunchCityWaiting` opens the debug city on a stand-in daemon that says 40 of 120 and never sends a snapshot: every frame carried the line and none drew the city, against none and 106 before.
 
 ## Deviations
 
 - **macOS has the pacer but no background CPU priority yet** (manager, 2026-10-21).
   The only call that needs no cgo, `setpriority(PRIO_DARWIN_THREAD, 0, PRIO_DARWIN_BG)`, throttles a thread at least as hard as nice 19, which is the inversion item 138 hit.
-  So item 138's inversion test is to be ported to darwin and run on CI's macOS runners with it applied; it ships only if it holds the bound there.
+  Measuring it is [item 200](200-first-launch-runs-at-full-priority-on-macos.md), filed on Aria's note so it outlives this item, with research into what macOS offers in its place.
   Until then the pacer alone keeps the pass to half a core on macOS.
 - **With statistics off, a relaunch reads stopped transcripts whole again** (manager, 2026-10-21, from what is already ruled), instead of persisting the whole read's hefts.
   Someone who turned statistics off chose to have Botropolis keep no store of their history, and a heft cache would be that store under another name.
