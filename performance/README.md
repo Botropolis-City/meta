@@ -19,6 +19,7 @@ Someone whose laptop stalls the first time will not open the app again, so expen
 | [reports/2026-10-21-ultra7-265u-igpu-r871.md](reports/2026-10-21-ultra7-265u-igpu-r871.md) | r871 after items 191–195: start-up burst gone, settled 0.7–0.8 GB, a real-history frame still 17–48 ms, a hidden city rebuilding on every update |
 | [reports/2026-10-21-ultra7-265u-igpu-item-157.md](reports/2026-10-21-ultra7-265u-igpu-item-157.md) | item 157 against r871: collections 1,104 → 38 a minute settled, first launch 265 → 73 CPU-seconds; settled CPU still 7.6% against 2% |
 | [reports/2026-10-22-ultra7-265u-igpu-item-159.md](reports/2026-10-22-ultra7-265u-igpu-item-159.md) | item 159 against r873: the first read held to half a core from 10 s on, 28 → 8 samples over a core, all in the unpaced first load (item 203); a quit re-reads the first load, not the read |
+| [reports/2026-10-22-ultra7-265u-igpu-item-162.md](reports/2026-10-22-ultra7-265u-igpu-item-162.md) | item 162 against r871 on the metropolis demo: settled own + GPU 689 → 355 MiB at fit, Go heap 141 → 24 MB, 528 → 250 MiB under Xvfb; the real history and full zoom are owed |
 | [reports/2026-10-22-ultra7-265u-igpu-item-196.md](reports/2026-10-22-ultra7-265u-igpu-item-196.md) | item 196 against r873: settled CPU 0.7% mean, 5.4% at p95 on a quiet night (1.2–1.8% loaded, in the acceptance test); reads 1.0 → 0.1 MiB/s |
 
 ## Tools
