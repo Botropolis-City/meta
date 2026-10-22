@@ -4,6 +4,7 @@
 
 Depends on: 157
 Landed: slice 1 (`e0b4d05`, r876).
+Landed: slice 2 (`e1eed8e`, r877).
 
 Aria, 2026-10-19: first launch must never overwhelm the machine, even to build a cache.
 Throttle it, run it in the background, make it resumable, show a map within 5 s, and show a loading bar with real progress for any wait before the first frame.
@@ -63,6 +64,11 @@ From [the 2026-10-21 report](../performance/reports/2026-10-21-ultra7-265u-igpu-
   Item 138's inversion test (`pkg/daemon/backfill_linux_test.go`: one core, four busy loops, a bound of 600 ms), with its slow ingest now yielding every MiB as the real one does, measured no nice at 101–126 ms, nice 10 at 101–135 ms and nice 19 at 105–271 ms.
   `testing/acceptance/firstlaunch_test.go` starts the daemon on an empty state directory over 256 MiB of synthetic history and holds every 1 s sample to one core and 256 MiB of `Private_Dirty`: 59% and 29 MiB paced, 103% with the pacer off.
   `BOTROPOLIS_FIRST_LAUNCH_GB=3` runs it at this item's size for a report.
+- **Slice 2, resume:** with statistics on, the ingest already resumed per transcript, so what a quit lost was the transcript it was reading, from the start, however long.
+  It now commits every 16 MiB inside a transcript (`stats.CheckpointEvery`), rows and `read_to` together, and the next ingest reads on from there.
+  A reply written on both sides of a checkpoint is upserted, so it is held once, as it was last written.
+  `Store.IngestContext` stops at the next yield once its context is done, and `Ingest` wraps it, so `StatsSource` did not change (item 196 is changing it).
+  `TestFirstLaunchResumes` kills a daemon 40 MiB into 96 MiB of 48 MiB transcripts and starts it again: 113 MiB read in all, 141 MiB with the checkpoints off, against 103 MiB for one uninterrupted launch.
 
 ## Deviations
 
