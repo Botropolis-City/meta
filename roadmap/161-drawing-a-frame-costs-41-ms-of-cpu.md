@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-22 in the session "item 161". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city CPU budget Aria set the same day. Nobody's call — the budget is set.**
 
 Depends on: nothing
+Landed: slice 1 (`8767ffe`, r912).
 
 With `BOTROPOLIS_FRAMETIME=1`, the city on the laptop's integrated GPU spent **41.2 ms of CPU a frame in 0.2.2 against 21.6 ms in 0.1.7**, over the 33 ms a 30-tick frame has ([the laptop report](../performance/reports/2026-10-19-laptop-igpu-0.2.2.md), finding 8).
 On the Core Ultra 7 265U the 0.2.2 window was never focused, so it drew nothing and measured no frame time; **0.1.7 was focused, and drew at 10.3 ms a frame while using 50–60% of a core** ([the 265U report](../performance/reports/2026-10-19-ultra7-265u-igpu-0.2.2.md)).
