@@ -6,6 +6,8 @@ Depends on: nothing
 Landed: slice 1 (`e68c868`, r896).
 Landed: slice 2 (`c597409`, r899).
 Landed: slice 3 (`ffece5e`, r901).
+Landed: slice 4 (`4214c5c`, r902).
+Landed: slice 5 (`9e84b83`, r903).
 
 Every `ci` run on `main` since botropolis `4739efc` ([item 186](186-item-sessions-land-side-by-side-and-time-out.md)'s `make land`, 2026-10-20) has failed `test-lint`; the last green run is `c878d4f`. Landings didn't notice because `make land` runs the gate locally, and nothing reads CI afterwards. The release workflow downloads a green run's artifacts, so **no release can be cut until this is fixed**.
 
