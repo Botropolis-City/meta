@@ -1,6 +1,6 @@
 # 196. A settled daemon bursts to several cores on rescans, far over its CPU budget
 
-**Open. Filed 2026-10-21 (r873), from item 158's live profile. Nobody's call — the budget is set (daemon ≤ 2% of a core, mean, settled); this item meets it.**
+**Open, in progress since 2026-10-21 in the session "item 196". Filed 2026-10-21 (r873), from item 158's live profile. Nobody's call — the budget is set (daemon ≤ 2% of a core, mean, settled); this item meets it.**
 
 Depends on: 157, 158
 
