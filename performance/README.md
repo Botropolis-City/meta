@@ -16,6 +16,7 @@ Someone whose laptop stalls the first time will not open the app again, so expen
 | [templates/report.md](templates/report.md) | the shape of a report |
 | [reports/2026-10-19-laptop-igpu-0.2.2.md](reports/2026-10-19-laptop-igpu-0.2.2.md) | 0.2.2 against 0.1.7: the daemon 50× busier, the city 3.7 GB of Go heap and 3 GB of GPU memory |
 | [reports/2026-10-19-ultra7-265u-igpu-0.2.2.md](reports/2026-10-19-ultra7-265u-igpu-0.2.2.md) | 0.2.2 and HEAD on a second iGPU laptop: the city ~1.9 GB settled and 3.8 GB at start-up, first launch at 3.6 cores, a probe of 970 MiB; items 156–165 |
+| [reports/2026-10-21-ultra7-265u-igpu-r871.md](reports/2026-10-21-ultra7-265u-igpu-r871.md) | r871 after items 191–195: start-up burst gone, settled 0.7–0.8 GB, a real-history frame still 17–48 ms, a hidden city rebuilding on every update |
 | [reports/2026-10-21-ultra7-265u-igpu-item-157.md](reports/2026-10-21-ultra7-265u-igpu-item-157.md) | item 157 against r871: collections 1,104 → 38 a minute settled, first launch 265 → 73 CPU-seconds; settled CPU still 7.6% against 2% |
 
 ## Tools
