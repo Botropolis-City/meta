@@ -20,3 +20,5 @@ The release is described in `botropolis/CLAUDE.md` and run by the release workfl
    Aria's ruling that demo and website frames are re-filmed once per release, not per item, belongs on the same list.
 
 Run it once against the release in hand when it lands, and file whatever grows.
+
+**Lead from item 163's close** (r905): a hidden city's own memory rose 31 MiB over five minutes while its Go heap held at 90–96 MB; the soak should show whether that keeps climbing.

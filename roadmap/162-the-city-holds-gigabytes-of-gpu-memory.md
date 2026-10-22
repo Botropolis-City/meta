@@ -46,3 +46,5 @@ On the way, the night draw-command ceiling went to main's own worst, 42, and fra
 
 **Measured after slices 1–3** (265U iGPU, `d100abf`, r889, [report](../performance/reports/2026-10-22-ultra7-265u-igpu-item-162.md)), on the metropolis demo at fit: **own plus GPU settled 355 MiB** (76 own, 279 GPU), against 689 at r871 (310 and 379); Go heap live 24 MB against 141; under Xvfb 250 MiB against 528.
 **Owed:** the same on the real history, where the budget is set, through a scratch daemon on a copy of the state directory; and at full zoom. Both need a focused window, and the desk was in use, so the roadmap manager is having them run with items 161 and 163's re-measure.
+
+**Measured on the real history at r905** (`e6bde10`, [report](../performance/reports/2026-10-22-ultra7-265u-igpu-r905.md)): **met at fit**, 398–400 MiB own plus GPU (r871: 715–817); **not at full zoom**, 618–620 MiB, about 110 over 512. The metropolis meets both (342 and 481).

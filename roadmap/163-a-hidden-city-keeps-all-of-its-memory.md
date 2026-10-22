@@ -1,6 +1,6 @@
 # 163. A hidden city keeps all of its memory
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the hidden-window budget Aria set the same day. Nobody's call — the budget is set.**
+**Fixed 2026-10-22 (`e6bde10`, r905), by items 162 and 197, measured on the 265U. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the hidden-window budget Aria set the same day. Nobody's call — the budget is set.**
 
 Depends on: nothing
 
@@ -28,3 +28,8 @@ Items 156 and 162 shrink what there is to drop; this item is about letting go of
 Tests: a measure test that drives a demo city to hidden and asserts the live heap and the bytes of live images fall under the budget's share within the settle time; judge it with `perf-city --hide-after`, quoting `private_dirty_mib` and `gpu_mib` 30 s after the hide.
 
 **Re-measured after items 191–195** (265U iGPU, `458454f`, r871, [report](../performance/reports/2026-10-21-ultra7-265u-igpu-r871.md)): 30 s and 300 s after hiding, the city keeps 462–464 MiB of its own plus 315 MiB of GPU (budget ≤ 256 MiB own) and uses 7.9% of a core with spikes to 34% (budget ≤ 1%). Most of that CPU is the city laid out again on every daemon snapshot, which is item 197.
+
+## Closed
+
+Measured on the Core Ultra 7 265U's integrated graphics at botropolis `e6bde10` (r905), on the real history, hidden ([report](../performance/reports/2026-10-22-ultra7-265u-igpu-r905.md)): **162 MiB of its own at 30 s and 193 MiB at 300 s** (budget ≤ 256 MiB), and **0.8% of a core** (budget ≤ 1%). Item 197 made a hidden city let its subscription go and glance every 5 s; item 162 freed the kit pixels and kept one zoom level resident.
+One lead, not a verdict: own memory rose 31 MiB over the five hidden minutes while the Go heap stayed at 90–96 MB. That is item 164's soak to settle.
