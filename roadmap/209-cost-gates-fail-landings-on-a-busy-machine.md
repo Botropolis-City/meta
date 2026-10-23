@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 3 (`08f1e73`, r925).
+Landed: slice 4 (`b4304c0`, r934).
 
 Item 203's changelog-only landing failed on three gates that measure cost, none of which its change touches, and a rerun alone at a load of 15–19 failed again:
 
