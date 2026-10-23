@@ -1,6 +1,6 @@
 # 203. The daemon's first load runs unpaced and holds back the map for about 9 s
 
-**Open, in progress since 2026-10-22 in the session "item 203". Filed 2026-10-22 (r898), from item 159's report on Aria's real history. Nobody's call — two budgets are set (first launch ≤ 1 core; a map within 5 s), and this item meets both.**
+**Fixed 2026-10-22 (`846d4b5`, r911). Filed 2026-10-22 (r898), from item 159's report on Aria's real history. Nobody's call — two budgets are set (first launch ≤ 1 core; a map within 5 s), and this item meets both.**
 
 Depends on: 159
 Landed: slice 1 (`846d4b5`, r911).
@@ -15,6 +15,13 @@ Make the first load smaller, not slower (pacing it would trade the map budget fo
 - on a warm start, serve the stored sessions' catalogue from the statistics store rather than re-reading their transcripts.
 
 Tests: a synthetic home shaped like the real one (several hundred transcripts, a few GB, some live ones large) in the first-launch acceptance test, so the suite sees what the real history does; on it, the first snapshot within the 5 s budget measured as work (CPU-seconds, as item 159's gate does), and no 1 s sample over one core. Re-measure on the real history with `perf-daemon-ab --cold` and add it to `performance/reports/`.
+
+## Fixed
+
+Slice 1 landed at r911: the first load reads windows, and the long reads follow behind the map, paced, with the footer's reading line while they run.
+On Aria's history no 1 s sample now exceeds a core (84% at most, against 5 samples at 102–115%) and the first load ends within about a second, against about 5 s that day and 9 s in item 159's run; nothing is read twice for it.
+`TestFirstLaunchLoad` gates it in bytes before the first snapshot, `TestLaterReads` the hand-over, the lane and the reading line.
+**For Aria, three deviations below**: the first load is paced at three quarters, the suite gates bytes rather than CPU-seconds, and the warm-start catalogue was not built.
 
 ## Where the 9 s went
 
@@ -51,3 +58,13 @@ Red-checked with the later read off, its hand-over off, and the lane off.
   So the gate is the bytes, at most each transcript's window and 16 MiB (66 MiB), which load cannot move.
   The CPU-seconds are logged every run, and the 2 CPU-second budget is asserted only at a real size, with `BOTROPOLIS_FIRST_LAUNCH_GB` set, for a report.
   Every 1 s sample is still held to one core; the code before the fix broke it at 110–118%.
+- **The warm-start catalogue from the statistics store was not built** (manager, 2026-10-22, if the re-measure showed the windows no longer matter).
+  On Aria's history the first load, windows and all, now ends within about a second at most 84% of a core, so serving the windows from the store would save part of that second, at the cost of a schema change on the store item 196 is changing.
+
+## Measured on Aria's history
+
+[The 2026-10-22 report](../performance/reports/2026-10-22-ultra7-265u-igpu-item-203.md), on the Core Ultra 7 265U with 3,314 MiB of history, r911 against r910, side by side, cold, holding the landing lock:
+
+- **no 1 s sample over one core**: r911 peaked at 84%, its first second, and held 50–57% from 2 s on; r910 ran 5 samples at 102–115% through its first load;
+- **the first load ends within about a second**, against about 5 s, read from the samples: 306 MiB read in the first 5 s against 735 MiB;
+- **nothing read twice for it**: 4,107 MiB and 35.9 CPU-seconds in all, against 4,099 MiB and 35.1, both idle at 125 s.
