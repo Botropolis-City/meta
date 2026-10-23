@@ -27,15 +27,22 @@ def _group_alive(pgid):
     return _signal_group(pgid, 0)
 
 
+def _wait_group_gone(pgid, within):
+    deadline = time.monotonic() + within
+    while _group_alive(pgid):
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(0.02)
+    return True
+
+
 def _stop_group(pgid, grace):
     if not _signal_group(pgid, signal.SIGTERM):
         return
-    deadline = time.monotonic() + grace
-    while time.monotonic() < deadline:
-        if not _group_alive(pgid):
-            return
-        time.sleep(0.05)
+    if _wait_group_gone(pgid, grace):
+        return
     _signal_group(pgid, signal.SIGKILL)
+    _wait_group_gone(pgid, 1.0)
 
 
 def run_in_group(cmd, timeout=None, input=None, check=False, capture_output=False, grace=2.0, **kw):
