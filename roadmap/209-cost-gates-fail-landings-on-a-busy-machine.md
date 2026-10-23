@@ -41,6 +41,20 @@ It still runs and states its number, and skips with "unmeasurable under load unt
 Slice 1 restores it as a gate on instructions; the hidden case and the other gates are unchanged.
 It landed as `c88744b` (r926).
 
+**`CoreRate` was calibrated on 2026-10-23** with `tools/calibrate-core-rate --wait`, which waits for a load under 2 and no landing: at a load of 1.2, a performance core retired 6.04 G instructions a second at 4.6–4.8 GHz and an efficiency core 4.37 G at 3.8–3.9 GHz, each retiring the same 900 M for the same work, and a core is the efficiency core.
+Slice 1 then read the same numbers in five runs in a row, unfocused 0.30% of a core and hidden 0.05%, but at loads of 3–8, not the ~30 the tests above ask for.
+Raising the load with busy loops was refused as interfering with other sessions' work, so the run at ~30 is to be made beside another landing's `make test`, with the load recorded beside the numbers.
+Until it is, what stands in is that the same work counts within 5% beside 20 spinning goroutines (0.02% in the first trial), and that each landing's gate runs the test inside a full `make test`.
+
+**That rate made every gate read 2–7 times cheaper than the CPU its work takes.**
+Converted, at a load of 4–6, the daemon gates read 0.05% (item 157), 0.35–0.41% (196) and 0.91–1.06% (198) against 0.36%, 0.96–1.03% and 1.73–1.89% of user-space CPU by their ticks, with 0.20–0.27% more in the kernel, and the unfocused city 43 ms against 120–160 ms of thread CPU.
+The gated work is bursty: the daemon wakes for a few milliseconds every 200, on cores idling near 400 MHz that have not ramped by the time it sleeps again, while the rate was measured on sustained work at 3.9 GHz.
+The same 2,000-session load run in bursts every 200 ms retired 2.2 G instructions a second at a load of 4, half the sustained rate.
+
+**Aria's ruling (2026-10-23): calibrate `CoreRate` on bursty work**: the 2,000-session load run as the daemon runs it, a burst every 200 ms with sleeps between, unpinned, on a quiet machine, as instructions over CPU, with the sustained figures kept in the doc comment.
+Every gate's counted figure is then checked against its quiet-machine ticks before slices 1 and 2 land, and they land together, since slice 2 moves the three daemon CPU gates (items 157, 196 and 198) onto instructions too; item 205 has closed and every cost gate is this item's.
+Until then the 2,000-session daemon's CPU check skips while over 2% and fails over 4%, as the unfocused city's does (`52dd84f`, r949).
+
 **The same five runs failed the test two other ways, and both are the test measuring what load moves.**
 Once the city's frame timer had not spoken within 60 s.
 A focused, visible window first prints `FRAME` after 120 frames, which a virtual display draws in software: through a logging proxy, the city had its whole snapshot within 0.3–2.5 s, but its frame timer first spoke at 18, 20 and 34 s at loads of 12–20.
