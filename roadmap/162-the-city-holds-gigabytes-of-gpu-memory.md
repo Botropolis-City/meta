@@ -50,3 +50,9 @@ On the way, the night draw-command ceiling went to main's own worst, 42, and fra
 **Owed:** the same on the real history, where the budget is set, through a scratch daemon on a copy of the state directory; and at full zoom. Both need a focused window, and the desk was in use, so the roadmap manager is having them run with items 161 and 163's re-measure.
 
 **Measured on the real history at r905** (`e6bde10`, [report](../performance/reports/2026-10-22-ultra7-265u-igpu-r905.md)): **met at fit**, 398–400 MiB own plus GPU (r871: 715–817); **not at full zoom**, 618–620 MiB, about 110 over 512. The metropolis meets both (342 and 481).
+
+**What full zoom added, and slices 5–7** (2026-10-22). A census under Xvfb at r905 (Ebitengine's own image total, `ReadDebugInfo`, beside the heap) found the full-zoom rise on the real history in three places: kit textures, 2 pages to z2's 6; eight look pages, 32 MiB, made at full zoom and never let go, so a city that had zoomed in once stayed heavier at fit; and the Go heap held from the OS, 113 to 226 MiB, 23 MB of it Ebitengine's upload pool.
+Slice 5 lets the look cache go whole once nothing has been drawn from it for 600 frames.
+Slice 6 decodes each kit page only as tall as its lowest sprite (z2's last page uses 701 of its 2,048 rows, z1's 943) and sends pages in 8-row strips, so the pool keeps under 2 MiB.
+At r914 the heap held at full zoom is 158 MiB against 151 at fit, and the metropolis comes back to 228 MiB at fit after full zoom, against 380.
+**Slice 7 was dropped** (the roadmap manager, 2026-10-22): putting z2's pages up only when drawn from needs z1 resident as the fallback, 23 MiB, and the same census found the real history drawing from all six z2 pages at full zoom, and the metropolis from five, so it would have added memory.
