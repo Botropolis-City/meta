@@ -1,6 +1,6 @@
 # 207. An unfocused city redraws the whole world on every change, without the standing city
 
-**Open, in progress since 2026-10-22 in the session "item 207". Filed 2026-10-22 (r916), from the benchmark session's busy run after item 201. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
+**Done 2026-10-23 (`8b33db9`, r946). Filed 2026-10-22 (r916), from the benchmark session's busy run after item 201. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
 
 Depends on: 206 (slice 2)
 Landed: slice 1 (`47bb513`, r930).
@@ -87,3 +87,17 @@ Drawing fell to a third, and between bursts the city sits at 1%, but laying out 
 Of r946's 13.4 s in `city.build`, 10.7 s is `City.Breakdown`'s `stats.(*Ledger).Window` (3.6% of a core; 7.7 s, 2.6%, on r910) and 2.4 s `priceSessions`; placing groups, districts and streets is under 0.2 s.
 Every earlier busy run gave the daemon `--home`, which opens no store (item 165), so this is the first to have measured the ledger query.
 Raw runs and profiles: `~/.local/state/botropolis-perf/busy-r946-r910-20261023-061028/`.
+
+## Closed (2026-10-23)
+
+Done at `8b33db9` (r946), in three slices (r930, r942, r946), with the ground's random walk tightened at r948 (`846287a`); the roadmap manager agreed the close.
+The draw path this item owned fell to a third on the real history: `drawIso` and below from 0.99% of a core to 0.32%, `Game.Draw` from 1.24% to 0.41%.
+**The 1% budget for the whole process is not met, and now lives in [item 215](215-the-city-s-cost-breakdown-query-costs-3-6-percent.md)**, the cost breakdown's query of the statistics store at 3.6% of a core, **and [item 214](214-the-dashboards-layout-sits-at-its-budget.md)**, the rest of laying out; this item's own fix said layout would take most of what drawing left.
+
+Deviations, each agreed with the roadmap manager or recorded above:
+
+- **The filed premise was wrong**: the standing layer was reused all along, and what a dashboard frame redid was the dry pass's CPU, so the fix is CPU, not GPU.
+  `TestAnUnfocusedCityUnderAStreamOfChanges` passed before any of it and stays as the guard the item asked for.
+- **Slice 2 fixes a defect found on the way**: the ground's key missed the hovered road and beam, the highlight's lit roads and districts, and the kit atlas, so a highlight stayed up after the pointer left.
+- **The dashed group lines' one mesh changed nothing measurable**: their cost is the tessellation, not a command per dash.
+- The changelog says both, under *Changed* and *Fixed*.
