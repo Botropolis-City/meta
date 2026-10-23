@@ -28,7 +28,8 @@ Open the city, sample it and the daemon for a while, and write a run directory.
   -h, --help          this
 
 The run directory holds:
-  env.txt       machine, versions, display, GPU, config, session counts
+  env.txt       machine, versions, display, GPU, config, session counts, and
+                the city window's size when it opened and when the run ended
   samples.csv   perf-sample output for the city's process tree and botropolisd
   city.log      the city's stderr: GODEBUG=gctrace=1 and BOTROPOLIS_FRAMETIME=1 lines
   report.md     perf-report of the above
@@ -71,7 +72,9 @@ args=(city)
 
 city=""
 sampler=""
+sizer=""
 cleanup() {
+	[[ -n "${sizer}" ]] && kill "${sizer}" 2>/dev/null || true
 	[[ -n "${city}" ]] && kill "${city}" 2>/dev/null || true
 	[[ -n "${sampler}" ]] && kill "${sampler}" 2>/dev/null || true
 	wait 2>/dev/null || true
@@ -82,6 +85,33 @@ GODEBUG=gctrace=1 BOTROPOLIS_FRAMETIME=1 "${bin}" "${args[@]}" >/dev/null 2>"${o
 city=$!
 echo "# city pid ${city}, run directory ${out}" >&2
 
+city_window() {
+	command -v i3-msg >/dev/null && command -v xprop >/dev/null || return 0
+	for id in $(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-window-ids); do
+		[[ "$(xprop -id "${id}" _NET_WM_PID 2>/dev/null)" == *"= ${city}" ]] && echo "${id}"
+	done
+	return 0
+}
+window_size() {
+	local id
+	command -v xwininfo >/dev/null || return 0
+	id=$(city_window | head -1)
+	[[ -n "${id}" ]] && xwininfo -id "${id}" 2>/dev/null | python3 -I "${here}/perf.py" window-size
+	return 0
+}
+
+if [[ "${headless}" == 0 ]]; then
+	(
+		for _ in $(seq 60); do
+			size=$(window_size)
+			[[ -n "${size}" ]] && { echo "window_at_start=${size}" >>"${out}/env.txt"; exit 0; }
+			sleep 0.5
+		done
+		echo "window_at_start=unknown (needs i3-msg, xprop and xwininfo, and the window within 30 s)" >>"${out}/env.txt"
+	) &
+	sizer=$!
+fi
+
 "${here}/perf-sample" --tree "${city}" --name botropolisd --interval "${interval}" --duration "${seconds}" --out "${out}/samples.csv" &
 sampler=$!
 
@@ -89,10 +119,8 @@ if [[ "${hide_after}" -gt 0 && "${headless}" == 0 ]]; then
 	sleep "${hide_after}"
 	hidden=0
 	if command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
-		for id in $(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-window-ids); do
-			if [[ "$(xprop -id "${id}" _NET_WM_PID 2>/dev/null)" == *"= ${city}" ]]; then
-				i3-msg "[id=${id}] move scratchpad" | grep -q '"success":true' && hidden=1
-			fi
+		for id in $(city_window); do
+			i3-msg "[id=${id}] move scratchpad" | grep -q '"success":true' && hidden=1
 		done
 	fi
 	if [[ "${hidden}" == 1 ]]; then
@@ -106,6 +134,10 @@ fi
 
 wait "${sampler}" || true
 sampler=""
+if [[ "${headless}" == 0 && "${hide_after}" -eq 0 ]]; then
+	size=$(window_size)
+	echo "window_at_end=${size:-unknown}" >>"${out}/env.txt"
+fi
 kill -0 "${city}" 2>/dev/null || echo "# the city exited before the run finished; see city.log" >&2
 
 {
@@ -114,6 +146,7 @@ kill -0 "${city}" 2>/dev/null || echo "# the city exited before the run finished
 	echo "frames drawn (last BOTROPOLIS_FRAMETIME count): $(awk '/^FRAME /{n=$2} END{print n+0}' "${out}/city.log")"
 	echo "ms/frame of drawing, last report: $(awk '/^FRAME /{v=$4} END{print v}' "${out}/city.log")"
 	echo "QUIET lines (drew nothing): $(grep -c 'QUIET' "${out}/city.log" || true)"
+	echo "window: $(grep -E '^window_at_(start|end)=' "${out}/env.txt" | tr '\n' ' ')on a screen of $(awk -F'[= ]' '/^screen[= ]/ {print $NF; exit}' "${out}/env.txt")"
 	echo
 	"${here}/perf-report" "${out}/samples.csv" --gctrace "${out}/city.log"
 } >"${out}/report.md"

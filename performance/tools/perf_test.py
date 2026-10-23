@@ -122,6 +122,26 @@ class WhenSamplingAProcess(unittest.TestCase):
                               'gpu_regions'}, set(perf.SAMPLE_FIELDS))
 
 
+XWININFO = """
+xwininfo: Window id: 0x4c00020 "Botropolis"
+
+  Absolute upper-left X:  0
+  Absolute upper-left Y:  18
+  Width: 1918
+  Height: 1180
+  Depth: 24
+  Map State: IsViewable
+"""
+
+
+class WhenReadingAWindowSize(unittest.TestCase):
+    def test_it_should_give_width_by_height(self):
+        self.assertEqual(perf.xwininfo_size(XWININFO), '1918x1180')
+
+    def test_and_xwininfo_found_no_window_it_should_give_nothing(self):
+        self.assertIsNone(perf.xwininfo_size('xwininfo: error: No such window with id 0x1.\n'))
+
+
 class WhenComputingCpuPercent(unittest.TestCase):
     def test_and_a_core_is_saturated_it_should_report_one_hundred(self):
         self.assertAlmostEqual(perf.cpu_percent(0, 200, 100, 2.0), 100.0)

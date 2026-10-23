@@ -281,6 +281,12 @@ class IdleClock:
         return self.quiet_since is not None and self.last - self.quiet_since >= self.needed_s
 
 
+def xwininfo_size(text):
+    w = re.search(r'^\s*Width:\s*(\d+)', text, re.M)
+    h = re.search(r'^\s*Height:\s*(\d+)', text, re.M)
+    return '%sx%s' % (w[1], h[1]) if w and h else None
+
+
 def i3_window_ids(tree):
     ids = []
     stack = [tree]
@@ -371,6 +377,7 @@ def replay(home, writers, seconds, every=0.2):
 
 
 USAGE = """usage: perf.py i3-window-ids < tree.json
+       perf.py window-size < xwininfo.txt        the window's WIDTHxHEIGHT, or nothing
        perf.py busy-home REAL_CLAUDE_DIR HOME   link every transcript, session record and history.jsonl into HOME/.claude, read only
        perf.py replay HOME WRITERS SECONDS      a user line every 200 ms into each of WRITERS of HOME's own live transcripts"""
 
@@ -378,6 +385,8 @@ if __name__ == '__main__':
     cmd = sys.argv[1:2]
     if cmd == ['i3-window-ids']:
         print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))
+    elif cmd == ['window-size']:
+        print(xwininfo_size(sys.stdin.read()) or '')
     elif cmd == ['busy-home'] and len(sys.argv) == 4:
         busy_home(sys.argv[2], sys.argv[3])
     elif cmd == ['replay'] and len(sys.argv) == 5:

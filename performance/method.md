@@ -43,6 +43,7 @@ Only the numbers go into a report here.
    The city opens on the real display under `GODEBUG=gctrace=1 BOTROPOLIS_FRAMETIME=1`.
    After `--hide-after` seconds it moves to i3's scratchpad, so the last part measures a hidden window.
    **A run that drew zero frames is not a measurement**, and the report prints the frame count first for that reason.
+   It also records the city window's size when it opened and when the run ended: GPU memory follows the window, since every window-sized layer is a texture, so two runs of different window sizes are not a comparison (item 162, 2026-10-23).
 4. **City A/B:** run `perf-city --bin` once per build, one after the other, with nothing else changed.
    Only the city can't be run side by side, because two windows compete for focus and for the GPU.
 
