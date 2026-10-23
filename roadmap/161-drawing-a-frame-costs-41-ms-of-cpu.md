@@ -1,6 +1,6 @@
 # 161. Drawing a frame costs 41 ms of CPU in 0.2.2, against 21.6 ms in 0.1.7 and a budget of 10
 
-**Open, in progress since 2026-10-22 in the session "item 161". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city CPU budget Aria set the same day. Nobody's call — the budget is set.**
+**Done 2026-10-23 (`9e6b264`, r954), the CPU budget not met and passed to item 212. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city CPU budget Aria set the same day.**
 
 Depends on: nothing
 Landed: slice 1 (`8767ffe`, r912).
@@ -62,3 +62,35 @@ Group lines are 1.1% of Draw at fit and under 0.1% at full zoom.
 - **Slice 6, the chrome.** The strip, the stream column and the timeline drew every glyph every frame; each is now baked while it holds, as the panels are, through one `g.baked(key, screen, draw)` the panels now share. The frame check draws the whole chrome both ways with the timeline open. The stream shows clock times, not relative ones, so nothing in it ticks over. **The footer stays straight**: its words went down in one draw with the text after them, and a blit of its own made the night's frame 40 draw commands against the ceiling of 39. The bakes at 1920×1200: the strip 0.5 MiB, the stream column 2, the timeline 8 while it is open.
   Open with it: whether one more 2048-pixel look page (16 MiB) at full zoom fits the budget's headroom (462–466 MiB at r935, from the r935 run's `samples.csv` at 150–210 s) waits on a run of current main.
 - **Later, group lines** (parked): on a synthetic history with many more grouped sessions than Aria's, the group lines were 71% of Draw, because the dry pass tessellates and hashes every dash every frame only for the overlay to find its hash unchanged. The manager approved a tree that lays them out only when what they paint changes, relative to the camera's whole-pixel origin. Under it **a hovered car still lays them out every frame**, as now, because the city recedes under it in fade groups. The red test is on the local branch `item-161-lines-parked`.
+
+## Closing (2026-10-23)
+
+**Re-measured at r954** (`9e6b264`, 265U iGPU, focused, real history, paired with r905 the same hour at load 2.1–2.7):
+
+| phase | build | ms a frame | CPU | own + GPU |
+| --- | --- | --- | --- | --- |
+| fit | r954 | 10.0 | 51% | 472–477 MiB |
+| fit | r905 | 11.5 | 64% | 483–488 MiB |
+| full zoom | r954 | 11.1 | 53% | 581–584 MiB |
+| full zoom | r905 | 22.0 | 94% | 703–705 MiB |
+
+Full zoom takes half the time and 40 points less of a core than r905; fit is in its memory budget, and full zoom is over 512 MiB but 120 MiB under r905 beside it, which is item 162's question. Shares of Draw at r954: at fit `agedLots` 21% (item 207), overlay 19%, `drawBuilding` 13%, `drawList.Mesh` 12%, `paintStill` 11%; at full zoom `drawBuilding` 22%, `drawList.Mesh` 21%, `agedLots` 18%, the shutters 17%. The real state drifts between runs (r905 read 456–458 MiB at fit at 10:08 and 483–488 at 12:29), so only same-hour pairs compare.
+
+**The CPU budget is not met, and is item 212's now** (Aria's 10 ms and 10% of a core stay as its target): about half a core is left at fit and at full zoom, and most of it is the dry pass recording every drawable again each frame only to find it unchanged, which no opt-in can remove. The extra 2048-pixel look page at full zoom is not taken: full zoom has no headroom under 512 MiB in this pair.
+
+**Group lines, not started** (1.1% of Draw at fit on the real history, under 0.1% at full zoom; 71% on a synthetic history with far more grouped sessions). What the parked branch held, so the next session needs nothing from it: `groupLines` is split into a plan, one entry per segment, dash run, station and office, with positions relative to the camera's whole-pixel origin, widths and colours, which is where the hit boxes and station labels are noted every frame; and a stroke of the plan into a recorder of the lines' own that persists across frames and runs again only when the plan's hash, or the origin's part-pixel phase, changes. `paintOverlay` plays the lines' record shifted by the whole-pixel pan, then the labels'. The test tree the manager approved:
+
+- when a city with group lines has settled
+  - and 30 more frames pass with nothing changing
+    - it should lay the lines out on none of them
+    - it should hold what laying them out again would record
+  - and the camera zooms / pans by part of a pixel / a group takes the focus / a member's move changes
+    - it should lay them out again
+  - and the camera pans by whole pixels
+    - it should not lay them out again
+  - and a car is hovered, so the city recedes
+    - it should lay them out on every frame, as before (a hovered car still costs this)
+- when the city is drawn straight
+  - it should lay the lines out on every frame
+
+The fixture: `ParkedWeek` with two groups across several districts offered as a snapshot, and an active road between two of them, so there is a car to hover; the counter is `stillStats.lineLayouts`, reset each frame.
