@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [205](roadmap/205-a-daemon-load-reads-every-stopped-transcript-again.md) | every rescan loads the whole catalogue again: 6.5% of a core at 2,000 sessions | — | nobody |
 | [206](roadmap/206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md) | the city lays itself out whole on snapshots that shape nothing (~7 ms each) | — | nobody |
 | [207](roadmap/207-an-unfocused-city-redraws-the-whole-world-per-change.md) | an unfocused city redraws the whole world per change, standing layer unused: 2.74% busy vs 1% | — | nobody |
+| [208](roadmap/208-the-daemon-keeps-its-start-up-peak-until-a-hook-fires.md) | the daemon keeps its start-up memory peak until a hook fires: 59–63 MiB against 64 at 2,000 sessions | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
