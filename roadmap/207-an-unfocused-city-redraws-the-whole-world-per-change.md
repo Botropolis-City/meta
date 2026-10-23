@@ -4,6 +4,7 @@
 
 Depends on: 206 (slice 2)
 Landed: slice 1 (`47bb513`, r930).
+Landed: slice 2 (`bf9ef91`, r942).
 
 Measured on the 265U's GPU (real history linked read-only into a scratch home, two sessions each writing a line every 200 ms, 450 s; raw in `~/.local/state/botropolis-perf/busy-unfocused-{r910,r905}-real-20261022-184541/`): **an unfocused, visible city at r910 averaged 2.74% of a core (p95 4.9%) against 1%** — r905 3.60%. It drew a frame per change, about 360–480 frames, at 12–17 ms each, **with the standing-city layer never reused**.
 Where it goes (300 s profile): Draw 57% — `drawIso` 45%, a full world redraw per change; overlays 12%, text 10% — then `SetSnapshot` → `city.build` 22% ([item 206](206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md)), GL flush 7%, GC 6%.
@@ -46,3 +47,12 @@ So the pointer leaving a road for bare ground, or moving to another road, leaves
 `--check-frames` could not see it, because the ground drawn straight is cached under the same key, so both sides go stale together.
 Slice 2's key is 206's `GroundGeneration()` plus these render-side inputs, without `hoverLine` and `labels`, which `composeStatic` never reads.
 Its check is randomised as well as tabled: seeded small changes to snapshots, the pointer and the atlas, asserting that whenever the key held, the cached ground is the ground composed fresh.
+
+**Slice 2 landed at r942, and the plan is renumbered**: slice 2 became the ground's key fix, so keying on item 206's `GroundGeneration()` (206 slice 2, r932) is slice 3, and the measurement after it the last step.
+Slice 2's key holds the hovered road and beam, a fingerprint of what the highlight lights and fades, asked as `composeStatic` asks it, and the chosen kit atlas; `hoverLine` and `labels` left it.
+`TestTheGroundKey` holds each move red before the fix or under mutation, with controls that pass, and a seeded random walk of the pointer, the view and the selection found a removed road or highlight on its own, three runs of three.
+
+**Slice 3's design** (the roadmap manager, 2026-10-23): the ground records no hover targets today, in any view, with or without kits, but it replays whatever it records, and those are pointers into the city they came from.
+So the key also carries `Generation()` whenever the last compose recorded one, which corrects itself where a comment would not.
+Its tests: a snapshot that moves only activity times records the ground on no frame; one that changes what the ground draws — an MCP call count, a road's file count, a new project, a team, a turn — keeps it as composed fresh; a planted hover target composes it again; and the random walk takes small snapshot changes too.
+The busy GPU re-measure is booked by the roadmap manager for once 206's slice 3 and this slice 3 are both on main.
