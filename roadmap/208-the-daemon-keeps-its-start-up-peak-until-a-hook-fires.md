@@ -1,6 +1,6 @@
 # 208. The daemon keeps its start-up memory peak until a hook event fires
 
-**Open. Filed 2026-10-22 (r917), from item 198's close. Nobody's call — the budget is set (daemon ≤ 64 MiB of `Private_Dirty`, settled).**
+**Open, in progress since 2026-10-22 in the session "item 208". Filed 2026-10-22 (r917), from item 198's close. Nobody's call — the budget is set (daemon ≤ 64 MiB of `Private_Dirty`, settled).**
 
 Depends on: nothing
 
