@@ -5,6 +5,7 @@
 Depends on: 206 (slice 2)
 Landed: slice 1 (`47bb513`, r930).
 Landed: slice 2 (`bf9ef91`, r942).
+Landed: slice 3 (`8b33db9`, r946).
 
 Measured on the 265U's GPU (real history linked read-only into a scratch home, two sessions each writing a line every 200 ms, 450 s; raw in `~/.local/state/botropolis-perf/busy-unfocused-{r910,r905}-real-20261022-184541/`): **an unfocused, visible city at r910 averaged 2.74% of a core (p95 4.9%) against 1%** — r905 3.60%. It drew a frame per change, about 360–480 frames, at 12–17 ms each, **with the standing-city layer never reused**.
 Where it goes (300 s profile): Draw 57% — `drawIso` 45%, a full world redraw per change; overlays 12%, text 10% — then `SetSnapshot` → `city.build` 22% ([item 206](206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md)), GL flush 7%, GC 6%.
@@ -56,3 +57,10 @@ Slice 2's key holds the hovered road and beam, a fingerprint of what the highlig
 So the key also carries `Generation()` whenever the last compose recorded one, which corrects itself where a comment would not.
 Its tests: a snapshot that moves only activity times records the ground on no frame; one that changes what the ground draws — an MCP call count, a road's file count, a new project, a team, a turn — keeps it as composed fresh; a planted hover target composes it again; and the random walk takes small snapshot changes too.
 The busy GPU re-measure is booked by the roadmap manager for once 206's slice 3 and this slice 3 are both on main.
+
+**Slice 3 landed at r946.**
+A snapshot that moves only activity times records the ground on no frame, and `staticCity` no longer appears in a dashboard frame's profile.
+`BenchmarkADashboardFrame` went from 6,113 allocations and 1.48 MB a frame to 4,996 and 1.13 MB; its time is about 5.3 ms of draw CPU against 7.1 before slice 1, on a loaded machine.
+Mutating pkg/city's ground found a weak guard: the tabled road case could not fail, because without kits the ground draws roads as plain lines with no traffic tint, and it ran in the servers view.
+The tests now draw from the kits and check every view; with MCP calls or roads left out of the ground, the tabled cases fail every time, and the random walk about half its runs, so the walk is the net for a field nobody listed, not the guard for the ones listed.
+What is left is the busy re-measure on the GPU, against 1%.
