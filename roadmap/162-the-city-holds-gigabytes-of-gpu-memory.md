@@ -62,3 +62,17 @@ At r914 the heap held at full zoom is 158 MiB against 151 at fit, and the metrop
 Ebitengine's own images, counted at their internal texture sizes, are 113–119 MiB at fit and 207 at full zoom, so about 175 MiB at fit and 235 at full zoom of the i915 figure is no image of the city's at all, and it grows with the draw traffic.
 Xvfb cannot see it, because the software renderer keeps no driver buffers. The likeliest part is Mesa's cache of freed buffer objects, fed by vertex and index uploads every flush; the window's swap chain and Mesa's own batches are the rest.
 The benchmark session is adding the shared, resident, purgeable and active DRM figures to `perf.py` and running r914 against r905 on the real display; the fix follows what dominates.
+
+**The driver's breakdown, r914 against r905** (2026-10-23, real display, focused, real history; the sampler's new columns, meta `a4ed5ab`; MiB, means over each phase):
+
+| phase | build | GPU | shared | resident | purgeable | active | own | own + GPU |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| fit | r914 | 275 | 20 | 275 | 4 | 100 | 220 | 472–495 |
+| fit | r905 | 247 | 20 | 247 | 3 | 116 | 209 | 456–458 |
+| full zoom | r914 | 407 | 20 | 406 | 14 | 199 | 255 | 661–666 |
+| full zoom | r905 | 381 | 20 | 380 | 19 | 184 | 303 | 680–685 |
+
+The driver's buffer cache was not the gap: resident is the whole of it and purgeable under 20 MiB, and shared, the window's buffers, is a flat 20.
+At full zoom slices 5–6 are a net 14–24 MiB (own 48 lower, GPU 26 higher, the GPU rise unexplained and at fit too); full zoom is still about 150 over.
+Main at r935, after item 161's culling and one-mesh shutters, read 200 MiB of GPU at fit and 269 at full zoom the same morning, which points at the rest: a buffer that grows with what is drawn.
+Ebitengine's OpenGL driver keeps one vertex and one index buffer, sized to the power of two above the largest flush and never shrunk; r905's heap held 33 MB of queued vertices and 7 MB of indices at fit, which is 64 and 8 MiB on the GPU.
