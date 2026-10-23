@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+# shellcheck source=performance/tools/lib/procgroup.sh
+. "${here}/lib/procgroup.sh"
+procgroup_lead "$@"
+
 usage() {
 	cat <<USAGE
 Usage: performance/tools/perf-pprof-build REV [OUTDIR]
@@ -30,7 +35,7 @@ USAGE
 [[ "${1:-}" == "-h" || "${1:-}" == "--help" || $# -lt 1 ]] && { usage; exit 0; }
 rev="$1"
 outdir="${2:-/tmp/perf-pprof-${rev//\//-}}"
-repo="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)/botropolis"
+repo="$(cd "${here}/../.." && pwd)/botropolis"
 [[ -d "${repo}/.git" ]] || { echo "no botropolis checkout at ${repo}" >&2; exit 1; }
 
 src="${outdir}/src"
@@ -54,7 +59,8 @@ func init() {
 	}
 }
 GO
-	(cd "${src}" && go build -o "${outdir}/${cmd}" "./cmd/${cmd}")
+	go -C "${src}" build -o "${outdir}/${cmd}" "./cmd/${cmd}" &
+	wait "$!"
 done
 echo "${outdir}/botropolis"
 echo "${outdir}/botropolisd"

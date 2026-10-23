@@ -2,6 +2,9 @@
 set -euo pipefail
 
 here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+# shellcheck source=performance/tools/lib/procgroup.sh
+. "${here}/lib/procgroup.sh"
+procgroup_lead "$@"
 
 bin=$(command -v botropolis || true)
 seconds=600
@@ -79,7 +82,7 @@ cleanup() {
 	[[ -n "${sampler}" ]] && kill "${sampler}" 2>/dev/null || true
 	wait 2>/dev/null || true
 }
-trap cleanup EXIT
+procgroup_on_exit cleanup
 
 GODEBUG=gctrace=1 BOTROPOLIS_FRAMETIME=1 "${bin}" "${args[@]}" >/dev/null 2>"${out}/city.log" &
 city=$!

@@ -2,6 +2,9 @@
 set -euo pipefail
 
 here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+# shellcheck source=performance/tools/lib/procgroup.sh
+. "${here}/lib/procgroup.sh"
+procgroup_lead "$@"
 
 seconds=300
 interval=2
@@ -64,7 +67,7 @@ cleanup() {
 	wait 2>/dev/null || true
 	rm -rf "${work}"
 }
-trap cleanup EXIT
+procgroup_on_exit cleanup
 
 mkdir -p "${work}/stub"
 printf '#!/bin/sh\nexit 1\n' >"${work}/stub/claude"

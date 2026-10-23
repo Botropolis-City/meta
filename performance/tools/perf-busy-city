@@ -2,6 +2,9 @@
 set -uo pipefail
 
 here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+# shellcheck source=performance/tools/lib/procgroup.sh
+. "${here}/lib/procgroup.sh"
+procgroup_lead "$@"
 repo=$(cd "${here}/../.." && pwd)
 
 writers=2
@@ -83,20 +86,24 @@ say() { echo "# $1" >&2; }
 work=$(mktemp -d)
 home="${work}/home"
 pids=()
+building=""
 cleanup() {
-	for p in "${pids[@]}"; do kill "${p}" 2>/dev/null || true; done
+	for p in "${pids[@]}" ${building:+"${building}"}; do kill "${p}" 2>/dev/null || true; done
 	wait 2>/dev/null || true
 	[[ -x "${work}/botropolis-demo" ]] && "${work}/botropolis-demo" unstage --home "${home}" >/dev/null 2>&1
 	rm -rf "${work}"
 }
-trap cleanup EXIT
+procgroup_on_exit cleanup
 
 src="${build}/src"
 [[ -d "${src}/cmd/botropolis-demo" ]] || src="${repo}/botropolis"
 if [[ -n "${BOTROPOLIS_DEMO:-}" ]]; then
 	cp "${BOTROPOLIS_DEMO}" "${work}/botropolis-demo"
 else
-	(cd "${src}" && go build -o "${work}/botropolis-demo" ./cmd/botropolis-demo) || { echo "could not build the demo stager from ${src}" >&2; exit 1; }
+	go -C "${src}" build -o "${work}/botropolis-demo" ./cmd/botropolis-demo &
+	building=$!
+	wait "${building}" || { echo "could not build the demo stager from ${src}" >&2; exit 1; }
+	building=""
 fi
 corpus="${repo}/botropolis/demo"
 [[ -d "${src}/demo/corpus" ]] && corpus="${src}/demo"
@@ -164,6 +171,7 @@ note "load_at_start=$(cut -d' ' -f1-3 /proc/loadavg)"
 PERF_PPROF=127.0.0.1:6078 XDG_RUNTIME_DIR="${work}/run" XDG_STATE_HOME="${work}/state" XDG_CONFIG_HOME="${work}/config" \
 	"${here}/perf-city" --bin "${build}/botropolis" --seconds "${seconds}" --interval 1 --out "${out}/run" -- --socket "${sock}" 2>"${out}/perf-city.err" &
 city_run=$!
+pids+=("${city_run}")
 city=""
 for _ in $(seq 300); do
 	city=$(grep -oE 'city pid [0-9]+' "${out}/perf-city.err" 2>/dev/null | awk '{print $3}')
