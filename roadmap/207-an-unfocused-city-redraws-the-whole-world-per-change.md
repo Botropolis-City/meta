@@ -2,7 +2,7 @@
 
 **Open, in progress since 2026-10-22 in the session "item 207". Filed 2026-10-22 (r916), from the benchmark session's busy run after item 201. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
 
-Depends on: nothing
+Depends on: 206 (slice 2)
 
 Measured on the 265U's GPU (real history linked read-only into a scratch home, two sessions each writing a line every 200 ms, 450 s; raw in `~/.local/state/botropolis-perf/busy-unfocused-{r910,r905}-real-20261022-184541/`): **an unfocused, visible city at r910 averaged 2.74% of a core (p95 4.9%) against 1%** — r905 3.60%. It drew a frame per change, about 360–480 frames, at 12–17 ms each, **with the standing-city layer never reused**.
 Where it goes (300 s profile): Draw 57% — `drawIso` 45%, a full world redraw per change; overlays 12%, text 10% — then `SetSnapshot` → `city.build` 22% ([item 206](206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md)), GL flush 7%, GC 6%.
@@ -13,3 +13,23 @@ Where it goes (300 s profile): Draw 57% — `drawIso` 45%, a full world redraw p
 Find why the unfocused draw-on-change path doesn't use the standing city (its key changing on every snapshot, or the path bypassing it), and make a change that moves one building redraw only that building's rectangle, as a focused frame does. Then item 206's layout work takes most of the rest.
 
 Tests: an unfocused city fed a change to one session's state recomposes the standing layer on no frame and draws only dirty rectangles (count it in the frame log, as item 193's tests do); re-measure busy on the GPU with the benchmark session's replay, against 1%.
+
+## How it is being built (2026-10-22)
+
+**The filed premise was wrong: the standing layer is reused.**
+On the busy test city, unfocused on Xvfb with a session writing every 200 ms, the debug build's frame log reads `composes=0 redos=0 direct=0 rects=1` on every frame, so the GPU path does what item 193 built.
+What a dashboard frame redraws whole is the dry pass, in CPU: every drawable runs and is recorded every frame, and the ground is recorded again on every snapshot, because its key carries `Scene.Generation()`.
+The r910 profile puts Draw at 4.43 s of 7.71, about 14–18 ms of CPU a dashboard frame, against about 2 ms for a driven settled frame (item 193).
+`agedLots` alone is 1.11 s, 14% of the whole process: each overgrown district's floor dressed again every frame (0.40 s), and one recorded mesh per crack segment (0.48 s).
+The ground's re-recording is 0.49 s.
+The first-run panel's text is 0.59 s, which item 161's slice 1 (r912) already bakes.
+Headless, a dashboard frame of the metropolis (a snapshot fed, then a tick) is about 12 ms of draw CPU: group lines 2.2 ms (`dashed` records one mesh per dash), the ground's re-recording 2.2, the sorted dry pass 2.9 and chrome 1.5.
+
+The plan, approved by the roadmap manager:
+
+1. **A line is one mesh per drawable, not one per segment**: the aged lots' cracks and the dashed group lines, with the same triangles in the same order, so the pixels are the same; a line drawn while a night cutter is set keeps its own cut.
+   And an aged district's floor is kept while everything `dressDistrict` reads of it holds — root, rung, depot, rect and its buildings' rects — so nothing hand-kept can go stale.
+2. **The ground is not recorded again on a snapshot that changes nothing it draws**: `staticCity` keys on item 206's `Scene.GroundGeneration()` (its slice 2), which 206 guards with a test that the ground drawn equals a from-scratch build's whenever it holds.
+3. **Measured again** on the GPU through the benchmark session, against 1%, with 206's layout work in; anything left is reported with a profile before more is done.
+
+Tests: `TestDressingMemo` and `TestOneMeshPerLine` in `pkg/render`; `TestTheGroundOnASnapshot` for slice 2; `TestAnUnfocusedCityUnderAStreamOfChanges` in the acceptance suite, which is the item's own test and passed before any of this, so it lands as the guard the item asked for, not as a red test made green; `BenchmarkADashboardFrame`, reported, never gated.
