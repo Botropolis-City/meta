@@ -63,4 +63,10 @@ A snapshot that moves only activity times records the ground on no frame, and `s
 `BenchmarkADashboardFrame` went from 6,113 allocations and 1.48 MB a frame to 4,996 and 1.13 MB; its time is about 5.3 ms of draw CPU against 7.1 before slice 1, on a loaded machine.
 Mutating pkg/city's ground found a weak guard: the tabled road case could not fail, because without kits the ground draws roads as plain lines with no traffic tint, and it ran in the servers view.
 The tests now draw from the kits and check every view; with MCP calls or roads left out of the ground, the tabled cases fail every time, and the random walk about half its runs, so the walk is the net for a field nobody listed, not the guard for the ones listed.
+
+**The walk was made to exercise every kind of change on every run** (`846287a`, r948; the roadmap manager, 2026-10-23: *"don't make it longer"*).
+Each kind of snapshot change comes once in a shuffled order before the random steps, and each always changes something.
+That alone was not enough, and why is the lesson: the walk put the pointer on a fresh target each step, and a target is a pointer into the city, so every rebuild moved the key and composed the ground again, hiding the stale field.
+A snapshot step is now composed with the pointer on bare ground before and after, where only the snapshot can move the ground.
+With MCP calls, roads or camps left out of pkg/city's ground the walk fails four runs of four, at the same 150 steps.
 What is left is the busy re-measure on the GPU, against 1%.
