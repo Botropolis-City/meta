@@ -1,6 +1,6 @@
 # 209. Cost gates fail landings at random while the machine is busy
 
-**Open. Filed 2026-10-22 (r921), from item 203's landing. Nobody's call — a defect in the gates; every landing runs them.**
+**Open, in progress since 2026-10-22 in the session "item 209". Filed 2026-10-22 (r921), from item 203's landing. Nobody's call — a defect in the gates; every landing runs them.**
 
 Depends on: nothing
 
