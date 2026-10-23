@@ -9,6 +9,7 @@ Landed: slice 3 (`d100abf`, r889).
 Landed: slice 4 (`e6bde10`, r905).
 Landed: slice 5 (`23ec6fa`, r908).
 Landed: slice 6 (`66116ad`, r914).
+Landed: slice 9 (`834af3c`, r957).
 
 On integrated graphics, textures and buffers come out of system RAM and appear in no RSS or `Private_Dirty` figure; `perf-sample` reads them as `drm-total-*` from the DRM fdinfo.
 The reference machine (budgets.md) is integrated graphics, so this is memory the user's laptop does not have.
