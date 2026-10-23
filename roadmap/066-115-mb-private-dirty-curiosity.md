@@ -18,3 +18,8 @@ Nobody should feel urgency about it. The honest summary is that the city's own m
 ---
 
 Full investigation as originally filed: `git show 99cecc7:ROADMAP.md`
+
+## Closed
+
+Superseded by [item 162](162-the-city-holds-gigabytes-of-gpu-memory.md), which put this question under the 512 MiB own-plus-GPU budget (`performance/budgets.md`, 2026-10-19) and built the census this item asked for: Ebitengine's image total beside the Go heap, gated by `TestSettledMemory`. The atlas is no longer held on the CPU after item 162's slices 1 and 6, and at r905 the real history held 151 MiB of `Private_Dirty` at fit, within budget.
+What remains of attributing that figure (heap at rest, layers, driver pages) belongs to item 162. Checked against the reports and items by a research agent for the roadmap manager, 2026-10-23.
