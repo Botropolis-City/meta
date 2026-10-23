@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-22 in the session "item 207". Filed 2026-10-22 (r916), from the benchmark session's busy run after item 201. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
 
 Depends on: 206 (slice 2)
+Landed: slice 1 (`47bb513`, r930).
 
 Measured on the 265U's GPU (real history linked read-only into a scratch home, two sessions each writing a line every 200 ms, 450 s; raw in `~/.local/state/botropolis-perf/busy-unfocused-{r910,r905}-real-20261022-184541/`): **an unfocused, visible city at r910 averaged 2.74% of a core (p95 4.9%) against 1%** — r905 3.60%. It drew a frame per change, about 360–480 frames, at 12–17 ms each, **with the standing-city layer never reused**.
 Where it goes (300 s profile): Draw 57% — `drawIso` 45%, a full world redraw per change; overlays 12%, text 10% — then `SetSnapshot` → `city.build` 22% ([item 206](206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md)), GL flush 7%, GC 6%.
@@ -33,3 +34,15 @@ The plan, approved by the roadmap manager:
 3. **Measured again** on the GPU through the benchmark session, against 1%, with 206's layout work in; anything left is reported with a profile before more is done.
 
 Tests: `TestDressingMemo` and `TestOneMeshPerLine` in `pkg/render`; `TestTheGroundOnASnapshot` for slice 2; `TestAnUnfocusedCityUnderAStreamOfChanges` in the acceptance suite, which is the item's own test and passed before any of this, so it lands as the guard the item asked for, not as a red test made green; `BenchmarkADashboardFrame`, reported, never gated.
+
+**Slice 1 landed at r930.**
+On a city of 150 overgrown projects (`BenchmarkTheAgedLots`), recording the aged lots took 36,894 allocations and 11.0 MB before, and 16,905 and 3.4 MB after.
+On the metropolis, which has almost no overgrown lots, it does not show, and the dashed group lines cost what they did: their cost is the tessellation, not a command per dash.
+`TestAnUnfocusedCityUnderAStreamOfChanges` passed before the slice, and fails when the standing city is drawn straight.
+
+**Found while building, and fixed in slice 2** (the roadmap manager, 2026-10-23): the ground's key misses inputs that `composeStatic` reads.
+These are the hovered road (`iso.go`'s street tint and `roadLines`), the hovered beam (`beams`), the hovered building's effect on which roads the highlight lights, and which kit atlas is chosen as its pages finish uploading.
+So the pointer leaving a road for bare ground, or moving to another road, leaves the old highlight in the cached ground: `TestTheGroundKey` reproduces it, and a pointer that stays passes.
+`--check-frames` could not see it, because the ground drawn straight is cached under the same key, so both sides go stale together.
+Slice 2's key is 206's `GroundGeneration()` plus these render-side inputs, without `hoverLine` and `labels`, which `composeStatic` never reads.
+Its check is randomised as well as tabled: seeded small changes to snapshots, the pointer and the atlas, asserting that whenever the key held, the cached ground is the ground composed fresh.
