@@ -1,6 +1,6 @@
 # 209. Cost gates fail landings at random while the machine is busy
 
-**Open, in progress since 2026-10-22 in the session "item 209". Filed 2026-10-22 (r921), from item 203's landing. Nobody's call — a defect in the gates; every landing runs them.**
+**Fixed 2026-10-23 (`b1bf374`, r955). Filed 2026-10-22 (r921), from item 203's landing. Nobody's call — a defect in the gates; every landing runs them.**
 
 Depends on: nothing
 Landed: slice 3 (`08f1e73`, r925).
@@ -72,3 +72,16 @@ That was not a whole snapshot, which is 225 KB: the run's decoding time was 21 m
 **`TestScriptsAreInTheCacheKey`'s "not cached" was not load.**
 `go test` caches no run that opened a file modified under 2 s before, and the scratch copy was written just before its first run.
 Slice 3 dates the copy an hour back and each probe's change a minute after the file's previous time, since Go keys an opened file by size, mode and modification time rather than contents.
+
+## Closed
+
+Every cost gate now measures something a busy machine cannot move, and the landings that failed at random for it stopped.
+The CPU gates (the unwatched city, grouping per prompt, and the daemons of items 157, 196 and 198) count retired user-space instructions at a bursty `CoreRate` of 2.025 G a second, plus kernel time, with a thread-CPU fallback that says when it is used (slices 1 and 2).
+The city is measured once it says its window is hidden or unfocused, not after 120 software frames (slice 4); the hidden city is gated on the bytes it read from the daemon, not on everything it read (slice 5); and a scratch module is dated an hour back so `go test` will cache it (slice 3).
+Each was red-checked: a pre-fix stand-in fails it.
+
+**For Aria — deviations from what the item asked:**
+
+- **The limits did not all stay as they were in effect.** Counting kernel time and calibrating on bursts made the counted figures honest, and two gates turned out over their budgets on a quiet machine by both measures: the 2,000-session daemon at 2.3–2.9% against 2%, and the unfocused city at 1.04% against 1%. Each skips while over, saying its number, and fails over twice its budget, until [item 213](213-the-2000-session-daemon-is-over-its-cpu-budget.md) and [item 214](214-the-dashboards-layout-sits-at-its-budget.md) bring them under.
+- **The five runs at a load of ~30 were not made.** Raising the load with busy loops was refused as interfering with other sessions, and the one landing the waiter caught ran at a load of 1.0–3.4, where the five passed (hidden 0.37–0.50%, unfocused 0.92–1.00%). What stands in: the same work counts within 5% beside 20 spinning goroutines (0.02% in the first trial), and slices 1 and 2 passed their landing gate inside a full `make test`. **The auditor should run `TestAnUnwatchedCityUnderAStreamOfSnapshots` five times (`go test -count=5`) during the next busy landing period and record the load beside the numbers.**
+- The calibration, `CoreRate` and the ruling it follows are in `pkg/measure/thread.go`; `tools/calibrate-core-rate --wait` measures it again when the code or the machine changes.
