@@ -12,3 +12,5 @@ Item 198 listed what is left: the wording rebuilds document frequencies for ever
 Make those per-prompt passes incremental in the number of sessions a prompt can affect, with item 158's from-scratch detector as the oracle. Measure with [item 209](209-cost-gates-fail-landings-on-a-busy-machine.md)'s instruction counts once they land, so machine load can't move the gate.
 
 Tests: the 2,000 case reads under 50 ms (its skip removes itself); replays equal from-scratch at every step.
+
+**The interim shape can't fail** (manager, 2026-10-23): item 205 landed the 2,000 case as "skip naming 210 while over 50 ms, pass under", because it reads 42–60 ms with machine load and the self-removing shape flipped. That case now has no way to fail: a regression to 200 ms would skip. Until this item lands, it needs a regression ceiling that fails (today's worst plus a margin, named as a ceiling, as item 194 did), or item 209's instruction counts so the reading stops moving with load.
