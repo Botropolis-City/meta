@@ -22,7 +22,11 @@ BUILD_DIR holds botropolis and botropolisd, as perf-pprof-build makes them.
 A scratch home is staged from a demo scenario, and every transcript, session
 record and history.jsonl under ~/.claude is linked into it read only, by
 symlink: nothing of ~/.claude is copied, and nothing of it is ever written.
-A daemon of the build serves that home on its own socket and state, the city
+A daemon of the build runs with HOME set to that scratch home and every XDG
+directory inside the run's scratch tree, so it opens a statistics store as a
+production daemon does (one given --home opens none, item 165) and nothing of
+the caller's state, config, cache or data is touched. Once its CPU has been
+idle for 20 s (at most PERF_BUSY_SETTLE s, default 600), the city
 opens on the real display, and from 25 s WRITERS of the demo's own live
 sessions each write a user line every 200 ms. The run is sampled with
 perf-city; the city's CPU is profiled when the build has a pprof endpoint.
@@ -44,6 +48,11 @@ Optional steps, each recorded in busy.txt and said aloud when skipped:
   - the CPU profile, which needs a build made by perf-pprof-build.
 
 Run it under the landing lock, one build after another.
+
+For tests: BOTROPOLIS_DEMO names a demo stager to use instead of building one,
+PERF_BUSY_SETTLE=0 skips the settle, PERF_BUSY_REPLAY_FROM moves the replay's
+start (default 25 s), and PERF_BUSY_PPROF_WAIT is how many 0.2 s tries the
+pprof check takes (default 50).
 USAGE
 }
 
@@ -84,7 +93,11 @@ trap cleanup EXIT
 
 src="${build}/src"
 [[ -d "${src}/cmd/botropolis-demo" ]] || src="${repo}/botropolis"
-(cd "${src}" && go build -o "${work}/botropolis-demo" ./cmd/botropolis-demo) || { echo "could not build the demo stager from ${src}" >&2; exit 1; }
+if [[ -n "${BOTROPOLIS_DEMO:-}" ]]; then
+	cp "${BOTROPOLIS_DEMO}" "${work}/botropolis-demo"
+else
+	(cd "${src}" && go build -o "${work}/botropolis-demo" ./cmd/botropolis-demo) || { echo "could not build the demo stager from ${src}" >&2; exit 1; }
+fi
 corpus="${repo}/botropolis/demo"
 [[ -d "${src}/demo/corpus" ]] && corpus="${src}/demo"
 "${work}/botropolis-demo" stage --corpus "${corpus}/corpus" --scenario "${corpus}/scenarios/${scenario}.yaml" --home "${home}" --hold 3h >/dev/null ||
@@ -93,18 +106,40 @@ python3 -I "${here}/perf.py" busy-home "${HOME}/.claude" "${home}" || exit 1
 note "scenario=${scenario} writers=${writers} every_ms=200 seconds=${seconds}"
 note "linked_transcripts=$(find "${home}/.claude/projects" -type l -name '*.jsonl' | wc -l) scratch_transcripts=$(find "${home}/.claude/projects" -type f -name '*.jsonl' | wc -l)"
 
-mkdir -p "${work}/state" "${work}/run/botropolis" "${work}/config/botropolis" "${work}/stub"
+mkdir -p "${work}/state" "${work}/run/botropolis" "${work}/config/botropolis" "${work}/cache" "${work}/data" "${work}/stub"
 printf '#!/bin/sh\nexit 1\n' >"${work}/stub/claude"
 chmod +x "${work}/stub/claude"
 config="${XDG_CONFIG_HOME:-$HOME/.config}/botropolis/config.toml"
 [[ -f "${config}" ]] && cp "${config}" "${work}/config/botropolis/config.toml"
 sock="${work}/run/botropolis/botropolis.sock"
-PATH="${work}/stub:${PATH}" XDG_STATE_HOME="${work}/state" XDG_RUNTIME_DIR="${work}/run" XDG_CONFIG_HOME="${work}/config" \
-	"${build}/botropolisd" --home "${home}" --socket "${sock}" >"${out}/daemon.log" 2>&1 &
-pids+=($!)
+PATH="${work}/stub:${PATH}" HOME="${home}" XDG_STATE_HOME="${work}/state" XDG_RUNTIME_DIR="${work}/run" XDG_CONFIG_HOME="${work}/config" \
+	XDG_CACHE_HOME="${work}/cache" XDG_DATA_HOME="${work}/data" \
+	"${build}/botropolisd" --socket "${sock}" >"${out}/daemon.log" 2>&1 &
+daemon=$!
+pids+=("${daemon}")
 for _ in $(seq 90); do [[ -S "${sock}" ]] && break; sleep 1; done
 [[ -S "${sock}" ]] || { echo "the daemon did not open its socket" >&2; exit 1; }
-sleep 60
+
+ticks() { awk '{print $14 + $15}' "/proc/${daemon}/stat" 2>/dev/null || echo 0; }
+settle_cap="${PERF_BUSY_SETTLE:-600}"
+if ((settle_cap == 0)); then
+	note "settle=none (PERF_BUSY_SETTLE=0)"
+else
+	hz=$(getconf CLK_TCK)
+	settle_start=$(date +%s)
+	settled=""
+	while (($(date +%s) - settle_start < settle_cap)); do
+		t0=$(ticks)
+		sleep 20
+		(($(ticks) - t0 < hz * 20 / 100)) && { settled=$(($(date +%s) - settle_start)); break; }
+	done
+	if [[ -n "${settled}" ]]; then
+		note "settle=idle after ${settled} s"
+	else
+		say "the daemon was still busy after ${settle_cap} s; measuring anyway"
+		note "settle=busy at ${settle_cap} s"
+	fi
+fi
 
 handback=0
 if command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
@@ -158,12 +193,13 @@ if [[ "${handback}" == 1 ]]; then
 	fi
 fi
 
-at 25
-python3 -I "${here}/perf.py" replay "${home}" "${writers}" "$((seconds - 25))" >"${out}/replay.txt" 2>&1 &
+replay_from="${PERF_BUSY_REPLAY_FROM:-25}"
+at "${replay_from}"
+python3 -I "${here}/perf.py" replay "${home}" "${writers}" "$((seconds - replay_from))" >"${out}/replay.txt" 2>&1 &
 pids+=($!)
 
 pprof=0
-for _ in $(seq 50); do curl -s -o /dev/null "http://127.0.0.1:6078/debug/pprof/" && { pprof=1; break; }; sleep 0.2; done
+for _ in $(seq "${PERF_BUSY_PPROF_WAIT:-50}"); do curl -s -o /dev/null "http://127.0.0.1:6078/debug/pprof/" && { pprof=1; break; }; sleep 0.2; done
 if [[ "${pprof}" == 1 ]]; then
 	(
 		at "${profile_from}"

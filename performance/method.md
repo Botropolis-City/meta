@@ -53,10 +53,11 @@ Only the numbers go into a report here.
 6. **A busy desk, replayed:** "sessions working" made controlled and repeatable, rather than waiting for real sessions to happen to write.
    A quiet evening and a busy afternoon differ by more than most fixes do (2026-10-22: 0.9% of a core quiet, 2.7% busy, for the same build).
    `perf-busy-city BUILD_DIR`, or `make perf-busy PERF_BUILD=BUILD_DIR`, stages a demo scenario into a fresh scratch home and links every transcript, session record and `history.jsonl` under `~/.claude` into it **read only, by symlink**: nothing of `~/.claude` is copied, and the replay refuses to write through a link.
-   A daemon of the build serves that home on its own socket and state, the city opens on the real display, and from 25 s two of the demo's own live sessions each write a user line every 200 ms, as the daemon-cost acceptance tests do.
+   A daemon of the build runs with `HOME` set to that home and every XDG directory inside the run's scratch tree, so it opens a statistics store as production does and nothing of the real state, config, cache or data is touched.
+   Once the daemon's CPU has been idle for 20 s (at most 600 s), the city opens on the real display, and from 25 s two of the demo's own live sessions each write a user line every 200 ms, as the daemon-cost acceptance tests do.
    It samples 480 s and, for a build made by `perf-pprof-build`, profiles the city's CPU for 300 s from 120 s.
    Where `i3-msg` and `xprop` exist, the city takes the focus for 20 s and gives it back, so the rest measures a visible, unfocused city; elsewhere that step is skipped, and the run's `busy.txt` says so, as it says whether the monitor was on, since a locked screen keeps the focus from every window.
-   A daemon pointed at a home opens no statistics store (item 165), so this daemon's figures are not production's.
+   Runs before 2026-10-23 gave the daemon `--home` instead, and a daemon pointed at a home opens no statistics store (item 165), so their daemon figures are not production's.
    Run it under the landing lock, one build after another; `make perf-busy` takes the lock itself.
 
 Raw runs and profiles go under `~/.local/state/botropolis-perf/` from the start, never only in a session's scratch directory: a profile kept nowhere else was lost with its scratch on 2026-10-22 and had to be taken again.
