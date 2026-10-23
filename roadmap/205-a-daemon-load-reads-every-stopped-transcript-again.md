@@ -51,6 +51,12 @@ Tests: item 198's 2,000-session acceptance case turns from "unmet" into a gate a
 - Slices 2 and 3: the same load fell to about 30 ms, then 18–20 ms, and what it allocates from 11 MB to 6.
 - **With the store on** (main before this item, `b34cc7e`, load 5–13): item 157's test 0.5% of a core (0.2% off); item 196's 4.4–5.6% (0.8% off), failing; this item's 2,000 sessions 45% (5.3% off) and 78 MiB of Private_Dirty, failing both.
   In a scratch build of slices 2–5 with the pass's rescans paced, item 196's was 1.1–1.2% and the 2,000 sessions 3.0–3.3%.
+- **The busy re-run owed at close.** On the real history, busy (2026-10-23, the benchmark session): `perf-busy-city` at meta `a0d8888`, so the daemon runs on a scratch `HOME` with the statistics store on, settled first (idle after 100–121 s);
+  211 transcripts linked read only, two writers a line every 200 ms for 455 s, the city visible and unfocused after 20 s, load 1.2–8.8, monitor on.
+  r946's daemon used **2.36% of a core** (p50 0.0%, p95 10.5%) and 54–55 MiB of Private_Dirty, flat (+0.13 MiB a minute); r910's, before this item, 9.34% (p95 12.6%) and 54 MiB.
+  So the real busy desk costs a quarter of what it did, and is still over the 2% budget, where the gate at 2,000 synthetic sessions reads 1.8–2.0% and 62–63 MiB.
+  The installed daemon, built before this item, burst to 3.7 cores during r946's half and the load rose to 7–9, so r946's figure is the less favourable of the two.
+  Raw runs: `~/.local/state/botropolis-perf/busy-r946-r910-20261023-061028/`.
 
 ## Closed
 

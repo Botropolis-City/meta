@@ -70,3 +70,20 @@ That alone was not enough, and why is the lesson: the walk put the pointer on a 
 A snapshot step is now composed with the pointer on bare ground before and after, where only the snapshot can move the ground.
 With MCP calls, roads or camps left out of pkg/city's ground the walk fails four runs of four, at the same 150 steps.
 What is left is the busy re-measure on the GPU, against 1%.
+
+## The real history, busy and unfocused (2026-10-23)
+
+Measured by the benchmark session with `perf-busy-city` at meta `a0d8888`, so the daemon runs on a scratch `HOME` with the statistics store on, settled first (idle after 100–121 s);
+211 transcripts linked read only, two writers a line every 200 ms for 455 s, the city visible and unfocused after 20 s, load 1.2–8.8, monitor on.
+The city's whole process from 120 s to 420 s, and its CPU profile over the same 300 s:
+
+| build | share of a core | p50 | p95 | laying out (`city.build`) | drawing (`drawIso` and below) | `Game.Draw` |
+| --- | --- | --- | --- | --- | --- | --- |
+| r910 | 6.00% | 5.84% | 11.65% | 3.35% | 0.99% | 1.24% |
+| r946 | 5.75% | 0.97% | 26.5% | 4.47% | 0.32% | 0.41% |
+
+**The 1% budget is not met.**
+Drawing fell to a third, and between bursts the city sits at 1%, but laying out went up and comes in bursts.
+Of r946's 13.4 s in `city.build`, 10.7 s is `City.Breakdown`'s `stats.(*Ledger).Window` (3.6% of a core; 7.7 s, 2.6%, on r910) and 2.4 s `priceSessions`; placing groups, districts and streets is under 0.2 s.
+Every earlier busy run gave the daemon `--home`, which opens no store (item 165), so this is the first to have measured the ledger query.
+Raw runs and profiles: `~/.local/state/botropolis-perf/busy-r946-r910-20261023-061028/`.
