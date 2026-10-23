@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import tempfile
@@ -189,6 +190,97 @@ class WhenDescribingTheDesk(unittest.TestCase):
             env = dict(os.environ, HOME=home, XDG_STATE_HOME=os.path.join(home, 'state'))
             done = subprocess.run([os.path.join(HERE, 'perf-env')], env=env, capture_output=True)
         self.assertEqual(done.returncode, 0)
+
+
+def write(path, text=''):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        f.write(text)
+
+
+def files_under(root, links):
+    found = set()
+    for d, dirs, names in os.walk(root):
+        for name in names + [x for x in dirs if os.path.islink(os.path.join(d, x))]:
+            path = os.path.join(d, name)
+            if os.path.islink(path) == links:
+                found.add(os.path.relpath(path, root))
+    return found
+
+
+class WhenBuildingABusyHome(unittest.TestCase):
+    def setUp(self):
+        top = tempfile.TemporaryDirectory()
+        self.addCleanup(top.cleanup)
+        self.real = os.path.join(top.name, 'real', '.claude')
+        self.home = os.path.join(top.name, 'busy')
+        write(os.path.join(self.real, 'projects', '-p', 'a.jsonl'), '{}\n')
+        write(os.path.join(self.real, 'projects', '-p', 'b.jsonl'), '{}\n')
+        write(os.path.join(self.real, 'projects', '-p', 'a', 'subagents', 'agent-x.jsonl'), '{}\n')
+        write(os.path.join(self.real, 'sessions', '1.json'), '{}')
+        write(os.path.join(self.real, 'history.jsonl'), '{}\n')
+        write(os.path.join(self.home, '.claude', 'projects', '-demo', 'd.jsonl'), '{}\n')
+        write(os.path.join(self.home, '.claude', 'sessions', '2.json'), '{}')
+        perf.busy_home(self.real, self.home)
+        self.claude = os.path.join(self.home, '.claude')
+
+    def test_it_should_link_every_transcript_and_its_subagents(self):
+        self.assertEqual(files_under(os.path.join(self.claude, 'projects'), links=True),
+                         {'-p/a.jsonl', '-p/b.jsonl', '-p/a'})
+
+    def test_it_should_copy_nothing_from_the_real_home(self):
+        self.assertEqual(files_under(self.claude, links=False), {'projects/-demo/d.jsonl', 'sessions/2.json'})
+
+    def test_it_should_link_the_session_records(self):
+        self.assertTrue(os.path.islink(os.path.join(self.claude, 'sessions', '1.json')))
+
+    def test_it_should_link_the_prompt_history(self):
+        self.assertTrue(os.path.islink(os.path.join(self.claude, 'history.jsonl')))
+
+
+class WhenReplaying(unittest.TestCase):
+    def setUp(self):
+        top = tempfile.TemporaryDirectory()
+        self.addCleanup(top.cleanup)
+        self.top = top.name
+        self.claude = os.path.join(top.name, 'home', '.claude')
+        write(os.path.join(self.claude, 'sessions', '1.json'), '{"sessionId": "s1", "cwd": "/w/one"}')
+        write(os.path.join(self.claude, 'projects', '-w-one', 's1.jsonl'), '{}\n')
+        real = os.path.join(top.name, 'real.jsonl')
+        write(real, '{}\n')
+        write(os.path.join(top.name, 'real-session.json'), '{"sessionId": "s2", "cwd": "/w/two"}')
+        os.makedirs(os.path.join(self.claude, 'projects', '-w-two'))
+        os.symlink(real, os.path.join(self.claude, 'projects', '-w-two', 's2.jsonl'))
+        os.symlink(os.path.join(top.name, 'real-session.json'), os.path.join(self.claude, 'sessions', '2.json'))
+        self.real = real
+
+    def test_it_should_only_target_the_scratch_homes_own_live_transcripts(self):
+        self.assertEqual([t[0] for t in perf.replay_targets(os.path.join(self.top, 'home'))], ['s1'])
+
+    def test_and_the_transcript_is_a_symlink_it_should_refuse_to_write(self):
+        with self.assertRaises(PermissionError):
+            perf.append_line(os.path.join(self.claude, 'projects', '-w-two', 's2.jsonl'), {'type': 'user'})
+
+    def test_and_the_transcript_is_a_symlink_it_should_leave_the_target_untouched(self):
+        try:
+            perf.append_line(os.path.join(self.claude, 'projects', '-w-two', 's2.jsonl'), {'type': 'user'})
+        except PermissionError:
+            pass
+        with open(self.real) as f:
+            self.assertEqual(f.read(), '{}\n')
+
+    def test_it_should_write_a_user_prompt_for_the_session(self):
+        line = perf.replay_line('s1', '/w/one', 3, '2026-10-22T12:00:00Z')
+        self.assertEqual((line['type'], line['sessionId'], line['cwd'], line['message']['role']), ('user', 's1', '/w/one', 'user'))
+
+    def test_it_should_stamp_the_line_with_the_time_given(self):
+        self.assertEqual(perf.replay_line('s1', '/w/one', 3, '2026-10-22T12:00:00Z')['timestamp'], '2026-10-22T12:00:00Z')
+
+    def test_and_a_line_is_appended_it_should_be_one_json_line(self):
+        path = os.path.join(self.claude, 'projects', '-w-one', 's1.jsonl')
+        perf.append_line(path, perf.replay_line('s1', '/w/one', 0, '2026-10-22T12:00:00Z'))
+        with open(path) as f:
+            self.assertEqual(json.loads(f.read().splitlines()[-1])['sessionId'], 's1')
 
 
 if __name__ == '__main__':

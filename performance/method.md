@@ -52,11 +52,12 @@ Only the numbers go into a report here.
 
 6. **A busy desk, replayed:** "sessions working" made controlled and repeatable, rather than waiting for real sessions to happen to write.
    A quiet evening and a busy afternoon differ by more than most fixes do (2026-10-22: 0.9% of a core quiet, 2.7% busy, for the same build).
-   `busy.sh BUILD_DIR OUT`, with `mkhome.sh` and `replay.py` beside it, stages the `hamlet` demo into a fresh scratch home and links every real transcript, session record and `history.jsonl` into it **read only, by symlink**: nothing under `~/.claude` is copied, and nothing of it is ever written.
-   A daemon of the build serves that home, the city opens on the real display, takes the focus for 20 s and gives it back, and from 25 s two of the demo's own live sessions each write a user line every 200 ms, as the daemon-cost acceptance tests do.
-   It samples 480 s, takes a 300 s CPU profile from 120 s, and records the load and whether the monitor was on, since a locked screen keeps the focus from every window.
-   Run it under the landing lock, one build after another, with `OUT` under `~/.local/state/botropolis-perf/`.
-   The three scripts are kept on the measuring machine in `~/.local/state/botropolis-perf/tools/`, each with `--help`, and are not yet in this repository.
+   `perf-busy-city BUILD_DIR`, or `make perf-busy PERF_BUILD=BUILD_DIR`, stages a demo scenario into a fresh scratch home and links every transcript, session record and `history.jsonl` under `~/.claude` into it **read only, by symlink**: nothing of `~/.claude` is copied, and the replay refuses to write through a link.
+   A daemon of the build serves that home on its own socket and state, the city opens on the real display, and from 25 s two of the demo's own live sessions each write a user line every 200 ms, as the daemon-cost acceptance tests do.
+   It samples 480 s and, for a build made by `perf-pprof-build`, profiles the city's CPU for 300 s from 120 s.
+   Where `i3-msg` and `xprop` exist, the city takes the focus for 20 s and gives it back, so the rest measures a visible, unfocused city; elsewhere that step is skipped, and the run's `busy.txt` says so, as it says whether the monitor was on, since a locked screen keeps the focus from every window.
+   A daemon pointed at a home opens no statistics store (item 165), so this daemon's figures are not production's.
+   Run it under the landing lock, one build after another; `make perf-busy` takes the lock itself.
 
 Raw runs and profiles go under `~/.local/state/botropolis-perf/` from the start, never only in a session's scratch directory: a profile kept nowhere else was lost with its scratch on 2026-10-22 and had to be taken again.
 

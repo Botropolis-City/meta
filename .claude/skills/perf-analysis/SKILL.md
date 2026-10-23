@@ -64,6 +64,19 @@ Reject the run if `frames drawn` in its `report.md` is zero, unless the run was 
 Read `private_dirty_mib`, `gpu_mib`, the Go heap table, and each one's slope.
 GPU memory on an integrated GPU is system RAM that appears in no other column.
 
+## 4b. A busy desk, when "sessions working" matters
+
+A budget measured "with sessions working" cannot wait for real sessions to happen to write: a quiet evening and a busy afternoon differ by more than most fixes do.
+Replay them (method.md, run 6), one build after another:
+
+```sh
+performance/tools/perf-pprof-build REV /tmp/perf-REV
+make perf-busy PERF_BUILD=/tmp/perf-REV
+```
+
+It links the real history into a scratch home read only and makes two demo sessions write a line every 200 ms; nothing under `~/.claude` is copied or written.
+Read the run's `busy.txt` before quoting anything: it says whether the focus was handed back, whether the monitor was on and whether the CPU profile was taken, and a skipped step there changes what the run measured.
+
 ## 5. Write the report
 
 Copy `performance/templates/report.md` to `performance/reports/YYYY-MM-DD-<rig>-<what>.md`, fill it in from the runs' `report.md` files, and link it from `performance/README.md`.

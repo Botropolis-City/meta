@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+repo=$(cd "${here}/../.." && pwd)
+
+writers=2
+seconds=480
+profile_from=120
+profile_seconds=300
+scenario=hamlet
+out=""
+build=""
+
+usage() {
+	cat <<USAGE
+Usage: performance/tools/perf-busy-city [options] BUILD_DIR
+
+A city on a busy desk, made repeatable (performance/method.md, run 6).
+BUILD_DIR holds botropolis and botropolisd, as perf-pprof-build makes them.
+
+A scratch home is staged from a demo scenario, and every transcript, session
+record and history.jsonl under ~/.claude is linked into it read only, by
+symlink: nothing of ~/.claude is copied, and nothing of it is ever written.
+A daemon of the build serves that home on its own socket and state, the city
+opens on the real display, and from 25 s WRITERS of the demo's own live
+sessions each write a user line every 200 ms. The run is sampled with
+perf-city; the city's CPU is profiled when the build has a pprof endpoint.
+
+  --writers N            sessions writing (default: ${writers})
+  --seconds N            how long to sample (default: ${seconds})
+  --profile-from N       start the CPU profile N s in (default: ${profile_from})
+  --profile-seconds N    profile length (default: ${profile_seconds})
+  --scenario NAME        demo scenario to stage (default: ${scenario})
+  --out DIR              run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  -h, --help             this
+
+Optional steps, each recorded in busy.txt and said aloud when skipped:
+  - the focus hand-back, which needs i3-msg and xprop: the city takes the focus
+    for 20 s and gives it back, so the rest is a visible, unfocused city;
+    without them the window keeps whatever focus the desktop gave it;
+  - whether the monitor was on, which needs xset: a locked screen keeps the
+    focus from every window;
+  - the CPU profile, which needs a build made by perf-pprof-build.
+
+Run it under the landing lock, one build after another.
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	--writers) writers="$2"; shift 2 ;;
+	--seconds) seconds="$2"; shift 2 ;;
+	--profile-from) profile_from="$2"; shift 2 ;;
+	--profile-seconds) profile_seconds="$2"; shift 2 ;;
+	--scenario) scenario="$2"; shift 2 ;;
+	--out) out="$2"; shift 2 ;;
+	-h | --help) usage; exit 0 ;;
+	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
+	*) build="$1"; shift ;;
+	esac
+done
+[[ -n "${build}" ]] || { usage >&2; exit 2; }
+build=$(cd "${build}" && pwd)
+for bin in botropolis botropolisd; do
+	[[ -x "${build}/${bin}" ]] || { echo "no ${bin} in ${build}" >&2; exit 1; }
+done
+
+out="${out:-${XDG_STATE_HOME:-$HOME/.local/state}/botropolis-perf/busy-$(date +%Y%m%d-%H%M%S)}"
+mkdir -p "${out}"
+note() { echo "$1" >>"${out}/busy.txt"; }
+say() { echo "# $1" >&2; }
+
+work=$(mktemp -d)
+home="${work}/home"
+pids=()
+cleanup() {
+	for p in "${pids[@]}"; do kill "${p}" 2>/dev/null || true; done
+	wait 2>/dev/null || true
+	[[ -x "${work}/botropolis-demo" ]] && "${work}/botropolis-demo" unstage --home "${home}" >/dev/null 2>&1
+	rm -rf "${work}"
+}
+trap cleanup EXIT
+
+src="${build}/src"
+[[ -d "${src}/cmd/botropolis-demo" ]] || src="${repo}/botropolis"
+(cd "${src}" && go build -o "${work}/botropolis-demo" ./cmd/botropolis-demo) || { echo "could not build the demo stager from ${src}" >&2; exit 1; }
+corpus="${repo}/botropolis/demo"
+[[ -d "${src}/demo/corpus" ]] && corpus="${src}/demo"
+"${work}/botropolis-demo" stage --corpus "${corpus}/corpus" --scenario "${corpus}/scenarios/${scenario}.yaml" --home "${home}" --hold 3h >/dev/null ||
+	{ echo "could not stage ${scenario}" >&2; exit 1; }
+python3 -I "${here}/perf.py" busy-home "${HOME}/.claude" "${home}" || exit 1
+note "scenario=${scenario} writers=${writers} every_ms=200 seconds=${seconds}"
+note "linked_transcripts=$(find "${home}/.claude/projects" -type l -name '*.jsonl' | wc -l) scratch_transcripts=$(find "${home}/.claude/projects" -type f -name '*.jsonl' | wc -l)"
+
+mkdir -p "${work}/state" "${work}/run/botropolis" "${work}/config/botropolis" "${work}/stub"
+printf '#!/bin/sh\nexit 1\n' >"${work}/stub/claude"
+chmod +x "${work}/stub/claude"
+config="${XDG_CONFIG_HOME:-$HOME/.config}/botropolis/config.toml"
+[[ -f "${config}" ]] && cp "${config}" "${work}/config/botropolis/config.toml"
+sock="${work}/run/botropolis/botropolis.sock"
+PATH="${work}/stub:${PATH}" XDG_STATE_HOME="${work}/state" XDG_RUNTIME_DIR="${work}/run" XDG_CONFIG_HOME="${work}/config" \
+	"${build}/botropolisd" --home "${home}" --socket "${sock}" >"${out}/daemon.log" 2>&1 &
+pids+=($!)
+for _ in $(seq 90); do [[ -S "${sock}" ]] && break; sleep 1; done
+[[ -S "${sock}" ]] || { echo "the daemon did not open its socket" >&2; exit 1; }
+sleep 60
+
+handback=0
+if command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
+	handback=1
+	prev=$(i3-msg -t get_tree | python3 -I -c 'import json,sys
+def w(n):
+    if n.get("focused"): print(n["id"]); return True
+    return any(w(k) for k in n.get("nodes",[])+n.get("floating_nodes",[]))
+w(json.load(sys.stdin))')
+else
+	say "focus hand-back skipped: it needs i3-msg and xprop; the window keeps whatever focus the desktop gives it"
+	note "focus_handback=skipped (no i3-msg or xprop)"
+fi
+if command -v xset >/dev/null; then
+	note "monitor_at_start=$(xset q 2>/dev/null | grep -io 'monitor is [a-z]*' || echo unknown)"
+else
+	say "monitor check skipped: it needs xset"
+	note "monitor=unchecked (no xset)"
+fi
+note "load_at_start=$(cut -d' ' -f1-3 /proc/loadavg)"
+
+PERF_PPROF=127.0.0.1:6078 XDG_RUNTIME_DIR="${work}/run" XDG_STATE_HOME="${work}/state" XDG_CONFIG_HOME="${work}/config" \
+	"${here}/perf-city" --bin "${build}/botropolis" --seconds "${seconds}" --interval 1 --out "${out}/run" -- --socket "${sock}" 2>"${out}/perf-city.err" &
+city_run=$!
+city=""
+for _ in $(seq 300); do
+	city=$(grep -oE 'city pid [0-9]+' "${out}/perf-city.err" 2>/dev/null | awk '{print $3}')
+	[[ -n "${city}" ]] && break
+	sleep 0.1
+done
+[[ -n "${city}" ]] || { echo "the city did not start; see ${out}/perf-city.err" >&2; exit 1; }
+start=$(date +%s)
+at() { while (($(date +%s) - start < $1)); do sleep 0.2; done; }
+
+if [[ "${handback}" == 1 ]]; then
+	window=""
+	for _ in $(seq 300); do
+		for id in $(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-window-ids); do
+			[[ "$(xprop -id "${id}" _NET_WM_PID 2>/dev/null)" == *"= ${city}" ]] && window="${id}"
+		done
+		[[ -n "${window}" ]] && break
+		sleep 0.1
+	done
+	if [[ -n "${window}" ]]; then
+		i3-msg "[id=${window}] focus" >/dev/null
+		at 20
+		i3-msg "[con_id=${prev}] focus" >/dev/null && note "focus_handback=at 20 s"
+	else
+		say "focus hand-back skipped: the city's window was not found"
+		note "focus_handback=skipped (window not found)"
+	fi
+fi
+
+at 25
+python3 -I "${here}/perf.py" replay "${home}" "${writers}" "$((seconds - 25))" >"${out}/replay.txt" 2>&1 &
+pids+=($!)
+
+pprof=0
+for _ in $(seq 50); do curl -s -o /dev/null "http://127.0.0.1:6078/debug/pprof/" && { pprof=1; break; }; sleep 0.2; done
+if [[ "${pprof}" == 1 ]]; then
+	(
+		at "${profile_from}"
+		curl -s -o "${out}/cpu-${profile_from}-$((profile_from + profile_seconds)).pb.gz" "http://127.0.0.1:6078/debug/pprof/profile?seconds=${profile_seconds}"
+		curl -s -o "${out}/heap-end.pb.gz" "http://127.0.0.1:6078/debug/pprof/heap"
+	) &
+	pids+=($!)
+else
+	say "CPU profile skipped: the build has no pprof endpoint (make it with perf-pprof-build)"
+	note "profile=skipped (no pprof endpoint)"
+fi
+
+wait "${city_run}"
+command -v xset >/dev/null && note "monitor_at_end=$(xset q 2>/dev/null | grep -io 'monitor is [a-z]*' || echo unknown)"
+note "load_at_end=$(cut -d' ' -f1-3 /proc/loadavg)"
+for p in "${pids[@]:1}"; do wait "${p}" 2>/dev/null || true; done
+echo "${out}"

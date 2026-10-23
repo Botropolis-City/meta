@@ -54,6 +54,11 @@ perf-city ::
 	$(LOG) "Opening the city and sampling it for ${PERF_SECONDS}s (performance/method.md, run 3)"
 	@performance/tools/perf-city --seconds ${PERF_SECONDS}
 
+perf-busy ::
+	@[ -n "${PERF_BUILD}" ] || { echo "set PERF_BUILD to a directory perf-pprof-build made"; exit 2; }
+	$(LOG) "Replaying a busy desk against ${PERF_BUILD} (performance/method.md, run 6)"
+	@flock /tmp/botropolis-land.lock performance/tools/perf-busy-city ${PERF_BUILD}
+
 publishable :: docs-check
 	$(LOG) "Checking nothing unpublishable is in the repository"
 	@tools/check-publishable

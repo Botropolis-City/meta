@@ -1,7 +1,10 @@
+import datetime
 import json
 import os
 import re
 import sys
+import time
+import uuid
 
 UNITS_KIB = {'B': 1 / 1024, 'KiB': 1, 'kB': 1, 'MiB': 1024, 'GiB': 1024 * 1024}
 
@@ -253,5 +256,95 @@ def i3_window_ids(tree):
     return ids
 
 
-if __name__ == '__main__' and sys.argv[1:2] == ['i3-window-ids']:
-    print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))
+def busy_home(real_claude, home):
+    claude = os.path.join(home, '.claude')
+    projects = os.path.join(real_claude, 'projects')
+    for project in sorted(os.listdir(projects)) if os.path.isdir(projects) else []:
+        src = os.path.join(projects, project)
+        if not os.path.isdir(src):
+            continue
+        dst = os.path.join(claude, 'projects', project)
+        os.makedirs(dst, exist_ok=True)
+        for name in sorted(os.listdir(src)):
+            path = os.path.join(src, name)
+            if name.endswith('.jsonl') or os.path.isdir(path):
+                link = os.path.join(dst, name)
+                if not os.path.lexists(link):
+                    os.symlink(path, link)
+    sessions = os.path.join(real_claude, 'sessions')
+    os.makedirs(os.path.join(claude, 'sessions'), exist_ok=True)
+    for name in sorted(os.listdir(sessions)) if os.path.isdir(sessions) else []:
+        link = os.path.join(claude, 'sessions', name)
+        if name.endswith('.json') and not os.path.lexists(link):
+            os.symlink(os.path.join(sessions, name), link)
+    history = os.path.join(real_claude, 'history.jsonl')
+    if os.path.exists(history):
+        link = os.path.join(claude, 'history.jsonl')
+        if os.path.lexists(link):
+            os.remove(link)
+        os.symlink(history, link)
+
+
+def replay_targets(home):
+    claude = os.path.join(home, '.claude')
+    targets = []
+    sessions = os.path.join(claude, 'sessions')
+    for name in sorted(os.listdir(sessions)) if os.path.isdir(sessions) else []:
+        record = os.path.join(sessions, name)
+        if os.path.islink(record) or not name.endswith('.json'):
+            continue
+        with open(record) as f:
+            r = json.load(f)
+        sid, cwd = r.get('sessionId'), r.get('cwd')
+        projects = os.path.join(claude, 'projects')
+        for project in sorted(os.listdir(projects)) if os.path.isdir(projects) else []:
+            path = os.path.join(projects, project, '%s.jsonl' % sid)
+            if os.path.isfile(path) and not os.path.islink(path):
+                targets.append((sid, cwd, path))
+                break
+    return targets
+
+
+def replay_line(session_id, cwd, i, timestamp):
+    return {'type': 'user', 'sessionId': session_id, 'cwd': cwd, 'uuid': str(uuid.uuid4()),
+            'timestamp': timestamp, 'message': {'role': 'user', 'content': 'replay %d' % i}}
+
+
+def append_line(path, line):
+    if os.path.islink(path):
+        raise PermissionError('refusing to write through a symlink: %s' % path)
+    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
+    with os.fdopen(fd, 'a') as f:
+        f.write(json.dumps(line) + '\n')
+
+
+def replay(home, writers, seconds, every=0.2):
+    targets = replay_targets(home)[:writers]
+    if len(targets) < writers:
+        sys.exit('only %d live transcripts of the scratch home itself to write to' % len(targets))
+    print('replaying into %d transcripts' % len(targets), flush=True)
+    end = time.time() + seconds
+    i = 0
+    while time.time() < end:
+        now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
+        for sid, cwd, path in targets:
+            append_line(path, replay_line(sid, cwd, i, now))
+        i += 1
+        time.sleep(every)
+    print('appended %d lines to each' % i, flush=True)
+
+
+USAGE = """usage: perf.py i3-window-ids < tree.json
+       perf.py busy-home REAL_CLAUDE_DIR HOME   link every transcript, session record and history.jsonl into HOME/.claude, read only
+       perf.py replay HOME WRITERS SECONDS      a user line every 200 ms into each of WRITERS of HOME's own live transcripts"""
+
+if __name__ == '__main__':
+    cmd = sys.argv[1:2]
+    if cmd == ['i3-window-ids']:
+        print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))
+    elif cmd == ['busy-home'] and len(sys.argv) == 4:
+        busy_home(sys.argv[2], sys.argv[3])
+    elif cmd == ['replay'] and len(sys.argv) == 5:
+        replay(sys.argv[2], int(sys.argv[3]), float(sys.argv[4]))
+    else:
+        sys.exit(USAGE)
