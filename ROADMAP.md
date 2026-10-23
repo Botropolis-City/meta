@@ -44,11 +44,10 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [183](roadmap/183-the-top-down-draw-path-is-unreachable.md) | `pkg/render` still carries the top-down drawing path, which the app no longer reaches | — | nobody, dead code |
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
-| [198](roadmap/198-group-detection-s-pair-cache-grows-with-the-square-of-sessions.md) | group detection's pair cache grows with the square of sessions: 415 MB at 2,000 | — | nobody, a defect |
-| [203](roadmap/203-the-first-load-runs-unpaced-before-the-map.md) | the daemon's first load runs unpaced (100–112% for ~9 s) and holds the map to ~9 s on a 3.3 GiB home | 159 | nobody |
 | [204](roadmap/204-the-ingest-could-run-in-a-child-process.md) | the ingest shares the daemon's process, so its CPU priority can't be lowered on macOS: run it as a child process | 200 | nobody |
 | [205](roadmap/205-a-daemon-load-reads-every-stopped-transcript-again.md) | every rescan loads the whole catalogue again: 6.5% of a core at 2,000 sessions | — | nobody |
 | [206](roadmap/206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md) | the city lays itself out whole on snapshots that shape nothing (~7 ms each) | — | nobody |
+| [207](roadmap/207-an-unfocused-city-redraws-the-whole-world-per-change.md) | an unfocused city redraws the whole world per change, standing layer unused: 2.74% busy vs 1% | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria

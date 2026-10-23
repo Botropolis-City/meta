@@ -11,3 +11,5 @@ Depends on: nothing
 A rescan does work in proportion to what changed: the catalogue keeps each stopped transcript's entry and re-stats only directories the watcher saw change (item 196's index already knows which); `Build` reuses the sessions whose inputs are unchanged, with a from-scratch build as the oracle, as items 158 and 197 did.
 
 Tests: item 198's 2,000-session acceptance case turns from "unmet" into a gate at 2% (the quieter of two windows, as item 196's does); a rescan after one session writes stats no stopped transcript; built snapshots equal from-scratch at every step of a replay.
+
+**Busy measurement** (benchmark session, 2026-10-22): with two sessions each writing a line every 200 ms, the scratch daemon used **4.7–5.1% of a core** against 2% (item 196's acceptance test, with one session on a synthetic home, passes at ≤ 2%). The per-rescan load this item names is the likely remainder; measure it with two or more writers.

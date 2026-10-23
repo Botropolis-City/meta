@@ -11,3 +11,5 @@ Depends on: nothing
 Skip or narrow the build when a snapshot changes nothing that shapes the city (activity times, counters, scan progress), and reuse placed groups and lines while their inputs are equal; a from-scratch build stays the oracle.
 
 Tests: a snapshot that moves only activity times builds nothing again and draws what a from-scratch build draws; item 201's unfocused gate's measured layout share falls (report before and after).
+
+**Busy measurement** (benchmark session, 2026-10-22, real GPU, two sessions writing every 200 ms): `city.build` is 22% of an unfocused city's 2.74% of a core. The rest is drawing, filed as item 207.
