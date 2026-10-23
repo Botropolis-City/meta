@@ -1,6 +1,6 @@
 # 66. The city holds about 115 MB of private dirty, and the atlas is not in it (curiosity)
 
-**Open.**
+**Closed 2026-10-23 by adjudication: superseded by item 162.**
 
 Filed 2026-09-26 at the build session's request as a curiosity rather than a bug: nothing is broken, no bar is missed, and Aria has not asked for it.
 It is here so that it is not rediscovered in three phases as "the city holds 80 MB nobody can explain", which is exactly how item 61 arrived.
