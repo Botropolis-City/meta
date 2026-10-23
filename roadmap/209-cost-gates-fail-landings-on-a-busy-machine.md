@@ -6,6 +6,8 @@ Depends on: nothing
 Landed: slice 3 (`08f1e73`, r925).
 Landed: slice 4 (`b4304c0`, r934).
 Landed: slice 5 (`39c8518`, r940).
+Landed: slice 1 (`b1bf374`, r955).
+Landed: slice 2 (`b1bf374`, r955).
 
 Item 203's changelog-only landing failed on three gates that measure cost, none of which its change touches, and a rerun alone at a load of 15–19 failed again:
 
@@ -54,6 +56,11 @@ The same 2,000-session load run in bursts every 200 ms retired 2.2 G instruction
 **Aria's ruling (2026-10-23): calibrate `CoreRate` on bursty work**: the 2,000-session load run as the daemon runs it, a burst every 200 ms with sleeps between, unpinned, on a quiet machine, as instructions over CPU, with the sustained figures kept in the doc comment.
 Every gate's counted figure is then checked against its quiet-machine ticks before slices 1 and 2 land, and they land together, since slice 2 moves the three daemon CPU gates (items 157, 196 and 198) onto instructions too; item 205 has closed and every cost gate is this item's.
 Until then the 2,000-session daemon's CPU check skips while over 2% and fails over 4%, as the unfocused city's does (`52dd84f`, r949).
+
+**`CoreRate` is 2.025 G instructions a second**, calibrated on bursts at a load of 0.9, and the counted figure adds the process's or thread's kernel time, which the counters cannot see (`perf_event_paranoid` 2) and the budgets include (the roadmap manager, 2026-10-23); without it the smallest workloads read four to five times under their ticks.
+On a quiet machine, counted against ticks: item 157's daemon 0.27% against 0.50%, 196's 0.96–1.13% against 1.10–1.23%, 198's 2.34–2.85% against 2.12–2.32%, the hidden city 0.37% against 0.60%, the unfocused city 1.04%, and grouping 23.7 ms a prompt at 2,000 sessions.
+Two are over their budgets by both measures, so they are costs rather than load, filed as [item 213](213-the-2000-session-daemon-is-over-its-cpu-budget.md) and [item 214](214-the-dashboards-layout-sits-at-its-budget.md), and each skips while over its budget, saying its number, and fails over twice it.
+Slices 1 and 2 landed as one commit, since each needs the other to build.
 
 **The same five runs failed the test two other ways, and both are the test measuring what load moves.**
 Once the city's frame timer had not spoken within 60 s.
