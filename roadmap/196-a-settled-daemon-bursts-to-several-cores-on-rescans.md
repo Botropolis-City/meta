@@ -73,3 +73,6 @@ Deviations, all agreed with the roadmap manager:
 Left for later:
 - **Making a load incremental per file.** What remains settled is each rescan's `Build`, the catalogue's stat of every stopped transcript, and the collector.
 - **Group detection's n² pair cache.** It is [item 198](198-group-detection-s-pair-cache-grows-with-the-square-of-sessions.md).
+
+**Note, 2026-10-23 (item 205):** this item's acceptance gate, `TestSettledDaemonUnderAStreamOfChanges`, ran with `--home` until [item 205](205-a-daemon-load-reads-every-stopped-transcript-again.md)'s slice 7 (`e6b8b07`, r939), so it never opened the statistics store whose `moved` table this item added.
+With the store open, main before item 205 used 4.4–5.6% of a core there; item 205 brought it to 1.0–1.1%, and the test now runs a person's own daemon and checks the store was written.

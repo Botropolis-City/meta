@@ -1,11 +1,15 @@
 # 205. Every rescan loads the whole catalogue again, so the daemon's cost grows with the number of sessions
 
-**Open, in progress since 2026-10-22 in the session "item 205". Filed 2026-10-22 (r910), from items 196 and 198. Nobody's call — the budget is set (daemon ≤ 2% of a core, settled).**
+**Fixed 2026-10-23 (`e6b8b07`, r939). Filed 2026-10-22 (r910), from items 196 and 198. Nobody's call — the budget is set (daemon ≤ 2% of a core, settled).**
 
 Depends on: nothing
 Landed: slice 1 (`181b868`, r922).
 Landed: slice 2 (`f81791d`, r923).
 Landed: slice 3 (`b8b5ff2`, r924).
+Landed: slice 4 (`083f60e`, r936).
+Landed: slice 5 (`06f5565`, r937).
+Landed: slice 6 (`22d894a`, r938).
+Landed: slice 7 (`e6b8b07`, r939).
 
 [Item 196](196-a-settled-daemon-bursts-to-several-cores-on-rescans.md) made a settled rescan cheap on a home of a few hundred sessions and left one thing named for later: **making a load incremental per file**. [Item 198](198-group-detection-s-pair-cache-grows-with-the-square-of-sessions.md) measured why it matters: on the synthetic home plus 2,000 small sessions, with one session working and a prompt every 5 s, the settled daemon uses **6.5% of a core against 2%** (at a load of ~25, so inflated). Grouping is about 0.8% of that. The rest is the per-rescan load: the collector 38% of its CPU, `Loader.catalogue` stat'ing every stopped transcript 18%, then `Build`, `events.Observe` and the transcript index — all over every session, on every rescan.
 
@@ -47,3 +51,31 @@ Tests: item 198's 2,000-session acceptance case turns from "unmet" into a gate a
 - Slices 2 and 3: the same load fell to about 30 ms, then 18–20 ms, and what it allocates from 11 MB to 6.
 - **With the store on** (main before this item, `b34cc7e`, load 5–13): item 157's test 0.5% of a core (0.2% off); item 196's 4.4–5.6% (0.8% off), failing; this item's 2,000 sessions 45% (5.3% off) and 78 MiB of Private_Dirty, failing both.
   In a scratch build of slices 2–5 with the pass's rescans paced, item 196's was 1.1–1.2% and the 2,000 sessions 3.0–3.3%.
+
+## Closed
+
+Fixed in seven slices in botropolis, with the changelog entry (`d201840`) and a fix to item 208's release tests, which slept in real time (`43d9545`), after them:
+- `181b868` (r922): the ledger saves a change to last activity alone at most once a minute, and on shutdown, and no longer reads its own file back before a save.
+- `f81791d` (r923): the watcher tells the loader which files changed and holds every project directory, so a rescan stats only the stopped transcripts that changed, plus a rolling sixtieth of the rest.
+- `b8b5ff2` (r924): the catalogue keeps its entries in place, and the built stopped sessions are kept while none of them changes.
+- `083f60e` (r936): the passes after `Build` that copied or hashed every session (the event log, the harness list, the group signature, the plant's power, the transcript index, group views) do so no longer, and a background stats pass asks the watcher for a rescan instead of rescanning at once.
+- `06f5565` (r937): a stats pass ingests only the transcripts the loader saw change, with a full ingest first and every 10 minutes.
+- `22d894a` (r938): transcript rescans are paced by their own thread CPU to 1% of a core, between 1 s and 5 s.
+- `e6b8b07` (r939): the daemon budget tests of items 157, 196 and this one run a person's own daemon, on a scratch `HOME` with the store and the ledger, and check both were written.
+
+The tests that show it:
+- `TestLoadsEqualFromScratch` holds the loader, told what a watcher would say, to a loader starting from nothing at every step of three replays of 150 steps; `TestIngestPathsEqualsIngest` holds the store's ingest by path to a full ingest over three replays of 120.
+- `TestCatalogueStats` (a rescan after one write stats that transcript and the audit's share, and everything with no watcher, after an overflow or in an unwatched directory), `TestStatsPassIngestsWhatChanged`, `TestLoaderSavesTheLedger`, `TestWatchPacesByCost` and `TestRequestRescan`.
+- `TestDaemonWithTwoThousandSessions` gates at 2%: 1.8–2.0% of a core with the store open, where main before this item used 45%.
+  Item 196's test reads 1.0–1.1% with the store (4.4–5.6% before), item 157's 0.5%.
+
+Every new check was mutated and the mutants fail, apart from one: a newly watched directory's extra look is caught by `TestCatalogueStats` but not by the replay, which always reports its writes.
+
+Deviations, all agreed with the roadmap manager:
+- **Transcript rescans are paced by their own cost**, a change to item 196's one-a-second rule; hooks still change a building at once, and nothing read from a transcript is more than 5 s late.
+- **The catalogue trusts the watcher's events** where item 196 chose modification times, with the rolling audit and full looks as the backstop.
+- **The store's ingest was made incremental here** (slice 5), because opening the store, as the tests had not, showed it was most of the cost.
+- **Item 157's test now measures from when the daemon has settled**, since with the store open a fresh daemon starts its first-launch ingest.
+- Two gates skip while over their limits and fail over a ceiling: Private_Dirty at 2,000 sessions with the store open, 62–63 MiB against 64 and 80 at most, is [item 211](211-the-statistics-store-adds-21-mib-at-2000-sessions.md); a prompt's whole next load at 2,000 sessions, 31–60 ms against 50 and 90 at most, is [item 210](210-a-prompt-costs-over-50-ms-at-2000-sessions.md).
+
+Owed: the benchmark session's busy re-run with the store on, at r939 or later, which it appends under *Measured* when the machine is quiet.

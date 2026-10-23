@@ -45,7 +45,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
 | [204](roadmap/204-the-ingest-could-run-in-a-child-process.md) | the ingest shares the daemon's process, so its CPU priority can't be lowered on macOS: run it as a child process | 200 | nobody |
-| [205](roadmap/205-a-daemon-load-reads-every-stopped-transcript-again.md) | every rescan loads the whole catalogue again: 6.5% of a core at 2,000 sessions | — | nobody |
 | [206](roadmap/206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md) | the city lays itself out whole on snapshots that shape nothing (~7 ms each) | — | nobody |
 | [207](roadmap/207-an-unfocused-city-redraws-the-whole-world-per-change.md) | an unfocused city redraws the whole world per change (in CPU: the layer is reused): 2.74% busy vs 1% | 206 (slice 2) | nobody |
 | [209](roadmap/209-cost-gates-fail-landings-on-a-busy-machine.md) | cost gates fail landings at random under load: wall-clock layout timing, per-prompt cost, a cache-key test | — | nobody, a defect |
