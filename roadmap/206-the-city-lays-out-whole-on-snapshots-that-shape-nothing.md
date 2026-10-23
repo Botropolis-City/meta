@@ -5,6 +5,7 @@
 Depends on: nothing
 Landed: slice 1 (`66ea0d6`, r931).
 Landed: slice 2 (`6fc0674`, r932).
+Landed: slice 3 (`3fb64ad`, r941).
 
 [Item 197](197-the-city-lays-itself-out-again-on-every-snapshot.md) made the city reuse its plan and group orders between snapshots, and [item 201](201-the-daemon-sends-the-whole-snapshot-on-every-update.md) sent only what changed. But `city.build` still runs whole on every snapshot, even one where only activity times moved: about 7 ms a snapshot on item 197's city, so laying out was 0.85% of a core of the unfocused dashboard's 1%. Item 201 took a fifth of it out (`DistrictNames`) and the gate passes at 0.72%, with `placeGroups`, `placeLines`, `orderSites` and the collector left — thin margin for a gate everyone's landings run.
 
@@ -42,6 +43,11 @@ The buildings are still made fresh for every snapshot, because each carries its 
    A detail change moves it too.
    It is tested against a from-scratch build in every case; whether the list misses a field `composeStatic` reads is guarded by item 207's randomised render check (the manager, 2026-10-22).
    Landing it failed once on the unfocused gate, at 1.15% inside the full suite at a load of 14, against 0.73% rerun alone; item 209 has since made that case log and skip.
-3. **The rest of an activity-only snapshot**: groups' order input, the districts, and the garbage `build` makes.
-   `Breakdown`'s SQL query is not in it: the ledger already reuses a window for `LedgerCache` and the sessions' costs for 30 s, so it runs on a timer, not per snapshot.
+3. **The streets are laid once per plan, heading and walks** (r941).
+   With the walks remembered, laying road on the corridors was about a fifth of what was left.
+   It reads the walks' paths and otherwise only what the plan decides (corridors, bridge, island, the plan's lamps and trees), so what was laid last for each heading stands while the plan and every path are what they were.
+   An activity-only snapshot went from 8.5–12 ms to 7.0–7.3 ms, and one changing a session's state from 10 ms to 4.8–6.8 ms.
+   Building the groups' order input (about 2 ms a snapshot here) is left alone unless the real measurement says it matters (the manager, 2026-10-23), since a key over every member's order lines costs about what building it does.
+   `Breakdown`'s SQL query is not per snapshot: the ledger reuses a window for `LedgerCache` and the sessions' costs for 30 s.
 4. **The gate's city gets roads** like the real history's, with its layout share reported before and after, so the gate is as hard as what users pay (the manager, 2026-10-22).
+   The test asserts the daemon made all 80 before it measures, so a change to how edits become roads cannot quietly return it to a roadless fixture (the manager, 2026-10-23).
