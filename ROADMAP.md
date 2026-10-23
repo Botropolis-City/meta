@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [207](roadmap/207-an-unfocused-city-redraws-the-whole-world-per-change.md) | an unfocused city redraws the whole world per change (in CPU: the layer is reused): 2.74% busy vs 1% | 206 (slice 2) | nobody |
 | [209](roadmap/209-cost-gates-fail-landings-on-a-busy-machine.md) | cost gates fail landings at random under load: wall-clock layout timing, per-prompt cost, a cache-key test | — | nobody, a defect |
 | [210](roadmap/210-a-prompt-costs-over-50-ms-at-2000-sessions.md) | a prompt costs 55–68 ms of CPU on the next load at 2,000 sessions, against 50 | — | nobody |
-| [211](roadmap/211-the-statistics-store-adds-21-mib-at-2000-sessions.md) | the statistics store adds ~21 MiB of the daemon's memory at 2,000 sessions: 63 MiB against 64 | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
