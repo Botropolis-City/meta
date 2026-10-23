@@ -1,6 +1,6 @@
 # 215. The city's cost breakdown re-reads the statistics store and costs 3.6% of a core on a real history
 
-**Open. Filed 2026-10-23 (r954), from the benchmark session's busy run. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
+**Open, in progress since 2026-10-23 in the session "item 215". Filed 2026-10-23 (r954), from the benchmark session's busy run. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
 
 Depends on: nothing
 
