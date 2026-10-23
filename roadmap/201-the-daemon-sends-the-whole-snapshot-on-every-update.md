@@ -1,10 +1,11 @@
 # 201. The daemon sends the whole snapshot on every update, so a watching city can't idle
 
-**Open, in progress since 2026-10-22 in the session "item 201". Filed 2026-10-22 (r889), from item 197's measurements. Nobody's call — Aria's dashboard ruling sets the budget.**
+**Fixed 2026-10-22 (`df3fbbe`, r913). Filed 2026-10-22 (r889), from item 197's measurements. Nobody's call — Aria's dashboard ruling sets the budget.**
 
 Depends on: 197
 Landed: slice 1 (`120b5b3`, r907).
 Landed: slice 2 (`a085aed`, r910).
+Landed: slice 3 (`df3fbbe`, r913).
 
 Aria, 2026-10-21, in item 197: *"I do want this to be able to just sit unfocused on another monitor so I can watch it as a dashboard"*, redrawn on changes only, aiming at 1% of a core. That overrides [item 22](022-cpu-and-memory-while-unwatched.md)'s rule that an unfocused city draws nothing.
 [Item 197](197-the-city-lays-itself-out-again-on-every-snapshot.md) measured a city of 200 sessions in 150 projects, 25 of them live, with a line written every 200 ms and the daemon rescanning once a second: **about 220 KB of snapshot a second reaches the city, and decoding it (`encoding/json` in `proto.Client.readUpdate`) is 86% of a hidden city's CPU** — about 1.2% of a core before anything is laid out or drawn. Item 197's slice 4 unsubscribes a hidden city, but a watched one, focused or not, keeps paying it.
@@ -40,8 +41,27 @@ Planned with the roadmap manager on 2026-10-22, which approved the test trees an
    Landed r910. The client times only the decoding of each line, not the wait for it, and the frame timer's QUIET line carries `snapshots=`, `decoding=` and `layout=`.
    Decoding was then 0.09% of a core; laying out was 0.85%, because `city.build` still runs whole for a snapshot that moves only activity times (about 7 ms on the real-sized city), which left the gate at 0.93%.
    A fifth of `build` was naming the districts by holding every root against every other, so the tails are now counted once each, against the old naming kept as an oracle (`TestDistrictNamesAgreeWithTheOracle`, 4× on 200 roots): **0.72% of a core**, 11 ms decoding and 97 ms laying out in 15 s, at a load average of 12. Process CPU, logged beside it: 8.6% outside the software rasteriser, 29% in it.
-   The rest of `build` (placing groups, lines and streets, and the garbage it makes) is not incremental yet; it would be its own item.
+   The rest of `build` (placing groups, lines and streets, and the garbage it makes) is not incremental yet: that is [item 206](206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md).
    The test now settles on the frame timer's first line instead of 20 s and streams 15 s instead of 30. Its two cases stay serial, because the X helpers set `XAUTHORITY` for the process, which `t.Parallel` forbids.
 3. **A hidden city's subscription**: measure staying subscribed while hidden against the 5 s glance, and drop the glance if it costs no more.
+   Landed r913. Two runs each on item 197's city over 15 s: the glance cost 0.66% of a core and read 659–707 KiB; staying subscribed cost 0.53–0.60% and read 7 KiB.
+   So the glance is gone (the manager, 2026-10-22), and a hidden city stays subscribed, holding its snapshots and laying out none until it can be seen.
+   **This reverses item 197's deviation that a hidden city's title is up to 5 s behind**: it says at once again that someone needs you.
+   The hidden case now asserts it was streamed what changed and read no whole snapshot.
 
 **Measured on the real GPU, quiet desk** (benchmark session, 2026-10-22, 265U iGPU, real history, unfocused and visible, 450 s): r910 used **0.90% of a core** mean (p95 2.9%, max 15.6%), r905 0.80% — only one or two transcripts were written during the runs, so this is the quiet case and the two builds cannot be told apart; a controlled busy run (replayed writes) is being taken. Of r910's 0.90%, the Go side is about 0.33%; the rest is GL driver and C time. Raw: `~/.local/state/botropolis-perf/unfocused-r910-real-20261022-171721/`.
+
+## Closed
+
+Fixed in three slices, r907–r913.
+The daemon sends a subscription the whole snapshot once and then what changed, and on item 197's city of 200 sessions that took the stream from 262.6 KiB/s to 0.5 KiB/s (`TestTheStreamOnABusyCity`).
+A client fed deltas holds the same snapshot as one fed whole snapshots at every step of a replay (`TestDeltas`), and a delta on a base it does not hold ends the stream, so the city attaches again for a whole one.
+`TestAnUnwatchedCityUnderAStreamOfSnapshots` now gates both cases at 1% of a core: a hidden city on its process CPU (0.53%), and an unfocused, visible one on the time it counts decoding and laying out (0.72–0.79%), with its process CPU logged beside it.
+The test costs about 35 s a case instead of a minute.
+
+**Deviations, for Aria:**
+
+- **The unfocused gate covers decoding and laying out, not the whole process.** Your 1% for the dashboard is the whole process, drawing included, and a virtual display draws in software, so drawing is measured on the real GPU instead: 0.90% of a core on a quiet desk (the note above), with a busy run still to come.
+- **Laying out is most of what is left**, about 7 ms a snapshot, because the city still lays itself out whole for a snapshot that moves only activity times; that is [item 206](206-the-city-lays-out-whole-on-snapshots-that-shape-nothing.md).
+- **Two changes outside the protocol**: the districts are named in linear time, against the old naming kept as an oracle, which bought the gate its margin; and the hidden city's 5 s glance is gone, so its title is current again.
+- **The test's two cases stay serial**, not parallel as item 202 suggested, because the X helpers set `XAUTHORITY` for the whole process.

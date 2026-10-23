@@ -45,7 +45,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [187](roadmap/187-a-demo-clip-filmed-for-over-an-hour-loses-its-sessions.md) | a demo clip that takes over an hour to film loses its live sessions partway, since stand-ins hold one wall-clock hour | — | nobody, a defect |
 | [190](roadmap/190-a-statistics-store-that-will-not-open-turns-statistics-off-silently.md) | a statistics store that will not open turns statistics off with no log, doctor row or notice | — | nobody, a defect |
 | [198](roadmap/198-group-detection-s-pair-cache-grows-with-the-square-of-sessions.md) | group detection's pair cache grows with the square of sessions: 415 MB at 2,000 | — | nobody, a defect |
-| [201](roadmap/201-the-daemon-sends-the-whole-snapshot-on-every-update.md) | the daemon sends the whole snapshot on every update (~220 KB/s), so a watching city can't idle: send deltas | 197 | nobody |
 | [203](roadmap/203-the-first-load-runs-unpaced-before-the-map.md) | the daemon's first load runs unpaced (100–112% for ~9 s) and holds the map to ~9 s on a 3.3 GiB home | 159 | nobody |
 | [204](roadmap/204-the-ingest-could-run-in-a-child-process.md) | the ingest shares the daemon's process, so its CPU priority can't be lowered on macOS: run it as a child process | 200 | nobody |
 | [205](roadmap/205-a-daemon-load-reads-every-stopped-transcript-again.md) | every rescan loads the whole catalogue again: 6.5% of a core at 2,000 sessions | — | nobody |
