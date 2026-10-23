@@ -1,6 +1,6 @@
 # 211. The statistics store adds about 21 MiB of the daemon's memory at 2,000 sessions
 
-**Open. Filed 2026-10-23 (r928), from item 205. Nobody's call — the budget is set (daemon ≤ 64 MiB of `Private_Dirty`, settled).**
+**Open, in progress since 2026-10-23 in the session "item 211". Filed 2026-10-23 (r928), from item 205. Nobody's call — the budget is set (daemon ≤ 64 MiB of `Private_Dirty`, settled).**
 
 Depends on: nothing
 

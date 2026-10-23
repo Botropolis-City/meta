@@ -1,6 +1,6 @@
 # 210. A prompt costs over 50 ms of CPU on the next load at 2,000 sessions
 
-**Open. Filed 2026-10-23 (r924), from item 205. Nobody's call — the budget is set (item 158: 50 ms of CPU a prompt).**
+**Open, in progress since 2026-10-23 in the session "item 210". Filed 2026-10-23 (r924), from item 205. Nobody's call — the budget is set (item 158: 50 ms of CPU a prompt).**
 
 Depends on: nothing
 
