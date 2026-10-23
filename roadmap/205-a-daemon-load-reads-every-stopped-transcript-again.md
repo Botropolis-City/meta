@@ -1,6 +1,6 @@
 # 205. Every rescan loads the whole catalogue again, so the daemon's cost grows with the number of sessions
 
-**Open. Filed 2026-10-22 (r910), from items 196 and 198. Nobody's call — the budget is set (daemon ≤ 2% of a core, settled).**
+**Open, in progress since 2026-10-22 in the session "item 205". Filed 2026-10-22 (r910), from items 196 and 198. Nobody's call — the budget is set (daemon ≤ 2% of a core, settled).**
 
 Depends on: nothing
 

@@ -1,6 +1,6 @@
 # 206. The city lays itself out whole on snapshots that change nothing it draws
 
-**Open. Filed 2026-10-22 (r910), from item 201. Nobody's call — the budget is set (an unfocused city ≤ 1% of a core).**
+**Open, in progress since 2026-10-22 in the session "item 206". Filed 2026-10-22 (r910), from item 201. Nobody's call — the budget is set (an unfocused city ≤ 1% of a core).**
 
 Depends on: nothing
 

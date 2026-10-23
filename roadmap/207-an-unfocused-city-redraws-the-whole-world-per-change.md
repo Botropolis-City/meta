@@ -1,6 +1,6 @@
 # 207. An unfocused city redraws the whole world on every change, without the standing city
 
-**Open. Filed 2026-10-22 (r916), from the benchmark session's busy run after item 201. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
+**Open, in progress since 2026-10-22 in the session "item 207". Filed 2026-10-22 (r916), from the benchmark session's busy run after item 201. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
 
 Depends on: nothing
 
