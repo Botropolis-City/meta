@@ -13,3 +13,5 @@ A rescan does work in proportion to what changed: the catalogue keeps each stopp
 Tests: item 198's 2,000-session acceptance case turns from "unmet" into a gate at 2% (the quieter of two windows, as item 196's does); a rescan after one session writes stats no stopped transcript; built snapshots equal from-scratch at every step of a replay.
 
 **Busy measurement** (benchmark session, 2026-10-22): with two sessions each writing a line every 200 ms, the scratch daemon used **4.7–5.1% of a core** against 2% (item 196's acceptance test, with one session on a synthetic home, passes at ≤ 2%). The per-rescan load this item names is the likely remainder; measure it with two or more writers.
+
+**Caveat on the 4.7–5.1% busy figure** (benchmark session, 2026-10-22): the replay ran its daemon with `--home`, and since item 165 a daemon pointed at a home opens no statistics store, so it never did the per-change ingest a real daemon does. The production daemon under two writers is likely higher. The replay tool will run the daemon with a scratch `HOME` (and scratch XDG dirs) so it behaves as production; re-run this item's busy case with the store on before closing.
