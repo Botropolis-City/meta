@@ -1,6 +1,6 @@
 # 162. The city holds gigabytes of GPU memory, which on integrated graphics is system RAM
 
-**Open, in progress since 2026-10-22 in the session "item 162". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — the budget is set.**
+**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — the budget is set.**
 
 Depends on: nothing
 Landed: slice 1 (`b2ec8b6`, r886).
@@ -85,3 +85,10 @@ Slice 9 lets the scratch a pan shifts layers through go 300 frames after the las
 Slice 10 makes the shore its own texture; the atlas stays at 1024², and the images went from 247 MiB to 235.
 Slice 11 packs the kit atlases a page at a time (`tools/render-sprites/pack.py`, used by `render.py` and by `tools/repack-atlas`): z2 88 MiB of texture to 66, z1 24 to 18, every sprite's pixels identical, checked by `tools/atlas-diff.py`, which now compares a re-laid level sprite by sprite, and by a per-sprite comparison.
 **Slice 12 was dropped** (the roadmap manager, 2026-10-23): the look pages are already powers of two, and the two panel bakes are each taller than 1024, so packed together they still need one 2048² page, the 16 MiB they cost now; with the strips it would save about 2.5.
+
+**Where it stops, and what it waits on** (2026-10-23, released by the session "item 162" at the roadmap manager's word). At r964 fully zoomed in on the real history the city is estimated at about 550 MiB own plus GPU and fit at about 450 (the r962 texture census applied to r954's display figures; the benchmark session is measuring r964 on the real display for 0.3.0), so about 35 MiB over 512 fully zoomed in.
+The rest waits on **two visual calls Aria makes after 0.3.0**, which the roadmap manager will put to her with frames:
+1. **A coarser shore texel**, so the shore's texture fits 1024 a side: on the real history it is 1464×1416 at 4 world units a texel, a 2048² texture, 16 MiB, and at about 5.7 it would be 1024², 4 MiB, **−12 MiB** at fit and full zoom alike; the shore's bands are soft gradients drawn with linear filtering.
+2. **A middle kit level**, cut at about zoom 1.5 and drawn up to 2.0 in place of z2: about 56% of z2's sprite area, so roughly 2.2 pages against z2's 4.1, **about −30 MiB or more** fully zoomed in, with slightly softer sprites at the closest zoom.
+Either would bring full zoom near the budget and both under it. Beyond them nothing here explains the ~110 MiB of the i915 figure that is no image and no vertex buffer (Mesa's own; resident, not purgeable).
+How to measure what a change does: build the city against a scratch copy of Ebitengine (a `replace` in a copy of the tree, never committed) that logs its backends with their internal sizes and what sits on its shared atlas, and run it on a copy of the state directory under Xvfb with the window at 1920×1200, holding the landing lock; texture sizes do not depend on the renderer.
