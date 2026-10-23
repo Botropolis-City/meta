@@ -11,7 +11,8 @@ UNITS_KIB = {'B': 1 / 1024, 'KiB': 1, 'kB': 1, 'MiB': 1024, 'GiB': 1024 * 1024}
 SAMPLE_FIELDS = [
     'ts', 'elapsed_s', 'pid', 'comm', 'cpu_pct',
     'rss_kib', 'pss_kib', 'pss_anon_kib', 'pss_file_kib', 'private_dirty_kib', 'swap_kib',
-    'gpu_kib', 'threads', 'fds', 'read_kib_s', 'write_kib_s', 'mem_available_kib',
+    'gpu_kib', 'gpu_shared_kib', 'gpu_resident_kib', 'gpu_purgeable_kib', 'gpu_active_kib', 'gpu_regions',
+    'threads', 'fds', 'read_kib_s', 'write_kib_s', 'mem_available_kib',
 ]
 
 SUMMARY_METRICS = [
@@ -20,6 +21,10 @@ SUMMARY_METRICS = [
     ('pss_kib', 'pss_mib', 1024),
     ('swap_kib', 'swap_mib', 1024),
     ('gpu_kib', 'gpu_mib', 1024),
+    ('gpu_shared_kib', 'gpu_shared_mib', 1024),
+    ('gpu_resident_kib', 'gpu_resident_mib', 1024),
+    ('gpu_purgeable_kib', 'gpu_purgeable_mib', 1024),
+    ('gpu_active_kib', 'gpu_active_mib', 1024),
     ('threads', 'threads', 1),
     ('fds', 'fds', 1),
     ('read_kib_s', 'read_mib_s', 1024),
@@ -38,7 +43,10 @@ def parse_smaps_rollup(text):
     return out
 
 
-def drm_total_kib(fdinfos):
+DRM_KINDS = ('total', 'shared', 'resident', 'purgeable', 'active')
+
+
+def drm_clients(fdinfos):
     clients = {}
     for text in fdinfos:
         fields = {}
@@ -47,15 +55,38 @@ def drm_total_kib(fdinfos):
             fields[key.strip()] = value.strip()
         if 'drm-client-id' not in fields:
             continue
-        total = 0
+        regions = {}
         for key, value in fields.items():
-            if key.startswith('drm-total-'):
-                amount, _, unit = value.partition(' ')
-                total += int(amount) * UNITS_KIB.get(unit or 'B', 1)
-        clients[(fields.get('drm-driver'), fields['drm-client-id'])] = total
+            for kind in DRM_KINDS:
+                prefix = 'drm-%s-' % kind
+                if key.startswith(prefix):
+                    amount, _, unit = value.partition(' ')
+                    region = regions.setdefault(key[len(prefix):], dict.fromkeys(DRM_KINDS, 0))
+                    region[kind] += int(amount) * UNITS_KIB.get(unit or 'B', 1)
+        clients[(fields.get('drm-driver'), fields['drm-client-id'])] = regions
+    return clients
+
+
+def drm_kib(fdinfos, kind):
+    clients = drm_clients(fdinfos)
     if not clients:
         return None
-    return int(sum(clients.values()))
+    return int(sum(r[kind] for regions in clients.values() for r in regions.values()))
+
+
+def drm_total_kib(fdinfos):
+    return drm_kib(fdinfos, 'total')
+
+
+def drm_regions(fdinfos):
+    by_region = {}
+    for regions in drm_clients(fdinfos).values():
+        for name, amounts in regions.items():
+            into = by_region.setdefault(name, dict.fromkeys(DRM_KINDS, 0))
+            for kind in DRM_KINDS:
+                into[kind] += amounts[kind]
+    return ' '.join('%s=%s' % (name, '/'.join(str(int(by_region[name][k])) for k in DRM_KINDS))
+                    for name in sorted(by_region))
 
 
 def cpu_percent(before_ticks, after_ticks, clk_tck, interval_s):
@@ -217,6 +248,11 @@ def proc_snapshot(pid):
         'private_dirty_kib': rollup.get('Private_Dirty'),
         'swap_kib': rollup.get('Swap'),
         'gpu_kib': drm_total_kib(fdinfos),
+        'gpu_shared_kib': drm_kib(fdinfos, 'shared'),
+        'gpu_resident_kib': drm_kib(fdinfos, 'resident'),
+        'gpu_purgeable_kib': drm_kib(fdinfos, 'purgeable'),
+        'gpu_active_kib': drm_kib(fdinfos, 'active'),
+        'gpu_regions': drm_regions(fdinfos),
         'threads': int(threads[1]) if threads else None,
         'fds': len(fds),
     }

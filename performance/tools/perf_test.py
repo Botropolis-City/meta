@@ -67,6 +67,61 @@ class WhenSummingDrmFdinfo(unittest.TestCase):
         self.assertIsNone(perf.drm_total_kib([NOT_DRM_FDINFO]))
 
 
+I915_FDINFO = """drm-driver:\ti915
+drm-client-id:\t7
+drm-total-system0:\t3 MiB
+drm-shared-system0:\t1024 KiB
+drm-active-system0:\t0
+drm-resident-system0:\t2048 KiB
+drm-purgeable-system0:\t512 KiB
+drm-total-stolen-local0:\t64 KiB
+drm-shared-stolen-local0:\t0
+drm-active-stolen-local0:\t16 KiB
+drm-resident-stolen-local0:\t64 KiB
+drm-purgeable-stolen-local0:\t0
+"""
+
+I915_FDINFO_OTHER_CLIENT = """drm-driver:\ti915
+drm-client-id:\t8
+drm-shared-system0:\t256 KiB
+"""
+
+
+class WhenReadingDrmMemoryByKind(unittest.TestCase):
+    cases = [
+        ('total', [I915_FDINFO], 3072 + 64),
+        ('shared', [I915_FDINFO], 1024),
+        ('resident', [I915_FDINFO], 2048 + 64),
+        ('purgeable', [I915_FDINFO], 512),
+        ('active', [I915_FDINFO], 16),
+        ('shared', [I915_FDINFO, I915_FDINFO], 1024),
+        ('shared', [I915_FDINFO, I915_FDINFO_OTHER_CLIENT], 1024 + 256),
+    ]
+
+    def test_it_should_sum_each_kind_over_regions_once_per_client(self):
+        for kind, fdinfos, want in self.cases:
+            with self.subTest(kind=kind, fds=len(fdinfos)):
+                self.assertEqual(perf.drm_kib(fdinfos, kind), want)
+
+    def test_and_no_fd_is_a_drm_client_it_should_report_none(self):
+        self.assertIsNone(perf.drm_kib([NOT_DRM_FDINFO], 'resident'))
+
+
+class WhenDescribingDrmRegions(unittest.TestCase):
+    def test_it_should_give_each_region_its_total_shared_resident_purgeable_and_active_kib(self):
+        self.assertEqual(perf.drm_regions([I915_FDINFO, I915_FDINFO_OTHER_CLIENT]),
+                         'stolen-local0=64/0/64/0/16 system0=3072/1280/2048/512/0')
+
+    def test_and_no_fd_is_a_drm_client_it_should_be_empty(self):
+        self.assertEqual(perf.drm_regions([NOT_DRM_FDINFO]), '')
+
+
+class WhenSamplingAProcess(unittest.TestCase):
+    def test_it_should_record_every_drm_kind_beside_the_total(self):
+        self.assertLessEqual({'gpu_shared_kib', 'gpu_resident_kib', 'gpu_purgeable_kib', 'gpu_active_kib',
+                              'gpu_regions'}, set(perf.SAMPLE_FIELDS))
+
+
 class WhenComputingCpuPercent(unittest.TestCase):
     def test_and_a_core_is_saturated_it_should_report_one_hundred(self):
         self.assertAlmostEqual(perf.cpu_percent(0, 200, 100, 2.0), 100.0)

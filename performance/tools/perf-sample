@@ -18,6 +18,11 @@ Every interval it reads, for each matching process:
   swap_kib           this process's pages in swap
   gpu_kib            drm-total-* from the DRM fdinfo of /dev/dri fds; on an
                      integrated GPU this is system RAM too, and is NOT in RSS
+  gpu_shared_kib, gpu_resident_kib, gpu_purgeable_kib, gpu_active_kib
+                     drm-shared-*, drm-resident-*, drm-purgeable-* and
+                     drm-active-*, each summed over regions, once per client
+  gpu_regions        every region's total/shared/resident/purgeable/active
+                     KiB, for the record; not summarised
   threads, fds       growth here is a leak of its own kind
   read_kib_s         rchar from /proc/<pid>/io over the interval: every byte
                      read(2) returned, page cache or not

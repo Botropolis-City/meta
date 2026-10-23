@@ -16,6 +16,7 @@ Read the rules in botropolis's `rules/` before quoting any number, especially
 | fair share | `Pss`, same file | when a shared page genuinely is a cost |
 | swap | `Swap`, same file | yes, because memory pressure hides growth here |
 | GPU memory | `drm-total-*` in `/proc/<pid>/fdinfo/<fd>` for each `/dev/dri` fd | yes; **on an integrated GPU it is system RAM and is not in any of the above** |
+| GPU memory by kind | `drm-shared-*`, `drm-resident-*`, `drm-purgeable-*` and `drm-active-*`, same fds; `gpu_regions` keeps each region | beside the total, to say how much of it is shared with another client, resident, or purgeable by the driver |
 | Go heap | `GODEBUG=gctrace=1` on stderr: `A->B->C MB`, where C is the live heap | yes, to split Go memory from driver memory |
 | I/O | `rchar` and `wchar` from `/proc/<pid>/io`, as a rate | yes for the daemon: re-reading transcripts shows up here first |
 | `VmRSS` | `/proc/<pid>/status` | **no**: it counts shared libraries (68% of a client's figure, item 61) |
