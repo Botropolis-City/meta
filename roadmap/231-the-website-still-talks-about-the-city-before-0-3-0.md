@@ -30,3 +30,8 @@ The hero (`src/components/Hero.astro`) has not changed since 2026-10-10, before 
 4. **Show Aria.** Send the manager the live URL, a full-page frame at desktop and at phone width, and a before-and-after of every sentence that changed, so she can ask for changes.
 
 Tests: the site's acceptance tests pin some copy; change them with the copy, test first where a test asserts a claim (for example, that every number on the page appears in the changelog it cites, if such a check is cheap to add).
+
+## Answered while building
+
+- **Step 1's list and the test tree** (manager, 2026-10-24): approved as sent, items 1–14 and the rewrite. Rhetoric may characterise but never exceed the changelog: "light enough to leave open" is true of a hidden or unfocused city (under 1% of a core), not a focused one (about half a core), so it says which.
+- **What lives in the app** (manager, 2026-10-24): the app's README and the demo scenarios' captions are filed as [item 232](232-the-apps-readme-and-demo-captions-predate-0-2-0.md); this item ships with the captions as they are, and 232's `make media-import` updates them.
