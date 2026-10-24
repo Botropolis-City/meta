@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`02d0bd4`, r1007).
+Landed: slice 2 (`bafd62d`, r1009).
 
 Aria, 2026-10-24, approving [item 219](219-the-bridge-ends-in-open-water.md)'s frames: *"maybe we should add some visible fog/clouds to make it make sense that it fades"*.
 Item 219 runs the bridge deck three cells past its old end and fades it toward the sea's colour; there is no haze drawn, so the deck, and the trucks on it, melt into clear water for no reason the eye can see.
