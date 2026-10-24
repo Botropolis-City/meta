@@ -25,3 +25,108 @@ CI runs the full suite on every push to `main`, and `make land` already refuses 
 Considered and not chosen: dropping acceptance from `make land` altogether and relying on CI after the push. It is fastest, but with many sessions landing, one bad push blocks every landing until it is fixed.
 
 Tests: the runner's selection is already tested in `tools/acceptance-targets/targets`; add a test that a worktree with no map of its own uses the shared one, and that a change to a cost test's package selects it. The goal, against slice 1's table: a typical one-package item landing in under 10 minutes, the full suite under 8.
+
+## Slice 1: what each test costs
+
+Measured 2026-10-24 at r969 (`1ba9d96`), with `go test -count=1 -json -timeout 40m ./testing/acceptance/...` on a quiet machine: no other item session running, 14 cores, load average 2.7 at the start and 4.1 at the end.
+The build cache was warm, so building the binary in `TestMain` took 2.5 s of it.
+
+**Wall time: 800 s**, against 957 s at the 0.3.0 release.
+The 87 top-level tests add up to 752 s, so the suite is serial in all but name: the three tests that call `t.Parallel()` at the top level ran together in the last 8.4 s.
+`TestToolchainPins` failed, and nothing in this item caused it: the machine's own Go is now 1.27.3 while the pin is 1.27.2, and its `GOTOOLCHAIN=local` case expects the version that ran to be the pin.
+
+- **The cost tier is 349 s, 46%**: the seven tests that measure CPU or memory (`hidden_cost_test.go`, `daemon_cost_test.go`, `group_cost_test.go`, `memory_test.go`).
+  The top three are 289 s by themselves.
+- **The behaviour tier is 403 s**, and no behaviour test takes more than 43 s, so run in parallel it is bounded by its longest test and by the load the others make.
+- **So two tiers alone should bring the full suite to roughly 349 s plus a minute or two**, about 7 to 8 minutes, before slice 4 shortens the cost tier's streams.
+- 66 of the 87 tests take under 2 s each, and the 21 that remain are 95% of the time.
+
+| # | test | seconds | share | cumulative | tier |
+| ---: | --- | ---: | ---: | ---: | --- |
+| 1 | `TestAnUnwatchedCityUnderAStreamOfSnapshots` | 130.1 | 17.3% | 17% | cost |
+| 2 | `TestSettledDaemonUnderAStreamOfChanges` | 80.5 | 10.7% | 28% | cost |
+| 3 | `TestDaemonWithTwoThousandSessions` | 78.4 | 10.4% | 38% | cost |
+| 4 | `TestTheCacheSeesTheBinary` | 42.8 | 5.7% | 44% | behaviour |
+| 5 | `TestTargetedRuns` | 36.9 | 4.9% | 49% | behaviour |
+| 6 | `TestDaemonUnderAStreamOfChanges` | 36.1 | 4.8% | 54% | cost |
+| 7 | `TestScriptsAreInTheCacheKey` | 33.7 | 4.5% | 58% | behaviour |
+| 8 | `TestFirstLaunchLoad` | 33.2 | 4.4% | 63% | behaviour |
+| 9 | `TestLintChecksFormatting` | 26.9 | 3.6% | 66% | behaviour |
+| 10 | `TestFrameRunsKeepTheirOwnState` | 26.6 | 3.5% | 70% | behaviour |
+| 11 | `TestAnUnfocusedCityUnderAStreamOfChanges` | 24.1 | 3.2% | 73% | behaviour |
+| 12 | `TestBuildingLooksCached` | 23.2 | 3.1% | 76% | behaviour |
+| 13 | `TestSettledMemory` | 20.3 | 2.7% | 79% | cost |
+| 14 | `TestFirstLaunchCityWaiting` | 18.0 | 2.4% | 81% | behaviour |
+| 15 | `TestFirstLaunchResumes` | 14.9 | 2.0% | 83% | behaviour |
+| 16 | `TestFirstLaunch` | 14.6 | 1.9% | 85% | behaviour |
+| 17 | `TestTheStreamOnABusyCity` | 12.3 | 1.6% | 87% | behaviour |
+| 18 | `TestSharingClip` | 9.5 | 1.3% | 88% | behaviour |
+| 19 | `TestFirstLaunchCity` | 9.2 | 1.2% | 89% | behaviour |
+| 20 | `TestLand` | 8.4 | 1.1% | 90% | behaviour |
+| 21 | `TestLintWaitsForLint` | 8.4 | 1.1% | 92% | behaviour |
+| 22 | `TestSharingGIF` | 7.6 | 1.0% | 93% | behaviour |
+| 23 | `TestBuildingSheetLights` | 7.3 | 1.0% | 93% | behaviour |
+| 24 | `TestCityScreenshot` | 5.8 | 0.8% | 94% | behaviour |
+| 25 | `TestHeadlessCitiesStartedTogether` | 4.4 | 0.6% | 95% | behaviour |
+| 26 | `TestRecordedClipKeepsTheScenesTime` | 3.5 | 0.5% | 95% | behaviour |
+| 27 | `TestStartUpPeak` | 2.8 | 0.4% | 96% | cost |
+| 28 | `TestSharingPicture` | 2.7 | 0.4% | 96% | behaviour |
+| 29 | `TestCheckPublishable` | 2.7 | 0.4% | 96% | behaviour |
+| 30 | `TestReleaseBuildHasNoFrameTooling` | 2.6 | 0.3% | 97% | behaviour |
+| 31 | `TestSidebarScrolls` | 2.5 | 0.3% | 97% | behaviour |
+| 32 | `TestTheStillCityMatchesTheCityDrawnDirectly` | 2.2 | 0.3% | 97% | behaviour |
+| 33 | `TestAnswerAndComeBack` | 2.0 | 0.3% | 98% | behaviour |
+| 34 | `TestFindByThreeWords` | 1.7 | 0.2% | 98% | behaviour |
+| 35 | `TestManPages` | 1.6 | 0.2% | 98% | behaviour |
+| 36 | `TestStartASessionAnywhere` | 1.3 | 0.2% | 98% | behaviour |
+| 37 | `TestReopenLastFriday` | 1.3 | 0.2% | 98% | behaviour |
+| 38 | `TestLensKeys` | 0.9 | 0.1% | 99% | behaviour |
+| 39 | `TestDrive` | 0.9 | 0.1% | 99% | behaviour |
+| 40 | `TestCityAgainstAnotherRelease` | 0.9 | 0.1% | 99% | behaviour |
+| 41 | `TestKeyList` | 0.8 | 0.1% | 99% | behaviour |
+| 42 | `TestSidebarCard` | 0.7 | 0.1% | 99% | behaviour |
+| 43 | `TestGroupingCostPerPrompt` | 0.6 | 0.1% | 99% | cost |
+| 44 | `TestCheckAntialias` | 0.6 | 0.1% | 99% | behaviour |
+| 45 | `TestDemoScenarios` | 0.5 | 0.1% | 99% | behaviour |
+| 46 | `TestWhatEachPieceOfWorkWasDoing` | 0.5 | 0.1% | 99% | behaviour |
+| 47 | `TestCheckPackagesLicences` | 0.4 | 0.1% | 99% | behaviour |
+| 48 | `TestToolchainPins` | 0.4 | 0.1% | 99% | behaviour, **failed** |
+| 49 | `TestDaemonOfAnotherRelease` | 0.4 | 0.1% | 99% | behaviour |
+| 50 | `TestAssetSources` | 0.4 | 0.1% | 100% | behaviour |
+| 51 | `TestLabelsDoNotOverlap` | 0.4 | 0.0% | 100% | behaviour |
+| 52 | `TestPackagesInstallManPages` | 0.2 | 0.0% | 100% | behaviour |
+| 53 | `TestExplainAndReference` | 0.2 | 0.0% | 100% | behaviour |
+| 54 | `TestLiveTranscriptAppend` | 0.2 | 0.0% | 100% | behaviour |
+| 55 | `TestRoadTagsDrawOverTheCity` | 0.2 | 0.0% | 100% | behaviour |
+| 56 | `TestJournalAfterAGap` | 0.2 | 0.0% | 100% | behaviour |
+| 57 | `TestStatus` | 0.2 | 0.0% | 100% | behaviour |
+| 58 | `TestOnlyPkgXvfbStartsXvfb` | 0.2 | 0.0% | 100% | behaviour |
+| 59 | `TestNewerLayout` | 0.2 | 0.0% | 100% | behaviour |
+| 60 | `TestLabelsHotkey` | 0.1 | 0.0% | 100% | behaviour |
+| 61 | `TestStreamColumn` | 0.1 | 0.0% | 100% | behaviour |
+| 62 | `TestStreamColumnNarrow` | 0.1 | 0.0% | 100% | behaviour |
+| 63 | `TestStreamScrolls` | 0.1 | 0.0% | 100% | behaviour |
+| 64 | `TestEveryBuiltBinaryIsInTheCacheKey` | 0.1 | 0.0% | 100% | behaviour |
+| 65 | `TestNothingRunsXvfbRun` | 0.1 | 0.0% | 100% | behaviour |
+| 66 | `TestOneCity` | 0.1 | 0.0% | 100% | behaviour |
+| 67 | `TestTriageWalk` | 0.1 | 0.0% | 100% | behaviour |
+| 68 | `TestDemoCorpusIsClean` | 0.1 | 0.0% | 100% | behaviour |
+| 69 | `TestFind` | 0.1 | 0.0% | 100% | behaviour |
+| 70 | `TestTestTimeouts` | 0.1 | 0.0% | 100% | behaviour |
+| 71 | `TestSurface` | 0.1 | 0.0% | 100% | behaviour |
+| 72 | `TestReleaseAliases` | 0.1 | 0.0% | 100% | behaviour |
+| 73 | `TestScratchModule` | 0.1 | 0.0% | 100% | behaviour |
+| 74 | `TestDocumentationStructure` | 0.1 | 0.0% | 100% | behaviour |
+| 75 | `TestTheTestBinaryLinksTheBinary` | 0.0 | 0.0% | 100% | behaviour |
+| 76 | `TestCalibrateCoreRate` | 0.0 | 0.0% | 100% | behaviour, skipped |
+| 77 | `TestReadmeCredits` | 0.0 | 0.0% | 100% | behaviour |
+| 78 | `TestTheWorkAFrameTakes` | 0.0 | 0.0% | 100% | behaviour |
+| 79 | `TestTheLooksAFrameKeeps` | 0.0 | 0.0% | 100% | behaviour |
+| 80 | `TestTheStillLayerAFrameKeeps` | 0.0 | 0.0% | 100% | behaviour |
+| 81 | `TestStartUnderSignals` | 0.0 | 0.0% | 100% | behaviour, skipped |
+| 82 | `TestHomeIsolation` | 0.0 | 0.0% | 100% | behaviour |
+| 83 | `TestReadmeNamesRealVariables` | 0.0 | 0.0% | 100% | behaviour |
+| 84 | `TestTheTestBinaryLinksTheTargetsTool` | 0.0 | 0.0% | 100% | behaviour |
+| 85 | `TestTeardownSoak` | 0.0 | 0.0% | 100% | behaviour, skipped |
+| 86 | `TestVersionCheckSurface` | 0.0 | 0.0% | 100% | behaviour |
+| 87 | `TestCIStatus` | 0.0 | 0.0% | 100% | behaviour |
