@@ -51,7 +51,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [238](roadmap/238-a-baked-look-can-differ-by-a-pixel-for-some-shapes.md) | a baked look can still differ from the direct draw by a pixel for some shapes | — | nobody, until it shows on the art |
 | [239](roadmap/239-the-bridge-fades-into-no-visible-fog.md) | the bridge fades into the sea with no fog to explain it | — | nobody |
 | [240](roadmap/240-the-metropolis-demo-reads-as-a-light-user.md) | the metropolis demo reads as a light user since its sessions start hours apart | — | nobody |
-| [241](roadmap/241-the-map-key-labels-every-district.md) | the website's map key labels every district, where one would do | — | nobody |
+| [242](roadmap/242-the-city-shows-a-partly-read-spend-after-its-first-read.md) | the city shows a partly read day's spend for up to 30 seconds after its first read | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
