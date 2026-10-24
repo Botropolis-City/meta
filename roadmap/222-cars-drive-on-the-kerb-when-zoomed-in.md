@@ -1,6 +1,6 @@
 # 222. Cars drive on the kerb when zoomed in
 
-**Open. Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
+**Open, in progress since 2026-10-24 in the session "item 222". Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
 
 Aria, 2026-10-24, on item 162's 3x crop of a car at zoom 2.0: *"the cars are not on the road when zoomed"*.
 

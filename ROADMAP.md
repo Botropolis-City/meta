@@ -57,6 +57,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [231](roadmap/231-the-website-still-talks-about-the-city-before-0-3-0.md) | the website's words still describe the city before 0.3.0: rewrite its rhetoric and release it | — | nobody |
 | [232](roadmap/232-the-apps-readme-and-demo-captions-predate-0-2-0.md) | the app's README and demo captions still say storage yard, parked and context height | — | nobody |
 | [233](roadmap/233-cached-building-looks-differ-when-drawn-up.md) | a building's cached look differs from its direct draw when a kit level is drawn up (zoom 1.5) | — | nobody |
+| [234](roadmap/234-make-test-leaves-a-pycache-in-render-sprites.md) | `make test` leaves an untracked `__pycache__` in `tools/render-sprites/` since item 229 | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
