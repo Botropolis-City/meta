@@ -1,6 +1,6 @@
 # 181. Small polish: "6 mcp" counts calls, `f` and `0` are listed as two keys, `status` prints full model ids, and finder rows are cut with no ellipsis
 
-**Open, in progress since 2026-10-24 in the session "item 181". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its matters of taste, at Aria's request. Nobody's call.**
+**Fixed 2026-10-24 (`457b944`, r988). Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its matters of taste, at Aria's request. Nobody's call.**
 
 Depends on: nothing
 
@@ -22,3 +22,14 @@ Shots: `metropolis` at fit, its strip; `metropolis` with `ctrl+K` and `dri` type
 
 - **Which short model name** (manager, 2026-10-24): `format.Model(id)`, which drops `claude-` and a trailing `-YYYYMMDD` (`claude-haiku-4-5-20251001` → `haiku-4-5`) and leaves any other id as it is; the city's power mix (`mixName`) switches to it too, since this item says the table should use the name the city uses, and the city's only dropped the prefix. `--json` keeps the full id.
 - **The test tree** (manager, 2026-10-24): approved as sent, one slice.
+
+## Closed
+
+All four landed in one slice, `457b944` (r988), with the changelog in `b0f50d7`.
+
+1. The strip's chip reads "6 mcp calls" (`TestStripChips`).
+2. The help has one row, *"f or 0: Skyline, the whole city"*, and no `0` row; the footer keeps `f` as *Skyline* (`TestSkylineKey`).
+3. `status` prints `format.Model(id)`, so `haiku-4-5`, and `--json` keeps the full id (`TestModel`, `TestRender`, `TestRenderJSON`); the power mix uses the same name.
+4. The finder's head, where and passage lines and the preview's *"left at"* line end with `…` when cut, through `ui.Fit` (`TestLayoutFinderResults`).
+
+No frame was rendered: each change is a string, and the tests pin it.
