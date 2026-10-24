@@ -1,6 +1,6 @@
 # 228. A bridge test compares floats exactly, so CI on macOS has been red since item 217
 
-**Open. Filed 2026-10-24 (r969), from the botropolis status line's "ci red a555de7". Nobody's call — a defect in a test.**
+**Open, in progress since 2026-10-24 in the session "item 228". Filed 2026-10-24 (r969), from the botropolis status line's "ci red a555de7". Nobody's call — a defect in a test.**
 
 CI on `main` has failed on every push since item 217's first slice (`08:05` UTC, run 40076680239), and again at runs 40079304155 and 40081230765.
 Only `test-macos (macos-26)` fails, in `make test-unit`:
