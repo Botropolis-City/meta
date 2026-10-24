@@ -4,6 +4,7 @@
 
 Depends on: 243
 Landed: slice 1 (`dbfe84b`, r1008).
+Landed: slice 2 (`73d7d69`, r1017).
 
 [Item 223](223-the-staged-metropolis-names-most-districts-millrace.md) gave the staged scenarios start times that read like a real day, which ended the false groups, but the metropolis, staged as *"a heavy user's city"*, now reads light: its top bar's rates fell from about 15.3M/h fresh, 203M/h cached and 3.8M/h out to about 104k/h, 1.4M/h and 25k/h, since each session's tokens now spread over hours instead of its last minutes.
 Aria, 2026-10-24, choosing *"Make it read heavy again"*.
