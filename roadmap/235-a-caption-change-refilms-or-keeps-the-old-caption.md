@@ -1,6 +1,6 @@
 # 235. A caption change re-films its shots, and `--adopt` keeps the old caption
 
-**Open. Filed 2026-10-24 (r973), from what items 231 and 232 found bringing new captions to the website. Nobody's call — a defect.**
+**Open, in progress since 2026-10-24 in the session "item 235". Filed 2026-10-24 (r973), from what items 231 and 232 found bringing new captions to the website. Nobody's call — a defect.**
 
 [Item 232](232-the-apps-readme-and-demo-captions-predate-0-2-0.md) rewrote five demo captions, five description lines in `demo/scenarios/*.yaml` and nothing else, and [item 231](231-the-website-still-talks-about-the-city-before-0-3-0.md) had to rebuild `dist/demo/manifest.json` by hand to get them onto the site without re-filming.
 
