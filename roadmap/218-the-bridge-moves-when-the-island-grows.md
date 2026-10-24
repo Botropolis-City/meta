@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-24 in the session "item 218". Filed 2026-10-24 (r966) at Aria's request, from item 217. Nobody's call — Aria decided: anchor it.**
 
+Depends on: nothing
+Landed: slice 1 (`1b5cc23`, r974).
+
 Aria, 2026-10-24, on whether the bridge should move as the island grows: *"It should stay where it is."*
 
 [Item 217](217-a-delivery-truck-drives-beside-the-bridge-not-on-it.md) found that `City.bridgeCell` (`botropolis/pkg/city/pullrequests.go`) places the bridge on the middlemost coastal street row every time the plan is made, so each row the island gains moves the whole bridge over by one. Item 217 re-routes trucks already in flight; this item stops the bridge moving at all.
