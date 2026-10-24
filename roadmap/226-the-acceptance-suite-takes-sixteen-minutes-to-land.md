@@ -179,6 +179,24 @@ It runs everything and saves a new map, saying why, whenever main's last CI run 
 Two departures from the agreed tree, both told to the manager: the red-CI rule lives in the tool, so `TestChoose` and `TestTargetedRuns` test it rather than a `land_test.go` probe, and the case for a cost test's package went with slice 2, since the performance tests are no longer in the gate.
 The first landing found no map, ran everything under coverage, and saved the map at `eebf342`; landings after it select from that map.
 
+## Slice 4: waits on events, so far
+
+**Part 1** (`04fa336`, r1003): `TestFirstLaunch`, `TestFirstLaunchResumes` and `TestFirstLaunchLoad` waited for the daemon to use under 5% of a core for three seconds, and a daemon starved of the CPU on a loaded machine looked idle to that (item 232's landing read 80 MiB of 256).
+They now wait until it has read what it must, then until its reads hold still.
+A new case stops the daemon for 4 s partway, the starvation made certain: the old wait ended at 8 of 64 MiB, the new one reads it all.
+Resumes went from 41 s to 15 and Load from 91 s to 31.
+It was also the first selected landing: four tests, 41 s of acceptance.
+
+**Part 2** (`604eb19`, r1005): the dashboard waits for a frame that composes its standing city and one that reuses it, and then for its drawn frames to hold still; its 2 s after `focused=false` is gone, since that line is the event.
+The deltas test waits for its subscription to hold still, and the state test for the city's first FRAME line from inside its loop.
+**No forced red for any of them.**
+The city stops cleanly on a signal before its loop, so the state wait keeps the test on the path it is named for rather than making it pass; holding the daemon still for 9 s did not fail the old dashboard sleeps; and holding the city or daemon through the writes fails the old sleep and the new wait alike, since a resumed process sends what it held as one update.
+The dashboard test went from 24 s to 14.
+
+**`make test-performance RUN='^TestName$'`** (`b23ee33`, r1004) rechecks one performance test under the lock, and refuses a pattern that matches nothing in the tier.
+
+**Part 3** is with the performance manager: candidates `ecedf05` (`TestSettledDaemonUnderAStreamOfChanges`) and `352dae1` (`TestDaemonWithTwoThousandSessions`), two windows of 15 s instead of 30, measured in five interleaved pairs against their parents.
+
 ## Answered while building
 
 - **`TestToolchainPins` failing on this machine's Go 1.27.3** (manager, 2026-10-24): filed as [item 227](227-testtoolchainpins-fails-when-the-machines-go-is-not-the-pin.md), and this session fixes it in its own commit citing 227, since it is in this item's landing path; then it closes 227 with `roadmap-close`.
