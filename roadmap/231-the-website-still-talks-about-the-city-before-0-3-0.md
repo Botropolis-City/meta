@@ -1,6 +1,6 @@
 # 231. The website still talks about the city as it was before 0.3.0
 
-**Done 2026-10-24 (botropolis.city `157c8b1`, r32). Filed 2026-10-24 (r969) at Aria's request. Nobody's call — Aria ruled on how it ships, below.**
+**Open, in progress since 2026-10-24 in the session "item 231". Filed 2026-10-24 (r969) at Aria's request. Nobody's call — Aria ruled on how it ships, below.**
 
 Aria, 2026-10-24: *"Since 3.0.0 was such drastic changes, we should update the website and its rhetoric accordingly. Not just the assets. Have an agent do that and release it."*
 The release she means is botropolis `v0.3.0`, tagged 2026-10-23; there is no 3.0.0.
@@ -35,14 +35,3 @@ Tests: the site's acceptance tests pin some copy; change them with the copy, tes
 
 - **Step 1's list and the test tree** (manager, 2026-10-24): approved as sent, items 1–14 and the rewrite. Rhetoric may characterise but never exceed the changelog: "light enough to leave open" is true of a hidden or unfocused city (under 1% of a core), not a focused one (about half a core), so it says which.
 - **What lives in the app** (manager, 2026-10-24): the app's README and the demo scenarios' captions are filed as [item 232](232-the-apps-readme-and-demo-captions-predate-0-2-0.md); this item ships with the captions as they are, and 232's `make media-import` updates them.
-
-## Done
-
-botropolis.city `157c8b1` rewrote the page's words for 0.3.0: the hero (storeys by work done, a project is a directory, the card's actions, a line linking the new section), the description and social text, the map's key (resting for parked, the depot for the storage yard with its hotspot moved onto the crates, no park card), the drive section's chips (now the actions a session card offers), the install steps (`botropolis setup`, `doctor`, the city) with an upgrade note on restarting the daemon and the commands that moved, and the footer.
-A new section, *new in 0.3.0*, carries the changelog's before/after table with the machine it was measured on, both budgets 0.3.x misses, sharing mode, the reading pane, manual pages and the 1.0.0 promise.
-
-Tests: `src/data/release.test.ts` holds every figure to the numbers in its changelog quote and, with a botropolis checkout, to the `[0.3.0]` section itself (both mutated red); `src/data/city.test.ts` checks the beacons against `pkg/state` and the chips against the session card's actions in `pkg/city`; `src/data/install.test.ts` keeps deprecated commands out of the start steps; page tests check the section, the upgrade note, and that four sentences 0.3.0 made false stay gone.
-CI run 40085600552 passed and deployed, `make verify` was green, and the 108 page tests passed against production.
-The full-page frames at desktop and phone width and the before-and-after of every sentence went to Aria through the roadmap manager.
-
-Deviation: `make site-deploy` could not run because the 1Password app was not running, so `secret-run` could not resolve the deploy token; the CI deploy on the push to `main` is what released it.
