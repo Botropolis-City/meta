@@ -126,6 +126,18 @@ for _ in $(seq 300); do
 	sleep 0.1
 done
 [[ -n "${win}" ]] || { echo "no window for city pid ${cpid} within 30 s" >&2; exit 1; }
+# The city gets a workspace of its own, as at r964 (1920x1118 on that
+# screen): tiled beside another window it is half as wide, and every
+# window-sized layer, and so the GPU figure, with it.
+read -r wid _ <<<"${win}"
+back=$(i3-msg -t get_workspaces | python3 -I -c 'import json,sys; print(next(w["name"] for w in json.load(sys.stdin) if w["focused"]))')
+i3-msg "[id=${wid}] move container to workspace perf-fitzoom; workspace perf-fitzoom" >/dev/null
+trap 'i3-msg "workspace ${back}" >/dev/null 2>&1; kill ${dp} ${pp} 2>/dev/null; wait 2>/dev/null; rm -rf "${w}"' EXIT
+win=""
+for _ in $(seq 50); do
+	sleep 0.1
+	win=$(window_centre)
+done
 read -r id cx cy <<<"${win}"
 s0=$(date +%s)
 echo "window ${id} city ${cpid} start ${s0}" >"${out}/marks.txt"
