@@ -39,6 +39,12 @@ The figures are the table's above, in its order of rows, from the tests' own log
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | r996 (baseline) | | 70 pass, 2 skip | 1.08%, 1.31% | 2.71%, 2.78% | 59%, 28 MiB | 0.08 CPU-s | 0.44%, 0.96%, 0.70% | 197 MiB | 10.2 |
 | r998 `241e1a9` | `8c2b968..241e1a9`, item 236 slice 1 | 70 pass, 2 skip | 1.01%, 1.28% | 2.73%, 2.69% | 53%, 30 MiB | 0.12 CPU-s | 0.44%, 0.94%, 0.71% | 194 MiB | 23.1 |
+| r1000 `0601797` | `241e1a9..0601797`, item 222 | 70 pass, 2 skip | 1.01%, 1.28% | 2.82%, 3.08% | 57%, 28 MiB | 0.06 CPU-s | 0.44%, 0.92%, 0.69% | 196 MiB | 23.1 |
+| r1000 `0601797`, repeated | the same | 70 pass, 2 skip | 1.10%, 1.32% | 2.81%, 2.90% | 54%, 26 MiB | 0.10 CPU-s | 0.50%, 0.96%, 0.70% | 198 MiB | 7.0 |
+
+At r1000 the 2,000-session daemon read about 0.1 of a core higher, twice, and is recorded as the machine's load rather than filed: `botropolisd` links neither `pkg/city` nor `pkg/render`, the only code the range changed; its CPU ticks held at 2.16–2.39% in all four runs; and the test itself says this measure spans 2.3–2.6% on a quiet machine.
+It is still over its budget, which is [item 213](../../roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md).
+A single performance test could not be rerun on its own: `make test-acceptance-locked` selects outside the performance tier and ran no tests, so the repeat is the whole suite; item 226 is adding a `RUN` pattern to `make test-performance`.
 
 ## What it does not show
 
