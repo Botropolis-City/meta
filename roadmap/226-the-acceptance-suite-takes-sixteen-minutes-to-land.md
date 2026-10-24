@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`0922f2b`, r969).
+Landed: slice 2 (`8c2b968`, r996).
 
 Aria, 2026-10-24: *"can you tell me why our acceptance tests take so long? is there a way to speed them up? Do we always need to run all of them? Can we chunk and cache in some form based on what changed?"*, then *"Add a roadmap item for this, and let's prioritize it"*.
 
@@ -133,6 +134,38 @@ The 87 top-level tests add up to 752 s, so the suite is serial in all but name: 
 | 85 | `TestTeardownSoak` | 0.0 | 0.0% | 100% | behaviour, skipped |
 | 86 | `TestVersionCheckSurface` | 0.0 | 0.0% | 100% | behaviour |
 | 87 | `TestCIStatus` | 0.0 | 0.0% | 100% | behaviour |
+
+## Slice 2: three tiers became two, and parallel became processes
+
+**The CPU and memory tests leave the landing gate entirely** (Aria, 2026-10-24, in item 226's session): they run in `make test-performance`, which the performance manager runs on demand and before each release, and which the release workflow runs before it tags.
+A test that measures CPU or memory starts with `performanceTier(t)`, which skips unless `BOTROPOLIS_PERFORMANCE=1`.
+Every function of the package's own that reads a process's CPU or memory now lives in `testing/acceptance/meters_test.go`.
+`TestEveryAcceptanceTestIsInTheTierItNeeds` follows each test through the package's own calls, and fails any test that reaches a meter there or in `pkg/measure` without the marker, or carries the marker without reaching one.
+It was mutated red by dropping `TestStartUpPeak`'s marker.
+
+Two tests mixed deterministic checks with a limit in CPU or memory, and were split so first launch stays covered on every landing:
+`TestFirstLaunch` (the whole history is read) and `TestFirstLaunchCost` (a core, Private_Dirty);
+`TestFirstLaunchLoad` (bytes before the first snapshot, usage held whole, the plant's output) and `TestFirstLaunchLoadCost`;
+`TestFirstLaunchCity` (the percentage) and `TestFirstLaunchCityCPU`.
+Slice 1's table missed that `TestFirstLaunch*` measured at all; the guard found it.
+
+**`t.Parallel()` was tried and dropped.**
+At `-parallel 8` in one process, a city found another test's city "already open", `TestFirstLaunchResumes` read twelve times its limit from another daemon's checkpoint, and two tests' `t.Setenv` panicked: `RunIsolated` gives one home to a whole process, so the daemon and one-city sockets under `XDG_RUNTIME_DIR`, the caches and the checkpoints were shared.
+`make test-acceptance` now runs `tools/acceptance-targets run`, which builds the test binary once, lists its tests with `-test.list`, refuses unless that list is exactly the package's Test functions, and runs each one but the performance tier in a process of its own, with the binary built once and named to each through `BOTROPOLIS_ACCEPTANCE_BINARY`.
+Each process is its own `TestMain`, so each test has the isolation a whole run had, and `pkg/measure`'s work counters are per process, so the work tier went too.
+A failing, panicking, unreported or timed-out test is named with its output, and a run of no tests fails; an end-to-end test builds a fixture package with a passing, a failing and a panicking test and runs it through the real runner.
+
+**How many at once.** `ACCEPTANCE_PARALLEL` defaults to half the cores, at least one and at most six.
+Measured at a load of 24 to 50 with other sessions working, not on a quiet machine: 80 tests in 189 s six at a time, and 245 s four at a time, all green at four.
+At six, `TestLintChecksFormatting` failed once, on this slice's own mistake (`meters_test.go` lacked the `//go:build linux` of the files its functions came from, so lint's macOS vet failed), not on load.
+Under that load each test took two to three times its slice 1 time, 922 s in all against about 400 quiet, and the wall time was that sum over the width: the machine was the limit, not the pool.
+
+**What landed** (`8c2b968`, r996): in its own `make land`, holding the lock at a load of about 17, the acceptance suite ran 83 tests in **4 min 5 s**, all green but two skipped soaks, against 957 s at the 0.3.0 release and 800 s in slice 1.
+That is short of the 1½ minutes estimated from slice 1's quiet table, because a gate's tests now run six at a time on a machine other sessions are working on; the floor is the longest tests (`TestTheStillCityMatchesTheCityDrawnDirectly`, `TestFirstLaunchLoad`, `TestTheCacheSeesTheBinary`, each a minute or more under load), and slice 4's shorter waits and slice 3's selection are what come off it next.
+`make test-performance` holds the landing lock too, so nothing lands while it measures.
+
+**`make test-acceptance-locked RUN='^TestName$'`** (`c84a1eb`, r993) takes the landing lock itself and runs only the named tests, through the runner since slice 2, so a worktree session can run acceptance tests without running them beside a landing's gate.
+Its test is `TestAcceptanceLocked`, on `make land`'s scratch-repository rig, red with the `flock` taken out.
 
 ## Answered while building
 
