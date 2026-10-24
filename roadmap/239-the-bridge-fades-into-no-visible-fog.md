@@ -16,3 +16,8 @@ Draw a fog or low cloud bank over the open sea where the deck fades (`Bridge.Haz
 - Whether the fog stands still, drifts, or reaches along the whole coast is a look for Aria: propose one or two with frames before building tests.
 
 Tests: the fog covers the deck's fading span at every heading; nothing hoverable is under it; the frame's draw count and memory stay within their budgets; frames by day and night, at fit and zoomed in, for Aria.
+
+## Answered while building
+
+- **The look** (Aria, 2026-10-24, choosing between two looks from frames): B, the fog bank over the deck's fading span plus a thin low mist along that whole coast, so it reads as weather; and still, not drifting, so it stays part of the standing city and costs no draw command on a settled frame. Built in code as soft puffs of one 64×64 Gaussian texture, white-grey by day and dim blue-grey by night, never hoverable.
+- **What may be under it** (manager, 2026-10-24): nothing hoverable except a delivery truck on the bridge, which item 219 keeps hoverable until it is removed at the far end.
