@@ -11,3 +11,7 @@
 Search the rest of `README.md`, `demo/` and `docs/` for *storage yard*, *parked*, *context window used* and *install-hooks* and fix every hit, except the changelog, which is a dated record.
 Then run `make media-import` in botropolis.city so the site carries the new captions, without re-filming: only the descriptions change.
 A test that fails on those phrases in `README.md` and the scenario descriptions keeps them from coming back.
+
+## Answered while building
+
+- **The test tree and "park" as a verb** (manager, 2026-10-24): approved as sent, `TestCopyUsesTheCitysOwnWords` in `testing/acceptance/readme_words_test.go`, reading captions through `demo.LoadScenario`, with `CHANGELOG.md` and `docs/compatibility.md` excluded. "Park" and "wake" as things done to a session become "stop" and "resume", the city's own action names and the words item 231 put on the website; the inspector's car that parks outside stays.
