@@ -1,6 +1,6 @@
 # 242. The city shows a partly read day's spend for up to 30 seconds after its first read
 
-**Open, in progress since 2026-10-24 in the session "item 240". Filed 2026-10-24 (r1006), found by item 240's session. Nobody's call — a defect; item 240's session fixes it.**
+**Fixed 2026-10-24 (`fec9e4b`, r1010). Filed 2026-10-24 (r1006), found by item 240's session. Nobody's call — a defect; item 240's session fixes it.**
 
 Depends on: nothing
 Landed: slice 1 (`fec9e4b`, r1010).
@@ -18,3 +18,10 @@ Tests: in `pkg/stats`, a window the scene asks to be read fresh is read again ev
 ## Answered while building
 
 - **The test tree** (manager, 2026-10-24): approved as sent. `stats.Ledger.ReadFresh()` marks every cached window and the session costs due once, and `Scene.SetSnapshot` calls it when a snapshot's `HeftsRead` turns true after one that was not, for a capture and a live city alike. `TestALedgerReadsFreshWhenAsked` in `pkg/stats/ledger_test.go` and `TestTheSceneReadsTheLedgerFreshWhenItsHistoryIsRead` in `pkg/city`, including that a read snapshot after a read one does not read fresh again, so the 30 s reuse item 215 bought is kept.
+
+## Closed
+
+Fixed as answered above, in two botropolis commits: `fec9e4b` (r1010) adds `Ledger.ReadFresh`, with the session costs read fresh alongside the windows, and has the scene ask it when a read snapshot follows an unread one;
+and `70348ca` (r1015) adds the changelog entry under Fixed.
+`TestALedgerReadsFreshWhenAsked` (in its own file, `pkg/stats/ledger_fresh_test.go`, rather than `ledger_test.go`) and `TestTheSceneReadsTheLedgerFreshWhenItsHistoryIsRead` were red before the fix.
+A frame showing it is item 240's re-filmed metropolis overview, whose day's spend should read whole at the opening; that still goes to Aria with item 240's.
