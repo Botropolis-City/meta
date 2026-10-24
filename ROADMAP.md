@@ -53,7 +53,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [223](roadmap/223-the-staged-metropolis-names-most-districts-millrace.md) | the staged metropolis names most of its districts "millrace" | — | nobody, a defect |
 | [224](roadmap/224-message-vans-and-hauls-keep-a-stale-path-after-a-re-layout.md) | message vans and hauls keep a stale path after a re-layout | — | nobody, a defect |
 | [225](roadmap/225-testthreadcpu-fails-under-load.md) | TestThreadCPU fails under load | — | nobody, a defect |
-| [228](roadmap/228-a-bridge-test-compares-floats-exactly-and-ci-on-macos-is-red.md) | CI on macOS red since item 217: a bridge test compares float points exactly | — | nobody |
 | [229](roadmap/229-atlas-cost-crashes-before-it-prices-anything.md) | `tools/atlas-cost.py` crashes before pricing anything, since item 109 made `PIECES` call `buildings` | — | nobody |
 | [230](roadmap/230-the-sheet-path-can-still-die-of-an-interrupted-gamepad-open.md) | the sheet path still dies of an interrupted gamepad open: item 128's hold is missing there; item 226 fixes it | — | nobody |
 | [231](roadmap/231-the-website-still-talks-about-the-city-before-0-3-0.md) | the website's words still describe the city before 0.3.0: rewrite its rhetoric and release it | — | nobody |

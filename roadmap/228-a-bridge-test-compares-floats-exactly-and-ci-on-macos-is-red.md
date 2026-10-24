@@ -1,6 +1,6 @@
 # 228. A bridge test compares floats exactly, so CI on macOS has been red since item 217
 
-**Open, in progress since 2026-10-24 in the session "item 228". Filed 2026-10-24 (r969), from the botropolis status line's "ci red a555de7". Nobody's call — a defect in a test.**
+**Fixed 2026-10-24 (`569c529`, r971). Filed 2026-10-24 (r969), from the botropolis status line's "ci red a555de7". Nobody's call — a defect in a test.**
 
 CI on `main` has failed on every push since item 217's first slice (`08:05` UTC, run 40076680239), and again at runs 40079304155 and 40081230765.
 Only `test-macos (macos-26)` fails, in `make test-unit`:
@@ -23,3 +23,11 @@ Mutate it red once: a point moved by more than the tolerance must still fail.
 **A wrong premise this corrects.** [Item 226](226-the-acceptance-suite-takes-sixteen-minutes-to-land.md) says `make land` refuses to land while `main` is red.
 It does not: `tools/ci-status`, from item 202, reports and never gates, so that a red `main` cannot stop the landing that fixes it.
 This is how three landings went out on a red `main` without anyone being stopped.
+
+## Closed
+
+Fixed in botropolis `569c529` (r971).
+`pkg/city/pullrequests_test.go` now compares the truck's path with `assertPathNear`: its length exactly, then each point's X and Y within `1e-9`.
+It is used for the failing assertion and for "it should carry on from where it was", the other place where a computed position is compared.
+Mutated red: an expected X moved by `2e-9` fails, and one moved by the `7e-15` seen on macOS passes.
+The other `assert.Equal`s on points in `pkg/city`'s tests compare bridge endpoints copied unchanged, or values that come out as exact integers, so they stay exact.
