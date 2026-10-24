@@ -4,6 +4,7 @@
 
 Landed: slice 1 (`157c8b1`, r969).
 Landed: slice 2 (`5f9f34c`, r969).
+Landed: slice 3 (`75434e2`, r973).
 
 Aria, 2026-10-24: *"Since 3.0.0 was such drastic changes, we should update the website and its rhetoric accordingly. Not just the assets. Have an agent do that and release it."*
 The release she means is botropolis `v0.3.0`, tagged 2026-10-23; there is no 3.0.0.
