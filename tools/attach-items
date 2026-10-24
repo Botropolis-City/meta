@@ -18,9 +18,11 @@ Inside tmux, the windows go into the current tmux session. Outside it,
 they go into a tmux session named "items", created if needed; attach to
 it with `tmux attach -t items`.
 
-A window that already exists for an item is left alone, so it is safe to
-run again as new items start. A window for an item whose session is no
-longer listed is closed.
+A window already attached to its item's session is left alone, so it is
+safe to run again as new items start. A window with an item's name that
+runs anything else, such as a shell tmux-resurrect restored after a
+reboot, or an attach to the item's old session, is attached again. A
+window for an item whose session is no longer listed is closed.
 
 --dry-run   say what it would open and close, and change nothing
 USAGE
@@ -50,12 +52,21 @@ if tmux has-session -t "=${target}" 2>/dev/null; then
     existing=$(tmux list-windows -t "=${target}" -F '#W')
 fi
 
+attached_to() {
+    tmux list-panes -t "=${target}:${1}" -F '#{pane_start_command}' 2>/dev/null | head -1 | tr -d '"'
+}
+
 opened=0
 while IFS=$'\t' read -r n id; do
     [ -n "${n}" ] || continue
     name=$(printf 'item-%03d' "${n}")
     if grep -qxF "${name}" <<< "${existing}"; then
-        echo "  ${name}: already open"
+        if [ "$(attached_to "${name}")" = "claude attach ${id}" ]; then
+            echo "  ${name}: already open"
+        else
+            echo "  ${name}: not attached to its session, attaching to ${id}"
+            ${dry} || tmux respawn-pane -k -t "=${target}:${name}" "claude attach ${id}"
+        fi
         continue
     fi
     echo "  ${name}: opening, attached to ${id}"

@@ -14,7 +14,7 @@ Run it from the meta repository's root, `~/workspaces/github/botropolis-city`:
 tools/attach-items
 ```
 
-It gives each live `item NNN` session a window named `item-NNN` running `claude attach <id>`, in item order; leaves a window that already exists alone, so running it again picks up items started since; and closes a window whose session has gone.
+It gives each live `item NNN` session a window named `item-NNN` running `claude attach <id>`, in item order; leaves a window already attached to its session alone, so running it again picks up items started since; attaches again a window of that name running anything else, such as a shell tmux-resurrect restored after a reboot; and closes a window whose session has gone.
 `--dry-run` says what it would do.
 
 A session cannot open a terminal on Aria's screen, so the windows go into a detached tmux session named `items` unless this is already running inside tmux, where they join the current tmux session.
