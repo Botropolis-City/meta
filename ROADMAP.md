@@ -51,6 +51,8 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [221](roadmap/221-the-railway-is-drawn-over-the-trees.md) | the railway is drawn over the trees | — | nobody, a defect |
 | [222](roadmap/222-cars-drive-on-the-kerb-when-zoomed-in.md) | cars drive on the kerb when zoomed in | — | nobody, a defect |
 | [223](roadmap/223-the-staged-metropolis-names-most-districts-millrace.md) | the staged metropolis names most of its districts "millrace" | — | nobody, a defect |
+| [224](roadmap/224-message-vans-and-hauls-keep-a-stale-path-after-a-re-layout.md) | message vans and hauls keep a stale path after a re-layout | — | nobody, a defect |
+| [225](roadmap/225-testthreadcpu-fails-under-load.md) | TestThreadCPU fails under load | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
