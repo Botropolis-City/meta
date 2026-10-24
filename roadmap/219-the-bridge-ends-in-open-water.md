@@ -1,6 +1,6 @@
 # 219. The bridge ends in open water
 
-**Open. Filed 2026-10-24 (r966) at Aria's request. Nobody's call — Aria chose: the bridge runs off into the haze.**
+**Open, in progress since 2026-10-24 in the session "item 219". Filed 2026-10-24 (r966) at Aria's request. Nobody's call — Aria chose: the bridge runs off into the haze.**
 
 Aria, 2026-10-24: *"the bridge really does just seem to end in the middle of the water. I initially expected it to statically run off the whole map so it makes sense that things disappear, but that is a very long way to draw the cars driving."*
 

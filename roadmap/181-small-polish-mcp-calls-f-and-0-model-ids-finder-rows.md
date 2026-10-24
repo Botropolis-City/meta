@@ -1,6 +1,6 @@
 # 181. Small polish: "6 mcp" counts calls, `f` and `0` are listed as two keys, `status` prints full model ids, and finder rows are cut with no ellipsis
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its matters of taste, at Aria's request. Nobody's call.**
+**Open, in progress since 2026-10-24 in the session "item 181". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its matters of taste, at Aria's request. Nobody's call.**
 
 Depends on: nothing
 
