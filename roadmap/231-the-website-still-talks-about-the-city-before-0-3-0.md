@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-10-24 in the session "item 231". Filed 2026-10-24 (r969) at Aria's request. Nobody's call — Aria ruled on how it ships, below.**
 
+Landed: slice 1 (`157c8b1`, r969).
+
 Aria, 2026-10-24: *"Since 3.0.0 was such drastic changes, we should update the website and its rhetoric accordingly. Not just the assets. Have an agent do that and release it."*
 The release she means is botropolis `v0.3.0`, tagged 2026-10-23; there is no 3.0.0.
 Asked whether the agent should show her the copy before deploying, she chose *"Deploy, then show me"*.
@@ -35,3 +37,5 @@ Tests: the site's acceptance tests pin some copy; change them with the copy, tes
 
 - **Step 1's list and the test tree** (manager, 2026-10-24): approved as sent, items 1–14 and the rewrite. Rhetoric may characterise but never exceed the changelog: "light enough to leave open" is true of a hidden or unfocused city (under 1% of a core), not a focused one (about half a core), so it says which.
 - **What lives in the app** (manager, 2026-10-24): the app's README and the demo scenarios' captions are filed as [item 232](232-the-apps-readme-and-demo-captions-predate-0-2-0.md); this item ships with the captions as they are, and 232's `make media-import` updates them.
+- **Stays open after it went live** (manager, 2026-10-24): Aria is reading slice 1 live, so the item stays open for her changes; it was closed in `fc4cd78` by mistake and reopened.
+- **The section's headline** (manager, 2026-10-24): "A tenth of the drawing, about half the memory" quoted the changelog's line about draw work, but reads as speed, and a frame went from 17–48 ms to about 10–11 ms. The title is rewritten from the table, and a test holds its ratios to the table's numbers.
