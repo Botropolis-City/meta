@@ -62,6 +62,11 @@ Only the numbers go into a report here.
    Runs before 2026-10-23 gave the daemon `--home` instead, and a daemon pointed at a home opens no statistics store (item 165), so their daemon figures are not production's.
    Run it under the landing lock, one build after another; `make perf-busy` takes the lock itself.
 
+7. **Fit and full zoom, focused, on the real history:** `perf-fitzoom BUILD_DIR OUT_DIR`, the timeline the 0.3.0 figures were taken with at r964 (item 162).
+   A daemon of the build runs on a copy of the state directory with a stub `claude`, and the city runs through `perf-city`, focused, at fit for 100 s, then 40 wheel notches in through XTEST (`lib/xin.py`), then settled at full zoom to 220 s, with CPU profiles at 30–90 and 150–210 s.
+   It waits for a quiet machine and holds the landing lock throughout.
+   `perf.py phase-summary OUT_DIR/run/samples.csv OUT_DIR/marks.txt` gives own plus GPU settled at fit (30–90 s) and at full zoom (150–215 s); on r964's own run it gives 442 and 566 MiB.
+
 Raw runs and profiles go under `~/.local/state/botropolis-perf/` from the start, never only in a session's scratch directory: a profile kept nowhere else was lost with its scratch on 2026-10-22 and had to be taken again.
 
 To find *where* the time or memory goes, build with a pprof endpoint (`perf-pprof-build REV`), then take `go tool pprof -top` of `/debug/pprof/heap` or `/debug/pprof/profile?seconds=60`.

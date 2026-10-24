@@ -1,3 +1,4 @@
+import csv
 import datetime
 import json
 import os
@@ -173,6 +174,49 @@ def summarise(rows, by_pid=False):
             }
         out[comm] = stats
     return out
+
+
+def sample_epoch(row):
+    return datetime.datetime.fromisoformat(row['ts']).timestamp()
+
+
+def phase_samples(rows, start, end, comm='botropolis'):
+    """The city's own memory and GPU together, in MiB, at each sample in [start, end)."""
+    by_ts = {}
+    for row in rows:
+        if row['comm'] != comm or not start <= sample_epoch(row) < end:
+            continue
+        kib = sum(float(row[f]) for f in ('private_dirty_kib', 'gpu_kib') if row.get(f) not in (None, ''))
+        by_ts[row['ts']] = by_ts.get(row['ts'], 0) + kib / 1024
+    return [by_ts[ts] for ts in sorted(by_ts)]
+
+
+def phase_summary(rows, start, end, comm='botropolis'):
+    values = phase_samples(rows, start, end, comm)
+    if not values:
+        return None
+    return {'least': min(values), 'most': max(values), 'mean': sum(values) / len(values), 'samples': len(values)}
+
+
+def print_phases(samples_path, marks_path):
+    """The settled phases of a perf-fitzoom run: fit 30-90 s and full zoom 150-215 s."""
+    with open(samples_path) as f:
+        rows = list(csv.DictReader(f))
+    marks = {}
+    with open(marks_path) as f:
+        for line in f:
+            parts = line.split()
+            if len(parts) >= 2 and parts[0] not in ('window',):
+                marks[parts[0]] = int(parts[1])
+    start = marks['fit']
+    print('| phase | seconds | samples | own + GPU MiB, least | most | mean |')
+    print('| --- | --- | --- | --- | --- | --- |')
+    for name, a, b in (('settled at fit', 30, 90), ('settled at full zoom', 150, 215)):
+        s = phase_summary(rows, start + a, start + b)
+        if s is None:
+            print('| %s | %d-%d | 0 | - | - | - |' % (name, a, b))
+        else:
+            print('| %s | %d-%d | %d | %.0f | %.0f | %.0f |' % (name, a, b, s['samples'], s['least'], s['most'], s['mean']))
 
 
 def read(path):
@@ -379,12 +423,15 @@ def replay(home, writers, seconds, every=0.2):
 USAGE = """usage: perf.py i3-window-ids < tree.json
        perf.py window-size < xwininfo.txt        the window's WIDTHxHEIGHT, or nothing
        perf.py busy-home REAL_CLAUDE_DIR HOME   link every transcript, session record and history.jsonl into HOME/.claude, read only
-       perf.py replay HOME WRITERS SECONDS      a user line every 200 ms into each of WRITERS of HOME's own live transcripts"""
+       perf.py replay HOME WRITERS SECONDS      a user line every 200 ms into each of WRITERS of HOME's own live transcripts
+       perf.py phase-summary SAMPLES MARKS      a perf-fitzoom run's own + GPU MiB, settled at fit and at full zoom"""
 
 if __name__ == '__main__':
     cmd = sys.argv[1:2]
     if cmd == ['i3-window-ids']:
         print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))
+    elif cmd == ['phase-summary'] and len(sys.argv) == 4:
+        print_phases(sys.argv[2], sys.argv[3])
     elif cmd == ['window-size']:
         print(xwininfo_size(sys.stdin.read()) or '')
     elif cmd == ['busy-home'] and len(sys.argv) == 4:

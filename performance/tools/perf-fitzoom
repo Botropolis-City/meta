@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+root=$(cd "${here}/../.." && pwd)
+lock=/tmp/botropolis-land.lock
+quiet_1m=3
+quiet_5m=4
+
+usage() {
+	cat <<USAGE
+Usage: performance/tools/perf-fitzoom [--no-lock] [--no-wait] BUILD_DIR OUT_DIR
+
+The focused fit and full-zoom run on the real display (item 162; the 0.3.0
+figures at r964 were taken this way), on the real history without touching it:
+
+  - a daemon from BUILD_DIR on a COPY of ~/.local/state/botropolis, its own
+    socket and a stub claude; ~/.claude is only read;
+  - the city from BUILD_DIR through perf-city, sampled every second;
+  - 0-100 s at fit, focused (CPU profile 30-90 s);
+  - 100 s: 40 wheel notches in, through XTEST, to full zoom;
+  - 120-220 s settled at full zoom, focused (CPU profile 150-210 s);
+  - the window refocused and the pointer put back on it every 10 s.
+
+BUILD_DIR holds botropolis and botropolisd from perf-pprof-build (the profiles
+need its PERF_PPROF endpoint). OUT_DIR gets daemon.log, marks.txt (phase, epoch
+seconds, city.log lines), the two CPU profiles, uptime at both ends, and run/,
+perf-city's run directory. Keep it under ~/.local/state/botropolis-perf/.
+
+It opens a window and takes the focus: ask Aria for the screen first.
+It waits for a quiet machine (load under ${quiet_1m} over 1 minute and ${quiet_5m} over 5)
+and holds ${lock} throughout, so no item session lands under it.
+
+  --no-lock    do not take ${lock} (when the caller already holds it)
+  --no-wait    do not wait for a quiet machine
+  -h, --help   this
+
+Then: performance/tools/perf.py phase-summary OUT_DIR/run/samples.csv OUT_DIR/marks.txt
+USAGE
+}
+
+take_lock=1
+wait_quiet=1
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	-h | --help) usage; exit 0 ;;
+	--no-lock) take_lock=0; shift ;;
+	--no-wait) wait_quiet=0; shift ;;
+	--locked) take_lock=0; shift ;;
+	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
+	*) break ;;
+	esac
+done
+[[ $# -eq 2 ]] || { usage >&2; exit 2; }
+build=$(realpath "$1")
+out=$(realpath -m "$2")
+[[ -x "${build}/botropolis" && -x "${build}/botropolisd" ]] || { echo "no botropolis and botropolisd in ${build}" >&2; exit 1; }
+mkdir -p "${out}"
+
+if [[ "${wait_quiet}" == 1 ]]; then
+	echo "$(date +%T) waiting for load < ${quiet_1m} (1m) and < ${quiet_5m} (5m)" | tee -a "${out}/wait.log"
+	until read -r l1 l5 _ </proc/loadavg && awk -v a="${l1}" -v b="${l5}" -v x="${quiet_1m}" -v y="${quiet_5m}" 'BEGIN{exit !(a<x && b<y)}'; do
+		sleep 10
+	done
+	echo "$(date +%T) quiet: $(cut -d' ' -f1-3 /proc/loadavg)" | tee -a "${out}/wait.log"
+fi
+if [[ "${take_lock}" == 1 ]]; then
+	echo "$(date +%T) taking ${lock}" | tee -a "${out}/wait.log"
+	exec flock "${lock}" "$0" --locked --no-wait "${build}" "${out}"
+fi
+
+if pgrep -a -x botropolis | grep -q ' city'; then
+	echo "a city is already open; close it first so the run measures one window" >&2
+	exit 1
+fi
+
+w=$(mktemp -d)
+dp=""
+pp=""
+trap 'kill ${dp} ${pp} 2>/dev/null; wait 2>/dev/null; rm -rf "${w}"' EXIT
+mkdir -p "${w}/state" "${w}/run/botropolis" "${w}/config/botropolis" "${w}/stub"
+printf '#!/bin/sh\nexit 1\n' >"${w}/stub/claude"
+chmod +x "${w}/stub/claude"
+cp -r "${XDG_STATE_HOME:-$HOME/.local/state}/botropolis" "${w}/state/botropolis"
+cp "${XDG_CONFIG_HOME:-$HOME/.config}/botropolis/config.toml" "${w}/config/botropolis/" 2>/dev/null
+sock="${w}/run/botropolis/botropolis.sock"
+PATH="${w}/stub:${PATH}" XDG_STATE_HOME="${w}/state" XDG_RUNTIME_DIR="${w}/run" XDG_CONFIG_HOME="${w}/config" \
+	"${build}/botropolisd" --socket "${sock}" >"${out}/daemon.log" 2>&1 &
+dp=$!
+for _ in $(seq 90); do
+	sleep 1
+	[[ -S "${sock}" ]] && break
+done
+[[ -S "${sock}" ]] || { echo "the scratch daemon never opened ${sock}; see ${out}/daemon.log" >&2; exit 1; }
+sleep 60
+uptime >"${out}/load-start.txt"
+
+PERF_PPROF=127.0.0.1:6079 XDG_RUNTIME_DIR="${w}/run" XDG_STATE_HOME="${w}/state" XDG_CONFIG_HOME="${w}/config" \
+	"${here}/perf-city" --bin "${build}/botropolis" --seconds 230 --interval 1 --out "${out}/run" -- --socket "${sock}" 2>"${out}/perf-city.err" &
+pc=$!
+cpid=""
+for _ in $(seq 300); do
+	cpid=$(grep -oE 'city pid [0-9]+' "${out}/perf-city.err" 2>/dev/null | awk '{print $3}')
+	[[ -n "${cpid}" ]] && break
+	sleep 0.1
+done
+[[ -n "${cpid}" ]] || { echo "perf-city never started a city; see ${out}/perf-city.err" >&2; exit 1; }
+window_centre() {
+	local wid rect
+	for wid in $(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-window-ids); do
+		[[ "$(xprop -id "${wid}" _NET_WM_PID 2>/dev/null)" == *"= ${cpid}" ]] || continue
+		rect=$(xwininfo -id "${wid}" 2>/dev/null | awk '/Absolute upper-left X/{x=$NF} /Absolute upper-left Y/{y=$NF} /^ *Width/{w=$NF} /^ *Height/{h=$NF} END{if (w) print int(x+w/2), int(y+h/2)}')
+		[[ -n "${rect}" ]] && { echo "${wid} ${rect}"; return 0; }
+	done
+	return 0
+}
+win=""
+for _ in $(seq 300); do
+	win=$(window_centre)
+	[[ -n "${win}" ]] && break
+	sleep 0.1
+done
+[[ -n "${win}" ]] || { echo "no window for city pid ${cpid} within 30 s" >&2; exit 1; }
+read -r id cx cy <<<"${win}"
+s0=$(date +%s)
+echo "window ${id} city ${cpid} start ${s0}" >"${out}/marks.txt"
+at() { while (($(date +%s) - s0 < $1)); do sleep 0.2; done; }
+focus() {
+	i3-msg "[id=${id}] focus" >/dev/null
+	python3 -I "${here}/lib/xin.py" move "${cx}" "${cy}"
+}
+mark() { echo "$1 $(date +%s) $(wc -l <"${out}/run/city.log")" >>"${out}/marks.txt"; }
+
+mark fit
+focus
+(
+	at 30
+	curl -s -o "${out}/cpu-fit-30-90.pb.gz" "http://127.0.0.1:6079/debug/pprof/profile?seconds=60"
+	at 150
+	curl -s -o "${out}/cpu-fullzoom-150-210.pb.gz" "http://127.0.0.1:6079/debug/pprof/profile?seconds=60"
+) &
+pp=$!
+for s in $(seq 10 10 90); do
+	at "${s}"
+	focus
+done
+at 100
+mark zoom_in
+focus
+python3 -I "${here}/lib/xin.py" wheel 40
+at 120
+mark full
+for s in $(seq 130 10 220); do
+	at "${s}"
+	focus
+done
+at 225
+mark end
+uptime >"${out}/load-end.txt"
+wait "${pp}"
+pp=""
+wait "${pc}"
+echo "${out}"

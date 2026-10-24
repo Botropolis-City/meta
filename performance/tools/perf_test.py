@@ -358,5 +358,44 @@ class WhenReplaying(unittest.TestCase):
             self.assertEqual(json.loads(f.read().splitlines()[-1])['sessionId'], 's1')
 
 
+def sample(epoch, comm, pid, private_dirty_mib, gpu_mib):
+    return {
+        'ts': perf.datetime.datetime.fromtimestamp(epoch).isoformat(timespec='seconds'),
+        'comm': comm, 'pid': str(pid),
+        'private_dirty_kib': str(private_dirty_mib * 1024), 'gpu_kib': str(gpu_mib * 1024),
+    }
+
+
+class WhenSummingAPhase(unittest.TestCase):
+    START = 1_800_000_000
+
+    def setUp(self):
+        s = self.START
+        self.rows = [
+            sample(s - 5, 'botropolis', 10, 900, 900),
+            sample(s, 'botropolis', 10, 100, 200),
+            sample(s, 'botropolis', 11, 5, 0),
+            sample(s, 'botropolisd', 20, 50, 0),
+            sample(s + 1, 'botropolis', 10, 120, 250),
+            sample(s + 2, 'botropolis', 10, 110, 210),
+            sample(s + 20, 'botropolis', 10, 900, 900),
+        ]
+        self.summary = perf.phase_summary(self.rows, s, s + 10)
+
+    def test_it_should_add_private_dirty_and_gpu_for_the_citys_processes_at_each_sample(self):
+        self.assertEqual(perf.phase_samples(self.rows, self.START, self.START + 1), [305])
+
+    def test_and_a_sample_is_the_daemons_it_should_leave_it_out(self):
+        self.assertNotIn(355, perf.phase_samples(self.rows, self.START, self.START + 1))
+
+    def test_and_a_sample_falls_outside_the_phase_it_should_leave_it_out(self):
+        self.assertEqual(len(perf.phase_samples(self.rows, self.START, self.START + 10)), 3)
+
+    def test_it_should_report_over_the_phase(self):
+        for key, want in (('least', 305), ('most', 370), ('mean', (305 + 370 + 320) / 3)):
+            with self.subTest('it should report the %s' % key):
+                self.assertAlmostEqual(self.summary[key], want)
+
+
 if __name__ == '__main__':
     unittest.main()
