@@ -1,6 +1,6 @@
 # 229. `tools/atlas-cost.py` crashes before it prices anything
 
-**Open, in progress since 2026-10-24 in the session "item 229". Filed 2026-10-24 (r969), found by item 162's session during its slice 14. Nobody's call — a defect in a tool.**
+**Fixed 2026-10-24 (`094b6f7`, r972). Filed 2026-10-24 (r969), found by item 162's session during its slice 14. Nobody's call — a defect in a tool.**
 
 On `main`, `python3 tools/atlas-cost.py` in `botropolis/` stops at once:
 
@@ -20,3 +20,18 @@ Its test: a run of `tools/atlas-cost.py` on the repository's own `render.py` exi
 ## Answered while building
 
 - **The test tree** (manager, 2026-10-24): approved as sent, `TestAtlasCost` in `testing/acceptance/atlas_cost_test.go` with `atlas-cost.py` importing `render.py` as a module under stand-in `bpy` modules; one change: the zoom levels are read from the shipped `kits-z*.json` files, not listed, since item 162's slice 14 adds a z1.5 level.
+
+## Closed
+
+Fixed in `094b6f7` (r972).
+`tools/atlas-cost.py` now imports `render.py` as a module, with stand-ins for the Blender-only modules, which neither `render.py` nor `buildings.py` uses at module level,
+so `PIECES`, `PAGE` and `PAD` are what the renderer packs however they are built.
+Its caller is `testing/acceptance/atlas_cost_test.go`, run by `make test`: every zoom with a shipped `kits-z*.json` replays its page count exactly, nothing says MISMATCH, the whole atlas is priced, and `--drop-unused` exits 0.
+The test opens the files the tool reads, so the Go test cache cannot replay a pass against a different tree.
+
+**A deviation, flagged for Aria: the fix went past the crash.**
+Once it ran, the tool printed `z2: 6 pages (MISMATCH — shipped 5)`, because its copy of the shelf packer predated item 162's slice 11, which moved the renderer to `pack.py`.
+That was a second rot behind the first,
+and fixing only the import would have left a tool that runs and lies.
+It now calls `render.py`'s own `pack.pack` over the sprites in the renderer's (piece, heading) order rather than a copy, and reads each zoom's shipped page count from its manifest.
+Both zooms now replay exactly.
