@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-24 in the session "item 222". Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
 
+Depends on: nothing
+Landed: slice 1 (`6110ef4`, r999).
+
 Aria, 2026-10-24, on item 162's 3x crop of a car at zoom 2.0: *"the cars are not on the road when zoomed"*.
 
 **Where it shows.** [Item 162](162-the-city-holds-gigabytes-of-gpu-memory.md)'s frames of the staged metropolis at zoom 2.0 by the tidepool lot (`dist/item-162-options/kits/pair-zoom2-car-3x.png` in its worktree): the green car sits on the pale kerb at the road's outer edge, beside the lot, rather than in a lane. It is the same in both halves, so it is not item 162's change.
