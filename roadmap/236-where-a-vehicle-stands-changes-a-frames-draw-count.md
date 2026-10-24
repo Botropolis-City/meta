@@ -12,3 +12,4 @@ Both raises were allowed, in the open and under the target, but a count that mov
 
 **What to find.** Which draws split batches in the depth-sorted pass, by page and by shader, and whether movers can be drawn so their order among buildings does not decide the batching (a mover's sprites on one page, or movers batched by page within a depth band where the sort allows).
 Then lower the ceilings back by whatever it saves, and add a case that moving a vehicle within its lane does not change the count.
+- **A third raise** (manager, 2026-10-24): item 223 changed the metropolis scene (fewer group lines) and the count rose again, to 26 by day and 43 by night, with no code changed, so the count moves with the scene as well as with where vehicles stand. Once this item finds the batch splits, it lowers both ceilings to what a fix reaches, and the ceilings stop moving with layout.
