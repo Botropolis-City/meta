@@ -15,3 +15,7 @@ Every other hotspot stays as item 231 left it.
 
 Tests: `src/data/glance.test.ts`'s district cases become "it should have exactly one district hotspot" and "its line should say a district is a directory, in the app's words"; the placement, no-overlap and phone-scroll tests stay.
 Then lint, test, push (CI deploys), `make verify`, and desktop and phone frames of the section for Aria.
+
+## Answered while building
+
+- **The one district hotspot** (manager, 2026-10-24, from Aria's ruling): titled "district", not a district's name, since its card speaks for all of them, and its line is `pkg/city/kinds.go`'s own sentence, *"Each district is a project: a directory on this machine. Its buildings are the sessions started there."*, on thistledown's plate, clear of the other hotspots. The test tree is approved as sent: exactly one district hotspot, its line saying a district is a directory in the app's words, the rest of `glance.test.ts` and the page tests unchanged.
