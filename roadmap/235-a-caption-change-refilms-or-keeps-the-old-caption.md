@@ -11,3 +11,8 @@ So there is no way to change a caption without re-filming, and the manifest the 
 **The fix.** Leave the words out of what the key hashes: a shot's key covers what changes its pixels, and its title and description change none.
 On every recall or adopt, take each media's title and description from the current scenario, so `make film` on unchanged footage writes a manifest with today's captions in seconds.
 Tests: changing only a shot's description keeps its key; a recalled and an adopted shot carry the scenario's current title and description; changing anything that draws still changes the key.
+
+## Answered while building
+
+- **The scenario's own description** (manager, 2026-10-24): left out of the key as well, by the item's rule that a key covers what changes pixels, provided nothing draws it; the session confirms by search that no drawing code reads a scenario's description or a shot's title or description, and that wherever a run writes a scenario's description into the manifest it takes the current one.
+- **The test tree** (manager, 2026-10-24): approved as sent, `TestShotKey`, `TestFilmCache` and `TestAdopt` in `pkg/demo/cache_test.go`, one slice, no acceptance test.
