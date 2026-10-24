@@ -1,6 +1,6 @@
 # 216. The website still shows nine lenses, and its media import fails on the new views clip
 
-**Open. Filed 2026-10-23 (r966), from the 0.3.0 re-film. Nobody's call — a defect; the 0.3.0 website update waits on it.**
+**Open, in progress since 2026-10-23 in the session "item 216". Filed 2026-10-23 (r966), from the 0.3.0 re-film. Nobody's call — a defect; the 0.3.0 website update waits on it.**
 
 Depends on: nothing
 
