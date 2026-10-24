@@ -8,7 +8,7 @@ Start one from this root with its make target, which names the session so other 
 | --- | --- | --- | --- |
 | `roadmap-manager` | roadmap manager | `roadmap-status`, `roadmap-add`, `roadmap-start`, `roadmap-manage`, `roadmap-attach`, `roadmap-close` | `ROADMAP.md`, `roadmap/`, starting items and answering their sessions, relaying to Aria |
 | `design-agent` | design agent | `planning-board` | the interview about what Botropolis becomes, in the private `vision/`, and the items it files |
-| `performance-manager` | performance manager | `perf-analysis` | `performance/`: the budgets, the method and the reports |
+| `performance-manager` | performance manager | `perf-analysis` | `performance/`: the budgets, the method and the reports; running botropolis's `make test-performance` before each release |
 | `auditor` | auditor | `roadmap-status`, `roadmap-add` | fresh-eyes audits of the whole city, filed as items |
 
 ```sh
