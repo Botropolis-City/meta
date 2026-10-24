@@ -133,3 +133,10 @@ The 87 top-level tests add up to 752 s, so the suite is serial in all but name: 
 | 85 | `TestTeardownSoak` | 0.0 | 0.0% | 100% | behaviour, skipped |
 | 86 | `TestVersionCheckSurface` | 0.0 | 0.0% | 100% | behaviour |
 | 87 | `TestCIStatus` | 0.0 | 0.0% | 100% | behaviour |
+
+## Answered while building
+
+- **`TestToolchainPins` failing on this machine's Go 1.27.3** (manager, 2026-10-24): filed as [item 227](227-testtoolchainpins-fails-when-the-machines-go-is-not-the-pin.md), and this session fixes it in its own commit citing 227, since it is in this item's landing path; then it closes 227 with `roadmap-close`.
+- **How a test names its tier** (manager, 2026-10-24): a marker as each test's first line, `t.Parallel()` for behaviour and a no-op `costTier(t)` for cost, instead of a build tag or name prefix. The fix leaves the mechanism open ("a build tag or name prefix the runner understands"), and this one keeps one `go test` and every test's name. Go runs every non-parallel top-level test first, alone, so the cost tier runs *before* the behaviour tier rather than after; that is still the quiet machine the cost tests need.
+- **How many behaviour tests run at once** (manager, 2026-10-24): bounded, not Go's default of `GOMAXPROCS`. Every test starts real binaries and often Xvfb, and fourteen-at-once is what took the load to 178 under item 186. Pick the `-parallel` value by timing two or three against slice 1's table and record it here.
+- **Slice 2's test tree** (manager, 2026-10-24): approved as sent, `TestEveryAcceptanceTestNamesItsTier` and `TestTier`, with two additions: the guard itself starts with `t.Parallel()`, and `TestTier` has a case for a test with neither marker, which should be reported as untiered, not defaulted to either tier.
