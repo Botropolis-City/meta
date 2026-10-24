@@ -45,10 +45,14 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [213](roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md) | a settled daemon on a 2,000-session home is just over its CPU budget: 2.3–2.6% counted against 2% | — | nobody |
 | [214](roadmap/214-the-dashboards-layout-sits-at-its-budget.md) | the unfocused dashboard's layout sits at its 1% budget once kernel time counts: 1.04% | — | nobody |
 | [217](roadmap/217-a-delivery-truck-drives-beside-the-bridge-not-on-it.md) | a delivery truck can leave the island beside the bridge instead of on it (the timelapse's first merge) | — | nobody, a defect |
+| [218](roadmap/218-the-bridge-moves-when-the-island-grows.md) | the bridge moves a row every time the island grows a row: anchor it | — | nobody |
+| [219](roadmap/219-the-bridge-ends-in-open-water.md) | the bridge ends in open water: run it off into the haze | — | nobody |
+| [220](roadmap/220-a-large-island-gets-a-second-bridge.md) | a large island gets a second bridge | 218 | Aria, the threshold |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
 
+- **The second bridge's threshold** (item 220): how large the island must be, and which coast it takes.
 - **The plant's reading.** Wants a frame, not a measurement.
 - **The validation checklist** has its own file, [`validation-checklist.md`](roadmap/validation-checklist.md). **Steps 1 and 8 pass** — step 1 now reconciles by session id rather than by title, which is what item 71 bought. **The other eight need her hands on the keyboard**, and the file says which keys.
 - **The plant frames are rendered and waiting** — `docs/screenshots/r320-plant-fountain-aligned.png` and `r320-plant-fountain-behind.png`, the camera turned 180° between them so the fountain moves out from under the flange. If the flange reads as an underside in the first and not the second, the fountain's alignment is the cause; if it reads the same in both, the flange is. Read the premise note on items 23 and 33 first — the flange description was derived from a piece that is no longer the one drawn.
