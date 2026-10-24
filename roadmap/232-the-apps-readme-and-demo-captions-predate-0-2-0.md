@@ -1,6 +1,6 @@
 # 232. The app's README and demo captions still describe the city before 0.2.0
 
-**Open, in progress since 2026-10-24 in the session "item 232". Filed 2026-10-24 (r969), found by item 231's session while listing what the website gets wrong. Nobody's call — a defect in copy.**
+**Fixed 2026-10-24 (`09c68c9`, r973). Filed 2026-10-24 (r969), found by item 231's session while listing what the website gets wrong. Nobody's call — a defect in copy.**
 
 Depends on: nothing
 Landed: slice 1 (`09c68c9`, r973).
@@ -18,3 +18,14 @@ A test that fails on those phrases in `README.md` and the scenario descriptions 
 ## Answered while building
 
 - **The test tree and "park" as a verb** (manager, 2026-10-24): approved as sent, `TestCopyUsesTheCitysOwnWords` in `testing/acceptance/readme_words_test.go`, reading captions through `demo.LoadScenario`, with `CHANGELOG.md` and `docs/compatibility.md` excluded. "Park" and "wake" as things done to a session become "stop" and "resume", the city's own action names and the words item 231 put on the website; the inspector's car that parks outside stays.
+
+## Closed
+
+`09c68c9` (r973) rewrote every hit from the app's own words.
+The README starts with `botropolis setup`, gives a building's height as the work its session has done, one to five storeys on your own scale, and stops and resumes sessions.
+The timelapse, workday and metropolis captions rest finished sessions on their own lots, and the demo README's state list and storage-yard line follow.
+The search found three hits the item had not listed, all fixed: workshop's overview caption said *parked*, `docs/usage-profile.md` gave parked sessions their own district, and `demo/README.md` said a replay's building rises to its context.
+`TestCopyUsesTheCitysOwnWords`, in `testing/acceptance/readme_words_test.go`, was red on every hit before the fix.
+It fails on *storage yard*, *parked*, *context window used* and *install-hooks* in the README, the demo README and every scenario caption, read through `demo.LoadScenario`.
+`3bc4da0` (r977) fixed the same stale wording in `scaleContext`'s comment in `pkg/demo/replay.go`, at the manager's request.
+Item 231 re-imported the captions, and the website carries them since botropolis.city `75434e2`.
