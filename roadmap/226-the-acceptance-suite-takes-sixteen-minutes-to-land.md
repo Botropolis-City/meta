@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-24 in the session "item 226". Filed 2026-10-24 (r968) at Aria's request, and prioritised by her: start it before other ready items. Nobody's call — the shape is agreed below.**
 
+Depends on: nothing
+Landed: slice 1 (`0922f2b`, r969).
+
 Aria, 2026-10-24: *"can you tell me why our acceptance tests take so long? is there a way to speed them up? Do we always need to run all of them? Can we chunk and cache in some form based on what changed?"*, then *"Add a roadmap item for this, and let's prioritize it"*.
 
 **What it costs.** `make land` ([item 186](186-item-sessions-land-side-by-side-and-time-out.md)) runs the full `make lint && make test` inside the landing lock, and `go test ./testing/acceptance/...` took 957 s of it at the 0.3.0 release, on a quiet machine. Every item landing pays it, one at a time, so with several sessions the queue for the lock is the bottleneck: item 217's one-line changelog commit waited behind item 162's landing and then ran the whole suite again.
