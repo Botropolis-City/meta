@@ -54,6 +54,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [224](roadmap/224-message-vans-and-hauls-keep-a-stale-path-after-a-re-layout.md) | message vans and hauls keep a stale path after a re-layout | — | nobody, a defect |
 | [225](roadmap/225-testthreadcpu-fails-under-load.md) | TestThreadCPU fails under load | — | nobody, a defect |
 | [227](roadmap/227-testtoolchainpins-fails-when-the-machines-go-is-not-the-pin.md) | `TestToolchainPins` fails whenever the machine's Go is not the pin; item 226 fixes it in its landing path | — | nobody |
+| [228](roadmap/228-a-bridge-test-compares-floats-exactly-and-ci-on-macos-is-red.md) | CI on macOS red since item 217: a bridge test compares float points exactly | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
