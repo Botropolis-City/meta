@@ -12,3 +12,7 @@ So while the camera pans, a pane's planks or the row it nails to can change betw
 
 **The fix.** Make each decision from world or sprite units that the camera cannot move, not from screen values: the wall row from the pane's position in the sprite, and the ribbon test from the pane's own size with a fixed tie-break.
 Tests: across a pan of whole and fractional pixels at every zoom step, each building's planks and wall rows stay the same.
+
+## Answered while building
+
+- **The plan and the test tree** (manager, 2026-10-24): approved as sent, one slice. `planksFor` and `nail` work in the sprite's own pixels (integer pane corners, the wall row from a sprite-pixel corner, the ribbon test on the integer pane), and only the finished planks are mapped to the screen, through a pure `boardsOf` that `shutter` and `shutterEach` share, so both ties sit on integers the camera cannot move. `TestBoardsHoldStillWhileTheCameraPans` in `pkg/render/facade_test.go` pans 0–3 pixels in eighths on both axes at every zoom step, kind and heading, red on main first; item 233's `--check-looks` in `make land` holds the cached looks to the direct draw as before. Away from the ties the planks are drawn exactly as today, so no frame for Aria.
