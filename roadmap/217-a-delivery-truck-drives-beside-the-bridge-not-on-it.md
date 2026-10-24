@@ -1,6 +1,6 @@
 # 217. A delivery truck can leave the island beside the bridge instead of on it
 
-**Open, in progress since 2026-10-24 in the session "item 217". Filed 2026-10-24 (r966) at Aria's request, from the 0.3.0 website clip "A day on two projects". Nobody's call — a defect.**
+**Fixed 2026-10-24 (`a555de7`, r967). Filed 2026-10-24 (r966) at Aria's request, from the 0.3.0 website clip "A day on two projects". Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`a555de7`, r967).
@@ -47,3 +47,12 @@ Two movers still store world points at birth and are not the same few lines, so 
 - **pack and unpack hauls** (`pkg/city/haul.go`): `Haul.To` is the building's centre at the haul's start, so a second move within `PackFor` (2 s) leaves the truck arriving where the building was.
 
 The first `make land` failed only on `pkg/daemon`'s `TestThreadCPU` ("15.92ms is not greater than or equal to 25ms" for a 100 ms spin), at a load average of about 11; the second passed unchanged.
+
+## Closed
+
+Fixed by slice 1 (`a555de7`, r967), with its changelog entry under `[Unreleased]`.
+Aria judged the frames on 2026-10-24: *"Approve and close"*.
+They come from a fresh film of the timelapse at `a555de7`, kept git-ignored at `botropolis/dist/item-217/`: `first-truck-29s-to-33s.png` and `second-truck-47s-to-53s.png`, both trucks up the ramp and along the deck to the far end.
+Whether the bridge moved during the first trip in that film cannot be told from the frames; the tests above cover that case directly.
+**The website's timelapse clip predates the fix** and keeps showing the old truck until the next release re-films it.
+Left for others: items 218 (anchor the bridge), 224 (message vans and hauls keep a stale path) and 225 (`TestThreadCPU` under load).
