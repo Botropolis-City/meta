@@ -48,6 +48,9 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [218](roadmap/218-the-bridge-moves-when-the-island-grows.md) | the bridge moves a row every time the island grows a row: anchor it | — | nobody |
 | [219](roadmap/219-the-bridge-ends-in-open-water.md) | the bridge ends in open water: run it off into the haze | — | nobody |
 | [220](roadmap/220-a-large-island-gets-a-second-bridge.md) | a large island gets a second bridge | 218 | Aria, the threshold |
+| [221](roadmap/221-the-railway-is-drawn-over-the-trees.md) | the railway is drawn over the trees | — | nobody, a defect |
+| [222](roadmap/222-cars-drive-on-the-kerb-when-zoomed-in.md) | cars drive on the kerb when zoomed in | — | nobody, a defect |
+| [223](roadmap/223-the-staged-metropolis-names-most-districts-millrace.md) | the staged metropolis names most of its districts "millrace" | — | nobody, a defect |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
