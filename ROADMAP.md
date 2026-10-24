@@ -31,6 +31,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 
 | item | what it wants | depends on | whose call |
 | --- | --- | --- | --- |
+| [226](roadmap/226-the-acceptance-suite-takes-sixteen-minutes-to-land.md) | **prioritised:** the acceptance suite takes sixteen minutes on every landing: parallel tiers, and land on what changed | — | nobody |
 | [76](roadmap/076-what-the-website-still-needs-filmed.md) | the website's stand-ins: a hero loop, a still per view, a social card, chosen posters, anchors | — | nobody, filming work |
 | [95](roadmap/095-the-global-shortcut-on-macos.md) | the global shortcut on macOS: registering is solved, coming forward needs a Mac run | — | nobody, needs a Mac |
 | [96](roadmap/096-the-global-shortcut-on-wayland.md) | the global shortcut on Wayland through the portal, with an app id and `.desktop` file | — | nobody, needs GNOME or KDE |
@@ -44,7 +45,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [212](roadmap/212-every-frame-re-records-every-drawable.md) | every frame re-records every drawable to find it unchanged: 43–59% of Draw; the way toward 10% of a core | — | nobody |
 | [213](roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md) | a settled daemon on a 2,000-session home is just over its CPU budget: 2.3–2.6% counted against 2% | — | nobody |
 | [214](roadmap/214-the-dashboards-layout-sits-at-its-budget.md) | the unfocused dashboard's layout sits at its 1% budget once kernel time counts: 1.04% | — | nobody |
-| [217](roadmap/217-a-delivery-truck-drives-beside-the-bridge-not-on-it.md) | a delivery truck can leave the island beside the bridge instead of on it (the timelapse's first merge) | — | nobody, a defect |
 | [218](roadmap/218-the-bridge-moves-when-the-island-grows.md) | the bridge moves a row every time the island grows a row: anchor it | — | nobody |
 | [219](roadmap/219-the-bridge-ends-in-open-water.md) | the bridge ends in open water: run it off into the haze | — | nobody |
 | [220](roadmap/220-a-large-island-gets-a-second-bridge.md) | a large island gets a second bridge | 218 | Aria, the threshold |
