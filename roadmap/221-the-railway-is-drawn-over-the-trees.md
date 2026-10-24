@@ -13,3 +13,8 @@ Aria, 2026-10-24, on item 162's zoom 2.0 coast frame: *"The train tracks are ren
 Draw the rail as ground: under every tree, building and vehicle that stands on or behind it, at every zoom and with the ground layer cached or not.
 
 Tests: a frame's draw record puts the rail's strokes before every standing item whose footprint overlaps it; a zoom 2.0 frame of the metropolis coast for Aria.
+
+## Answered while building
+
+- **The cause and the fix** (manager, 2026-10-24): the order was right; park trees are drawn at alpha 0.66 (`treeTint`, item 85), so the rail shows through them. Item 85 asked for trees lower in contrast and saturation than anything hoverable, which the translucency served, not for seeing through them; so park trees are drawn opaque with the same mix baked into their colour (rgb' = 0.66·0.86·rgb + 0.34·grass at the tree's foot, for the palette the ground uses), the same pixel over grass as before.
+- **The test tree** (manager, 2026-10-24): `TestParkTreesHideWhatIsUnderThem` in `pkg/render/view_test.go` replaces the draw-order test, which passes today and so cannot be red: full alpha for a park tree; a tinted texel matching the old translucent tree over its grass to 1/255; a street tree's tint unchanged; every park tree meeting a rail stroke on the zoom 2 metropolis coast at full alpha. Plus a before-and-after frame of that coast for Aria.
