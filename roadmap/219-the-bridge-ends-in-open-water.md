@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`0f9de38`, r989).
+Landed: slice 2 (`5147505`, r992).
 
 Aria, 2026-10-24: *"the bridge really does just seem to end in the middle of the water. I initially expected it to statically run off the whole map so it makes sense that things disappear, but that is a very long way to draw the cars driving."*
 
