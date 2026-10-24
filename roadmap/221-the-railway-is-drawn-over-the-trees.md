@@ -1,6 +1,6 @@
 # 221. The railway is drawn over the trees
 
-**Open, in progress since 2026-10-24 in the session "item 221". Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
+**Fixed 2026-10-24 (`29fa3f4`, r979). Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
 
 Aria, 2026-10-24, on item 162's zoom 2.0 coast frame: *"The train tracks are rendering over the trees"*.
 
@@ -20,3 +20,18 @@ Tests: a frame's draw record puts the rail's strokes before every standing item 
 - **The test tree** (manager, 2026-10-24): `TestParkTreesHideWhatIsUnderThem` in `pkg/render/view_test.go` replaces the draw-order test, which passes today and so cannot be red: full alpha for a park tree; a tinted texel matching the old translucent tree over its grass to 1/255; a street tree's tint unchanged; every park tree meeting a rail stroke on the zoom 2 metropolis coast at full alpha. Plus a before-and-after frame of that coast for Aria.
 - **Item 85's own test** (manager, 2026-10-24): `pkg/render/groundtint_test.go`'s "it should let the ground show through, lowering its contrast" pins the cause; it was an implementation test, not in the tree Aria agreed for item 85, so it is rewritten as "it should look as it did over the grass it stands on" (to 1/255, edges included) and "it should hide what lies under it", and the approved tree goes in that file.
 - **The fix's draw cost** (manager, 2026-10-24): opaque park trees drawn through a colour matrix break batching with the kit sprites beside them, 2–3 draw commands a frame on the settled metropolis (day 25, night 42). `TestTheWorkAFrameTakes`'s day and night ceilings, ratchets item 193 lowered to what it reached, rise to 25 and 42 citing item 221, in the open: the target they guard is 70, which still holds with room, and item 193's "same movers, no more than 1.25× the hamlet" case must still pass unchanged. Rejected: pre-mixed tree sprites per palette (more GPU memory, against item 162) and one shader for every kit sprite (far beyond this item).
+
+## Closed
+
+Fixed in `29fa3f4` (r979).
+Park trees are drawn opaque through a colour matrix that mixes in the ground at each tree's foot (`groundTreeMatrix`, `groundColour` in `botropolis/pkg/render/view.go`), by day, by night and under a view.
+`67b53eb` (r980) raises `TestTheWorkAFrameTakes`'s draw-command ceilings to the measured 25 by day and 42 by night, and labels them as measured at item 221.
+Item 193's hamlet comparison passed unchanged.
+The changelog entry is `0c7f487`.
+
+The tests are in `pkg/render/groundtint_test.go`, as the manager agreed, under the names `TestGroundTreeTint` and `TestTheRailwayIsUnderTheTrees` rather than `TestParkTreesHideWhatIsUnderThem`.
+The coast test also checks that it found park trees over the rail, so it cannot pass on an empty frame.
+
+**For Aria:** the before-and-after zoom 2.0 coast frames are in the item 221 worktree's `dist/item-221/`.
+`pair-zoom2-coast-rail-3x.png` is the close-up.
+One side effect: a park tree standing on a district's concrete floor now mixes in grass instead of showing the concrete through, so it looks a little greener there.
