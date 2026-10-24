@@ -118,3 +118,7 @@ The tests, all approved:
 - Tools: `check-asset-sources`' manifest pattern takes `kits-z1.5.json`; `read-road-pieces.py` and `atlas-cost.py` read the highest level, not z2 by name.
 - Unchanged, as the guards: `TestSettledMemory` keeps its limit at the 512 MiB target, never today's figure, skipping as unmet in item 194's shape if it is still over; the drawn-size test in `kits_test.go` holds across the levels.
 After it lands, measure full zoom on the real display the way the 0.3.0 table was (r964's method: the real history through a scratch daemon on a copy of the state directory, focused window, `perf-city`, `gpu_mib` with the GPU named), and send the roadmap manager the number and what is left against 512 before closing.
+
+## Answered while building, slice 14
+
+- **What slice 14 found beyond its tree** (the session "item 162", 2026-10-24, fixed in the slice): tests that set the camera to `atlas.Zoom` had silently stopped testing z1.5, since zoom 1.5 now picks z1; a `zoomPicking` helper gives each test a zoom that picks the level it means, with a precondition (`TestBridgeClearance` caught it; `TestPanesStayOnOneFace` and `TestBridgeRamp` had been checking z1 twice). The landmark-walls table's three art hashes changed, redrawn with `tools/landmark-walls` over the z1.5 sprites. `tools/atlas-cost.py` crashing on `main` is filed as [item 229](229-atlas-cost-crashes-before-it-prices-anything.md).

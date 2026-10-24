@@ -55,6 +55,8 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [225](roadmap/225-testthreadcpu-fails-under-load.md) | TestThreadCPU fails under load | — | nobody, a defect |
 | [227](roadmap/227-testtoolchainpins-fails-when-the-machines-go-is-not-the-pin.md) | `TestToolchainPins` fails whenever the machine's Go is not the pin; item 226 fixes it in its landing path | — | nobody |
 | [228](roadmap/228-a-bridge-test-compares-floats-exactly-and-ci-on-macos-is-red.md) | CI on macOS red since item 217: a bridge test compares float points exactly | — | nobody |
+| [229](roadmap/229-atlas-cost-crashes-before-it-prices-anything.md) | `tools/atlas-cost.py` crashes before pricing anything, since item 109 made `PIECES` call `buildings` | — | nobody |
+| [230](roadmap/230-the-sheet-path-can-still-die-of-an-interrupted-gamepad-open.md) | the sheet path still dies of an interrupted gamepad open: item 128's hold is missing there; item 226 fixes it | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
