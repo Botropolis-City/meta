@@ -17,3 +17,8 @@ Shots: `metropolis` at fit, its strip; `metropolis` with `ctrl+K` and `dri` type
 3. **`status` prints full model ids**: `claude-haiku-4-5-20251001` widens the MODEL column for every row (`botropolis/pkg/commands/status.go`). The city already says models short; the table could use the same short name, keeping the full id in `--json`.
 4. **Finder rows are cut at the panel's edge with no ellipsis.**
    A long prompt, path or title runs to the panel's right edge and stops mid-word (*"…pick up TIDE-16 (heights i"*), so the row reads as broken rather than shortened. The finder's rows want the same clip-with-`…` the card and the sidebar use.
+
+## Answered while building
+
+- **Which short model name** (manager, 2026-10-24): `format.Model(id)`, which drops `claude-` and a trailing `-YYYYMMDD` (`claude-haiku-4-5-20251001` → `haiku-4-5`) and leaves any other id as it is; the city's power mix (`mixName`) switches to it too, since this item says the table should use the name the city uses, and the city's only dropped the prefix. `--json` keeps the full id.
+- **The test tree** (manager, 2026-10-24): approved as sent, one slice.
