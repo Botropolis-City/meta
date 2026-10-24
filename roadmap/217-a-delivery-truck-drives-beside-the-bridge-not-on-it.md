@@ -1,6 +1,6 @@
 # 217. A delivery truck can leave the island beside the bridge instead of on it
 
-**Open. Filed 2026-10-24 (r966) at Aria's request, from the 0.3.0 website clip "A day on two projects". Nobody's call — a defect.**
+**Open, in progress since 2026-10-24 in the session "item 217". Filed 2026-10-24 (r966) at Aria's request, from the 0.3.0 website clip "A day on two projects". Nobody's call — a defect.**
 
 Aria, 2026-10-24: *"in the video of a day on two projects, the green car leaves the screen not on the bridge"*.
 
