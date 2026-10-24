@@ -30,6 +30,16 @@ The load average was 10.2 over 1 minute and 15.5 over 5 when it started: the loc
 
 The unfocused city's 0.96% is the figure nearest its budget, so it is the first to watch in later runs.
 
+## Later runs
+
+Each run after a landing that touches drawing, memory or the daemon, against this baseline.
+The figures are the table's above, in its order of rows, from the tests' own logs.
+
+| run | range | result | daemon settled | 2,000 sessions | first launch peak | first city | hidden / unfocused | city settled | load at start |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| r996 (baseline) | | 70 pass, 2 skip | 1.08%, 1.31% | 2.71%, 2.78% | 59%, 28 MiB | 0.08 CPU-s | 0.44%, 0.96%, 0.70% | 197 MiB | 10.2 |
+| r998 `241e1a9` | `8c2b968..241e1a9`, item 236 slice 1 | 70 pass, 2 skip | 1.01%, 1.28% | 2.73%, 2.69% | 53%, 30 MiB | 0.12 CPU-s | 0.44%, 0.94%, 0.71% | 194 MiB | 23.1 |
+
 ## What it does not show
 
 - **A GPU.** The city's GPU memory, and so its 512 MiB budget, is only measured on the real display; [item 162](../../roadmap/162-the-city-holds-gigabytes-of-gpu-memory.md)'s runs are where it stands.
