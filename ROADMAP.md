@@ -51,7 +51,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [230](roadmap/230-the-sheet-path-can-still-die-of-an-interrupted-gamepad-open.md) | the sheet path still dies of an interrupted gamepad open: item 128's hold is missing there; item 226 fixes it | — | nobody |
 | [231](roadmap/231-the-website-still-talks-about-the-city-before-0-3-0.md) | the website's words still describe the city before 0.3.0: rewrite its rhetoric and release it | — | nobody |
 | [236](roadmap/236-where-a-vehicle-stands-changes-a-frames-draw-count.md) | where a vehicle stands changes a frame's draw count: batches split in the depth-sorted pass | — | nobody |
-| [237](roadmap/237-a-panning-camera-can-flip-a-facades-planks.md) | a panning camera can flip a facade's planks or a pane's wall row from frame to frame | — | nobody |
 | [238](roadmap/238-a-baked-look-can-differ-by-a-pixel-for-some-shapes.md) | a baked look can still differ from the direct draw by a pixel for some shapes | — | nobody, until it shows on the art |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
