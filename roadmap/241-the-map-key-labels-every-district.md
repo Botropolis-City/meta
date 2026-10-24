@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`3af74ef`, r1006).
+Landed: slice 2 (`fe99eff`, r1006).
 
 Aria, 2026-10-24, on the map key [item 231](231-the-website-still-talks-about-the-city-before-0-3-0.md) put live: *"We don't need to labe levery single directory on the glance. Just one of them with subtext to say that each plaza/district is a directory"*.
 Item 231 gave each of the still's 12 districts its own hotspot, by name; that crowds the picture and says one thing twelve times.
