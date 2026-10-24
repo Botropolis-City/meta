@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-24 in the session "item 219". Filed 2026-10-24 (r966) at Aria's request. Nobody's call — Aria chose: the bridge runs off into the haze.**
 
+Depends on: nothing
+Landed: slice 1 (`0f9de38`, r989).
+
 Aria, 2026-10-24: *"the bridge really does just seem to end in the middle of the water. I initially expected it to statically run off the whole map so it makes sense that things disappear, but that is a very long way to draw the cars driving."*
 
 Today the deck ([item 132](132-the-bridge-road-crosses-the-rail-and-ends-in-the-water.md), [item 146](146-the-bridge-ramp-is-a-solid-wedge.md)) stops a short way out from the coast, and delivery trucks vanish at its far end, so the bridge reads as going nowhere.
