@@ -1,6 +1,6 @@
 # 187. A demo clip that takes more than an hour to film loses its live sessions partway through
 
-**Open, in progress since 2026-10-23 in the session "item 187". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its motion clips. Nobody's call — a defect.**
+**Fixed 2026-10-23 (`74e16ec`, r966). Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its motion clips. Nobody's call — a defect.**
 
 Depends on: nothing
 
@@ -19,3 +19,11 @@ It shows when the machine is busy, which is exactly when item sessions film side
 
 The fix sizes the hold from the work, not the clock — the stand-ins are unstaged at the end of each shot anyway, so the hold can be long (a day), or the director can renew them.
 A test: a `Filmer` with a fake clock that advances past an hour between frames keeps every placed session live until its `leave`.
+
+## Closed
+
+Fixed in `74e16ec` (r966): `Filmer` holds each shot's stand-ins for `filmHold`, a day, and `TestFilmHold` in `botropolis/pkg/demo/film_test.go` holds that above the slowest film measured, this item's 1 h 39 min.
+It was red at the old hour and green at a day.
+The fake-clock test was not written: a stand-in is a real `sleep`, so its life is wall-clock time and no clock on `Filmer` reaches it, and a fake spawner that modelled expiry would only restate the constant.
+`botropolis-demo stage --hold` keeps its default of an hour, because it is for a recording made after the stager exits, and whoever runs it sets it.
+Tying the stand-ins to the filmer's own lifetime, so that no hold exists at all, was rejected for now: `Pdeathsig` fires when the OS thread that forked the child exits, not the process, and the Go runtime can retire that thread (golang/go#27505), while a stand-in that waits on a pipe instead changes the process the city sees.
