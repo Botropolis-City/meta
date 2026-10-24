@@ -1,6 +1,6 @@
 # 222. Cars drive on the kerb when zoomed in
 
-**Open, in progress since 2026-10-24 in the session "item 222". Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
+**Fixed 2026-10-24 (`6110ef4`, r999). Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`6110ef4`, r999).
@@ -25,3 +25,24 @@ Tests: for each heading, the car's drawn footprint at fit, zoom 1.5 and zoom 2.0
 - **Two changes beyond the ruling** (the session "item 222", 2026-10-24, inside the item's "every heading"; the manager checked the frames): right-angle road turns follow the kit's quarter-ring bend instead of a mitred square corner, since cars clipped the outer kerb at every bend; and a lot's front lane moves from 8 to 16 units in from the edge (`city.FrontLane`), since a 20-long truck turning there put its nose over the kerb, so site trucks reach the driveway along the joined road. Frames for Aria: `dist/item-222/zoom2-lots-and-bends.png` and `zoom2-crops-3x.png` in its worktree.
 - **The night ceiling** (manager, 2026-10-24): the change moves where vehicles stand, and one now splits a batch in the depth-sorted pass, so the metropolis by night takes 40 commands against a ceiling of 39. The ceiling rises by that one, citing item 222, under the target of 70; the cause is filed as [item 236](236-where-a-vehicle-stands-changes-a-frames-draw-count.md). Item 221 raises the same ceiling for its own cost, so whichever of the two lands second measures the combined count on its rebase and raises only to that.
 - **Landing after item 236's batching fix** (manager, 2026-10-24): item 222 lands once item 236's slice 1 is on `main`, setting the metropolis ceilings to its own measured count (item 236 measured 24/41 on `51c05d1`), one over what slice 1 measures without it, and under the 26/43 the freeze held; anything above 24/41 comes back to the manager.
+
+## Fixed
+
+The car on the kerb was the inspector, parked: its spot ran 8 units inside the lot's edge, and item 153's 9.6-unit keep-right offset put it 1.6 units onto the road's pale kerb.
+The zoom only made it visible.
+Every road vehicle now places itself through one rule in `botropolis/pkg/render/lanes.go`:
+
+- a leg inside a block, by `City.InBlock`, keeps a lot lane's half-lane of 3 units, and a leg on the roads keeps 9.6, joined at the general mitre;
+- a right-angled turn between road legs follows the bend's quarter ring, as the road kit draws it, rather than cutting across its outer kerb;
+- the lane along a lot's front runs `city.FrontLane`, a tile, inside the edge;
+- a site truck comes to the driveway along the road it joins.
+
+`TestRoadVehiclesStayOnTheirGround` (`botropolis/pkg/render/kerb_test.go`) drives the inspector, the delivery truck, the skip truck, the mixer, traffic and vans through a city with driveways on all four sides, at each camera heading, and reads the road piece's own pixels under every wheel.
+A road-width lot lane, square bends or the old front lane each turn it red.
+`TestVehicleSpritesStandOnTheirFoot` holds the anchors of every level within 2 world units of each other: they differ by 1.6 at most, from whole-pixel rounding, well inside the gutter beside a lane.
+The metropolis's draw-command ceilings are 24 by day and 41 by night (`0601797`, r1000), as item 236 measured on this change.
+
+**Deviations, for Aria:** the lot lane is 3 units, not the "about 3.5" recorded above, because a building's front leaves only 6.6 units of room.
+Two vehicles meeting head-on inside a lot can overlap, which the manager accepted for tonight.
+Bends and the deeper front lane go beyond the item's report, under its "every heading".
+The frame: `dist/item-222/zoom2-lots-and-bends.png`, with 3x crops in `zoom2-crops-3x.png`, in the item 222 worktree, drawn from the zoom 2 atlas where the code places each vehicle.
