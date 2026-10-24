@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-24 in the session "item 232". Filed 2026-10-24 (r969), found by item 231's session while listing what the website gets wrong. Nobody's call — a defect in copy.**
 
+Depends on: nothing
+Landed: slice 1 (`09c68c9`, r973).
+
 [Item 231](231-the-website-still-talks-about-the-city-before-0-3-0.md) rewrites the website, but two of its sources live in botropolis and are stale the same way, and the site's rule is to quote the app rather than correct it.
 
 - **`botropolis/README.md`.** Line 46 says *"A building's height is its context window used"*; since 0.2.0 a building's height is how much work its session has done, one to five storeys on your own scale. Its *Start here* (lines 13–14) starts the daemon with `systemctl --user enable --now botropolisd` and `botropolis install-hooks`; since 0.3.0 `botropolis setup` does both, and `install-hooks` is a deprecated name.
