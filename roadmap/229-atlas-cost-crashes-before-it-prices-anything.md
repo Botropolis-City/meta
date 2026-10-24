@@ -16,3 +16,7 @@ So the tool has not run for six days, and nothing noticed, because nothing calls
 
 **The fix.** Read `PIECES` by importing `render.py`'s module, or `buildings.py` into `ns` before the `exec`, so the tool sees the list the renderer packs; importing is the sturdier choice, since the next non-literal would break the regex again.
 Its test: a run of `tools/atlas-cost.py` on the repository's own `render.py` exits 0 and prices every page, so the tool cannot rot silently again; put it where the other tool checks run, so `make lint` or `make test` calls it.
+
+## Answered while building
+
+- **The test tree** (manager, 2026-10-24): approved as sent, `TestAtlasCost` in `testing/acceptance/atlas_cost_test.go` with `atlas-cost.py` importing `render.py` as a module under stand-in `bpy` modules; one change: the zoom levels are read from the shipped `kits-z*.json` files, not listed, since item 162's slice 14 adds a z1.5 level.
