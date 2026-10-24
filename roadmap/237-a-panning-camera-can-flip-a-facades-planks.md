@@ -1,6 +1,6 @@
 # 237. A panning camera can flip a facade's planks or a pane's wall row from frame to frame
 
-**Open. Filed 2026-10-24 (r978), found by item 233's session. Nobody's call — a defect.**
+**Open, in progress since 2026-10-24 in the session "item 237". Filed 2026-10-24 (r978), found by item 233's session. Nobody's call — a defect.**
 
 [Item 233](233-cached-building-looks-differ-when-drawn-up.md) traced cached building looks that differ from the direct draw to discrete decisions sitting exactly on a tie, which float noise in the camera's offset tips one way or the other.
 Item 233 removes that noise from the cache, by baking at the frame's own coordinates, but two of the ties are real in the direct draw as well, because the camera's offset changes as it pans:
