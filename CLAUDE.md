@@ -143,6 +143,12 @@ It reads the roadmap through `tools/roadmap.py`, the grammar `make docs-check` e
   Commit here at the root for the roadmap and these documents; commit from inside a child for that child.
 - **Commit only the paths you name: `git commit -- <paths>`.**
   Every item session commits its `Landed:` lines from this one checkout, so they share one index, and a bare `git commit` takes whatever another session staged a second earlier — item 86's slice 1 line went out in `bbc3932`, "Start item 84".
+- **Never rewrite a commit in this shared checkout** — no `git commit --amend`, rebase of local commits or reset onto them (Aria, 2026-10-24).
+  Another session may have committed between your two steps: on 2026-10-24 an amend here briefly took item 226's commit under item 231's message, and only a quick reset kept it from being pushed.
+  Fix a mistake with a new commit, and never leave edits here uncommitted while you wait on something, since a modified file blocks every other session's `git pull --rebase`.
+- **Never wrap a command to get it past the worktree guard** (Aria, 2026-10-24).
+  A worktree session refuses commands it cannot show are not git outside its worktree; a script, `bash -c` or `sh -c` under `flock` hides what runs from it, and an item session did exactly that overnight.
+  The way through is a reviewed make target that takes the lock itself, as `make land` and `make test-acceptance-locked RUN='^TestName$'` do in botropolis.
 - **Every commit is signed with Aria's own key.** `git verify-commit HEAD` after a commit is the check, and it should report a good signature for `dev@ariavesta.com`.
   On a machine whose global git identity is anyone else's, give each repository its own identity and signing key before its first commit; the gotchas in `botropolis/CLAUDE.md` name them.
 - **This repository, botropolis and botropolis.city are public: every push publishes.**
