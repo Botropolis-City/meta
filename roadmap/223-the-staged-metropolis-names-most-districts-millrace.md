@@ -1,6 +1,6 @@
 # 223. The staged metropolis names most of its districts "millrace"
 
-**Open. Filed 2026-10-24 (r966), noticed by item 162's session. Nobody's call — a defect.**
+**Open, in progress since 2026-10-24 in the session "item 223". Filed 2026-10-24 (r966), noticed by item 162's session. Nobody's call — a defect.**
 
 **Where it shows.** The `metropolis` demo scenario, staged and shown at fit with labels on (`dist/item-162-options/shore/fit-before.png` in item 162's worktree, or the overview without `h`): nearly every district's label reads "millrace".
 

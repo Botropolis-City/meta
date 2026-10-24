@@ -1,6 +1,6 @@
 # 233. A building's cached look differs from its direct draw when a kit level is drawn up
 
-**Open. Filed 2026-10-24 (r971), found by item 162's session during its slice 14. Nobody's call — a defect.**
+**Open, in progress since 2026-10-24 in the session "item 233". Filed 2026-10-24 (r971), found by item 162's session during its slice 14. Nobody's call — a defect.**
 
 [Item 192](192-a-building-is-drawn-from-many-pieces-every-frame.md) caches each building's look, and `--check-looks` compares every cached look with the building drawn directly from its pieces.
 At zoom 1.5, which draws the z1 kit level up by 1.5 on `main`, `--check-looks` finds 12 cached looks that differ from the direct draw by up to 35 levels, in small patches of about 10×7 pixels; residential tier 5 differs at every heading.
