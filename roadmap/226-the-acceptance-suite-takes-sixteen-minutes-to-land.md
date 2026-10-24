@@ -5,6 +5,7 @@
 Depends on: nothing
 Landed: slice 1 (`0922f2b`, r969).
 Landed: slice 2 (`8c2b968`, r996).
+Landed: slice 3 (`eebf342`, r1002).
 
 Aria, 2026-10-24: *"can you tell me why our acceptance tests take so long? is there a way to speed them up? Do we always need to run all of them? Can we chunk and cache in some form based on what changed?"*, then *"Add a roadmap item for this, and let's prioritize it"*.
 
@@ -166,6 +167,17 @@ That is short of the 1½ minutes estimated from slice 1's quiet table, because a
 
 **`make test-acceptance-locked RUN='^TestName$'`** (`c84a1eb`, r993) takes the landing lock itself and runs only the named tests, through the runner since slice 2, so a worktree session can run acceptance tests without running them beside a landing's gate.
 Its test is `TestAcceptanceLocked`, on `make land`'s scratch-repository rig, red with the `flock` taken out.
+
+## Slice 3: landing on what changed
+
+`make land`'s gate is now `lint test-landing`, which runs the unit and integration tests and `make test-acceptance-changed` (`eebf342`, r1002).
+The map of the packages each acceptance test runs is kept per revision under `${XDG_CACHE_HOME:-~/.cache}/botropolis/acceptance-map/`, shared by every checkout and worktree, and a landing diffs from the nearest map at an ancestor of `HEAD`.
+A change inside `testing/acceptance` selects through the package's own call graph: the tests that reach a changed function, method, constant, variable or type.
+It runs everything and saves a new map, saying why, whenever main's last CI run was not green, the map is not an ancestor or is more than 30 commits back, a test was added or removed, a change reaches `TestMain`, or a file cannot be traced.
+`ci-status` still never refuses a landing; it decides how much one tests.
+
+Two departures from the agreed tree, both told to the manager: the red-CI rule lives in the tool, so `TestChoose` and `TestTargetedRuns` test it rather than a `land_test.go` probe, and the case for a cost test's package went with slice 2, since the performance tests are no longer in the gate.
+The first landing found no map, ran everything under coverage, and saved the map at `eebf342`; landings after it select from that map.
 
 ## Answered while building
 
