@@ -26,7 +26,10 @@ Open the city, sample it and the daemon for a while, and write a run directory.
                       rest of the run measures a hidden window (default: never)
   --interval N        seconds between samples (default: ${interval})
   --headless          run on a virtual display (llvmpipe: CPU and memory are NOT
-                      representative of a real GPU; use only to compare two builds)
+                      representative of a real GPU; use only to compare two builds).
+                      It passes the city's own --headless, which only a devtools
+                      build has; a perf-pprof-build binary exits with "unknown
+                      flag", so run perf-city under 'xvfb-run -a' instead
   --out DIR           run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
   -h, --help          this
 

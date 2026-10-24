@@ -104,6 +104,8 @@ These are the inputs that have moved numbers by more than the change being measu
   `--name botropolisd` caught the A/B daemons alongside the real one; pass `--by-pid` to `perf-report`, or sample `--pid`.
 - **The city is single-instance.**
   Starting a second one raises the first window and exits; give the second its own `XDG_RUNTIME_DIR` and `--socket` the real daemon (see `perf-pprof-build --help`).
+- **`perf-city --headless` needs a `devtools` build.**
+  It passes the city's own `--headless`, which a `perf-pprof-build` binary does not have, so on 2026-10-24 both cities of a heap A/B exited at once with "unknown flag" and the run measured nothing; under `xvfb-run -a`, without `--headless`, the same builds ran.
 - **`VmRSS` and cgroup peaks are the wrong numbers**; see the table above.
 - **The instrument must not be inside the thing it measures.**
   Sample from outside the process.
