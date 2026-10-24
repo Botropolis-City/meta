@@ -13,3 +13,7 @@ It misleads a live city after its first read as well as every still and clip fil
 
 When the history's first read finishes (the snapshot whose `HeftsRead` turns true, which is also what opens a capture), the scene has the ledger read its windows fresh instead of reusing a cached answer; the 30-second reuse stands for every snapshot after.
 Tests: in `pkg/stats`, a window the scene asks to be read fresh is read again even inside its 30 seconds; in `pkg/city`, the scene that opens on a finished read shows each window as the store holds it.
+
+## Answered while building
+
+- **The test tree** (manager, 2026-10-24): approved as sent. `stats.Ledger.ReadFresh()` marks every cached window and the session costs due once, and `Scene.SetSnapshot` calls it when a snapshot's `HeftsRead` turns true after one that was not, for a capture and a live city alike. `TestALedgerReadsFreshWhenAsked` in `pkg/stats/ledger_test.go` and `TestTheSceneReadsTheLedgerFreshWhenItsHistoryIsRead` in `pkg/city`, including that a read snapshot after a read one does not read fresh again, so the 30 s reuse item 215 bought is kept.
