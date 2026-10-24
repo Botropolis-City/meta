@@ -1,0 +1,17 @@
+# 241. The website's map key labels every district, where one would do
+
+**Open, in progress since 2026-10-24 in the session "item 241". Filed 2026-10-24 (r1006) at Aria's request. Nobody's call — Aria ruled what it shows.**
+
+Depends on: nothing
+
+Aria, 2026-10-24, on the map key [item 231](231-the-website-still-talks-about-the-city-before-0-3-0.md) put live: *"We don't need to labe levery single directory on the glance. Just one of them with subtext to say that each plaza/district is a directory"*.
+Item 231 gave each of the still's 12 districts its own hotspot, by name; that crowds the picture and says one thing twelve times.
+
+## The fix
+
+In botropolis.city's "Read it" section (`src/components/Glance.astro` and its data), keep one district hotspot and drop the other eleven.
+Its line says that each district is a directory, quoting the app's own words (`pkg/city/kinds.go`: "a directory where sessions run"), as item 231's rule and test require.
+Every other hotspot stays as item 231 left it.
+
+Tests: `src/data/glance.test.ts`'s district cases become "it should have exactly one district hotspot" and "its line should say a district is a directory, in the app's words"; the placement, no-overlap and phone-scroll tests stay.
+Then lint, test, push (CI deploys), `make verify`, and desktop and phone frames of the section for Aria.
