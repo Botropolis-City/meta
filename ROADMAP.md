@@ -48,7 +48,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [219](roadmap/219-the-bridge-ends-in-open-water.md) | the bridge ends in open water: run it off into the haze | — | nobody |
 | [220](roadmap/220-a-large-island-gets-a-second-bridge.md) | a large island gets a second bridge | 218 | Aria, the threshold |
 | [222](roadmap/222-cars-drive-on-the-kerb-when-zoomed-in.md) | cars drive on the kerb when zoomed in | — | nobody, a defect |
-| [223](roadmap/223-the-staged-metropolis-names-most-districts-millrace.md) | the staged metropolis names most of its districts "millrace" | — | nobody, a defect |
 | [224](roadmap/224-message-vans-and-hauls-keep-a-stale-path-after-a-re-layout.md) | message vans and hauls keep a stale path after a re-layout | — | nobody, a defect |
 | [225](roadmap/225-testthreadcpu-fails-under-load.md) | TestThreadCPU fails under load | — | nobody, a defect |
 | [230](roadmap/230-the-sheet-path-can-still-die-of-an-interrupted-gamepad-open.md) | the sheet path still dies of an interrupted gamepad open: item 128's hold is missing there; item 226 fixes it | — | nobody |
