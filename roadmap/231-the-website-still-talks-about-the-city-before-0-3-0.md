@@ -1,6 +1,6 @@
 # 231. The website still talks about the city as it was before 0.3.0
 
-**Open, in progress since 2026-10-24 in the session "item 231". Filed 2026-10-24 (r969) at Aria's request. Nobody's call — Aria ruled on how it ships, below.**
+**Done 2026-10-24 (botropolis.city `c331350`, r1005). Filed 2026-10-24 (r969) at Aria's request. Nobody's call — Aria ruled on how it ships, below.**
 
 Landed: slice 1 (`157c8b1`, r969).
 Landed: slice 2 (`5f9f34c`, r969).
@@ -45,3 +45,21 @@ Tests: the site's acceptance tests pin some copy; change them with the copy, tes
 - **The map key needs more, and nothing that means nothing** (Aria, 2026-10-24, on reading the live site): *"we need to fix the \"Everything on the map means one thing\" picture. Specifically, we should have more hoverable circles, and having the hoverable circle over the fountain that says it means nothing undermines the whole thing. We should label the libray, power plant, running buildings, abandoned buildings, the road, each district, the trains"*. So the "Read it" section drops the fountain's hotspot (a hotspot saying something means nothing contradicts the heading) and adds hotspots for the library, the power plant, a working building, an abandoned building, the road, every district and the trains, each worded from the app's own hover card or README, as the site's rule says.
 - **The map key's details** (Aria, 2026-10-24, asked by the manager): every hotspot's words come from `pkg/city/kinds.go`, the app's caption and reference sentence for each kind; "abandoned" means the quiet ones (a shuttered building if the still has one, otherwise a resting one), the unattended label staying; on a phone the map keeps about 900 px wide and scrolls sideways inside its own frame with a "drag to see the city" hint, the page never scrolling sideways; placement is checked against the still's own pixels (a district hotspot on plate grey, every other on something drawn).
 - **The hotspots' test tree and the unattended wording** (manager, 2026-10-24): approved as sent, `src/data/glance.test.ts` (no fountain; one hotspot each for the library, power plant, working, resting, unattended, road and trains; one per district, named once; each line containing its quote, the quote found in its app source, the hotspot on the plate, plaza, water or object it names, by a pixel classifier tested on fixed colours) and the page tests (no two hotspots overlapping at 1440 and 360; at 360 the map scrolls inside its frame and says "drag to see the city"). The app has no sentence of its own for "unattended", so its line quotes `design/session-lifecycle.md`'s definition, "with no terminal attached"; "abandoned" is a resting building, since none in the still has been quiet a week.
+
+## Done
+
+Four slices in botropolis.city, each deployed by CI on its push to `main` and checked with `make verify` and the page tests against production:
+
+1. `157c8b1` rewrote the page for 0.3.0: the hero, the description and social text, the map key (resting for parked, the depot for the storage yard), the drive section's card actions, the install steps (`botropolis setup`) with an upgrade note, the footer, and a new *new in 0.3.0* section with the changelog's table, the machine it was measured on and both missed budgets.
+2. `5f9f34c` held that section's headline to the table: "Up to four times faster to draw, on a tenth of 0.2.2's memory".
+3. `75434e2` brought item 232's clip captions onto the site from a manifest rebuilt from the scenarios, without re-filming; the live page no longer says "storage yard".
+4. `c331350` rebuilt the map key as Aria asked: no fountain; the library, the power plant, a working and a resting building, the road, the trains and all 12 districts by name, each worded from `pkg/city/kinds.go` and the app's other sources; on a phone the map scrolls inside its own frame.
+
+Tests guard each claim: every figure and the headline's ratios against the changelog, the beacons and card actions against `pkg/state` and `pkg/city`, the start steps against deprecated commands, every caption and the page against the sentences 0.3.0 made false, and every hotspot's words against the app's file and its place against the still's own pixels.
+The frames and a before-and-after of every sentence went to Aria through the roadmap manager.
+
+**Aria's verdict**, 2026-10-24, on the map key and the item: *"Approve and close"*.
+
+Deviations, flagged:
+- `make site-deploy` could not run on the first slice, because the 1Password app was not running and `secret-run` could not resolve the deploy token; CI's deploy on each push to `main` released every slice instead.
+- The frame `live-glance-desktop.png` showed the sticky top bar across the section's intro line. That is the whole-element screenshot stitching the bar into the section, not the page: jumping to `#glance` on the live site puts the bar's bottom at 36 px and the section's first line at 188 px on desktop and 124 px at 360, because `scroll-padding-top` already offsets anchors.
