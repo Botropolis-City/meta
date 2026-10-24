@@ -1,6 +1,6 @@
 # 187. A demo clip that takes more than an hour to film loses its live sessions partway through
 
-**Open. Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its motion clips. Nobody's call — a defect.**
+**Open, in progress since 2026-10-23 in the session "item 187". Filed 2026-10-20 (r786), by the fresh-eyes audit, item 154, from its motion clips. Nobody's call — a defect.**
 
 Depends on: nothing
 
