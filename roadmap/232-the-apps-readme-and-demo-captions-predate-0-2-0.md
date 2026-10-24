@@ -1,6 +1,6 @@
 # 232. The app's README and demo captions still describe the city before 0.2.0
 
-**Open. Filed 2026-10-24 (r969), found by item 231's session while listing what the website gets wrong. Nobody's call — a defect in copy.**
+**Open, in progress since 2026-10-24 in the session "item 232". Filed 2026-10-24 (r969), found by item 231's session while listing what the website gets wrong. Nobody's call — a defect in copy.**
 
 [Item 231](231-the-website-still-talks-about-the-city-before-0-3-0.md) rewrites the website, but two of its sources live in botropolis and are stale the same way, and the site's rule is to quote the app rather than correct it.
 

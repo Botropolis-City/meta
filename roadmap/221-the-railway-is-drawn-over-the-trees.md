@@ -1,6 +1,6 @@
 # 221. The railway is drawn over the trees
 
-**Open. Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
+**Open, in progress since 2026-10-24 in the session "item 221". Filed 2026-10-24 (r966) at Aria's request, from item 162's frames. Nobody's call — a defect.**
 
 Aria, 2026-10-24, on item 162's zoom 2.0 coast frame: *"The train tracks are rendering over the trees"*.
 

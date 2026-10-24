@@ -1,6 +1,6 @@
 # 229. `tools/atlas-cost.py` crashes before it prices anything
 
-**Open. Filed 2026-10-24 (r969), found by item 162's session during its slice 14. Nobody's call — a defect in a tool.**
+**Open, in progress since 2026-10-24 in the session "item 229". Filed 2026-10-24 (r969), found by item 162's session during its slice 14. Nobody's call — a defect in a tool.**
 
 On `main`, `python3 tools/atlas-cost.py` in `botropolis/` stops at once:
 

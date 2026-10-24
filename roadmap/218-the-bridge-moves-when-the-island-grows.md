@@ -1,6 +1,6 @@
 # 218. The bridge moves a row every time the island grows a row
 
-**Open. Filed 2026-10-24 (r966) at Aria's request, from item 217. Nobody's call — Aria decided: anchor it.**
+**Open, in progress since 2026-10-24 in the session "item 218". Filed 2026-10-24 (r966) at Aria's request, from item 217. Nobody's call — Aria decided: anchor it.**
 
 Aria, 2026-10-24, on whether the bridge should move as the island grows: *"It should stay where it is."*
 
