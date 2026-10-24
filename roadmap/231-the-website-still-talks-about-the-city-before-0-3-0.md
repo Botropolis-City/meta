@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-24 in the session "item 231". Filed 2026-10-24 (r969) at Aria's request. Nobody's call — Aria ruled on how it ships, below.**
 
 Landed: slice 1 (`157c8b1`, r969).
+Landed: slice 2 (`5f9f34c`, r969).
 
 Aria, 2026-10-24: *"Since 3.0.0 was such drastic changes, we should update the website and its rhetoric accordingly. Not just the assets. Have an agent do that and release it."*
 The release she means is botropolis `v0.3.0`, tagged 2026-10-23; there is no 3.0.0.
