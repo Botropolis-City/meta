@@ -69,6 +69,11 @@ if [[ "${take_lock}" == 1 ]]; then
 	exec flock "${lock}" "$0" --locked --no-wait "${build}" "${out}"
 fi
 
+if command -v xset >/dev/null && xset q 2>/dev/null | grep -q 'Monitor is Off'; then
+	echo "the monitor is off, and a locked or idle screen keeps the focus from every window: the city would draw nothing. Run it when the desk is in use." >&2
+	exit 1
+fi
+
 if pgrep -a -x botropolis | grep -q ' city'; then
 	echo "a city is already open; close it first so the run measures one window" >&2
 	exit 1
@@ -160,4 +165,8 @@ uptime >"${out}/load-end.txt"
 wait "${pp}"
 pp=""
 wait "${pc}"
+if ! grep -q '^FRAME ' "${out}/run/city.log"; then
+	echo "REJECTED: the city drew no frames (city.log has only QUIET lines; was the window focused?), so this run is not a measurement" >&2
+	exit 1
+fi
 echo "${out}"
