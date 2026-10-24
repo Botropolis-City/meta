@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`241e1a9`, r998).
+Landed: slice 2 (`8168db2`, r1013).
 
 `TestTheWorkAFrameTakes` holds the metropolis's draw commands a frame under ceilings that [item 193](193-a-still-city-is-redrawn-whole-every-frame.md) lowered to what it reached ("today's worst plus 2%"), below a target of 70.
 On 2026-10-24 two items moved the night count without drawing anything more:
