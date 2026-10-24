@@ -58,6 +58,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [233](roadmap/233-cached-building-looks-differ-when-drawn-up.md) | a building's cached look differs from its direct draw when a kit level is drawn up (zoom 1.5) | — | nobody |
 | [234](roadmap/234-make-test-leaves-a-pycache-in-render-sprites.md) | `make test` leaves an untracked `__pycache__` in `tools/render-sprites/` since item 229 | — | nobody |
 | [236](roadmap/236-where-a-vehicle-stands-changes-a-frames-draw-count.md) | where a vehicle stands changes a frame's draw count: batches split in the depth-sorted pass | — | nobody |
+| [237](roadmap/237-a-panning-camera-can-flip-a-facades-planks.md) | a panning camera can flip a facade's planks or a pane's wall row from frame to frame | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
