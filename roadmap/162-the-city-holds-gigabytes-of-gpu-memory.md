@@ -103,3 +103,18 @@ slice 14 replaces z2 with z1.5, picked only where z1 would be drawn up by 1.75×
 Kit texture settled, now against after: 18 against 18 MiB at zoom 1.5, 18 against 40 from 1.75 (no wheel step is there), 66 against 40 at 2.0.
 Together about −38 MiB fully zoomed in, which leaves about 16 over 512; the session measures again after both land and reports what is left before closing.
 Her two other observations, the rail drawn over the trees and a car on the kerb at z2, are in both halves and filed as items 221 and 222, and the demo's "millrace" labels as 223.
+
+**Slice 14, as handed over** (2026-10-24, the session "item 162", stopped before any edit for a reboot; the roadmap manager approved this test tree as written).
+The rule: `kitDrawUpMost = 1.75`, living in `pkg/assets` and read by `pkg/render`'s `kits.index`: the camera draws with the lowest kit level that draws its zoom up by less than 1.75×, so with z1 and z1.5 it picks z1.5 from zoom 1.75 exactly.
+The cut: z1.5 replaces z2 in `pkg/assets/kits` (624 sprites, 3 pages, the last 725 rows), and `make sprites` and `render.py`'s default go to `--zooms 1,1.5`.
+A cut is in the botropolis worktree's git-ignored `dist/item-162-options/kits-z1.5-cut/`, made by `blender -b --python tools/render-sprites/render.py -- atlas --zooms 1.5,2 --out <dir>` from the kits `make kits` fetches (about 13 minutes a level); the same run's z2 matched the committed one within `atlas-diff`'s noise floor.
+Re-cut it if that directory is gone, and look at every page before it goes on `make publishable`'s reviewed list.
+The tests, all approved:
+- `pkg/render/kitresidency_test.go`: `TestKitLevelPick`, data-driven: zoom 0.2, 1, 1.5 and 1.74 pick z1, 1.75 and 2.0 pick z1.5 ("when the camera is at zoom Z / it should pick L"). And `TestKitResidentCost`: settled past `kitHoldUpdates` at zoom 1.5, 1.75 and 2.0, "it should hold no more than 18 / 40 / 40 MiB of kit texture", measured through the lazy loader with `internalSide`. The existing residency tests carry over with z2 read as z1.5.
+- `pkg/render/kittrim_test.go`: `TestKitTextureCost`'s z2 ≤ 72 MiB becomes z1.5 ≤ 40.
+- `pkg/assets/ladder_test.go`: "when the wheel walks its steps / it should never draw a sprite up by more than 1.75×" (the least of step ÷ level zoom, against `KitDrawUpMost`), and "it should end at the top of the ladder" unchanged.
+  The assertion "it should still have a sprite to draw, rather than stretching one" (the highest level at least `MaxZoom`) is retired on Aria's verdict of 2026-10-24, and the comments in that test and `pkg/city/camera.go` that cite it say so.
+- `pkg/assets/panes_test.go`: the cottage's five windows are checked on the highest level, not `Zoom == 2`.
+- Tools: `check-asset-sources`' manifest pattern takes `kits-z1.5.json`; `read-road-pieces.py` and `atlas-cost.py` read the highest level, not z2 by name.
+- Unchanged, as the guards: `TestSettledMemory` keeps its limit at the 512 MiB target, never today's figure, skipping as unmet in item 194's shape if it is still over; the drawn-size test in `kits_test.go` holds across the levels.
+After it lands, measure full zoom on the real display the way the 0.3.0 table was (r964's method: the real history through a scratch daemon on a copy of the state directory, focused window, `perf-city`, `gpu_mib` with the GPU named), and send the roadmap manager the number and what is left against 512 before closing.
