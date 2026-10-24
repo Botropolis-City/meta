@@ -1,6 +1,6 @@
 # 240. The metropolis demo reads as a light user since its sessions start hours apart
 
-**Open, in progress since 2026-10-24 in the session "item 240". Filed 2026-10-24 (r1005) at Aria's request, on item 223's frames. Nobody's call — a defect in a demo.**
+**Fixed 2026-10-24 (`73d7d69`, r1017). Filed 2026-10-24 (r1005) at Aria's request, on item 223's frames. Nobody's call — a defect in a demo.**
 
 Depends on: 243
 Landed: slice 1 (`dbfe84b`, r1008).
@@ -27,3 +27,18 @@ Tests: staging the metropolis gives top-bar rates within a stated band of the ta
 - **A still shot before the ledger is read** (manager, 2026-10-24, slice 2 of this item): the paced metropolis's still showed $0.10 for the day where its stats store prices it at $153–196, since the headless `--screenshot` captures at the second frame after the first snapshot (`pkg/render/game.go` `capture`) without waiting for that snapshot's ledger read; with about 9,500 messages the read loses, so spend, wagons and building heft show a partly read day. That would mislead every still and clip filmed from a heavy corpus, the website's metropolis clips included, and Aria cannot judge "reads heavy" from it, so a still waits until the snapshot's ledger read is done, test first in `pkg/render`; Aria's stills come after it.
 - **Slice 1's landing failed, and the plan changes** (manager, 2026-10-24): the heavier metropolis (about 9,565 messages) takes 19 s idle to read at the stats ingest's half a core (item 159), past the 30 s the frame tests allow under the gate's load, so they fail on item 202's guard ("opened at its ceiling, on a history not yet read"); no ceiling is raised and the 30 s stays. So: first a capture (`--screenshot`, `--record`) reads its history at full speed, since nobody waits on it and heavy captures run under the landing lock; and a capture that reaches the 30 s on an unread history fails outright, rather than opening on what was read. Then slice 1 lands with `pace: 45s` (about 3.3M/h fresh, 84M/h cached, 315k/h out, inside the band, about 13 s to read idle). The stale spend is [item 242](242-the-city-shows-a-partly-read-spend-after-its-first-read.md), a defect in the live city as well, which this session fixes under that number; the still-waits-on-Scan plan is dropped, since the capture already waits for `HeftsRead`. Aria's stills come after all three.
 - **The full-speed capture read's tree** (manager, 2026-10-24): approved as sent, its own commit before slice 1. `Loader.WithFullSpeed()` reads the stored hefts and the later read at the whole clock for a `--screenshot` or `--record`; `TestPacedPasses` gains the full-speed cases ("it should not sleep"), and `TestACaptureFailsAtTheCeiling` replaces "it should open" with failing the capture, naming the unread history, at the 30 s ceiling. The wiring from a capture flag to the full-speed source gets a unit test if `pkg/app` has a seam for it, and otherwise rests on the acceptance tests, said in the commit.
+
+## Closed
+
+Fixed in two botropolis slices, with two defects the work turned up fixed under their own numbers on the way.
+Slice 1, `dbfe84b` (r1008): a `--screenshot` or `--record` reads its history at full speed (`Loader.WithFullSpeed`, chosen in `pkg/app` by `readSpeed`, which a unit test holds), and a capture that waits the 30 s ceiling on an unread history fails, naming why, instead of opening on a partial read.
+[Item 242](242-the-city-shows-a-partly-read-spend-after-its-first-read.md), `fec9e4b` (r1010) and `70348ca` (r1015): the city reads its ledger fresh when the history's first read finishes, so the day's spend is whole at the opening.
+[Item 243](243-a-kind-tag-is-left-out-of-the-composed-frame-at-the-edge.md), `f3c27d0` (r1016): a caption names only what is on the window, which the paced metropolis's frame check needed.
+Slice 2, `73d7d69` (r1017): a scenario's `pace:` fills each started session's hours with a turn that often (`pkg/demo/fill.go`), and the metropolis takes one every 45 s.
+`TestStagedMetropolisReadsAsAHeavyUser` holds its top bar within half to twice the round targets, and item 223's groups guard holds unchanged; every test was red first.
+Staged, the metropolis reads about 3.4M/h fresh, 84.5M/h cached and 323k/h out (0.67×, 0.85× and 0.65× of 5M/h, 100M/h and 500k/h), where it read 104k/h, 1.4M/h and 25k/h, and its day's spend reads $100.38–$128.30 where it read $1.78.
+
+**Deviations, flagged for Aria:** the pace is 45 s rather than the 30 s first built, so the history reads quickly enough under load (30 s gave about 5.0M/h, 126M/h and 473k/h); the filled turns write what the recording's tool-only turns write rather than the mean of all its turns; and the tests' figures are round targets, not taken from any one history, as she asked.
+
+**Judged by Aria**, 2026-10-24, on the overview before and after in botropolis's `.claude/worktrees/item-240/dist/item-240/` (`before/metropolis/overview.png`, `after/metropolis/overview.png`): *"Approve and close"*.
+The website's metropolis clips pick it up at the next release's re-film, which needs `make demo-adopt` once ([item 235](235-a-caption-change-refilms-or-keeps-the-old-caption.md)).
