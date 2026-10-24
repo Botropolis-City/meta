@@ -1,6 +1,6 @@
 # 235. A caption change re-films its shots, and `--adopt` keeps the old caption
 
-**Open, in progress since 2026-10-24 in the session "item 235". Filed 2026-10-24 (r973), from what items 231 and 232 found bringing new captions to the website. Nobody's call — a defect.**
+**Fixed 2026-10-24 (`298211e`, r978). Filed 2026-10-24 (r973), from what items 231 and 232 found bringing new captions to the website. Nobody's call — a defect.**
 
 [Item 232](232-the-apps-readme-and-demo-captions-predate-0-2-0.md) rewrote five demo captions, five description lines in `demo/scenarios/*.yaml` and nothing else, and [item 231](231-the-website-still-talks-about-the-city-before-0-3-0.md) had to rebuild `dist/demo/manifest.json` by hand to get them onto the site without re-filming.
 
@@ -16,3 +16,13 @@ Tests: changing only a shot's description keeps its key; a recalled and an adopt
 
 - **The scenario's own description** (manager, 2026-10-24): left out of the key as well, by the item's rule that a key covers what changes pixels, provided nothing draws it; the session confirms by search that no drawing code reads a scenario's description or a shot's title or description, and that wherever a run writes a scenario's description into the manifest it takes the current one.
 - **The test tree** (manager, 2026-10-24): approved as sent, `TestShotKey`, `TestFilmCache` and `TestAdopt` in `pkg/demo/cache_test.go`, one slice, no acceptance test.
+
+## Closed
+
+`shotKey` in `botropolis/pkg/demo/cache.go` blanks the shot's title and description and the scenario's description before hashing,
+and `recall` and `adopt` give the cached media the shot's caption as the scenario reads now, `adopt` filing it so under the new key.
+`TestShotKey` holds the key across each of the three caption changes and still changes it for keys, clock and inputs;
+`TestFilmCache` and `TestAdopt` check that a reused shot carries the current title and description.
+The search found one reader of those fields, the `Media` a shot is filmed into (`film.go`), and the manifest carries no scenario description.
+`demo/README.md` says so.
+The key's recipe changed, so an existing `dist/demo` cache needs `make demo-adopt` once before `make film` reuses it.
