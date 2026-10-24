@@ -13,3 +13,9 @@ Aria, 2026-10-24, on item 162's 3x crop of a car at zoom 2.0: *"the cars are not
 Every road vehicle's wheels stay on the carriageway in its own lane, at every zoom and every heading.
 
 Tests: for each heading, the car's drawn footprint at fit, zoom 1.5 and zoom 2.0 lies inside the carriageway, kerbs excluded; a zoom 2.0 frame for Aria.
+
+## Answered while building
+
+- **The cause** (the session "item 222", 2026-10-24): not zoom. Item 153's keep-right offset of 9.6 units is applied on lot lanes too, which have 8 units of room either side (the inspector's route along a lot's front, `DoorInset` 8; the lanes between buildings, `BuildingGap` 16), so the inspector parks 1.6 units past the lot edge on the road tile's kerb, and the delivery, skip and mixer trucks' lot legs do the same; zoom only makes it visible.
+- **The fix** (manager, 2026-10-24, option A): a leg whose midpoint lies inside a district's block keeps right by a lot lane's offset (about 3.5, so offset plus a car's half-width stays within the 8 units), and every leg on an avenue, a pad or the bridge keeps item 153's 9.6, mitred where they join. Aria's item 153 ruling is about roads (*"all our roads are two way"*); a lot lane is one vehicle wide and not a road, so two vehicles meeting head-on inside a lot may overlap, which the frame lets her overrule. Option B (moving lot-front legs deeper) was rejected: it leaves the building-gap lanes inside the buildings.
+- **The test tree** (manager, 2026-10-24): approved as sent, `TestRoadVehiclesStayOnTheirGround` and `TestVehicleSpritesStandOnTheirFoot` in `pkg/render/lanes_test.go`, with `TestEveryRoadVehicleKeepsRight`'s in-lot assertions changed to the lot offset; plus a zoom 2.0 frame of a lot with the inspector parked, for Aria.
