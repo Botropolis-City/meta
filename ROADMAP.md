@@ -57,6 +57,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [230](roadmap/230-the-sheet-path-can-still-die-of-an-interrupted-gamepad-open.md) | the sheet path still dies of an interrupted gamepad open: item 128's hold is missing there; item 226 fixes it | — | nobody |
 | [231](roadmap/231-the-website-still-talks-about-the-city-before-0-3-0.md) | the website's words still describe the city before 0.3.0: rewrite its rhetoric and release it | — | nobody |
 | [232](roadmap/232-the-apps-readme-and-demo-captions-predate-0-2-0.md) | the app's README and demo captions still say storage yard, parked and context height | — | nobody |
+| [233](roadmap/233-cached-building-looks-differ-when-drawn-up.md) | a building's cached look differs from its direct draw when a kit level is drawn up (zoom 1.5) | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
