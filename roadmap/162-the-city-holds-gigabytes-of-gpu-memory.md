@@ -1,6 +1,6 @@
 # 162. The city holds gigabytes of GPU memory, which on integrated graphics is system RAM
 
-**Open, in progress since 2026-10-24 in the session "item 162". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — the budget is set.**
+**Fixed 2026-10-24 (`cc2cd0c`, r976). Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — the budget is set.**
 
 Depends on: nothing
 Landed: slice 1 (`b2ec8b6`, r886).
@@ -127,3 +127,18 @@ After it lands, measure full zoom on the real display the way the 0.3.0 table wa
 - **The full-zoom measurement tool** (manager, 2026-10-24): `performance/tools/perf-fitzoom`, `lib/xin.py` and `perf.py phase-summary`, made rerunnable from the r964 driver with its method unchanged; its tree approved with "least, most and mean" split into three data-driven tests; `performance/method.md` names it.
 - **The see-through guard at drawn-up zooms** (manager, 2026-10-24): slice 14's landing failed `TestBuildingSheetLights` and `TestBuildingLooksCached` at zoom 2 on a 1-pixel line along the front building's rim, where `seenThroughFront`'s 2-pixel solid margin is narrower than a drawn-up sprite's soft rim (the check fails on `main` at zoom 1.5 too). The margin follows the draw-up — 2 pixels at a level's own size, ceil(2 × scale) + 1 when drawn up — which corrects the measurement without loosening what it guards, proved by a mutation: lights drawn over a front building's interior still fail at every zoom checked. The cached looks that differ at zoom 1.5 are filed as [item 233](233-cached-building-looks-differ-when-drawn-up.md).
 - **The first real-display run** (2026-10-24, r976): rejected; the monitor was off (DPMS, with xss-lock), so the city never had the focus and drew no frame, and its window was tiled at 958 wide where r964's was 1920. `perf-fitzoom` now refuses to start with the monitor off and fails a run that drew no frame. The run waits for Aria at the desk, screen unlocked, the city given the whole screen as at r964; the session stays open for it, idle, and runs it on the manager's word (about 6 minutes).
+
+## Closed
+
+**Fixed 2026-10-24 at r976: the city meets its 512 MiB budget fully zoomed in on the real history, as it already did at fit** ([report](../performance/reports/2026-10-24-ultra7-265u-igpu-r976.md)).
+Measured on the real display with `perf-fitzoom`, focused, the city alone on its workspace at 1920×1118, Arrow Lake-U (i915), 6,840 frames drawn:
+
+| phase | r964 own | r964 GPU | r964 own + GPU | r976 own | r976 GPU | r976 own + GPU |
+| --- | --- | --- | --- | --- | --- | --- |
+| settled at fit | 207 | 235 | 441–444 | 234 | 227 | **459–467** |
+| settled at full zoom | 239 | 327 | 566–568 | 196 | 285 | **481–484** |
+
+Slice 13 (the shore fits 1024 a side) and slice 14 (z1.5 in place of z2, from zoom 1.75) were to save about 38 MiB of GPU at full zoom and 12 at fit; the GPU fell 42 and 8.
+Own memory at fit rose 27 MiB, which neither slice touches, on a history 49 transcripts and 18 projects larger than r964's; it is a lead the performance manager confirms with a second run or an A/B against r964 before anything is filed (the roadmap manager, 2026-10-24).
+`TestSettledMemory` keeps its limit at the 512 MiB target.
+For Aria: night frames of z1.5 at zoom 2 are at `botropolis/.claude/worktrees/item-162/dist/item-162-options/kits-night/`, since the verdict was given on daytime frames.
