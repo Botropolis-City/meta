@@ -40,3 +40,5 @@ Slice 2 (`5147505`, r992) is the frames, `botropolis/docs/screenshots/r989-item-
 For Aria:
 - At fit on a small island the whole fade is on screen, so the deck is seen melting away rather than stopping.
 - The haze pieces are drawn in the ramp's flat road colours, so the kit tile's light kerb ends where the haze begins.
+
+**Aria's verdict** (2026-10-24): the frames are approved, and *"maybe we should add some visible fog/clouds to make it make sense that it fades"*, filed as its own item.

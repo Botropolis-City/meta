@@ -35,3 +35,5 @@ The coast test also checks that it found park trees over the rail, so it cannot 
 **For Aria:** the before-and-after zoom 2.0 coast frames are in the item 221 worktree's `dist/item-221/`.
 `pair-zoom2-coast-rail-3x.png` is the close-up.
 One side effect: a park tree standing on a district's concrete floor now mixes in grass instead of showing the concrete through, so it looks a little greener there.
+
+**Aria's verdict** (2026-10-24): the frames are approved.

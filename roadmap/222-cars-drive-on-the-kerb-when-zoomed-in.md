@@ -46,3 +46,5 @@ The metropolis's draw-command ceilings are 24 by day and 41 by night (`0601797`,
 Two vehicles meeting head-on inside a lot can overlap, which the manager accepted for tonight.
 Bends and the deeper front lane go beyond the item's report, under its "every heading".
 The frame: `dist/item-222/zoom2-lots-and-bends.png`, with 3x crops in `zoom2-crops-3x.png`, in the item 222 worktree, drawn from the zoom 2 atlas where the code places each vehicle.
+
+**Aria's verdict** (2026-10-24): approved, including two vehicles meeting head-on inside a lot being allowed to overlap.

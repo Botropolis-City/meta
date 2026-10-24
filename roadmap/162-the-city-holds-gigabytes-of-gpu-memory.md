@@ -144,3 +144,5 @@ Own memory at fit rose 27 MiB, which neither slice touches, on a history 49 tran
 For Aria: night frames of z1.5 at zoom 2 are at `botropolis/.claude/worktrees/item-162/dist/item-162-options/kits-night/`, since the verdict was given on daytime frames.
 
 **The fit lead, dismissed** (the performance manager, 2026-10-24): the +27 MiB of own memory at fit in the r976 run is not the code. A headless A/B on today's history, each build against its own daemon, gave r976 a smaller live heap at fit than r964 (53–61 MB against 53–85), and `pprof -diff_base` at 90 s found r976 9.5 MB lighter, no allocation site more than 1.5 MB heavier; the rise is the history (260 → 309 transcripts) and the heap's own swing. Raw: `~/.local/state/botropolis-perf/heap-ab-r964-r976-20261024-144313/`.
+
+**Aria's verdict** (2026-10-24): the z1.5 night frames are approved, as the daytime ones were.

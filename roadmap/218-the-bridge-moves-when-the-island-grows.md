@@ -33,3 +33,5 @@ The first `make land` failed only on `TestTheStillCityMatchesTheCityDrawnDirectl
 
 **Frames for Aria**, filmed fresh from r974 and kept git-ignored at `botropolis/dist/item-218/`: `bridge-before-and-after-growth.png` (the bridge corner at 24, 26, 32 and 38 s, holding its place while the island grows a row between 26 and 32 s), and `bridge-in-0.3.0-for-comparison.png` (the same crops from the 0.3.0 clip, where it jumps a row at 32 s).
 Closed pending her judgement of them, as item 217 was.
+
+**Aria's verdict** (2026-10-24): the frames are approved.
