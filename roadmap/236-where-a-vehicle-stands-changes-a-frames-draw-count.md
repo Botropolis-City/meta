@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-24 in the session "item 236". Filed 2026-10-24 (r976), from items 221 and 222 each needing `TestTheWorkAFrameTakes`'s night ceiling raised. Nobody's call — the performance manager measures it first.**
 
+Depends on: nothing
+Landed: slice 1 (`241e1a9`, r998).
+
 `TestTheWorkAFrameTakes` holds the metropolis's draw commands a frame under ceilings that [item 193](193-a-still-city-is-redrawn-whole-every-frame.md) lowered to what it reached ("today's worst plus 2%"), below a target of 70.
 On 2026-10-24 two items moved the night count without drawing anything more:
 
