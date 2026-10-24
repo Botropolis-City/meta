@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-24 in the session "item 240". Filed 2026-10-24 (r1006), found by item 240's session. Nobody's call — a defect; item 240's session fixes it.**
 
 Depends on: nothing
+Landed: slice 1 (`fec9e4b`, r1010).
 
 `pkg/stats/ledger.go` answers a window from its cache for 30 seconds whatever is written meanwhile (`LedgerCache`, [item 215](215-the-city-s-cost-breakdown-query-costs-3-6-percent.md)).
 While a city waits for its history's first read, the scene rebuilds on every snapshot and reads the ledger's windows partway through the ingest, so when the read finishes and the city opens it shows that cached, partial window for up to 30 seconds.
