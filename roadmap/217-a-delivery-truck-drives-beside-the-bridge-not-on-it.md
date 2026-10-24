@@ -54,5 +54,5 @@ Fixed by slice 1 (`a555de7`, r967), with its changelog entry under `[Unreleased]
 Aria judged the frames on 2026-10-24: *"Approve and close"*.
 They come from a fresh film of the timelapse at `a555de7`, kept git-ignored at `botropolis/dist/item-217/`: `first-truck-29s-to-33s.png` and `second-truck-47s-to-53s.png`, both trucks up the ramp and along the deck to the far end.
 Whether the bridge moved during the first trip in that film cannot be told from the frames; the tests above cover that case directly.
-**The website's timelapse clip predates the fix** and keeps showing the old truck until the next release re-films it.
+**The website's timelapse clip was re-filmed from `a555de7` at Aria's request** and deployed the same day (botropolis.city `59b6a0f`); only that clip changed.
 Left for others: items 218 (anchor the bridge), 224 (message vans and hauls keep a stale path) and 225 (`TestThreadCPU` under load).
