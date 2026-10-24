@@ -23,6 +23,7 @@ Someone whose laptop stalls the first time will not open the app again, so expen
 | [reports/2026-10-22-ultra7-265u-igpu-item-162.md](reports/2026-10-22-ultra7-265u-igpu-item-162.md) | item 162 against r871 on the metropolis demo: settled own + GPU 689 → 355 MiB at fit, Go heap 141 → 24 MB, 528 → 250 MiB under Xvfb; the real history and full zoom are owed |
 | [reports/2026-10-22-ultra7-265u-igpu-item-196.md](reports/2026-10-22-ultra7-265u-igpu-item-196.md) | item 196 against r873: settled CPU 0.7% mean, 5.4% at p95 on a quiet night (1.2–1.8% loaded, in the acceptance test); reads 1.0 → 0.1 MiB/s |
 | [reports/2026-10-24-ultra7-265u-igpu-item-236.md](reports/2026-10-24-ultra7-265u-igpu-item-236.md) | item 236: movers cost 16 of the metropolis's 25 commands by day; one page is four textures to Ebitengine; a level-aware batch key gives 26/43 → 23/40 and item 222 27/44 → 24/41; sprites without mipmaps save 5.2 MiB, none at full zoom |
+| [reports/2026-10-24-ultra7-265u-igpu-test-performance-r996.md](reports/2026-10-24-ultra7-265u-igpu-test-performance-r996.md) | the baseline for `make test-performance` at r996: all pass; only item 213's 2,000-session daemon misses its budget, 2.71% of a core against 2% |
 
 ## Tools
 
