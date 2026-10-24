@@ -1,6 +1,6 @@
 # 162. The city holds gigabytes of GPU memory, which on integrated graphics is system RAM
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — the budget is set.**
+**Open, in progress since 2026-10-24 in the session "item 162". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the city memory budgets Aria set the same day. Nobody's call — the budget is set.**
 
 Depends on: nothing
 Landed: slice 1 (`b2ec8b6`, r886).
