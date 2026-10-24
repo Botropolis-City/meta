@@ -92,3 +92,13 @@ The rest waits on **two visual calls Aria makes after 0.3.0**, which the roadmap
 2. **A middle kit level**, cut at about zoom 1.5 and drawn up to 2.0 in place of z2: about 56% of z2's sprite area, so roughly 2.2 pages against z2's 4.1, **about −30 MiB or more** fully zoomed in, with slightly softer sprites at the closest zoom.
 Either would bring full zoom near the budget and both under it. Beyond them nothing here explains the ~110 MiB of the i915 figure that is no image and no vertex buffer (Mesa's own; resident, not purgeable).
 How to measure what a change does: build the city against a scratch copy of Ebitengine (a `replace` in a copy of the tree, never committed) that logs its backends with their internal sizes and what sits on its shared atlas, and run it on a copy of the state directory under Xvfb with the window at 1920×1200, holding the landing lock; texture sizes do not depend on the renderer.
+
+**Aria's verdict on the two options, and slices 13–14** (2026-10-24).
+Both were framed on the metropolis demo, before and after at one camera, at fit and at zoom 2.0 with 3× crops; the middle level was a real z1.5 cut from the same kits, whose fresh z2 matched the committed one within `atlas-diff`'s noise floor.
+Aria: *"Honestly all of these options look great. I can't really tell the difference between before and after."*
+At her request the roadmap manager decided, and both are built:
+slice 13 sizes the shore's texel to fit 1024 a side, `4 × longest side / 1024` and never finer than 4, so the 12 MiB holds as the island grows, where a fixed 5.72 would have lost it at the real history's next growth (1023 texels wide);
+slice 14 replaces z2 with z1.5, picked only where z1 would be drawn up by 1.75× or more, so zoom 1.5 keeps drawing z1 drawn up and costs nothing extra.
+Kit texture settled, now against after: 18 against 18 MiB at zoom 1.5, 18 against 40 from 1.75 (no wheel step is there), 66 against 40 at 2.0.
+Together about −38 MiB fully zoomed in, which leaves about 16 over 512; the session measures again after both land and reports what is left before closing.
+Her two other observations, the rail drawn over the trees and a car on the kerb at z2, are in both halves and filed as items 221 and 222, and the demo's "millrace" labels as 223.
