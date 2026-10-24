@@ -8,3 +8,7 @@ That dirtied item 229's worktree, so `claude rm` refused to remove it until the 
 
 **The fix.** Write no bytecode from the tool: `sys.dont_write_bytecode = True` in `atlas-cost.py` before it imports, or `-B` / `PYTHONDONTWRITEBYTECODE=1` where `TestAtlasCost` runs it; and ignore `__pycache__/` anywhere in the repository, as a second line.
 Its test: after `TestAtlasCost` runs in a scratch copy of the tools, the copy holds no `__pycache__`.
+
+## Answered while building
+
+- **The test tree** (manager, 2026-10-24): approved as sent: in `TestAtlasCost`, a run in a scratch copy of its inputs exits 0 and leaves no `__pycache__`; the fix sets `sys.dont_write_bytecode` in the tool itself and widens `.gitignore` to `__pycache__/`.
