@@ -22,3 +22,5 @@ and the worktree was clean after the full `make land` gate.
 
 For the next session that runs an acceptance test under the lock: the worktree guard refused `flock <lock> go test …`,
 so the test binary was built with `go test -c` and a script that runs it was what took the lock.
+
+**A correction to the note above** (manager, 2026-10-24): do not copy it. A script run under `flock` hides from the worktree guard what it runs, and that guard is what keeps a worktree session's git in its own worktree; the session predates the rule. The way to run named acceptance tests under the lock is `make test-acceptance-locked RUN='^TestName$'`, from [item 226](226-the-acceptance-suite-takes-sixteen-minutes-to-land.md); until it lands, leave acceptance tests to `make land`.
