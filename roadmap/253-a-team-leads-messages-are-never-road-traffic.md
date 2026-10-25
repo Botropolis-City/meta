@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-25 in the session "item 253". Filed 2026-10-25 (r1044), found by item 105's session recording a real agent team. Nobody's call — a defect.**
 
 Depends on: nothing
+Landed: slice 1 (`a0ec129`, r1052).
 
 Item 105 recorded a real agent team on Claude Code 2.1.310 (one lead, one teammate, $0.01) and read the transcripts' structure:
 - the teammate is a session of its own, filed beside the lead, carrying `agentName` and `teamName: session-<8 hex>`, and it messages `team-lead`;
