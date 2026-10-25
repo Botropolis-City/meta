@@ -1,6 +1,6 @@
 # 247. No road leads to a bridge, so its ramp comes down onto grass
 
-**Open. Filed 2026-10-25 (r1031), found by item 220's session from its frame. Nobody's call — a defect.**
+**Open, in progress since 2026-10-25 in the session "item 247". Filed 2026-10-25 (r1031), found by item 220's session from its frame. Nobody's call — a defect.**
 
 Depends on: 220
 
