@@ -42,6 +42,7 @@ The figures are the table's above, in its order of rows, from the tests' own log
 | r1000 `0601797` | `241e1a9..0601797`, item 222 | 70 pass, 2 skip | 1.01%, 1.28% | 2.82%, 3.08% | 57%, 28 MiB | 0.06 CPU-s | 0.44%, 0.92%, 0.69% | 196 MiB | 23.1 |
 | r1000 `0601797`, repeated | the same | 70 pass, 2 skip | 1.10%, 1.32% | 2.81%, 2.90% | 54%, 26 MiB | 0.10 CPU-s | 0.50%, 0.96%, 0.70% | 198 MiB | 7.0 |
 | r1017 `73d7d69` | `0601797..73d7d69`: items 239, 240, 242, 243, 236 slice 2, 226's settled daemon on 15 s windows | 70 pass, 2 skip | 0.99%, 1.03% | 2.79%, 2.96% | 55%, 26 MiB | 0.10 CPU-s | 0.44%, 0.90%, 0.70% | 201 MiB | 58.0 |
+| r1020 `8752e85` | `73d7d69..8752e85`: item 236 slice 3 | 70 pass, 2 skip | 1.06%, 1.09% | 2.65%, 2.82% | 57%, 28 MiB | 0.10 CPU-s | 0.37%, 0.93%, 0.71% | 199 MiB | 0.7 |
 
 At r1000 the 2,000-session daemon read about 0.1 of a core higher, twice, and is recorded as the machine's load rather than filed: `botropolisd` links neither `pkg/city` nor `pkg/render`, the only code the range changed; its CPU ticks held at 2.16–2.39% in all four runs; and the test itself says this measure spans 2.3–2.6% on a quiet machine.
 It is still over its budget, which is [item 213](../../roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md).
