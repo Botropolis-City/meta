@@ -9,3 +9,7 @@
 Assert on what the code controls: spin until the thread's own clock reads at least 25 ms (with a generous wall-clock timeout that fails loudly), and assert the reported figure is within a small tolerance of an independent reading of the same clock (`CLOCK_THREAD_CPUTIME_ID`, or `/proc/thread-self/stat`), so a load spike lengthens the test instead of failing it. The sleeping case's upper bound is unaffected by load and stays.
 
 Tests: the rewritten test passes with the machine loaded (run it beside `stress-ng --cpu $(nproc)` or the suite) and fails when the thread clock is replaced by the process clock or a constant.
+
+## Answered while building
+
+- **The test tree** (manager, 2026-10-25): approved as sent. The thread spins until its own clock has counted 50 ms while a burner thread runs beside it, failing loudly after 30 s of wall time, and the reported figure is checked against `CLOCK_THREAD_CPUTIME_ID` within a measured tolerance; the sleeping case keeps its upper bound. The load for the green run is a parallel `go test` of other packages, not `stress-ng`, since installing a package is Aria's to approve; the closing section records the worst gap measured and the tolerance chosen.
