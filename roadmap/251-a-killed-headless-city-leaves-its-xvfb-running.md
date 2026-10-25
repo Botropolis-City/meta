@@ -20,3 +20,7 @@ Keep `Close` as the clean path.
 
 Tests: in `testing/integration/xvfb`, when the process that started an Xvfb is killed with SIGKILL, the Xvfb should be gone within a few seconds (polled, not slept); and a headless city killed with SIGKILL in an acceptance test leaves no `Xvfb` naming its state directory.
 The 83 already running were started by tests and cities no session can name, so clearing them is Aria's to approve.
+
+## Answered while building
+
+- **The orphans already running** (Aria, 2026-10-25, asked by the manager): cleared. The manager killed the 77 whose parent was `systemd --user` and whose `-auth` directory no longer existed; five orphans whose directories still existed (four `botropolis-sheet-*` and one `TestRecordedClipKeepsTheScenesTime` temp directory, so those leak their directory too) and one with a live parent were left.
