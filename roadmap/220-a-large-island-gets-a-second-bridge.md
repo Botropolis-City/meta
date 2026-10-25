@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-25 in the session "item 220". Filed 2026-10-24 (r966) at Aria's request. Nobody's call — Aria set the threshold on 2026-10-25, below.**
 
 Depends on: 218
+Landed: slice 1 (`2be10d6`, r1030).
 
 Aria, 2026-10-24: *"it could expand once if there's a lot of traffic or if the island starts to get really large we could add a second bridge."*
 
