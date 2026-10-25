@@ -1,6 +1,6 @@
 # 244. The 2,000-session cost test may take 15-second windows, once a quiet machine shows it reads the same
 
-**Open. Filed 2026-10-24 (r1021), split from item 226's last measurement-gated window. Nobody's call — the rule is set; the performance manager measures.**
+**Not done 2026-10-24: the measurement failed the rule, so the window stays at 30 seconds. Filed 2026-10-24 (r1021), split from item 226's last measurement-gated window. Nobody's call — the rule is set; the performance manager measures.**
 
 Depends on: nothing
 
@@ -14,3 +14,12 @@ One window was left waiting for a quiet machine: `TestDaemonWithTwoThousandSessi
 The performance manager runs the pairs with `make test-performance RUN='^TestDaemonWithTwoThousandSessions$'` from detached worktrees at exact commits, and a session lands the change through `make land` only if they pass.
 
 The held commit also survives as the local branch `item-226-part3-twothousand` (`352dae1`) in the botropolis checkout on the machine it was made on; it is not pushed, so the description above is what counts.
+
+## Closed
+
+Not done, as the item set out in advance (the manager, 2026-10-24).
+The performance manager ran five interleaved pairs on a quiet machine (load over a minute 0.4–2.6, recorded per run; raw `~/.local/state/botropolis-perf/item-226-windows-20261024-145326/twothousand-quiet/`), the held change (`352dae1`, 15 s) against `main` at `ecedf05` (30 s); every run read over 2% and skipped as unmet, as item 213 expects.
+The gated share at 15 s was 2.69, 2.65, 2.84, 2.52 and 2.73% (median 2.69, range 2.52–2.84), and at 30 s 2.82, 2.79, 2.73, 2.73 and 2.81% (median 2.79, range 2.73–2.82).
+The rule needs the 15-second worst and median inside the 30-second range; the median falls below it and the worst above it, and 15 s spreads three times wider, the systematic low reading that would make a later fix to item 213 look bigger than it is.
+So `TestDaemonWithTwoThousandSessions` keeps two 30-second windows, and nothing lands.
+
