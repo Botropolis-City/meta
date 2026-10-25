@@ -20,3 +20,7 @@ So in a real user's city:
 Tests: reading a transcript whose `Agent` result names a team gives the team it leads; a lead whose lines name no team but which leads one is in that team; its message to a teammate is road traffic to the teammate's district; a teammate's message to `team-lead` resolves with no team config present. Fixtures shaped like item 105's recording (structure only). A changelog line, since a user's city changes.
 
 Item 105's demo staging and corpus check, which assumed the same naming, change on top of this.
+
+## Answered while building
+
+- **The tree, and the old naming** (manager, 2026-10-25): approved: `Transcript.LeadsTeam` from an `Agent` result's `toolUseResult.team_name`, `Session.Leads`, a session's team taken from it when no line names one, and `team-lead` found by `Leads`. The prefix match (`session-<lead id[:8]>`) stays as a fallback after it, because users' histories hold transcripts from older Claude Code versions named that way; each path has its own test, and the `Leads` lookup wins when both match.
