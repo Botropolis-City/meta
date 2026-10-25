@@ -16,3 +16,7 @@ Treat each bridge's landing as a route's end: lay road from the nearest laid roa
 It stays keyed on the landing, as item 218 keyed the roads remembered for a plan, so a bridge that is anchored keeps its road.
 
 Tests: for each bridge (data-driven over `Bridges()`), its landing cell is road and a run of road connects it to a district's road; the T is drawn at the landing; a truck's path to the bridge runs only on road cells; a city whose districts have no road between them still gets road to its bridge. A frame of the two-bridge city at fit for Aria.
+
+## Answered while building
+
+- **A spur, not every truck's way** (manager, 2026-10-25, from the fix above): each landing not on road gets road along the cheapest avenue walk from the nearest laid road, or from the nearest driveway when the city has none; trucks prefer road and join it at their first chance. Paving every district's truck walk would add 96–118 cells at 17 districts, half the ring, which changes the city's look and was not asked for; trucks from districts with no road still cross unpaved corridor until they reach road, and the closing section says so for Aria.
