@@ -26,3 +26,5 @@ Run it once against the release in hand when it lands, and file whatever grows.
 ## Answered while building
 
 - **When the soak runs** (Aria, 2026-10-25, asked by the manager): build the soak mode and the release checklist now, then run the 8 hours overnight, while Aria is away from the machine, never while she works at it. The session asks the manager for a night before starting the run.
+- **The plan** (manager, 2026-10-25): approved. `perf-soak` in `performance/tools` on top of `perf-busy-city`, visible for the first half and hidden for the second, a slope per process per phase at ≤ 1 MiB/h for the city and the daemon alike (the item says "either"), one switch at half-way, no landing lock (the load is recorded instead), and `RELEASING.md` in botropolis.
+- **A screen that blanks or locks overnight** (Aria, 2026-10-25, asked by the manager): she asked whether the soak could run in a VM instead of leaving the laptop unlocked; the trade-off (a VM's GPU is not this laptop's) is with her, and the soak takes its display as a parameter meanwhile.

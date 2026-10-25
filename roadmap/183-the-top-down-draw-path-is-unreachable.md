@@ -17,3 +17,8 @@ The fix decides between deleting the path and making `Isometric` the zero value,
 `botropolis/design/info-views.md` says so since item 178, and `botropolis/design/city-and-rendering.md` names this path; both need a line changed when it goes.
 
 Item 149 removes the `projection` config key before 1.0, which is the user-facing half of the same retirement; this item is the code-facing half and does not depend on it.
+
+## Answered while building
+
+- **Delete the path or flip the zero value** (manager, 2026-10-25): delete it. `NewGame` sets `Isometric`, `render.Options.Projection` goes, and `pkg/city` keeps `TopDown` as its identity. Item 149 had already removed `--projection` and the config key, so this item's first paragraph was out of date when it started. `city.ParseProjection`, dead since item 149, goes in the same slice.
+- **The 16px Kenney packs** (Aria, 2026-10-25, asked by the manager): delete them as slice 2, since nothing draws them once the path is gone: `pkg/assets/kenney/`, `assets.Tilemap`, `License` and `Pack`, and every place that names them in the Makefile, packaging, README and design notes, with a changelog line. `kits/` and its Kenney credit stay.

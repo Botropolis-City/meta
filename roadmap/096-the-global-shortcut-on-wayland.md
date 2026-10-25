@@ -16,3 +16,12 @@ The city is an XWayland window; the likely path is to hand the portal's `activat
 On a GNOME or KDE Plasma 6 session, bind a shortcut through the portal from the city, press it from a Wayland-native application, and see whether the window comes forward.
 
 Done when the shortcut opens the finder and brings the window forward on GNOME and on KDE, Sway says it has no way to register one, and Aria has judged a frame of the row there.
+
+## Testing without the hardware
+
+Aria, 2026-10-25: *"I won't suddenly own one of these. We need a vm to test."*
+Researched the same day, with nothing installed:
+- **Two libvirt guests on this machine**, Fedora Workstation (GNOME 48 or later, the first with the portal's GlobalShortcuts backend) and Fedora KDE Plasma, from `qemu-desktop`, `libvirt`, `virt-manager` and `edk2-ovmf`, all in Arch's `extra` repository. Keys go in from the host with `virsh send-key`, below the compositor, and frames come out with `virsh screenshot`; plain virtio-gpu is enough, since activation does not need 3D.
+- `BindShortcuts` shows a confirmation dialog on both desktops, on every launch on GNOME 48; both are keyboard-navigable, so the script accepts it with keys.
+- Sway needs no VM: its portal (`xdg-desktop-portal-wlr`) offers no GlobalShortcuts, and a nested Sway on the host confirms the refusal.
+- Whether GNOME's and KDE's backends fill in the `Activated` signal's `activation_token` is part of what this item finds out.
