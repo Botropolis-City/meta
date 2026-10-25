@@ -1,11 +1,12 @@
 # 226. The acceptance suite takes sixteen minutes on every landing
 
-**Open, in progress since 2026-10-24 in the session "item 226". Filed 2026-10-24 (r968) at Aria's request, and prioritised by her: start it before other ready items. Nobody's call — the shape is agreed below.**
+**Done 2026-10-24 (`09fb882`, r1014). Filed 2026-10-24 (r968) at Aria's request, and prioritised by her: start it before other ready items. Nobody's call — the shape is agreed below.**
 
 Depends on: nothing
 Landed: slice 1 (`0922f2b`, r969).
 Landed: slice 2 (`8c2b968`, r996).
 Landed: slice 3 (`eebf342`, r1002).
+Landed: slice 4 (`09fb882`, r1014).
 
 Aria, 2026-10-24: *"can you tell me why our acceptance tests take so long? is there a way to speed them up? Do we always need to run all of them? Can we chunk and cache in some form based on what changed?"*, then *"Add a roadmap item for this, and let's prioritize it"*.
 
@@ -222,3 +223,17 @@ The dashboard test went from 24 s to 14.
 - **The sleeps with no forced red** (manager, 2026-10-24, within Aria's "do all of it as promised"): every sleep still becomes its event, and the item says plainly which ones no delay could turn red. `deltas_test`'s 2 s and the dashboard's 1 s after the writes become their event waits, each with a forced red. `state_test`'s 2 s becomes a wait on the city's first in-loop `FRAME` line, so the signal reliably lands after the loop starts, which is the path the test is named for; holding the city still sent the signal early and the test still passed, since item 114's fix also covers an early signal, so it has no red. The dashboard's 5 s becomes a wait on `opened:` and a reused `still:` frame, with no red found either (holding the daemon 9 s left the old sleep passing). The dashboard's 2 s after `focused=false` is dropped: that line is already the event it waits for, and an idle unfocused city paints nothing to wait on.
 - **Shortening a test whose budget is unmet** (manager, 2026-10-24): `TestDaemonWithTwoThousandSessions` is over budget (item 213) and skips as unmet, so "passes and stays as far below" cannot apply. Its 15 s window stands only if every 15 s run still reads over the 2% and skips as unmet, and both its worst and its median share fall within the 30 s runs' range, so a shorter window can neither turn item 213 into a false pass nor read low enough to make a later fix look bigger than it is. Five interleaved pairs per candidate, from the performance manager's detached worktrees at exact commits, with the load recorded at each start. And all four of part 2's event waits are marked "no forced red": holding the daemon or the city fails the event wait the same way it fails the old sleep, since a resumed process coalesces what it held into one update.
 - **Closing with one window split out** (manager, 2026-10-24): everything the item asked for has landed except the 2,000-session window, which waits on a quiet machine the day never had; it is split into [item 244](244-the-two-thousand-session-test-may-take-15-second-windows.md), which writes out the held change (`352dae1`) and the rule, and the performance manager runs it. The promise is kept, under its own number.
+
+## Closed
+
+Done 2026-10-24, last at `09fb882` (r1014), by item 226's session.
+
+- **Measured** (slice 1): the acceptance suite took 800 s on a quiet machine, against 957 s at the 0.3.0 release, and was serial in all but name.
+- **Split and parallel** (slice 2): the tests that measure CPU or memory left the landing gate for `make test-performance`, which holds the landing lock and runs before each release; a guard works out from each test's calls which tests must carry `performanceTier(t)`.
+  Every other test runs in a process of its own, six at a time at most, through `tools/acceptance-targets run`: the full landing suite took 4 min 5 s at a load of about 17.
+- **Land on what changed** (slice 3): `make land` runs only the acceptance tests a change can reach, from a map shared by every worktree, and everything whenever main's CI is not green, the map is too far behind, or a change cannot be traced.
+  A typical one-file landing now spends about **41 s** on acceptance tests, against 957 s at 0.3.0.
+- **Waits on events** (slice 4): the first-launch tests wait on what the daemon reads, with a forced red; the behaviour tests' fixed sleeps became waits on frames and deliveries, marked "no forced red" where none could be forced; the settled daemon is judged on two 15 s windows, on the performance manager's five quiet pairs.
+- **Along the way**: [item 227](227-testtoolchainpins-fails-when-the-machines-go-is-not-the-pin.md) fixed, [item 230](230-the-sheet-path-can-still-die-of-an-interrupted-gamepad-open.md)'s fix landed with its soak still to finish, `make test-acceptance-locked RUN=…` and `make test-performance RUN=…` for runs that must hold the lock.
+
+Left for others, flagged for Aria: the 2,000-session window is [item 244](244-the-two-thousand-session-test-may-take-15-second-windows.md), and item 230 stays open until 12 consecutive clean soak runs on a quiet machine.
