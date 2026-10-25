@@ -25,3 +25,12 @@ Three tests have nowhere to run:
 4. Once applied once: check `/dev/dri` on the EX44 before the first soak, since Hetzner may not leave the iGPU enabled, and say what was found here.
 
 Research, with sources, is in items 95 and 96's *Testing without the hardware* sections; prices are as found on 2026-10-25.
+
+## Answered while building
+
+- **The plan and tree** (manager, 2026-10-25): approved. One stdlib Python CLI and a Makefile in `testing/machines/`; a real EX44 order only after Aria types the hourly price back, and `terraform apply` without `-auto-approve`; destroy in a `finally` that runs on failure and on interrupt.
+- **Network in `make test`** (manager): none. Terraform validates only against a provider already cached and says loudly when it skipped; `make validate` there fills the cache for a human.
+- **The EX44's system** (manager): Arch, so its Mesa matches Aria's laptop and the GPU figure compares.
+- **Whose sessions the soak replays** (manager, from the standing rule that nothing derived from `~/.claude` is copied): the demo's alone, and the report says so; nothing of Aria's history goes to a rented machine.
+- **IPv4** (manager): IPv6-only by default, since this machine reaches IPv6 (over its mobile link), with `IPV4=1` adding Hetzner's paid address for a network without it.
+- **Token references** (manager): Makefile variables with no default, set in a git-ignored `testing/machines/.env`, so nothing public names Aria's vault.
