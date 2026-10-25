@@ -49,3 +49,4 @@ The recorder holds it to `budget_usd` itself, by pricing every transcript in the
 **First-run dialogs are answered only in the recorder's scratch home** (manager, 2026-10-25): onboarding, folder trust for the toy projects and the bypass-permissions warning are settled in `/home/demo` inside the container and nowhere else.
 Doing the same in Aria's own `~/.claude` or `~/.claude.json` is her decision, never the tool's, and nothing is copied from her Claude data.
 The workspace test holds a sentinel `~/.claude.json` in a temporary `HOME` unchanged.
+- **The demo token** (Aria, 2026-10-25): stored in 1Password as `op:Botropolis/Botropolis Demo Recorder Token/credential` (a token from `claude setup-token`, entered through `secret-run`'s prompt and never on a command line); recordings read it by that reference, which the Makefile's `demo-record` comment names.
