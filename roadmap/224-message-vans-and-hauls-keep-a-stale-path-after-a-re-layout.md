@@ -1,6 +1,6 @@
 # 224. Message vans and hauls keep a stale path after a re-layout
 
-**Open. Filed 2026-10-24 (r967), found by item 217's audit. Nobody's call — a defect.**
+**Open, in progress since 2026-10-25 in the session "item 224". Filed 2026-10-24 (r967), found by item 217's audit. Nobody's call — a defect.**
 
 [Item 217](217-a-delivery-truck-drives-beside-the-bridge-not-on-it.md) found that a delivery truck kept driving the path it was given at the merge after the island grew and the bridge moved, and re-routed trucks whenever the city is rebuilt (slice 1, `a555de7`, r967). Its audit of the other movers that store a path at birth found two more with the same shape:
 - **Message vans** (`botropolis/pkg/city/messages.go`): `Message.Path` is the road's street path, or the group's line, as it stood when the message was sent, and `From`/`To` point at that city's districts. A re-layout during the drive leaves the van on a road that is no longer there.
