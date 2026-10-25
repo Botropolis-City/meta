@@ -14,3 +14,9 @@ Aria, 2026-10-25, asked whether the checklist was still live: drop the plant's f
 2. Run every step a script can: through the drive harness, `botropolis-demo`, or an acceptance test that already exists — and where one exists, say which test covers the step instead of keeping a manual step for it.
 3. Leave for Aria only the steps that need her own terminal, notifications and desktop, each saying the keys to press and what she should see.
 4. Take its bullet off `ROADMAP.md`'s *Waiting on Aria* list when the rewrite lands, and put one back only for the steps left to her.
+
+## Answered while building
+
+- **The plan and tree** (manager, 2026-10-25): approved. Steps already covered by tests become "scripted, see test X"; slice 1 adds a drive test that every panel closes on Escape and leaves the camera, a focus seam for the away list on refocus, and checks that the strip and the breakdown agree and that an all-unpriced row does not say `$0.00`; slice 2 rewrites the checklist.
+- **An all-unpriced row** (manager): it says "unpriced", the word the headline already uses when nothing prices.
+- **Step 1's disagreement** (manager): filed as [item 250](250-a-session-running-a-background-command-says-it-needs-you.md), not fixed here.

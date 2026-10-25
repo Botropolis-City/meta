@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [247](roadmap/247-no-road-leads-to-a-bridge.md) | no road leads to a bridge: its ramp comes down onto grass | 220 | nobody, a defect |
 | [248](roadmap/248-a-synthetic-history-cannot-be-made-outside-go-test.md) | `botropolis-demo synth-home`: a synthetic history of real size outside `go test`, for item 245's soak | — | nobody |
 | [249](roadmap/249-captures-fail-under-load-at-the-30-second-open-ceiling.md) | acceptance captures fail under load at the 30 s open ceiling | — | nobody, a defect |
+| [250](roadmap/250-a-session-running-a-background-command-says-it-needs-you.md) | a session whose turn ended over a running background command shows needs-you | — | nobody, a defect |
 
 ## Waiting on Aria
 
