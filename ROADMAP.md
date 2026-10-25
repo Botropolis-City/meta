@@ -43,7 +43,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [245](roadmap/245-test-machines-in-the-cloud.md) | cloud machines for the overnight soak and the Wayland desktops: Hetzner, plan-only | — | nobody, Aria chose; waits on her account |
 | [246](roadmap/246-the-validation-checklist-predates-0-3-0.md) | the validation checklist rewritten against 0.3.0, scripted where it can be | — | nobody |
 | [247](roadmap/247-no-road-leads-to-a-bridge.md) | no road leads to a bridge: its ramp comes down onto grass | 220 | nobody, a defect |
-| [249](roadmap/249-captures-fail-under-load-at-the-30-second-open-ceiling.md) | acceptance captures fail under load at the 30 s open ceiling | — | nobody, a defect |
 | [250](roadmap/250-a-session-running-a-background-command-says-it-needs-you.md) | a session whose turn ended over a running background command shows needs-you | — | nobody, a defect |
 | [252](roadmap/252-the-second-bridge-is-too-low-for-the-liner.md) | the second bridge's deck is too low for the liner: raise it over the river | 220 | nobody, Aria chose |
 | [253](roadmap/253-a-team-leads-messages-are-never-road-traffic.md) | a team lead's messages to its teammates are never road traffic: the team is named in an Agent result, not after the lead | — | nobody, a defect |
