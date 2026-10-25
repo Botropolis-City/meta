@@ -53,3 +53,24 @@ The workspace test holds a sentinel `~/.claude.json` in a temporary `HOME` uncha
 - **What the first recording found** (manager, 2026-10-25): it worked in a minute, but Claude Code 2.1.310 writes new line types (`api-request`, `api-request-blob`, `api-request-shape`) holding its system prompt and API settings, a teammate run in-process was not exported, so its spend escaped the cap, and the lead's lines carry no team name. The recording was not committed. Slice 4 makes the scrub an allowlist of the line types the app reads, with `make demo-check` refusing any other type in the corpus, exports and prices every transcript the run wrote, and re-records; the lead's missing team name is decided from the teammate's real shape.
 - **The corpus under the allowlist** (manager, 2026-10-25): all 30 corpus transcripts carry line and attachment types the app never reads, among them pieces of Claude Code's own skill and tool lists, published since the corpus began; none is personal or a secret, so history is left as it is. Slice 4 re-scrubs the corpus, reviewed as whole-line removals only, and re-lists its digests; the scenario tests prove staging unchanged, and the full re-film this causes waits for the next release, as filming always does.
 - **The 25 GiB test** (manager, 2026-10-25): `TestStagedMetropolisReadsAsAHeavyUser`, on the re-scrubbed corpus, took the machine's memory (it ran out in 6 s under a 3 GiB cap; 30 MB on the original). Item 240's `openAt` took a recording's opening to be its leading lines at its earliest moment; in 14 transcripts the first prompt is stamped 1–2 ms after a line that follows it, and a dropped `queue-operation` had hidden that, so the opening came back empty and `fillHours` filled from year 1. Fixed inside slice 4: the opening is the leading lines within a second of the earliest, and a fill from an empty or day-early opening refuses, loudly.
+
+## The first recording (2026-10-25)
+
+The first team run worked: the lead spawned `reader` in-process, the reader sent its summary and the lead thanked it, in 1m00s, for $0.0048 as the recorder priced it.
+That figure is the lead alone, because the recorder found no teammate transcript to price, and the recording was not committed, since it showed four things:
+
+- **The scrub was a denylist, and Claude Code 2.1.310 writes new shapes past it**: `api-request-shape` (42–50 KB, its system prompt and tool list), `api-request-blob` (message bodies, system-role ones among them) and `api-request` (internal API settings).
+  The scrub is now an allowlist (manager, 2026-10-25): it keeps the line types the app reads, and an attachment only for its `model`, and `make demo-check` refuses any corpus line outside the same list.
+- **An in-process teammate is not filed or named as a tmux one is**, so a team run now prices and exports every file it wrote under the home's projects.
+- **The budget therefore priced the lead alone**, which that change also fixes.
+- **The lead's own lines carry no `teamName`** in this version, so `Roads` cannot count the lead's messages to its teammate; what that means for the city waits on the teammate's shape from the next recording.
+
+**The corpus was re-scrubbed to the allowlist**, which failed all 30 transcripts: by type, `atis-latch` 91, `queue-operation` 72, `mode` 5; by attachment, `budget_usd` 158, `total_tokens_reminder` 153, 30 each of `environment`, `deferred_tools_delta`, `agent_listing_delta`, `skill_listing`, `session_context`, `date` and `remote_session_change`, `deferred_tools_record` 8, `silent_turn_reminder` 3, `auto_mode`, `edited_text_file` and `command_permissions` 2 each, and `queued_command` 1.
+The review held it to removals: 707 lines dropped and 703 kept byte-identical, with no violation.
+**History stays as it is** (manager, 2026-10-25): what was published was Claude Code's own tool and skill listings, with no secrets and nothing personal, and rewriting public history is not worth it.
+The re-scrub changes the film cache's key, so the next release's film is a full one, which it would be anyway; nothing was re-filmed for it.
+
+**The re-scrub exposed a fault in item 240's staging.**
+`openAt` took a recording's opening to be its leading lines at the earliest moment; in 14 transcripts the first prompt is stamped 1–2 ms after a line that follows it, which a `queue-operation` stamped earlier had hidden.
+The opening came back empty, `fillHours` filled from the zero time, 204,963,823 turns at a 45 s pace, and `TestStagedMetropolisReadsAsAHeavyUser` ran out of a 3 GiB cap in 6 s, against 30 MB on the original corpus; uncapped it reached 25 GiB and the machine's low-memory reaper stopped other jobs.
+The opening now allows 50 ms of skew, and `fillHours` refuses an empty opening or one more than a day before its recording; the demo integration tests then took 4 s at a 25.5 MB peak.
