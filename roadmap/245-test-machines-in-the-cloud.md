@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-25 in the session "item 245". Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose the providers and where the code lives; the run waits on her Hetzner account.**
 
+Depends on: nothing
+Landed: slice 1 (`2b502b8`, r1032).
+
 Aria, 2026-10-25, on how to test items 95 and 96 without owning a Mac or a Wayland desktop: *"I won't suddenly own one of these. We need a vm to test."*
 And on item 164's overnight soak, which needs a screen that never blanks or locks: *"I meant remote vm like in linode or gcp or some other cloud env or maybe a cloud intended for perf or cross platform testing"*.
 
