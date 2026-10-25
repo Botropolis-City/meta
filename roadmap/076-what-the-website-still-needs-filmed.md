@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-25 in the session "item 76". Filed 2026-10-10 (r376), when botropolis.city was rebuilt around the demo media. Nobody's call — each is a scenario or a filming option, and each replaces a stand-in the site already ships.**
 
+Depends on: nothing
+Landed: slice 1 (`68cf851`, r1025).
+
 The site lives in its own repository, `Botropolis-City/botropolis.city`, checked out beside botropolis under the meta repository's root, at `botropolis.city/` (until 2026-10-15, `~/workspaces/github/botropolis.city`).
 It reads `dist/demo/manifest.json` through `make media-import` there, so anything below reaches the site with `make media-import media-upload` and a push.
 
