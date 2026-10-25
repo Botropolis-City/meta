@@ -46,6 +46,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [238](roadmap/238-a-baked-look-can-differ-by-a-pixel-for-some-shapes.md) | a baked look can still differ from the direct draw by a pixel for some shapes | — | nobody, until it shows on the art |
 | [245](roadmap/245-test-machines-in-the-cloud.md) | cloud machines for the overnight soak and the Wayland desktops: Hetzner, plan-only | — | nobody, Aria chose; waits on her account |
 | [246](roadmap/246-the-validation-checklist-predates-0-3-0.md) | the validation checklist rewritten against 0.3.0, scripted where it can be | — | nobody |
+| [247](roadmap/247-no-road-leads-to-a-bridge.md) | no road leads to a bridge: its ramp comes down onto grass | 220 | nobody, a defect |
 
 ## Waiting on Aria
 
