@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+report=/home/soak/run/out/dri.txt
+
+usage() {
+	cat <<USAGE
+Usage: setup EDID_FILE
+
+Turns a fresh Hetzner EX44 running Arch into the soak machine (item 245):
+real Xorg on the UHD 770 with the modesetting driver (Mesa's iris), a display
+forced on with EDID_FILE, i3, no blanking, no DPMS and no locker, running as
+the user soak on :0.
+
+It reports what it finds in /dev/dri to ${report}.
+
+Exit status: 0 ready, 100 rebooting to apply the kernel command line (run it
+again once ssh answers), 3 no iGPU, 4 X did not come up.
+USAGE
+}
+
+case "${1:-}" in
+-h | --help) usage; exit 0 ;;
+"") usage >&2; exit 2 ;;
+esac
+edid="$1"
+
+useradd -m -G video,render soak 2>/dev/null || true
+install -d -o soak -g soak /home/soak/run /home/soak/run/out /home/soak/run/botropolis /home/soak/.config/i3
+
+{
+	echo "# /dev/dri on $(hostname) at $(date -Is)"
+	ls -l /dev/dri 2>&1 || true
+	lspci -nnk 2>/dev/null | grep -A3 -E 'VGA|Display' || echo "lspci found no display controller"
+	for status in /sys/class/drm/card*-*/status; do
+		[[ -e "${status}" ]] && echo "$(basename "$(dirname "${status}")"): $(cat "${status}")"
+	done
+} >"${report}"
+cat "${report}"
+
+if ! compgen -G '/dev/dri/renderD*' >/dev/null; then
+	echo "no /dev/dri/renderD*: the iGPU is not enabled on this server, so it cannot run the soak" | tee -a "${report}" >&2
+	exit 3
+fi
+
+pacman -Syu --noconfirm --needed xorg-server xorg-xinit xorg-xset xorg-xprop xorg-xrandr i3-wm ttf-dejavu \
+	mesa intel-media-driver python pciutils
+
+connector=""
+for path in /sys/class/drm/card*-*; do
+	name=$(basename "${path}")
+	name=${name#card*-}
+	case "${name}" in
+	HDMI-* | DP-*) connector="${name}"; break ;;
+	esac
+done
+[[ -n "${connector}" ]] || { echo "no HDMI or DP connector to force on" | tee -a "${report}" >&2; exit 3; }
+echo "forced connector: ${connector}" >>"${report}"
+
+install -D -m 0644 "${edid}" /usr/lib/firmware/edid/botropolis-1080p.bin
+if ! grep -q botropolis-1080p /etc/mkinitcpio.conf; then
+	sed -i 's|^FILES=(\(.*\))|FILES=(\1 /usr/lib/firmware/edid/botropolis-1080p.bin)|' /etc/mkinitcpio.conf
+	mkinitcpio -P
+fi
+
+cat >/etc/X11/xorg.conf.d/20-botropolis.conf <<'XORG'
+Section "ServerFlags"
+	Option "BlankTime" "0"
+	Option "StandbyTime" "0"
+	Option "SuspendTime" "0"
+	Option "OffTime" "0"
+EndSection
+
+Section "Device"
+	Identifier "iGPU"
+	Driver "modesetting"
+EndSection
+XORG
+
+cat >/home/soak/.config/i3/config <<'I3'
+font pango:DejaVu Sans Mono 10
+exec --no-startup-id xset s off -dpms
+I3
+chown soak: /home/soak/.config/i3/config
+
+cat >/etc/systemd/system/soak-x.service <<'UNIT'
+[Unit]
+Description=Xorg and i3 for the soak, as soak on :0
+After=systemd-user-sessions.service
+Conflicts=getty@tty1.service
+
+[Service]
+User=soak
+PAMName=login
+TTYPath=/dev/tty1
+StandardInput=tty
+ExecStart=/usr/bin/xinit /usr/bin/i3 -- :0 vt1 -nolisten tcp -keeptty
+Restart=no
+
+[Install]
+WantedBy=graphical.target
+UNIT
+systemctl daemon-reload
+systemctl enable soak-x.service
+systemctl set-default graphical.target
+
+cmdline="drm.edid_firmware=${connector}:edid/botropolis-1080p.bin video=${connector}:e"
+if ! grep -q "drm.edid_firmware=${connector}" /proc/cmdline; then
+	if ! grep -q "drm.edid_firmware=${connector}" /etc/default/grub; then
+		sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"|GRUB_CMDLINE_LINUX_DEFAULT=\"\1 ${cmdline}\"|" /etc/default/grub
+		grub-mkconfig -o /boot/grub/grub.cfg
+	fi
+	echo "rebooting to apply: ${cmdline}" | tee -a "${report}"
+	systemd-run --on-active=2 systemctl reboot
+	exit 100
+fi
+
+systemctl start soak-x.service
+for _ in $(seq 60); do
+	if runuser -u soak -- env DISPLAY=:0 xset q >/dev/null 2>&1; then
+		{
+			echo "# X on :0"
+			runuser -u soak -- env DISPLAY=:0 xrandr --query
+			runuser -u soak -- env DISPLAY=:0 xset q | grep -A2 -E 'Screen Saver|DPMS'
+			grep -E 'modeset|glamor|iris' /home/soak/.local/share/xorg/Xorg.0.log 2>/dev/null | head -20 || true
+		} >>"${report}"
+		chown soak: "${report}"
+		exit 0
+	fi
+	sleep 1
+done
+echo "X did not come up on :0" | tee -a "${report}" >&2
+journalctl -u soak-x.service --no-pager | tail -40 >>"${report}"
+exit 4

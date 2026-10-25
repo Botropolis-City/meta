@@ -34,6 +34,7 @@ test-unit ::
 	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools -p '*_test.py'
 	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s performance/tools -p '*_test.py'
 	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s testing/helpers -p '*_test.py'
+	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s testing/machines -p '*_test.py'
 
 test-acceptance ::
 	$(LOG) "Running the acceptance tests"

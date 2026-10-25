@@ -1,0 +1,74 @@
+#cloud-config
+disable_root: false
+users:
+  - name: tester
+    uid: 1000
+    gecos: Wayland tester
+    shell: /bin/bash
+    groups: [input]
+    lock_passwd: true
+
+write_files:
+  - path: /root/.ssh/authorized_keys
+    permissions: "0600"
+    append: true
+    content: |
+      ${public_key}
+%{ if desktop == "gnome" ~}
+  - path: /etc/gdm/custom.conf
+    content: |
+      [daemon]
+      AutomaticLoginEnable=True
+      AutomaticLogin=tester
+      WaylandEnable=true
+  - path: /etc/dconf/profile/user
+    content: |
+      user-db:user
+      system-db:local
+  - path: /etc/dconf/db/local.d/00-botropolis
+    content: |
+      [org/gnome/desktop/screensaver]
+      lock-enabled=false
+      [org/gnome/desktop/session]
+      idle-delay=uint32 0
+      [org/gnome/settings-daemon/plugins/power]
+      sleep-inactive-ac-type='nothing'
+%{ else ~}
+  - path: /etc/sddm.conf.d/autologin.conf
+    content: |
+      [Autologin]
+      User=tester
+      Session=plasma
+  - path: /etc/xdg/kscreenlockerrc
+    content: |
+      [Daemon]
+      Autolock=false
+      LockOnResume=false
+%{ endif ~}
+  - path: /usr/local/bin/wait-for-desktop
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      for _ in $(seq 120); do
+        if [[ -S /run/user/1000/wayland-0 ]] && loginctl list-sessions --no-legend | grep -q tester; then
+          exit 0
+        fi
+        sleep 5
+      done
+      echo "no Wayland session for tester after 10 minutes" >&2
+      exit 1
+
+runcmd:
+%{ if desktop == "gnome" ~}
+  - dnf -y install @workstation-product-environment ydotool python3-gobject python3-dbus
+  - dconf update
+%{ else ~}
+  - dnf -y install @kde-desktop-environment ydotool spectacle python3-gobject python3-dbus
+%{ endif ~}
+  - systemctl enable ydotool.service
+  - systemctl set-default graphical.target
+
+power_state:
+  mode: reboot
+  message: rebooting into the ${desktop} session
+  condition: true

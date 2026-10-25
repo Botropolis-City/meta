@@ -1,0 +1,516 @@
+#!/usr/bin/env python3
+import argparse
+import base64
+import datetime
+import hashlib
+import json
+import os
+import shlex
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+HERE = os.path.dirname(os.path.realpath(__file__))
+ROOT = os.path.dirname(os.path.dirname(HERE))
+sys.path.insert(0, HERE)
+from edid import edid_1080p  # noqa: E402
+
+ROBOT = os.environ.get('MACHINES_ROBOT_URL', 'https://robot-ws.your-server.de')
+HCLOUD = os.environ.get('MACHINES_HCLOUD_URL', 'https://api.hetzner.cloud/v1')
+POLL = float(os.environ.get('MACHINES_POLL_SECONDS', '30'))
+PRODUCT = 'EX44'
+DIST = 'Arch Linux latest minimal'
+REMOTE = '/home/soak/run'
+SECRETS = {
+    'soak': [('ROBOT_USER', 'robot_user_ref', '--robot-user-ref'),
+             ('ROBOT_PASSWORD', 'robot_password_ref', '--robot-password-ref')],
+    'wayland': [('HCLOUD_TOKEN', 'hcloud_token_ref', '--hcloud-token-ref')],
+}
+
+USAGE = '''\
+machines COMMAND MACHINE [options]
+
+The test machines items 96 and 164 have nowhere else to run (item 245): two
+Hetzner machines, rented by the hour, made for one run and destroyed after it.
+
+COMMAND
+  plan      say what MACHINE costs and what would be made; spend nothing
+  apply     make MACHINE, after a human approves at the terminal
+  run       apply, run the test on it, fetch its results, destroy it; the
+            destroy runs when the test fails and when the run is interrupted
+  destroy   destroy MACHINE
+
+MACHINE
+  soak      a Hetzner EX44 dedicated server, ordered through Robot, for
+            item 164's 8-hour soak on a real iGPU. Approving means typing its
+            hourly price back. It is cancelled with cancellation_date=now.
+  wayland   a Hetzner Cloud VM with GNOME or KDE Plasma on Wayland, made by
+            Terraform in cloud/, for item 96. Approving is Terraform's own yes.
+
+Secrets are passed by reference only, to secret-run (op:Vault/Item/field and
+the rest): never a value.
+'''
+
+
+class Refused(Exception):
+    def __init__(self, message, code=2):
+        super().__init__(message)
+        self.code = code
+
+
+def say(text):
+    print(text, flush=True)
+
+
+def warn(text):
+    print(text, file=sys.stderr, flush=True)
+
+
+def parse(argv):
+    p = argparse.ArgumentParser(prog='machines', usage=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument('command', choices=['plan', 'apply', 'run', 'destroy'])
+    p.add_argument('machine', choices=['soak', 'wayland'])
+    p.add_argument('--robot-user-ref', default='', help='secret-run reference to the Robot web service user')
+    p.add_argument('--robot-password-ref', default='', help='secret-run reference to its password')
+    p.add_argument('--hcloud-token-ref', default='', help='secret-run reference to a Hetzner Cloud API token')
+    p.add_argument('--ssh-key', default=os.path.expanduser('~/.ssh/id_ed25519.pub'), help='public key the machine trusts')
+    p.add_argument('--ipv4', action='store_true', help='give the machine an IPv4 address (Robot charges for it)')
+    p.add_argument('--location', default=None, help='soak: FSN1 (default); wayland: nbg1 (default)')
+    p.add_argument('--desktop', choices=['gnome', 'kde'], default='gnome', help='wayland: the desktop')
+    p.add_argument('--server-type', default='cx33', help='wayland: the Hetzner Cloud server type')
+    p.add_argument('--image', default='fedora-42', help='wayland: the Fedora image')
+    p.add_argument('--build', help='run soak: directory holding botropolis and botropolisd')
+    p.add_argument('--stager', help='run soak: a botropolis-demo binary')
+    p.add_argument('--corpus', help="run soak: botropolis's demo directory")
+    p.add_argument('--history', help='run soak: a synthetic ~/.claude (botropolis-demo synth-home, item 248)')
+    p.add_argument('--soak-flags', default='', help='run soak: extra perf-soak flags')
+    p.add_argument('--script', help='run wayland: the test to run in the desktop session')
+    p.add_argument('--out', help='run: where results land')
+    return p.parse_args(argv)
+
+
+def check(args):
+    missing = [flag for _, attr, flag in SECRETS[args.machine] if not getattr(args, attr)]
+    if missing:
+        raise Refused('%s %s needs %s: a secret-run reference such as op:Vault/Item/field, '
+                      'never the secret (set them in testing/machines/.env)'
+                      % (args.command, args.machine, ' and '.join(missing)))
+    if args.command != 'run':
+        return
+    needed = ['build', 'stager', 'corpus', 'history'] if args.machine == 'soak' else ['script']
+    absent = ['--' + n for n in needed if not getattr(args, n) or not os.path.exists(getattr(args, n))]
+    if absent:
+        raise Refused('run %s needs %s' % (args.machine, ', '.join(absent)))
+    if args.machine == 'soak':
+        real = os.path.realpath(os.path.expanduser('~/.claude'))
+        history = os.path.realpath(args.history)
+        if history == real or history.startswith(real + os.sep):
+            raise Refused('--history %s is your own Claude history; nothing of it goes to a rented machine. '
+                          'Make a synthetic one with botropolis-demo synth-home (item 248).' % args.history)
+
+
+def resolve_secrets(args, argv):
+    if os.environ.get('MACHINES_RESOLVED') == '1':
+        return
+    cmd = ['secret-run']
+    for name, attr, _ in SECRETS[args.machine]:
+        cmd += ['--env', '%s=%s' % (name, getattr(args, attr))]
+    cmd += ['--', os.path.realpath(__file__)] + argv
+    os.environ['MACHINES_RESOLVED'] = '1'
+    os.execvp(cmd[0], cmd)
+
+
+def state_dir():
+    d = os.path.join(os.environ.get('XDG_STATE_HOME') or os.path.expanduser('~/.local/state'), 'botropolis-machines')
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def out_dir(args, name):
+    if args.out:
+        d = args.out
+    else:
+        stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+        d = os.path.join(os.environ.get('XDG_STATE_HOME') or os.path.expanduser('~/.local/state'),
+                         'botropolis-perf', '%s-%s' % (name, stamp))
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def http(method, url, auth, form=None):
+    data = urllib.parse.urlencode(form, doseq=True).encode() if form is not None else None
+    req = urllib.request.Request(url, data=data, method=method, headers={'Authorization': auth})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return r.status, json.loads(r.read() or b'{}')
+    except urllib.error.HTTPError as e:
+        try:
+            return e.code, json.loads(e.read() or b'{}')
+        except ValueError:
+            return e.code, {}
+
+
+def public_key(args):
+    with open(args.ssh_key) as f:
+        return f.read().strip()
+
+
+def private_key(args):
+    return args.ssh_key[:-4] if args.ssh_key.endswith('.pub') else args.ssh_key
+
+
+def fingerprint(key):
+    digest = hashlib.md5(base64.b64decode(key.split()[1])).hexdigest()
+    return ':'.join(digest[i:i + 2] for i in range(0, 32, 2))
+
+
+def ssh_options(args):
+    return ['-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=accept-new',
+            '-o', 'UserKnownHostsFile=' + os.path.join(state_dir(), 'known_hosts'),
+            '-o', 'IdentityFile=' + private_key(args), '-o', 'ConnectTimeout=10',
+            '-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=10']
+
+
+def ssh(args, ip, command):
+    return subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command]).returncode
+
+
+def remote(ip, path):
+    return 'root@%s:%s' % ('[%s]' % ip if ':' in ip else ip, path)
+
+
+def scp(args, *paths):
+    return subprocess.run(['scp', '-r'] + ssh_options(args) + list(paths)).returncode
+
+
+def wait_for_ssh(args, ip):
+    deadline = time.monotonic() + float(os.environ.get('MACHINES_SSH_TIMEOUT', '1800'))
+    while ssh(args, ip, 'true') != 0:
+        if time.monotonic() > deadline:
+            raise Refused('%s never answered ssh' % ip, 1)
+        time.sleep(POLL)
+
+
+def on_signal(signum, frame):
+    raise KeyboardInterrupt
+
+
+class Robot:
+    def __init__(self):
+        self.auth = 'Basic ' + base64.b64encode(
+            ('%s:%s' % (os.environ['ROBOT_USER'], os.environ['ROBOT_PASSWORD'])).encode()).decode()
+        self.state = os.path.join(state_dir(), 'soak.json')
+
+    def call(self, method, path, form=None, ok=(200, 201)):
+        status, body = http(method, ROBOT + path, self.auth, form)
+        if status not in ok:
+            raise Refused('Robot answered %d to %s %s: %s' % (status, method, path, json.dumps(body)), 1)
+        return status, body
+
+    def price(self, location):
+        _, body = self.call('GET', '/order/server/product/' + PRODUCT)
+        product = body['product']
+        if DIST not in product.get('dist', []):
+            raise Refused('Robot no longer offers %r for the %s; it offers %s' % (DIST, PRODUCT, product.get('dist')), 3)
+        match = [p for p in product['prices'] if p['location'] == location]
+        if not match:
+            raise Refused('the %s is not sold at %s; it is at %s' % (PRODUCT, location, product.get('location')), 3)
+        hourly, setup = match[0]['price'].get('hourly_net'), match[0]['price_setup']['net']
+        if hourly is None:
+            raise Refused('the %s at %s is not billed by the hour, so a cancelled server would still cost the month. '
+                          'Nothing ordered; ask Aria.' % (PRODUCT, location), 3)
+        if float(setup) > 0:
+            raise Refused('the %s at %s now has a setup fee of EUR %.2f; Aria chose it for having none. '
+                          'Nothing ordered; ask her.' % (PRODUCT, location, float(setup)), 3)
+        say('%s at %s: EUR %s an hour, setup fee EUR %.2f (net, VAT extra); a 10-hour run is about EUR %.2f.'
+            % (PRODUCT, location, hourly, float(setup), 10 * float(hourly)))
+        return hourly
+
+    def order_form(self, args, key, test):
+        form = {'product_id': PRODUCT, 'location': args.location or 'FSN1', 'dist': DIST,
+                'authorized_key[]': [fingerprint(key)]}
+        if args.ipv4:
+            form['addon[]'] = ['primary_ipv4']
+        if test:
+            form['test'] = 'true'
+        return form
+
+    def key_known(self, key):
+        status, _ = self.call('GET', '/key/' + fingerprint(key), ok=(200, 404))
+        return status == 200
+
+    def plan(self, args):
+        self.price(args.location or 'FSN1')
+        key = public_key(args)
+        if not self.key_known(key):
+            say('Your key %s is not in Robot yet; apply uploads it.' % fingerprint(key))
+        _, body = self.call('POST', '/order/server/transaction', self.order_form(args, key, test=True))
+        say('Robot accepted a test order (not processed): %s, %s, %s.'
+            % (PRODUCT, args.location or 'FSN1', 'with IPv4' if args.ipv4 else 'IPv6 only'))
+
+    def save(self, state):
+        with open(self.state, 'w') as f:
+            json.dump(state, f)
+
+    def load(self):
+        try:
+            with open(self.state) as f:
+                return json.load(f)
+        except OSError:
+            return None
+
+    def apply(self, args):
+        hourly = self.price(args.location or 'FSN1')
+        tty = os.environ.get('MACHINES_TTY', '/dev/tty')
+        warn('Type the hourly price, %s, to order the %s now (anything else stops): ' % (hourly, PRODUCT))
+        with open(tty) as f:
+            typed = f.readline().strip()
+        if typed != hourly:
+            raise Refused('typed %r, not %s: nothing ordered' % (typed, hourly), 1)
+        key = public_key(args)
+        if not self.key_known(key):
+            self.call('POST', '/key', {'name': 'botropolis-machines', 'data': key})
+        _, body = self.call('POST', '/order/server/transaction', self.order_form(args, key, test=False))
+        state = {'transaction': body['transaction']['id'], 'hourly': hourly}
+        self.save(state)
+        say('Ordered: transaction %s. It bills from delivery until destroy.' % state['transaction'])
+        return self.delivered(state)
+
+    def delivered(self, state):
+        deadline = time.monotonic() + float(os.environ.get('MACHINES_ORDER_TIMEOUT', '14400'))
+        while True:
+            _, body = self.call('GET', '/order/server/transaction/' + state['transaction'])
+            t = body['transaction']
+            if t['status'] == 'ready':
+                break
+            if t['status'] == 'cancelled':
+                raise Refused('Hetzner cancelled transaction %s' % state['transaction'], 1)
+            if time.monotonic() > deadline:
+                raise Refused('transaction %s is still %r' % (state['transaction'], t['status']), 1)
+            time.sleep(POLL)
+        state['server_number'] = t['server_number']
+        ip = t.get('server_ip')
+        if not ip:
+            _, server = self.call('GET', '/server/%d' % t['server_number'])
+            ip = server['server']['server_ipv6_net'].split('/')[0] + '2'
+        state['ip'] = ip
+        self.save(state)
+        say('EX44 %d is up at %s and billing; `make destroy MACHINE=soak` cancels it.' % (state['server_number'], ip))
+        return state
+
+    def destroy(self):
+        state = self.load()
+        if not state:
+            say('No EX44 is on order here; nothing to cancel.')
+            return
+        try:
+            if 'server_number' not in state:
+                state = self.delivered(state)
+            self.call('POST', '/server/%d/cancellation' % state['server_number'],
+                      {'cancellation_date': 'now', 'reserve_location': 'false'})
+        except BaseException:
+            warn('EX44 NOT CANCELLED (%s): cancel it in Robot by hand.' % json.dumps(state))
+            raise
+        os.remove(self.state)
+        say('EX44 %d cancelled.' % state['server_number'])
+
+
+def count_history(history):
+    projects = os.path.join(history, 'projects')
+    sessions, used = 0, 0
+    for p in sorted(os.listdir(projects)) if os.path.isdir(projects) else []:
+        n = len([f for f in os.listdir(os.path.join(projects, p)) if f.endswith('.jsonl')])
+        sessions += n
+        used += 1 if n else 0
+    return sessions, used
+
+
+def run_soak(args):
+    robot = Robot()
+    out = out_dir(args, 'soak-ex44')
+    sessions, projects = count_history(args.history)
+    started = False
+    rc = 1
+    try:
+        state = robot.apply(args)
+        ip = state['ip']
+        with open(os.path.join(out, 'machine.txt'), 'w') as f:
+            f.write('machine: Hetzner %s %d at %s, %s, EUR %s an hour\n'
+                    % (PRODUCT, state['server_number'], args.location or 'FSN1', DIST, state['hourly']))
+            f.write('display: Xorg modesetting on the iGPU, forced 1920x1080 EDID, i3, no blanking, no locker\n')
+            f.write('synthetic history: %d sessions in %d projects (botropolis-demo synth-home, item 248); '
+                    'nothing from a real ~/.claude\n' % (sessions, projects))
+            f.write('started: %s\n' % datetime.datetime.now().isoformat(timespec='seconds'))
+        wait_for_ssh(args, ip)
+        with tempfile.TemporaryDirectory() as tmp:
+            edid = os.path.join(tmp, 'botropolis-1080p.bin')
+            with open(edid, 'wb') as f:
+                f.write(edid_1080p())
+            if scp(args, os.path.join(HERE, 'ex44', 'setup'), edid, remote(ip, '/root/')) != 0:
+                raise Refused('could not copy the set-up to %s' % ip, 1)
+        setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin')
+        if setup == 100:
+            time.sleep(POLL)
+            wait_for_ssh(args, ip)
+            setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin')
+        if setup != 0:
+            raise Refused('the set-up failed on %s (exit %d); the soak did not start' % (ip, setup), 1)
+        for src, dst in ((os.path.join(ROOT, 'performance'), REMOTE + '/performance'),
+                         (args.corpus, REMOTE + '/botropolis/demo'),
+                         (args.build, REMOTE + '/build'),
+                         (args.stager, REMOTE + '/botropolis-demo'),
+                         (args.history, '/home/soak/.claude')):
+            if scp(args, src, remote(ip, dst)) != 0:
+                raise Refused('could not copy %s to %s' % (src, ip), 1)
+        ssh(args, ip, 'chown -R soak: /home/soak')
+        started = True
+        command = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
+                   'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE,
+                   '%s/performance/tools/perf-soak' % REMOTE, '--out', REMOTE + '/out'] \
+            + shlex.split(args.soak_flags) + [REMOTE + '/build']
+        rc = ssh(args, ip, shlex.join(command))
+        say('perf-soak exited %d' % rc)
+    finally:
+        try:
+            if started and scp(args, remote(robot.load()['ip'], REMOTE + '/out/.'), out) != 0:
+                warn('could not fetch the soak report from the EX44')
+        finally:
+            robot.destroy()
+    say('Results: %s' % out)
+    return rc
+
+
+class Cloud:
+    def __init__(self, args):
+        self.args = args
+        self.dir = os.path.join(state_dir(), 'wayland-' + args.desktop)
+        os.makedirs(self.dir, exist_ok=True)
+        cache = os.path.join(os.environ.get('XDG_CACHE_HOME') or os.path.expanduser('~/.cache'),
+                             'botropolis-machines', 'plugins')
+        os.makedirs(cache, exist_ok=True)
+        self.env = dict(os.environ, TF_DATA_DIR=os.path.join(self.dir, '.terraform'), TF_PLUGIN_CACHE_DIR=cache)
+        self.vars = ['-var', 'desktop=' + args.desktop, '-var', 'ssh_public_key_file=' + args.ssh_key,
+                     '-var', 'server_type=' + args.server_type, '-var', 'location=' + (args.location or 'nbg1'),
+                     '-var', 'image=' + args.image, '-var', 'ipv4=' + ('true' if args.ipv4 else 'false')]
+
+    def tf(self, *argv, capture=False):
+        return subprocess.run(['terraform', '-chdir=' + os.path.join(HERE, 'cloud')] + list(argv),
+                              env=self.env, capture_output=capture, text=True)
+
+    def init(self):
+        if self.tf('init', '-input=false', '-backend-config=path=' + os.path.join(self.dir, 'terraform.tfstate')).returncode:
+            raise Refused('terraform init failed', 1)
+
+    def price(self):
+        location = self.args.location or 'nbg1'
+        status, body = http('GET', HCLOUD + '/server_types?' + urllib.parse.urlencode({'name': self.args.server_type}),
+                             'Bearer ' + os.environ['HCLOUD_TOKEN'])
+        types = body.get('server_types') or []
+        match = [p for t in types for p in t['prices'] if p['location'] == location]
+        if status != 200 or not match:
+            raise Refused('no price for %s at %s (Hetzner answered %d)' % (self.args.server_type, location, status), 3)
+        hourly = float(match[0]['price_hourly']['net'])
+        say('%s at %s for %s: EUR %.4f an hour (net, VAT extra); a 2-hour run is about EUR %.2f.'
+            % (self.args.server_type, location, self.args.desktop, hourly, 2 * hourly))
+
+    def plan(self):
+        self.price()
+        self.init()
+        if self.tf('plan', '-input=false', *self.vars).returncode:
+            raise Refused('terraform plan failed', 1)
+
+    def apply(self):
+        self.price()
+        self.init()
+        if self.tf('apply', *self.vars).returncode:
+            raise Refused('terraform apply failed or was not approved', 1)
+        done = self.tf('output', '-json', capture=True)
+        outputs = json.loads(done.stdout or '{}')
+        ip = outputs['ipv4_address']['value'] if self.args.ipv4 else outputs['ipv6_address']['value']
+        say('The %s VM is up at %s and billing; `make destroy MACHINE=wayland DESKTOP=%s` destroys it.'
+            % (self.args.desktop, ip, self.args.desktop))
+        return ip
+
+    def destroy(self):
+        self.init()
+        if self.tf('destroy', '-auto-approve', '-input=false', *self.vars).returncode:
+            warn('THE %s VM MAY NOT BE DESTROYED: run make destroy MACHINE=wayland DESKTOP=%s again, '
+                 'or delete it in the Hetzner console.' % (self.args.desktop.upper(), self.args.desktop))
+            return 1
+        say('The %s VM is destroyed.' % self.args.desktop)
+        return 0
+
+
+def run_wayland(args):
+    cloud = Cloud(args)
+    out = out_dir(args, 'wayland-' + args.desktop)
+    name = os.path.basename(args.script)
+    started = False
+    rc = 1
+    ip = None
+    try:
+        ip = cloud.apply()
+        with open(os.path.join(out, 'machine.txt'), 'w') as f:
+            f.write('machine: Hetzner Cloud %s at %s, %s, %s on Wayland\n'
+                    % (args.server_type, args.location or 'nbg1', args.image, args.desktop))
+            f.write('started: %s\n' % datetime.datetime.now().isoformat(timespec='seconds'))
+        wait_for_ssh(args, ip)
+        if ssh(args, ip, 'cloud-init status --wait >/dev/null; /usr/local/bin/wait-for-desktop') != 0:
+            raise Refused('the %s session never came up on %s' % (args.desktop, ip), 1)
+        if scp(args, args.script, remote(ip, '/home/tester/' + name)) != 0:
+            raise Refused('could not copy %s to %s' % (args.script, ip), 1)
+        started = True
+        command = ['runuser', '-u', 'tester', '--', 'env', 'XDG_RUNTIME_DIR=/run/user/1000',
+                   'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus', 'WAYLAND_DISPLAY=wayland-0',
+                   'RESULTS=/home/tester/results', 'bash', '/home/tester/' + name]
+        rc = ssh(args, ip, 'mkdir -p /home/tester/results && chown tester: /home/tester/results /home/tester/%s && %s'
+                 % (shlex.quote(name), shlex.join(command)))
+        say('%s exited %d' % (name, rc))
+    finally:
+        try:
+            if started and scp(args, remote(ip, '/home/tester/results/.'), out) != 0:
+                warn('could not fetch the results from the VM')
+        finally:
+            if cloud.destroy() != 0:
+                rc = rc or 1
+    say('Results: %s' % out)
+    return rc
+
+
+def main(argv):
+    if not argv or argv[0] in ('-h', '--help', 'help'):
+        print(USAGE)
+        return 0
+    args = parse(argv)
+    try:
+        check(args)
+        resolve_secrets(args, argv)
+        signal.signal(signal.SIGTERM, on_signal)
+        signal.signal(signal.SIGHUP, on_signal)
+        if args.machine == 'soak':
+            robot = Robot()
+            if args.command == 'run':
+                return run_soak(args)
+            return {'plan': robot.plan, 'apply': robot.apply, 'destroy': lambda _: robot.destroy()}[args.command](args) and 0
+        cloud = Cloud(args)
+        if args.command == 'run':
+            return run_wayland(args)
+        if args.command == 'destroy':
+            return cloud.destroy()
+        getattr(cloud, args.command)()
+        return 0
+    except Refused as e:
+        warn('machines: %s' % e)
+        return e.code
+    except KeyboardInterrupt:
+        warn('machines: interrupted')
+        return 130
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))

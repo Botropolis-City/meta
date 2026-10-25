@@ -18,3 +18,8 @@
 !/performance/
 
 __pycache__/
+/testing/machines/.env
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
