@@ -11,3 +11,8 @@
 Re-route both the way item 217 re-routes trucks when the scene's city is rebuilt: a van carries on from where it is, along the streets as they now stand, to its districts' current kerbs; a haul retargets its building's current centre. Neither speeds up or jumps.
 
 Tests: for each, when the city is re-laid out mid-trip so the route moves, it should carry on from where it was, and it should end where its target now stands.
+
+## Answered while building
+
+- **The test tree and plan** (manager, 2026-10-25): approved as sent, vans and hauls in one slice. A van is re-routed from where it is along the streets as they now stand to its districts' current kerbs; a haul keeps `Since` and `For`, retargets `To` and solves `From`, so it keeps its speed and arrives on time.
+- **A camera turn** (manager, 2026-10-25): included. A turn re-places the streets through `Face` just as a re-layout does, so `face()` re-routes vans and hauls too; and if item 217's trucks go stale on a turn, they join the same call, with a case per mover.

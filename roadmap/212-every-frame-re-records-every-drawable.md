@@ -1,6 +1,6 @@
 # 212. Every frame records every drawable again, only to find most of them unchanged
 
-**Open. Filed 2026-10-23 (r953), from item 161. Nobody's call — the budget is set (a visible city ≤ 10% of a core).**
+**Open, in progress since 2026-10-25 in the session "item 212". Filed 2026-10-23 (r953), from item 161. Nobody's call — the budget is set (a visible city ≤ 10% of a core).**
 
 Depends on: nothing
 
@@ -16,3 +16,7 @@ A still drawable whose inputs have not changed reuses last frame's record instea
 Write the design (the keys per kind, and how each is derived from what the drawable reads rather than listed by hand) and send it before any code.
 
 Tests: as above, plus the real-history focused CPU at fit and full zoom through the benchmark session, against 10%.
+
+## Answered while building
+
+- **Who approves the design** (Aria, 2026-10-25, asked by the manager): she does. The session researches and writes the per-drawable keys design and sends it to the manager, which brings it to Aria; no code lands until she approves it.

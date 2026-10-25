@@ -1,6 +1,6 @@
 # 164. No 8-hour soak test exists, so the growth budget has never been measured
 
-**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the growth budget Aria set the same day. Nobody's call — the budget is set; the run that checks it is missing.**
+**Open, in progress since 2026-10-25 in the session "item 164". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the growth budget Aria set the same day. Nobody's call — the budget is set; the run that checks it is missing.**
 
 Depends on: nothing
 
@@ -22,3 +22,7 @@ The release is described in `botropolis/CLAUDE.md` and run by the release workfl
 Run it once against the release in hand when it lands, and file whatever grows.
 
 **Lead from item 163's close** (r905): a hidden city's own memory rose 31 MiB over five minutes while its Go heap held at 90–96 MB; the soak should show whether that keeps climbing.
+
+## Answered while building
+
+- **When the soak runs** (Aria, 2026-10-25, asked by the manager): build the soak mode and the release checklist now, then run the 8 hours overnight, while Aria is away from the machine, never while she works at it. The session asks the manager for a night before starting the run.
