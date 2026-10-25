@@ -4,6 +4,7 @@
 
 Landed: slice 1 (`325c092`, r1036).
 Landed: slice 2 (`b5eebd9`, r1037).
+Landed: slice 3 (`7ca0506`, r1039).
 
 Item 84 built the global shortcut for X11 and wrote up a spike for macOS, which could only read and build, not run: see [item 84](084-a-global-shortcut-off-by-default.md#the-macos-spike).
 Until this lands, the settings row on macOS says the desktop has no way to register a shortcut, with the fallback.
