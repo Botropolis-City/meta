@@ -44,6 +44,7 @@ The figures are the table's above, in its order of rows, from the tests' own log
 | r1017 `73d7d69` | `0601797..73d7d69`: items 239, 240, 242, 243, 236 slice 2, 226's settled daemon on 15 s windows | 70 pass, 2 skip | 0.99%, 1.03% | 2.79%, 2.96% | 55%, 26 MiB | 0.10 CPU-s | 0.44%, 0.90%, 0.70% | 201 MiB | 58.0 |
 | r1020 `8752e85` | `73d7d69..8752e85`: item 236 slice 3 | 70 pass, 2 skip | 1.06%, 1.09% | 2.65%, 2.82% | 57%, 28 MiB | 0.10 CPU-s | 0.37%, 0.93%, 0.71% | 199 MiB | 0.7 |
 | r1041 `ee7891d` | `8752e85..ee7891d`: items 224, 183, 76, 105, 220, 95, 212 | 70 pass, 2 skip | 1.06%, 0.97% | 2.68%, 2.76% | 55%, 28 MiB | 0.13 CPU-s | 0.44%, 0.88%, 0.74% | 242 MiB | 0.7 |
+| r1052 `a0ec129` | `ee7891d..a0ec129`: items 248 (the cost tests' home generator moved), 105, 249, 251, 95, 212 | 70 pass, 2 skip | 0.95%, 1.21% | 2.87%, 2.85% | 55%, 28 MiB | 0.09 CPU-s | 0.44%, 0.91%, 0.75% | 202 MiB | 25.4, not quiet |
 
 At r1000 the 2,000-session daemon read about 0.1 of a core higher, twice, and is recorded as the machine's load rather than filed: `botropolisd` links neither `pkg/city` nor `pkg/render`, the only code the range changed; its CPU ticks held at 2.16–2.39% in all four runs; and the test itself says this measure spans 2.3–2.6% on a quiet machine.
 It is still over its budget, which is [item 213](../../roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md).
