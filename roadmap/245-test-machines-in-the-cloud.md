@@ -25,6 +25,7 @@ Three tests have nowhere to run:
 4. Once applied once: check `/dev/dri` on the EX44 before the first soak, since Hetzner may not leave the iGPU enabled, and say what was found here.
 
 Research, with sources, is in items 95 and 96's *Testing without the hardware* sections; prices are as found on 2026-10-25.
+The machines, and how a run goes, are in [testing/machines](../testing/machines/README.md).
 
 ## Answered while building
 
