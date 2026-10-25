@@ -397,5 +397,151 @@ class WhenSummingAPhase(unittest.TestCase):
                 self.assertAlmostEqual(self.summary[key], want)
 
 
+def soak_row(elapsed, comm, pid, private_dirty_mib, gpu_mib=0):
+    row = sample(1_800_000_000 + elapsed, comm, pid, private_dirty_mib, gpu_mib)
+    row['elapsed_s'] = '%.1f' % elapsed
+    return row
+
+
+def soak_rows(city_visible=0.0, city_hidden=0.0, daemon_visible=0.0, daemon_hidden=0.0,
+              hide_at=14400, end=28800, every=60, drop=300):
+    rows = []
+    for t in range(0, end + 1, every):
+        hidden = t >= hide_at
+        hours_in = (t - (hide_at if hidden else 0)) / 3600
+        city = (400 - drop if hidden else 400) + hours_in * (city_hidden if hidden else city_visible)
+        daemon = 30 + hours_in * (daemon_hidden if hidden else daemon_visible)
+        rows.append(soak_row(t, 'botropolis', 10, city * 0.6, city * 0.4))
+        rows.append(soak_row(t, 'botropolisd', 20, daemon))
+        rows.append(soak_row(t, 'botropolisd', 99, 30 + t))
+    return rows
+
+
+SOAK_MARKS = {'hidden_at_s': '14400', 'frames_at_hide': '51000', 'daemon_pid': '20',
+              'monitor_at_end': 'Monitor is On'}
+
+
+class WhenFittingASlopePerHour(unittest.TestCase):
+    def test_it_should_give_mib_an_hour_from_mib_samples_at_elapsed_seconds(self):
+        self.assertAlmostEqual(perf.slope_per_hour([0, 1800, 3600], [10, 11, 12]), 2.0)
+
+    def test_and_there_are_fewer_than_two_samples_it_should_give_none(self):
+        self.assertIsNone(perf.slope_per_hour([0], [10]))
+
+
+class WhenReadingRunMarks(unittest.TestCase):
+    def setUp(self):
+        self.marks = perf.read_marks('hidden_at_s=14400\nmonitor_at_end=Monitor is On\nnot a mark\n')
+
+    def test_it_should_read_each_key_and_value(self):
+        self.assertEqual(self.marks['monitor_at_end'], 'Monitor is On')
+
+    def test_and_a_line_holds_no_equals_sign_it_should_skip_it(self):
+        self.assertEqual(set(self.marks), {'hidden_at_s', 'monitor_at_end'})
+
+
+class WhenSplittingASoakIntoPhases(unittest.TestCase):
+    def setUp(self):
+        self.phases = perf.soak_phases(SOAK_MARKS, end_s=28800, settle_s=600)
+
+    def test_and_the_window_was_hidden_at_h_the_visible_phase_should_run_from_600_s_to_h(self):
+        self.assertEqual(self.phases['visible'], (600, 14400))
+
+    def test_and_the_window_was_hidden_at_h_the_hidden_phase_should_run_from_h_plus_600_s_to_the_end(self):
+        self.assertEqual(self.phases['hidden'], (15000, 28800))
+
+    def test_and_the_window_was_never_hidden_it_should_have_only_a_visible_phase_to_the_end(self):
+        self.assertEqual(perf.soak_phases({}, end_s=28800, settle_s=600), {'visible': (600, 28800)})
+
+
+class WhenTakingASoakSeries(unittest.TestCase):
+    def setUp(self):
+        self.rows = [soak_row(0, 'botropolis', 10, 100, 200), soak_row(0, 'botropolis', 11, 5, 0),
+                     soak_row(0, 'botropolisd', 20, 30), soak_row(0, 'botropolisd', 99, 70)]
+
+    def test_it_should_add_gpu_to_private_dirty_over_the_citys_processes(self):
+        self.assertEqual(perf.soak_series(self.rows, 'city', '20'), [(0.0, 305.0)])
+
+    def test_it_should_take_only_the_daemon_pid_it_is_given(self):
+        self.assertEqual(perf.soak_series(self.rows, 'daemon', '20'), [(0.0, 30.0)])
+
+
+class WhenJudgingASoak(unittest.TestCase):
+    def judge(self, marks=None, **growth):
+        return perf.judge_soak(soak_rows(**growth), dict(SOAK_MARKS, **(marks or {})))
+
+    def failing(self, result):
+        return {(p['process'], p['phase']) for p in result['phases'] if p['over']}
+
+    def test_and_every_phase_grows_under_1_mib_an_hour_it_should_pass(self):
+        self.assertEqual(self.judge(city_visible=0.5, city_hidden=0.5, daemon_visible=0.5, daemon_hidden=0.5)['verdict'], 'pass')
+
+    def test_and_the_citys_hidden_phase_grows_2_mib_an_hour_it_should_fail_naming_city_hidden(self):
+        self.assertEqual(self.failing(self.judge(city_hidden=2)), {('city', 'hidden')})
+
+    def test_and_the_daemons_visible_phase_grows_2_mib_an_hour_it_should_fail_naming_daemon_visible(self):
+        self.assertEqual(self.failing(self.judge(daemon_visible=2)), {('daemon', 'visible')})
+
+    def test_and_a_phase_is_over_budget_it_should_give_the_verdict_fail(self):
+        self.assertEqual(self.judge(city_hidden=2)['verdict'], 'fail')
+
+    def test_and_memory_drops_at_the_hide_but_neither_phase_grows_it_should_pass(self):
+        self.assertEqual(self.judge()['verdict'], 'pass')
+
+    def test_it_should_judge_a_row_for_each_process_and_phase(self):
+        self.assertEqual({(p['process'], p['phase']) for p in self.judge()['phases']},
+                         {('city', 'visible'), ('city', 'hidden'), ('daemon', 'visible'), ('daemon', 'hidden')})
+
+    def test_and_the_visible_phase_drew_no_frames_it_should_say_it_is_not_a_measurement(self):
+        self.assertEqual(self.judge({'frames_at_hide': '0'})['verdict'], 'not a measurement')
+
+    def test_and_the_hide_failed_it_should_say_it_is_not_a_measurement(self):
+        marks = dict(SOAK_MARKS, hide_failed_at_s='14400')
+        del marks['hidden_at_s']
+        self.assertEqual(perf.judge_soak(soak_rows(), marks)['verdict'], 'not a measurement')
+
+    def test_and_a_phase_holds_under_30_minutes_it_should_say_it_is_not_a_measurement(self):
+        rows = soak_rows(hide_at=14400, end=15600)
+        self.assertEqual(perf.judge_soak(rows, SOAK_MARKS)['verdict'], 'not a measurement')
+
+    def test_and_the_monitor_was_off_at_the_end_it_should_say_it_is_not_a_measurement(self):
+        self.assertEqual(self.judge({'monitor_at_end': 'Monitor is Off'})['verdict'], 'not a measurement')
+
+    def test_and_the_monitor_went_unchecked_it_should_say_it_is_not_a_measurement(self):
+        marks = dict(SOAK_MARKS)
+        del marks['monitor_at_end']
+        self.assertEqual(perf.judge_soak(soak_rows(), marks)['verdict'], 'not a measurement')
+
+
+XSET_Q = """Screen Saver:
+  prefer blanking:  yes    allow exposures:  yes
+  timeout:  600    cycle:  600
+DPMS (Display Power Management Signaling):
+  Standby: 600    Suspend: 900    Off: 1200
+  DPMS is Enabled
+  Monitor is Off
+"""
+
+
+class WhenSavingTheScreensBlanking(unittest.TestCase):
+    def setUp(self):
+        self.restore = perf.xset_restore(XSET_Q)
+
+    def test_it_should_restore_the_screen_savers_timeout_and_cycle(self):
+        self.assertIn(['s', '600', '600'], self.restore)
+
+    def test_it_should_restore_the_dpms_timeouts(self):
+        self.assertIn(['dpms', '600', '900', '1200'], self.restore)
+
+    def test_and_dpms_was_enabled_it_should_enable_it_again(self):
+        self.assertIn(['+dpms'], self.restore)
+
+    def test_and_dpms_was_disabled_it_should_leave_it_disabled(self):
+        self.assertIn(['-dpms'], perf.xset_restore(XSET_Q.replace('DPMS is Enabled', 'DPMS is Disabled')))
+
+    def test_and_xset_printed_nothing_it_should_restore_nothing(self):
+        self.assertEqual(perf.xset_restore(''), [])
+
+
 if __name__ == '__main__':
     unittest.main()

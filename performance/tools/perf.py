@@ -420,11 +420,145 @@ def replay(home, writers, seconds, every=0.2):
     print('appended %d lines to each' % i, flush=True)
 
 
+def slope_per_hour(xs, ys):
+    per_minute = slope_per_minute(xs, ys)
+    return None if per_minute is None else per_minute * 60
+
+
+def read_marks(text):
+    marks = {}
+    for line in text.splitlines():
+        key, sep, value = line.partition('=')
+        if sep and key and ' ' not in key:
+            marks[key] = value.strip()
+    return marks
+
+
+SOAK_BUDGET_MIB_H = 1.0
+SOAK_SETTLE_S = 600
+SOAK_MIN_PHASE_S = 1800
+
+
+def soak_phases(marks, end_s, settle_s=SOAK_SETTLE_S):
+    hidden_at = marks.get('hidden_at_s')
+    if hidden_at is None:
+        return {'visible': (settle_s, end_s)}
+    hidden_at = int(float(hidden_at))
+    return {'visible': (settle_s, hidden_at), 'hidden': (hidden_at + settle_s, end_s)}
+
+
+def soak_series(rows, process, daemon_pid):
+    by_at = {}
+    for row in rows:
+        if process == 'city' and row['comm'] != 'botropolis':
+            continue
+        if process == 'daemon' and (row['comm'] != 'botropolisd' or row['pid'] != str(daemon_pid)):
+            continue
+        kib = sum(float(row[f]) for f in ('private_dirty_kib', 'gpu_kib') if row.get(f) not in (None, ''))
+        at = float(row['elapsed_s'])
+        by_at[at] = by_at.get(at, 0) + kib / 1024
+    return sorted(by_at.items())
+
+
+def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE_S, min_phase_s=SOAK_MIN_PHASE_S):
+    reasons = []
+    end_s = max((float(r['elapsed_s']) for r in rows), default=0)
+    phases = soak_phases(marks, end_s, settle_s)
+    if 'hidden_at_s' not in marks:
+        reasons.append('the window was never hidden, so there is no hidden phase')
+    if int(marks.get('frames_at_hide') or 0) <= 0:
+        reasons.append('the visible phase drew no frames')
+    if 'monitor is on' not in marks.get('monitor_at_end', '').lower():
+        reasons.append('the monitor was not on at the end (%s), so the visible phase may not have drawn'
+                       % (marks.get('monitor_at_end') or 'unchecked'))
+    if not marks.get('daemon_pid'):
+        reasons.append("the scratch daemon's pid was not recorded")
+    judged = []
+    for process in ('city', 'daemon'):
+        series = soak_series(rows, process, marks.get('daemon_pid'))
+        for phase, (start, end) in phases.items():
+            inside = [(x, y) for x, y in series if start <= x <= end]
+            span = inside[-1][0] - inside[0][0] if inside else 0
+            if span < min_phase_s:
+                reasons.append('%s %s holds %.0f s of samples, under %d s' % (process, phase, span, min_phase_s))
+            slope = slope_per_hour([x for x, _ in inside], [y for _, y in inside])
+            judged.append({'process': process, 'phase': phase, 'start_s': start, 'end_s': end,
+                           'samples': len(inside), 'slope_mib_h': slope,
+                           'over': slope is not None and slope > budget_mib_h})
+    if reasons:
+        verdict = 'not a measurement'
+    elif any(p['over'] for p in judged):
+        verdict = 'fail'
+    else:
+        verdict = 'pass'
+    return {'verdict': verdict, 'reasons': reasons, 'phases': judged, 'budget_mib_h': budget_mib_h}
+
+
+SOAK_EXIT = {'pass': 0, 'fail': 1, 'not a measurement': 2}
+
+SOAK_NOTES = ('hidden_at_s', 'hide_failed_at_s', 'frames_at_hide', 'daemon_pid', 'monitor_at_start', 'monitor_at_end',
+              'keep_awake', 'load_at_start', 'load_at_end', 'landings_during', 'demo_hold')
+
+
+def soak_report(result, marks):
+    lines = ['# Soak verdict: %s' % result['verdict'], '',
+             'Budget: growth of at most %.1f MiB an hour of `Private_Dirty` + GPU, per process and phase '
+             '(performance/budgets.md).' % result['budget_mib_h'], '']
+    for reason in result['reasons']:
+        lines.append('- not a measurement: %s' % reason)
+    if result['reasons']:
+        lines.append('')
+    lines += ['| process | phase | seconds | samples | MiB/hour | over |', '| --- | --- | --- | --- | --- | --- |']
+    for p in result['phases']:
+        slope = '-' if p['slope_mib_h'] is None else '%.2f' % p['slope_mib_h']
+        lines.append('| %s | %s | %.0f-%.0f | %d | %s | %s |' % (p['process'], p['phase'], p['start_s'], p['end_s'],
+                                                              p['samples'], slope, 'yes' if p['over'] else 'no'))
+    lines.append('')
+    lines += ['- %s: %s' % (key, marks[key]) for key in SOAK_NOTES if key in marks]
+    return '\n'.join(lines) + '\n'
+
+
+def print_soak_verdict(samples_path, *marks_paths):
+    try:
+        with open(samples_path) as f:
+            rows = list(csv.DictReader(f))
+    except OSError:
+        rows = []
+    marks = {}
+    for path in marks_paths:
+        marks.update(read_marks(read(path) or ''))
+    result = judge_soak(rows, marks,
+                        settle_s=int(os.environ.get('PERF_SOAK_SETTLE', SOAK_SETTLE_S)),
+                        min_phase_s=int(os.environ.get('PERF_SOAK_MIN_PHASE', SOAK_MIN_PHASE_S)))
+    sys.stdout.write(soak_report(result, marks))
+    return SOAK_EXIT[result['verdict']]
+
+
+def xset_restore(text):
+    out = []
+    saver = re.search(r'timeout:\s*(\d+)\s+cycle:\s*(\d+)', text)
+    if saver:
+        out.append(['s', saver[1], saver[2]])
+    blanking = re.search(r'prefer blanking:\s*(yes|no)', text)
+    if blanking:
+        out.append(['s', 'blank' if blanking[1] == 'yes' else 'noblank'])
+    dpms = re.search(r'Standby:\s*(\d+)\s+Suspend:\s*(\d+)\s+Off:\s*(\d+)', text)
+    if dpms:
+        out.append(['dpms', dpms[1], dpms[2], dpms[3]])
+    enabled = re.search(r'DPMS is (Enabled|Disabled)', text)
+    if enabled:
+        out.append(['+dpms' if enabled[1] == 'Enabled' else '-dpms'])
+    return out
+
+
 USAGE = """usage: perf.py i3-window-ids < tree.json
        perf.py window-size < xwininfo.txt        the window's WIDTHxHEIGHT, or nothing
        perf.py busy-home REAL_CLAUDE_DIR HOME   link every transcript, session record and history.jsonl into HOME/.claude, read only
        perf.py replay HOME WRITERS SECONDS      a user line every 200 ms into each of WRITERS of HOME's own live transcripts
-       perf.py phase-summary SAMPLES MARKS      a perf-fitzoom run's own + GPU MiB, settled at fit and at full zoom"""
+       perf.py phase-summary SAMPLES MARKS      a perf-fitzoom run's own + GPU MiB, settled at fit and at full zoom
+       perf.py soak-verdict SAMPLES MARKS...    a perf-soak run's growth per process and phase;
+                                                exit 0 within budget, 1 over it, 2 not a measurement
+       perf.py xset-restore < xset-q.txt        the xset arguments, one command a line, that put the screen's blanking back"""
 
 if __name__ == '__main__':
     cmd = sys.argv[1:2]
@@ -432,6 +566,10 @@ if __name__ == '__main__':
         print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))
     elif cmd == ['phase-summary'] and len(sys.argv) == 4:
         print_phases(sys.argv[2], sys.argv[3])
+    elif cmd == ['soak-verdict'] and len(sys.argv) >= 4:
+        sys.exit(print_soak_verdict(sys.argv[2], *sys.argv[3:]))
+    elif cmd == ['xset-restore']:
+        print('\n'.join(' '.join(args) for args in xset_restore(sys.stdin.read())))
     elif cmd == ['window-size']:
         print(xwininfo_size(sys.stdin.read()) or '')
     elif cmd == ['busy-home'] and len(sys.argv) == 4:
