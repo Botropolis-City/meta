@@ -22,3 +22,16 @@ Recording spends tokens: keep it to one short exchange, read the token by refere
 ## Answered while building
 
 - **Spending tokens to record** (Aria, 2026-10-25, asked by the manager): start it, and prompt her when needed. Build the describing, staging and checks first; the token comes through `secret-run` only when the recording runs, and the cost goes in this item.
+
+## Whether the recorder can start a team
+
+**It cannot, as it stands** (2026-10-25).
+Claude Code's agent-teams page says that with `-p`, "Claude doesn't spawn teammates, and a subagent that Claude names runs as an ordinary subagent even with agent teams enabled", and `botropolis-demo record` runs every prompt with `-p`.
+So recording a team needs a second way to drive the CLI: an interactive session the recorder starts and ends itself.
+
+What a team leaves on disk, read from this machine's own teams by their structure alone:
+
+- each teammate is a session of its own, with its own transcript in its project's folder, not a subagent file under the lead;
+- its lines carry `teamName`, which is `session-` and the lead's first eight characters, and its `agentName`;
+- it reports to its lead with `SendMessage` to `team-lead`, which `Roads` already resolves;
+- `teams/<team>/config.json` names each member with its `cwd`, and Claude Code removes it when the lead's session ends, so a recording cannot rely on exporting it.
