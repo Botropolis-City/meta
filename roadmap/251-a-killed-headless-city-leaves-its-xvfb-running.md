@@ -1,6 +1,6 @@
 # 251. A headless city that is killed leaves its Xvfb running for good
 
-**Open. Filed 2026-10-25 (r1033), found by the performance manager. Nobody's call — a defect.**
+**Open, in progress since 2026-10-25 in the session "item 251". Filed 2026-10-25 (r1033), found by the performance manager. Nobody's call — a defect.**
 
 Depends on: nothing
 

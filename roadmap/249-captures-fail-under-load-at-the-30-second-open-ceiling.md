@@ -1,6 +1,6 @@
 # 249. Acceptance captures fail under load at the 30-second open ceiling
 
-**Open. Filed 2026-10-25 (r1032), seen by item 183's session while landing. Nobody's call — a defect in the tests.**
+**Open, in progress since 2026-10-25 in the session "item 249". Filed 2026-10-25 (r1032), seen by item 183's session while landing. Nobody's call — a defect in the tests.**
 
 Depends on: nothing
 
@@ -15,3 +15,7 @@ On a loaded machine the read takes longer than the ceiling, so a test fails on t
 3. Test both: a capture whose read stalls still fails, naming the ceiling; a capture whose read is slow but advancing waits for it.
 
 Tests: the two cases above in `pkg/render`, and the named acceptance tests passing under the same load that failed them.
+
+## Answered while building
+
+- **It is what keeps CI red** (manager, 2026-10-25, from item 95's session): `main`'s Linux CI has failed `test-lint` on every push since at least `e39a6ac`, in `TestTheLooksAFrameKeeps` and `TestTheStillLayerAFrameKeeps`, with "the history was not read within 30s"; item 212's landing met the same in `TestTheStillLayerAFrameKeeps` at a load of 45. Those are two of the tests step 1 names.

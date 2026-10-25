@@ -1,6 +1,6 @@
 # 248. A synthetic history of real size can only be made inside `go test`
 
-**Open. Filed 2026-10-25 (r1031), from item 245. Nobody's call — a tool the soak needs.**
+**Open, in progress since 2026-10-25 in the session "item 248". Filed 2026-10-25 (r1031), from item 245. Nobody's call — a tool the soak needs.**
 
 Depends on: nothing
 
