@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-25 in the session "item 183". Filed 2026-10-20 (r786), found while working item 178. Nobody's call — dead code.**
 
+Depends on: nothing
+Landed: slice 1 (`a10e4b8`, r1024).
+
 Item 106 retired the top-down map: `city.UserProjection` (`botropolis/pkg/city/projection.go`) turns `top` into `Isometric` with a warning, and both ways a projection reaches the map go through it — `--projection` via `projectionFor` (`botropolis/pkg/app/projection.go`) and the setting via `config.KeyProjection` (`botropolis/pkg/render/settings.go`).
 `render.Run` and the drive harness then call `SetProjection` with that value or with `Isometric` (`botropolis/pkg/render/run.go`, `botropolis/pkg/render/drive.go`).
 
