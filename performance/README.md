@@ -26,6 +26,7 @@ Someone whose laptop stalls the first time will not open the app again, so expen
 | [reports/2026-10-24-ultra7-265u-igpu-r976.md](reports/2026-10-24-ultra7-265u-igpu-r976.md) | item 162's slices 13–14 at r976 on the real history, focused: full zoom 566 → 481 MiB own + GPU, under 512 for the first time (GPU 327 → 285); fit 442 → 462, GPU down 8 and own up 27 on a grown history |
 | [reports/2026-10-24-ultra7-265u-igpu-test-performance-r996.md](reports/2026-10-24-ultra7-265u-igpu-test-performance-r996.md) | the baseline for `make test-performance` at r996: all pass; only item 213's 2,000-session daemon misses its budget, 2.71% of a core against 2% |
 | [reports/2026-10-24-ultra7-265u-igpu-cost-windows.md](reports/2026-10-24-ultra7-265u-igpu-cost-windows.md) | items 226 and 244: the settled daemon takes 15 s windows (worst 1.08% against 1.19%); the 2,000-session daemon keeps 30 s (15 s median 2.69% below the 30 s range) |
+| [reports/2026-10-25-ultra7-265u-igpu-item-212.md](reports/2026-10-25-ultra7-265u-igpu-item-212.md) | item 212 after slices 1–3, real display: `note` 16.5% → 7.3% of a core at full zoom, but the recording moved into `noteKeyed` and `noteBuilding`, and Draw per frame rose 15.0 → 17.0 ms |
 
 ## Tools
 
