@@ -43,7 +43,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [213](roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md) | a settled daemon on a 2,000-session home is just over its CPU budget: 2.3–2.6% counted against 2% | — | nobody |
 | [214](roadmap/214-the-dashboards-layout-sits-at-its-budget.md) | the unfocused dashboard's layout sits at its 1% budget once kernel time counts: 1.04% | — | nobody |
 | [220](roadmap/220-a-large-island-gets-a-second-bridge.md) | a large island gets a second bridge | 218 | nobody, Aria set the threshold |
-| [224](roadmap/224-message-vans-and-hauls-keep-a-stale-path-after-a-re-layout.md) | message vans and hauls keep a stale path after a re-layout | — | nobody, a defect |
 | [238](roadmap/238-a-baked-look-can-differ-by-a-pixel-for-some-shapes.md) | a baked look can still differ from the direct draw by a pixel for some shapes | — | nobody, until it shows on the art |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
