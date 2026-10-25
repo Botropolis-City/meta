@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-25 in the session "item 249". Filed 2026-10-25 (r1032), seen by item 183's session while landing. Nobody's call — a defect in the tests.**
 
 Depends on: nothing
+Landed: slice 1 (`8602a6f`, r1045).
 
 While item 183 landed its slice 2 at a load average of about 55, four acceptance tests failed with "the history was not read within 30s, so no frame is taken from a partial read"; all four passed on a rerun under the landing lock, and `make land`'s gate then passed.
 The message comes from `openCeiling` (`botropolis/pkg/render/openceiling.go`), a wall-clock constant of 30 s that a capture waits for the daemon to read its history (item 202).
