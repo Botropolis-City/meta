@@ -53,3 +53,5 @@ The changelog says sprites zoomed out are drawn sharper (`76b7597`).
 **Left, flagged for Aria:** the night count still moves by 2 as vehicles pass lit buildings.
 That is depth order, not batching: a window, the sprite in front of it and a window in front of that must be laid in turn, and taking it lower would change pixels.
 The performance manager re-measures after this lands.
+
+**Confirmed after closing** (the performance manager, 2026-10-24, report `297d950`): over 104 settled frames in two identical runs, r1020 (`8752e85`) reads 20 by day and 35–37 by night, within the 20/37 ceilings at every frame; by night at fit and at 0.35 its pixels are identical to r1017's bit for bit. The lights batching saved one command on item 240's scene, not the 8–11 first estimated, since that bound ignored the cut-outs' order; and the 36 pixels first credited to mipmaps off at fit were run-to-run motion, as a control run shows.
