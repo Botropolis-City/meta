@@ -1,6 +1,6 @@
 # 246. The validation checklist was written for a city that no longer exists
 
-**Open. Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose to rewrite it.**
+**Open, in progress since 2026-10-25 in the session "item 246". Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose to rewrite it.**
 
 [`validation-checklist.md`](validation-checklist.md) is ten steps for Aria to run against a live city, written on 2026-09-29 against a build at r293.
 Since then parked containers became resting buildings, the storage yard became the depot, `d d` and the panels changed, and 0.3.0 moved commands (`status --live`, `attach`, `rm --older-than`, `setup`).

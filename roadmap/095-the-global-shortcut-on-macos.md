@@ -1,6 +1,6 @@
 # 95. The global shortcut on macOS
 
-**Open. Filed 2026-10-16 (r499) at Aria's request, from item 84's macOS spike. Nobody's call, but it needs a Mac to run on, and nothing in the working arrangement is one.**
+**Open, in progress since 2026-10-25 in the session "item 95". Filed 2026-10-16 (r499) at Aria's request, from item 84's macOS spike. Nobody's call, but it needs a Mac to run on, and nothing in the working arrangement is one.**
 
 Item 84 built the global shortcut for X11 and wrote up a spike for macOS, which could only read and build, not run: see [item 84](084-a-global-shortcut-off-by-default.md#the-macos-spike).
 Until this lands, the settings row on macOS says the desktop has no way to register a shortcut, with the fallback.
