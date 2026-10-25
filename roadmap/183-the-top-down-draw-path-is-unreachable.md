@@ -1,9 +1,10 @@
 # 183. `pkg/render` still carries the top-down drawing path, which the app no longer reaches
 
-**Open, in progress since 2026-10-25 in the session "item 183". Filed 2026-10-20 (r786), found while working item 178. Nobody's call — dead code.**
+**Done 2026-10-25 (`e39a6ac`, r1032). Filed 2026-10-20 (r786), found while working item 178. Nobody's call — dead code.**
 
 Depends on: nothing
 Landed: slice 1 (`a10e4b8`, r1024).
+Landed: slice 2 (`e39a6ac`, r1032).
 
 Item 106 retired the top-down map: `city.UserProjection` (`botropolis/pkg/city/projection.go`) turns `top` into `Isometric` with a warning, and both ways a projection reaches the map go through it — `--projection` via `projectionFor` (`botropolis/pkg/app/projection.go`) and the setting via `config.KeyProjection` (`botropolis/pkg/render/settings.go`).
 `render.Run` and the drive harness then call `SetProjection` with that value or with `Isometric` (`botropolis/pkg/render/run.go`, `botropolis/pkg/render/drive.go`).
@@ -25,3 +26,17 @@ Item 149 removes the `projection` config key before 1.0, which is the user-facin
 
 - **Delete the path or flip the zero value** (manager, 2026-10-25): delete it. `NewGame` sets `Isometric`, `render.Options.Projection` goes, and `pkg/city` keeps `TopDown` as its identity. Item 149 had already removed `--projection` and the config key, so this item's first paragraph was out of date when it started. `city.ParseProjection`, dead since item 149, goes in the same slice.
 - **The 16px Kenney packs** (Aria, 2026-10-25, asked by the manager): delete them as slice 2, since nothing draws them once the path is gone: `pkg/assets/kenney/`, `assets.Tilemap`, `License` and `Pack`, and every place that names them in the Makefile, packaging, README and design notes, with a changelog line. `kits/` and its Kenney credit stay.
+
+## Closed
+
+The path is deleted, not kept behind a flipped zero value, because pkg/city's tests run in `TopDown` as the identity and that stays.
+Slice 1 (`a10e4b8`, r1024) removed everything after `Game.Draw`'s projection branch and everything only it reached, which the `unused` linter found when run with tests excluded and diffed against main: the flat ground, blocks, districts, buildings, landmarks, titles and power lines, the flat halves of the driveway pads, overgrowth, shore and district ghost, and all of `sprites.go`, whose three 16 px atlases were still decoded at every startup and drawn by nothing.
+`render.NewGame` now turns any scene it is handed isometric, which `TestNewGame` in `botropolis/pkg/render/game_test.go` holds, red first; `render.Options.Projection` and `city.ParseProjection` went with their last callers.
+`TestRawDrawSites` caught the deletion and lost its allow-list entry for the flat `ground`.
+
+Slice 2 (`e39a6ac`, r1032), approved by Aria, removed the 16 px packs themselves, `pkg/assets/kenney/`, and everything that named them, with a changelog line under Removed.
+The tarball and all three packages were built and carry the same five licence files, without `kenney-packs.md`.
+`tools/check-packages` could not compare them on this machine, which has no `dpkg-deb` or `rpm`, so the comparison was done by listing each package with `bsdtar`; CI runs the real check on push.
+The Homebrew formula was rendered from its template and parses (`ruby -c`); its install test needs a release's source archive, so it runs with the next release.
+
+Deviations, for Aria: item 149 had already removed the flag and the config key, so the first paragraph above was out of date when work started; and the item widened to the packs, at her approval.
