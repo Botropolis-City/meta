@@ -28,3 +28,4 @@ Researched the same day, with nothing installed:
 ## Answered while building
 
 - **Where it runs** (Aria, 2026-10-25, asked by the manager): a GitHub Actions job on the hosted macOS runner, run by `workflow_dispatch` only so it costs no push anything; a rented Mac only if synthetic keys cannot fire the hot key, and that comes back to Aria first.
+- **The plan and tree** (manager, 2026-10-25): approved in three slices: refusing Option- and Shift-only chords behind the seam, with the row not saving them; the Carbon backend through `purego` with a `workflow_dispatch`-only job on the hosted macOS runners that presses the hot key through System Events and tries each activation call; then `Raise` settled on what the job found. The frame for Aria is a `screencapture` of the live window on the runner, with its display scale named, not a `--screenshot` render.
