@@ -8,6 +8,7 @@ Landed: slice 2 (`f92878e`, r1029).
 Landed: slice 3 (`131cff1`, r1034).
 Landed: slice 4 (`d1f2d94`, r1035).
 Landed: slice 5 (`2c386f2`, r1035).
+Landed: slice 6 (`a85bc40`, r1035).
 
 The site lives in its own repository, `Botropolis-City/botropolis.city`, checked out beside botropolis under the meta repository's root, at `botropolis.city/` (until 2026-10-15, `~/workspaces/github/botropolis.city`).
 It reads `dist/demo/manifest.json` through `make media-import` there, so anything below reaches the site with `make media-import media-upload` and a push.
