@@ -60,6 +60,11 @@ perf-busy ::
 	$(LOG) "Replaying a busy desk against ${PERF_BUILD} (performance/method.md, run 6)"
 	@flock /tmp/botropolis-land.lock performance/tools/perf-busy-city ${PERF_BUILD}
 
+perf-soak ::
+	@[ -n "${PERF_BUILD}" ] || { echo "set PERF_BUILD to a directory holding botropolis and botropolisd"; exit 2; }
+	$(LOG) "Soaking ${PERF_BUILD} for 8 hours on a busy desk, without the landing lock (performance/method.md, run 8)"
+	@performance/tools/perf-soak ${PERF_SOAK_FLAGS} ${PERF_BUILD}
+
 publishable :: docs-check
 	$(LOG) "Checking nothing unpublishable is in the repository"
 	@tools/check-publishable

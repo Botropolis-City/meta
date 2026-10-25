@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+here=$(cd "$(dirname "$(realpath "$0")")" && pwd)
+# shellcheck source=performance/tools/lib/procgroup.sh
+. "${here}/lib/procgroup.sh"
+procgroup_lead "$@"
+repo=$(cd "${here}/../.." && pwd)
+
+seconds=28800
+hide_after=""
+hide=1
+interval=10
+writers=2
+display="${DISPLAY:-}"
+out=""
+build=""
+
+usage() {
+	cat <<USAGE
+Usage: performance/tools/perf-soak [options] BUILD_DIR
+
+The 8-hour soak a release does not ship without (performance/budgets.md, growth;
+item 164). BUILD_DIR holds botropolis and botropolisd.
+
+It runs perf-busy-city for the whole soak: a scratch daemon on the real history,
+linked read only, and WRITERS demo sessions writing a line every 200 ms
+throughout. The city stays focused and drawing until --hide-after, then sits
+in i3's scratchpad until the end. Then it judges the growth of Private_Dirty +
+GPU memory, as a least-squares slope per hour, for the city and for the scratch
+daemon, in each phase apart:
+
+  visible   from 600 s to the hide
+  hidden    from 600 s after the hide to the end
+
+Hiding frees memory by design, so a slope over the whole run would hide a leak.
+Each slope must be at most 1 MiB an hour. A run is not a measurement when the
+window was to be hidden and was not, the visible phase drew no frames, the
+monitor was not on at the end, or a phase holds under 30 minutes of samples.
+
+Run it overnight, never while someone works at the machine. A blanked or
+locked screen stops the visible phase drawing, and the verdict refuses it.
+
+  --seconds N        how long to soak (default: ${seconds})
+  --hide-after N     hide the window N s in (default: half of --seconds)
+  --no-hide          never hide it: the whole run is one visible phase, for a
+                     display with no i3 to hide the window on
+  --display D        the X display the city opens on (default: \$DISPLAY, now
+                     '${display}'); GPU memory is the driver's on that display,
+                     so a virtual machine's is not this machine's
+  --interval N       seconds between samples (default: ${interval})
+  --writers N        sessions writing (default: ${writers})
+  --out DIR          run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  -h, --help         this
+
+It does not take the landing lock, so landings can run beside it; soak.md
+records the load at the start and the end and how many commits landed on
+botropolis's github main during the run.
+
+The run directory holds perf-busy-city's files, soak.txt, and soak.md, the
+verdict. Exit status: 0 within budget, 1 over it, 2 not a measurement.
+
+For tests: PERF_SOAK_REPO is the botropolis checkout whose landings are
+counted (default: ${repo}/botropolis), and PERF_SOAK_SETTLE and
+PERF_SOAK_MIN_PHASE scale the 600 s settle and the 1800 s phase floor.
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	--seconds) seconds="$2"; shift 2 ;;
+	--hide-after) hide_after="$2"; shift 2 ;;
+	--no-hide) hide=0; shift ;;
+	--display) display="$2"; shift 2 ;;
+	--interval) interval="$2"; shift 2 ;;
+	--writers) writers="$2"; shift 2 ;;
+	--out) out="$2"; shift 2 ;;
+	-h | --help) usage; exit 0 ;;
+	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
+	*) build="$1"; shift ;;
+	esac
+done
+[[ -n "${build}" ]] || { usage >&2; exit 2; }
+if [[ "${hide}" == 1 ]]; then
+	hide_after="${hide_after:-$((seconds / 2))}"
+else
+	hide_after=0
+fi
+export DISPLAY="${display}"
+
+out="${out:-${XDG_STATE_HOME:-$HOME/.local/state}/botropolis-perf/soak-$(date +%Y%m%d-%H%M%S)}"
+mkdir -p "${out}"
+note() { echo "$1" >>"${out}/soak.txt"; }
+note "display=${display}"
+[[ "${hide}" == 1 ]] && note "hide=after ${hide_after} s" || note "hide=none"
+
+started=$(date --iso-8601=seconds)
+"${here}/perf-busy-city" --seconds "${seconds}" --hide-after "${hide_after}" --keep-focus \
+	--interval "${interval}" --writers "${writers}" --profile-seconds 0 --out "${out}" "${build}" >/dev/null &
+busy=$!
+wait "${busy}"
+
+src="${PERF_SOAK_REPO:-${repo}/botropolis}"
+if git -C "${src}" fetch --quiet github main 2>/dev/null; then
+	note "landings_during=$(git -C "${src}" rev-list --count --since="${started}" FETCH_HEAD) (commits on botropolis's github main dated during the run)"
+else
+	note "landings_during=unchecked (could not fetch github main in ${src})"
+fi
+
+grep -q '^hide_failed_at_s=' "${out}/run/env.txt" 2>/dev/null &&
+	echo "# could not hide the window at ${hide_after}s (needs i3 and xprop); there is no hidden phase" >&2
+
+python3 -I "${here}/perf.py" soak-verdict "${out}/run/samples.csv" "${out}/run/env.txt" "${out}/busy.txt" "${out}/soak.txt" >"${out}/soak.md"
+status=$?
+cat "${out}/soak.md"
+echo "${out}/soak.md" >&2
+exit "${status}"

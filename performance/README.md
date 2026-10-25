@@ -11,7 +11,7 @@ Someone whose laptop stalls the first time will not open the app again, so expen
 
 | | |
 | --- | --- |
-| [method.md](method.md) | what to quote and why, the five runs, what the environment changes, and the traps already paid for |
+| [method.md](method.md) | what to quote and why, the runs, what the environment changes, and the traps already paid for |
 | [budgets.md](budgets.md) | the limits a build must stay inside on a modest machine, and the system requirements they add up to (set 2026-10-19) |
 | [templates/report.md](templates/report.md) | the shape of a report |
 | [reports/2026-10-19-laptop-igpu-0.2.2.md](reports/2026-10-19-laptop-igpu-0.2.2.md) | 0.2.2 against 0.1.7: the daemon 50× busier, the city 3.7 GB of Go heap and 3 GB of GPU memory |
@@ -39,8 +39,9 @@ All in [`tools/`](tools/), each with `--help`.
 | `perf-daemon-ab` | several daemon builds side by side against the same live `~/.claude`; `--cold` for a first launch |
 | `perf-city` | open the city, sample it and the daemon, optionally hide it part-way |
 | `perf-busy-city` | a city on a busy desk, made repeatable: the real history linked read-only into a scratch home, demo sessions writing every 200 ms |
+| `perf-soak` | the 8-hour soak before each release: a busy desk, the city visible then hidden, and a verdict on growth per hour in each phase against the budget |
 | `perf-pprof-build` | build any revision with a pprof endpoint, without touching the checkout |
 
-`make perf-env`, `make perf-daemon` and `make perf-city` run the common cases from the root, and `make perf-busy PERF_BUILD=dir` replays a busy desk under the landing lock.
+`make perf-env`, `make perf-daemon` and `make perf-city` run the common cases from the root, and `make perf-busy PERF_BUILD=dir` replays a busy desk under the landing lock; `make perf-soak PERF_BUILD=dir` soaks a build overnight, without it.
 `make test-unit` runs the tools' own tests.
 The `perf-analysis` skill walks a session through a full run and its report.

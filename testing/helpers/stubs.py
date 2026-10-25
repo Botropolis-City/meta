@@ -23,6 +23,7 @@ DAEMON = textwrap.dedent('''\
 
 CITY = textwrap.dedent('''\
     #!/usr/bin/env bash
+    [[ -n "${PERF_BUSY_TEST_SPY:-}" ]] && echo "${DISPLAY:-}" >"$PERF_BUSY_TEST_SPY/city-display"
     echo "FRAME 120 draw 1.0 ms" >&2
     sleep 600 &
     wait
@@ -40,23 +41,6 @@ STAGER = textwrap.dedent('''\
         printf '{"sessionId": "s%s", "cwd": "/demo"}' "$n" >"$home/.claude/sessions/$n.json"
     done
     ''')
-
-XSET = textwrap.dedent('''\
-    #!/usr/bin/env bash
-    echo "$*" >>"$PERF_BUSY_TEST_SPY/xset"
-    if [[ "$1" == q ]]; then
-        cat <<'Q'
-    Screen Saver:
-      prefer blanking:  yes    allow exposures:  yes
-      timeout:  600    cycle:  600
-    DPMS (Display Power Management Signaling):
-      Standby: 600    Suspend: 900    Off: 1200
-      DPMS is Enabled
-      Monitor is On
-    Q
-    fi
-    ''')
-
 
 def executable(path, text):
     with open(path, 'w') as f:

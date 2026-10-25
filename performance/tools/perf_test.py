@@ -513,34 +513,23 @@ class WhenJudgingASoak(unittest.TestCase):
         self.assertEqual(perf.judge_soak(soak_rows(), marks)['verdict'], 'not a measurement')
 
 
-XSET_Q = """Screen Saver:
-  prefer blanking:  yes    allow exposures:  yes
-  timeout:  600    cycle:  600
-DPMS (Display Power Management Signaling):
-  Standby: 600    Suspend: 900    Off: 1200
-  DPMS is Enabled
-  Monitor is Off
-"""
+class WhenJudgingASoakWithTheHideTurnedOff(unittest.TestCase):
+    MARKS = {'hide': 'none', 'frames_at_end': '90000', 'daemon_pid': '20', 'monitor_at_end': 'Monitor is On'}
 
+    def judge(self, marks=None, **growth):
+        return perf.judge_soak(soak_rows(hide_at=99999, **growth), dict(self.MARKS, **(marks or {})))
 
-class WhenSavingTheScreensBlanking(unittest.TestCase):
-    def setUp(self):
-        self.restore = perf.xset_restore(XSET_Q)
+    def test_and_nothing_grows_it_should_pass_on_the_visible_phase_alone(self):
+        self.assertEqual(self.judge()['verdict'], 'pass')
 
-    def test_it_should_restore_the_screen_savers_timeout_and_cycle(self):
-        self.assertIn(['s', '600', '600'], self.restore)
+    def test_it_should_judge_only_the_visible_phase(self):
+        self.assertEqual({p['phase'] for p in self.judge()['phases']}, {'visible'})
 
-    def test_it_should_restore_the_dpms_timeouts(self):
-        self.assertIn(['dpms', '600', '900', '1200'], self.restore)
+    def test_and_the_city_grows_2_mib_an_hour_it_should_fail(self):
+        self.assertEqual(self.judge(city_visible=2)['verdict'], 'fail')
 
-    def test_and_dpms_was_enabled_it_should_enable_it_again(self):
-        self.assertIn(['+dpms'], self.restore)
-
-    def test_and_dpms_was_disabled_it_should_leave_it_disabled(self):
-        self.assertIn(['-dpms'], perf.xset_restore(XSET_Q.replace('DPMS is Enabled', 'DPMS is Disabled')))
-
-    def test_and_xset_printed_nothing_it_should_restore_nothing(self):
-        self.assertEqual(perf.xset_restore(''), [])
+    def test_and_no_frames_were_drawn_by_the_end_it_should_say_it_is_not_a_measurement(self):
+        self.assertEqual(self.judge({'frames_at_end': '0'})['verdict'], 'not a measurement')
 
 
 if __name__ == '__main__':

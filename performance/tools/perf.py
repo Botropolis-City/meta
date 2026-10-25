@@ -464,9 +464,10 @@ def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE
     reasons = []
     end_s = max((float(r['elapsed_s']) for r in rows), default=0)
     phases = soak_phases(marks, end_s, settle_s)
-    if 'hidden_at_s' not in marks:
+    hiding = marks.get('hide') != 'none'
+    if hiding and 'hidden_at_s' not in marks:
         reasons.append('the window was never hidden, so there is no hidden phase')
-    if int(marks.get('frames_at_hide') or 0) <= 0:
+    if int(marks.get('frames_at_hide' if hiding else 'frames_at_end') or 0) <= 0:
         reasons.append('the visible phase drew no frames')
     if 'monitor is on' not in marks.get('monitor_at_end', '').lower():
         reasons.append('the monitor was not on at the end (%s), so the visible phase may not have drawn'
@@ -496,8 +497,8 @@ def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE
 
 SOAK_EXIT = {'pass': 0, 'fail': 1, 'not a measurement': 2}
 
-SOAK_NOTES = ('hidden_at_s', 'hide_failed_at_s', 'frames_at_hide', 'daemon_pid', 'monitor_at_start', 'monitor_at_end',
-              'keep_awake', 'load_at_start', 'load_at_end', 'landings_during', 'demo_hold')
+SOAK_NOTES = ('display', 'hide', 'hidden_at_s', 'hide_failed_at_s', 'frames_at_hide', 'frames_at_end', 'daemon_pid',
+              'monitor_at_start', 'monitor_at_end', 'load_at_start', 'load_at_end', 'landings_during', 'demo_hold')
 
 
 def soak_report(result, marks):
@@ -534,31 +535,13 @@ def print_soak_verdict(samples_path, *marks_paths):
     return SOAK_EXIT[result['verdict']]
 
 
-def xset_restore(text):
-    out = []
-    saver = re.search(r'timeout:\s*(\d+)\s+cycle:\s*(\d+)', text)
-    if saver:
-        out.append(['s', saver[1], saver[2]])
-    blanking = re.search(r'prefer blanking:\s*(yes|no)', text)
-    if blanking:
-        out.append(['s', 'blank' if blanking[1] == 'yes' else 'noblank'])
-    dpms = re.search(r'Standby:\s*(\d+)\s+Suspend:\s*(\d+)\s+Off:\s*(\d+)', text)
-    if dpms:
-        out.append(['dpms', dpms[1], dpms[2], dpms[3]])
-    enabled = re.search(r'DPMS is (Enabled|Disabled)', text)
-    if enabled:
-        out.append(['+dpms' if enabled[1] == 'Enabled' else '-dpms'])
-    return out
-
-
 USAGE = """usage: perf.py i3-window-ids < tree.json
        perf.py window-size < xwininfo.txt        the window's WIDTHxHEIGHT, or nothing
        perf.py busy-home REAL_CLAUDE_DIR HOME   link every transcript, session record and history.jsonl into HOME/.claude, read only
        perf.py replay HOME WRITERS SECONDS      a user line every 200 ms into each of WRITERS of HOME's own live transcripts
        perf.py phase-summary SAMPLES MARKS      a perf-fitzoom run's own + GPU MiB, settled at fit and at full zoom
        perf.py soak-verdict SAMPLES MARKS...    a perf-soak run's growth per process and phase;
-                                                exit 0 within budget, 1 over it, 2 not a measurement
-       perf.py xset-restore < xset-q.txt        the xset arguments, one command a line, that put the screen's blanking back"""
+                                                exit 0 within budget, 1 over it, 2 not a measurement"""
 
 if __name__ == '__main__':
     cmd = sys.argv[1:2]
@@ -568,8 +551,6 @@ if __name__ == '__main__':
         print_phases(sys.argv[2], sys.argv[3])
     elif cmd == ['soak-verdict'] and len(sys.argv) >= 4:
         sys.exit(print_soak_verdict(sys.argv[2], *sys.argv[3:]))
-    elif cmd == ['xset-restore']:
-        print('\n'.join(' '.join(args) for args in xset_restore(sys.stdin.read())))
     elif cmd == ['window-size']:
         print(xwininfo_size(sys.stdin.read()) or '')
     elif cmd == ['busy-home'] and len(sys.argv) == 4:

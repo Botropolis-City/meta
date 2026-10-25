@@ -27,7 +27,7 @@ Read the rules in botropolis's `rules/` before quoting any number, especially
 **The slope is the leak signal.**
 A short run's slope is mostly start-up, so drop it with `--since`, and only call something a leak when its slope holds over a long run.
 
-## The four runs
+## The runs
 
 Each run writes a directory holding `env.txt` (from `perf-env`), the CSVs, the logs and a `report.md`.
 The default location is `~/.local/state/botropolis-perf/`, outside every repository, because a run's raw logs are not reviewed for publishing.
@@ -66,6 +66,16 @@ Only the numbers go into a report here.
    A daemon of the build runs on a copy of the state directory with a stub `claude`, and the city runs through `perf-city`, focused, at fit for 100 s, then 40 wheel notches in through XTEST (`lib/xin.py`), then settled at full zoom to 220 s, with CPU profiles at 30–90 and 150–210 s.
    It waits for a quiet machine and holds the landing lock throughout.
    `perf.py phase-summary OUT_DIR/run/samples.csv OUT_DIR/marks.txt` gives own plus GPU settled at fit (30–90 s) and at full zoom (150–215 s); on r964's own run it gives 442 and 566 MiB.
+
+8. **The soak:** `perf-soak BUILD_DIR`, or `make perf-soak PERF_BUILD=BUILD_DIR`, the growth budget's run, before each release (item 164).
+   It is run 6 for eight hours: the busy desk replayed throughout, the city kept focused and drawing for the first half and hidden in the scratchpad for the second, sampled every 10 s, with the demo's stand-ins held for an hour past the end.
+   Its verdict, `soak.md`, gives the least-squares slope of `Private_Dirty` + GPU per hour for the city and for the run's own daemon, **in each phase apart**: from 600 s to the hide, and from 600 s after the hide to the end.
+   One slope over the whole run would be wrong, because hiding frees memory by design and the drop would cancel a leak.
+   Each slope must be at most 1 MiB an hour, and the script exits 0 within budget, 1 over it, and 2 when the run is not a measurement: the window was never hidden, the visible half drew no frames, the monitor was not on at the end, or a phase holds under 30 minutes.
+   **Run it overnight, never while someone works at the machine** (Aria, 2026-10-25), since a focused window for four hours is not compatible with using the desk.
+   A blanked or locked screen stops the visible half drawing, and the verdict refuses a run whose monitor was not on at the end.
+   `--display` opens the city on another X display, such as a virtual machine's, whose GPU memory is that driver's and not this machine's; `--no-hide` makes the whole run one visible phase, for a display with no i3 to hide the window on.
+   It does not take the landing lock, which would hold off every landing for the night: a memory slope barely moves with load, so it records the load at the start and end and how many commits landed on botropolis's `github/main` during the run instead.
 
 Raw runs and profiles go under `~/.local/state/botropolis-perf/` from the start, never only in a session's scratch directory: a profile kept nowhere else was lost with its scratch on 2026-10-22 and had to be taken again.
 

@@ -23,7 +23,8 @@ Open the city, sample it and the daemon for a while, and write a run directory.
   --bin PATH          botropolis binary to run (default: ${bin:-botropolis on PATH})
   --seconds N         how long to sample (default: ${seconds})
   --hide-after N      after N seconds, move the window to i3's scratchpad so the
-                      rest of the run measures a hidden window (default: never)
+                      rest of the run measures a hidden window (default: never);
+                      env.txt records hidden_at_s and the frames drawn by then
   --interval N        seconds between samples (default: ${interval})
   --headless          run on a virtual display (llvmpipe: CPU and memory are NOT
                       representative of a real GPU; use only to compare two builds).
@@ -62,8 +63,8 @@ done
 
 [[ -x "${bin}" ]] || { echo "no botropolis binary at '${bin}'; pass --bin" >&2; exit 1; }
 pgrep -x botropolisd >/dev/null || { echo "botropolisd is not running; start it first (systemctl --user start botropolisd)" >&2; exit 1; }
-if pgrep -a -x botropolis | grep -q ' city'; then
-	echo "a city is already open; close it first so the run measures one window" >&2
+if pgrep -a -x botropolis | grep ' city' | grep -qv -- '--headless'; then
+	echo "a city window is already open; close it first so the run measures one window" >&2
 	exit 1
 fi
 
@@ -132,6 +133,7 @@ if [[ "${hide_after}" -gt 0 && "${headless}" == 0 ]]; then
 	if [[ "${hidden}" == 1 ]]; then
 		echo "# hidden at ${hide_after}s" >&2
 		echo "hidden_at_s=${hide_after}" >>"${out}/env.txt"
+		echo "frames_at_hide=$(awk '/^FRAME /{n=$2} END{print n+0}' "${out}/city.log")" >>"${out}/env.txt"
 	else
 		echo "# could not hide the window at ${hide_after}s (needs i3 and xprop); the rest of the run is NOT a hidden window" >&2
 		echo "hide_failed_at_s=${hide_after}" >>"${out}/env.txt"
@@ -140,6 +142,7 @@ fi
 
 wait "${sampler}" || true
 sampler=""
+echo "frames_at_end=$(awk '/^FRAME /{n=$2} END{print n+0}' "${out}/city.log")" >>"${out}/env.txt"
 if [[ "${headless}" == 0 && "${hide_after}" -eq 0 ]]; then
 	size=$(window_size)
 	echo "window_at_end=${size:-unknown}" >>"${out}/env.txt"

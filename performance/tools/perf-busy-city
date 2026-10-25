@@ -12,6 +12,9 @@ seconds=480
 profile_from=120
 profile_seconds=300
 scenario=hamlet
+interval=1
+hide_after=0
+keep_focus=0
 out=""
 build=""
 
@@ -37,8 +40,12 @@ perf-city; the city's CPU is profiled when the build has a pprof endpoint.
   --writers N            sessions writing (default: ${writers})
   --seconds N            how long to sample (default: ${seconds})
   --profile-from N       start the CPU profile N s in (default: ${profile_from})
-  --profile-seconds N    profile length (default: ${profile_seconds})
+  --profile-seconds N    profile length (default: ${profile_seconds}); 0 takes no profile
   --scenario NAME        demo scenario to stage (default: ${scenario})
+  --interval N           seconds between samples (default: ${interval})
+  --hide-after N         hide the window N s in, as perf-city does (default: never)
+  --keep-focus           leave the city focused rather than handing the focus back,
+                         so the run until the hide measures a city that draws
   --out DIR              run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
   -h, --help             this
 
@@ -66,6 +73,9 @@ while [[ $# -gt 0 ]]; do
 	--profile-from) profile_from="$2"; shift 2 ;;
 	--profile-seconds) profile_seconds="$2"; shift 2 ;;
 	--scenario) scenario="$2"; shift 2 ;;
+	--interval) interval="$2"; shift 2 ;;
+	--hide-after) hide_after="$2"; shift 2 ;;
+	--keep-focus) keep_focus=1; shift ;;
 	--out) out="$2"; shift 2 ;;
 	-h | --help) usage; exit 0 ;;
 	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
@@ -107,10 +117,12 @@ else
 fi
 corpus="${repo}/botropolis/demo"
 [[ -d "${src}/demo/corpus" ]] && corpus="${src}/demo"
-"${work}/botropolis-demo" stage --corpus "${corpus}/corpus" --scenario "${corpus}/scenarios/${scenario}.yaml" --home "${home}" --hold 3h >/dev/null ||
+hold="$((seconds + 3600))s"
+"${work}/botropolis-demo" stage --corpus "${corpus}/corpus" --scenario "${corpus}/scenarios/${scenario}.yaml" --home "${home}" --hold "${hold}" >/dev/null ||
 	{ echo "could not stage ${scenario}" >&2; exit 1; }
 python3 -I "${here}/perf.py" busy-home "${HOME}/.claude" "${home}" || exit 1
 note "scenario=${scenario} writers=${writers} every_ms=200 seconds=${seconds}"
+note "demo_hold=${hold}"
 note "linked_transcripts=$(find "${home}/.claude/projects" -type l -name '*.jsonl' | wc -l) scratch_transcripts=$(find "${home}/.claude/projects" -type f -name '*.jsonl' | wc -l)"
 
 mkdir -p "${work}/state" "${work}/run/botropolis" "${work}/config/botropolis" "${work}/cache" "${work}/data" "${work}/stub"
@@ -124,6 +136,7 @@ PATH="${work}/stub:${PATH}" HOME="${home}" XDG_STATE_HOME="${work}/state" XDG_RU
 	"${build}/botropolisd" --socket "${sock}" >"${out}/daemon.log" 2>&1 &
 daemon=$!
 pids+=("${daemon}")
+note "daemon_pid=${daemon}"
 for _ in $(seq 90); do [[ -S "${sock}" ]] && break; sleep 1; done
 [[ -S "${sock}" ]] || { echo "the daemon did not open its socket" >&2; exit 1; }
 
@@ -149,7 +162,9 @@ else
 fi
 
 handback=0
-if command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
+if [[ "${keep_focus}" == 1 ]]; then
+	note "focus_handback=none (--keep-focus)"
+elif command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
 	handback=1
 	prev=$(i3-msg -t get_tree | python3 -I -c 'import json,sys
 def w(n):
@@ -169,7 +184,7 @@ fi
 note "load_at_start=$(cut -d' ' -f1-3 /proc/loadavg)"
 
 PERF_PPROF=127.0.0.1:6078 XDG_RUNTIME_DIR="${work}/run" XDG_STATE_HOME="${work}/state" XDG_CONFIG_HOME="${work}/config" \
-	"${here}/perf-city" --bin "${build}/botropolis" --seconds "${seconds}" --interval 1 --out "${out}/run" -- --socket "${sock}" 2>"${out}/perf-city.err" &
+	"${here}/perf-city" --bin "${build}/botropolis" --seconds "${seconds}" --interval "${interval}" --hide-after "${hide_after}" --out "${out}/run" -- --socket "${sock}" 2>"${out}/perf-city.err" &
 city_run=$!
 pids+=("${city_run}")
 city=""
@@ -207,8 +222,12 @@ python3 -I "${here}/perf.py" replay "${home}" "${writers}" "$((seconds - replay_
 pids+=($!)
 
 pprof=0
-for _ in $(seq "${PERF_BUSY_PPROF_WAIT:-50}"); do curl -s -o /dev/null "http://127.0.0.1:6078/debug/pprof/" && { pprof=1; break; }; sleep 0.2; done
-if [[ "${pprof}" == 1 ]]; then
+if ((profile_seconds > 0)); then
+	for _ in $(seq "${PERF_BUSY_PPROF_WAIT:-50}"); do curl -s -o /dev/null "http://127.0.0.1:6078/debug/pprof/" && { pprof=1; break; }; sleep 0.2; done
+fi
+if ((profile_seconds == 0)); then
+	note "profile=none (--profile-seconds 0)"
+elif [[ "${pprof}" == 1 ]]; then
 	(
 		at "${profile_from}"
 		curl -s -o "${out}/cpu-${profile_from}-$((profile_from + profile_seconds)).pb.gz" "http://127.0.0.1:6078/debug/pprof/profile?seconds=${profile_seconds}"
