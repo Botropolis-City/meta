@@ -35,3 +35,4 @@ What a team leaves on disk, read from this machine's own teams by their structur
 - its lines carry `teamName`, which is `session-` and the lead's first eight characters, and its `agentName`;
 - it reports to its lead with `SendMessage` to `team-lead`, which `Roads` already resolves;
 - `teams/<team>/config.json` names each member with its `cwd`, and Claude Code removes it when the lead's session ends, so a recording cannot rely on exporting it.
+- **Recording a team** (manager, 2026-10-25): `-p` never spawns teammates, so a `team: true` script session is recorded interactively, `claude` in a detached tmux session in the recorder's container, the recorder stopping it at the lead's quiet end, its budget or 10 minutes, and stopping it too when the recorder itself is interrupted. Slices 1–3's trees are approved; the corpus check needs every teammate's lead in the corpus.

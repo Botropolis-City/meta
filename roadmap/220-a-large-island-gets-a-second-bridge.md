@@ -18,3 +18,5 @@ Tests: below the threshold one bridge, above it two; a truck takes the bridge ne
 ## Answered while building
 
 - **The threshold and the coast** (Aria, 2026-10-25, asked by the manager): by districts, on the far coast. A second bridge appears once the island holds 16 or more districts and leaves from the coast opposite the first; each truck takes whichever bridge is nearer its building.
+- **Which way the far coast goes** (Aria, 2026-10-25, asked by the manager): east, over the river. The first bridge leaves west, so the second is a raised deck over the east road, the rail, the river and the land beyond it, out to sea, with boats passing under and its own fog at the far end. The east rail leg moves out one cell only when the second bridge exists, giving it a ramp cell as on the west, so other cities' edges are unchanged.
+- **Once placed** (manager, 2026-10-25, from "placed once and anchored" above): it stays, saved in `layout.json`, even if the count falls back below 16, until the plan has no coastal street on that side. The count is of project districts, not the depot.

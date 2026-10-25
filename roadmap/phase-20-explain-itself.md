@@ -38,7 +38,8 @@ Frame `docs/screenshots/r198-plaza-plots.png`, the plaza before and after: the b
 So the plan reserves the ground rather than the planting testing for it: `plan.Plots` holds the three corners, `Plots.Taken` is what the planting asks, and `placeLandmarks` stands each building on the plot the plan set aside instead of measuring the plaza a second time. One reservation, read by both.
 **The class is closed rather than the instance.** `TestNothingIsPlantedOnBuildingGround` checks that nothing is planted inside any district block, on the storage yard, or on a tower's cell — not only on the plaza. All three already held, so the plaza was the only failure, but they are held now.
 
-### 3. The power plant sits oddly
+### 3. ~~The power plant sits oddly~~ Dropped 2026-10-25
+**Dropped by Aria, 2026-10-25.** The r320 frames this waited on were never committed, bugs 23 and 33 were closed by adjudication on 2026-09-29, and the plant has been redrawn since; the reading below is kept as the record.
 The cooling tower reads as standing on the industrial slab rather than beside it on the plaza. Related to bug 23 — the tower is correctly grounded but the two pieces are composed as one landmark, and the result does not read as a building with a stack.
 
 **Reconciled 2026-09-26 (r268). Most of this was answered under other headings, and what is left is a frame for Aria rather than code.**
