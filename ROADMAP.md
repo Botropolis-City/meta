@@ -49,6 +49,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [249](roadmap/249-captures-fail-under-load-at-the-30-second-open-ceiling.md) | acceptance captures fail under load at the 30 s open ceiling | — | nobody, a defect |
 | [250](roadmap/250-a-session-running-a-background-command-says-it-needs-you.md) | a session whose turn ended over a running background command shows needs-you | — | nobody, a defect |
 | [251](roadmap/251-a-killed-headless-city-leaves-its-xvfb-running.md) | a killed headless city leaves its Xvfb running: 83 orphans, 8.9 GiB | — | nobody, a defect |
+| [252](roadmap/252-the-second-bridge-is-too-low-for-the-liner.md) | the second bridge's deck is too low for the liner: raise it over the river | 220 | nobody, Aria chose |
 
 ## Waiting on Aria
 
