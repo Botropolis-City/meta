@@ -25,6 +25,7 @@ Someone whose laptop stalls the first time will not open the app again, so expen
 | [reports/2026-10-24-ultra7-265u-igpu-item-236.md](reports/2026-10-24-ultra7-265u-igpu-item-236.md) | item 236: movers cost 16 of the metropolis's 25 commands by day; one page is four textures to Ebitengine; a level-aware batch key gives 26/43 → 23/40 and item 222 27/44 → 24/41; sprites without mipmaps save 5.2 MiB, none at full zoom |
 | [reports/2026-10-24-ultra7-265u-igpu-r976.md](reports/2026-10-24-ultra7-265u-igpu-r976.md) | item 162's slices 13–14 at r976 on the real history, focused: full zoom 566 → 481 MiB own + GPU, under 512 for the first time (GPU 327 → 285); fit 442 → 462, GPU down 8 and own up 27 on a grown history |
 | [reports/2026-10-24-ultra7-265u-igpu-test-performance-r996.md](reports/2026-10-24-ultra7-265u-igpu-test-performance-r996.md) | the baseline for `make test-performance` at r996: all pass; only item 213's 2,000-session daemon misses its budget, 2.71% of a core against 2% |
+| [reports/2026-10-24-ultra7-265u-igpu-cost-windows.md](reports/2026-10-24-ultra7-265u-igpu-cost-windows.md) | items 226 and 244: the settled daemon takes 15 s windows (worst 1.08% against 1.19%); the 2,000-session daemon keeps 30 s (15 s median 2.69% below the 30 s range) |
 
 ## Tools
 
