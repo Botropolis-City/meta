@@ -1,6 +1,6 @@
 # 76. What the website still needs filmed
 
-**Open. Filed 2026-10-10 (r376), when botropolis.city was rebuilt around the demo media. Nobody's call — each is a scenario or a filming option, and each replaces a stand-in the site already ships.**
+**Open, in progress since 2026-10-25 in the session "item 76". Filed 2026-10-10 (r376), when botropolis.city was rebuilt around the demo media. Nobody's call — each is a scenario or a filming option, and each replaces a stand-in the site already ships.**
 
 The site lives in its own repository, `Botropolis-City/botropolis.city`, checked out beside botropolis under the meta repository's root, at `botropolis.city/` (until 2026-10-15, `~/workspaces/github/botropolis.city`).
 It reads `dist/demo/manifest.json` through `make media-import` there, so anything below reaches the site with `make media-import media-upload` and a push.
@@ -17,3 +17,7 @@ It reads `dist/demo/manifest.json` through `make media-import` there, so anythin
    Wanted: the manifest carrying the screen position of named objects in each still — the plant, the towers, the storage yard, the fountain, each district — so the hotspots follow the frame.
 
 The night stills are held back by item 74, not by anything here.
+
+## Answered while building
+
+- **When to film** (Aria, 2026-10-25, asked by the manager): build the filming options now (the looping hero, a still per view, the social card, `poster_at`, anchors) with their tests, and film once at the next release, as her once-per-release rule says; the site gets the media then.

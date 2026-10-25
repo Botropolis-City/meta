@@ -1,6 +1,6 @@
 # 220. A large island gets a second bridge
 
-**Open. Filed 2026-10-24 (r966) at Aria's request. Nobody's call — Aria set the threshold on 2026-10-25, below.**
+**Open, in progress since 2026-10-25 in the session "item 220". Filed 2026-10-24 (r966) at Aria's request. Nobody's call — Aria set the threshold on 2026-10-25, below.**
 
 Depends on: 218
 

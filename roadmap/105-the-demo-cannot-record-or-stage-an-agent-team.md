@@ -1,6 +1,6 @@
 # 105. The demo cannot record or stage an agent team
 
-**Open. Filed 2026-10-17 (r561) at Aria's request, from item 89. Nobody's call.**
+**Open, in progress since 2026-10-25 in the session "item 105". Filed 2026-10-17 (r561) at Aria's request, from item 89. Nobody's call.**
 
 Depends on: 89 (slice 5)
 
@@ -18,3 +18,7 @@ Item 89 found this when it could not film its message vans; Aria chose, on 2026-
 
 A recorded team session is in the corpus, staged with its team config, and `Roads` shows its message as road traffic in a staged home; then vans and a train along a group line are filmed for Aria from it.
 Recording spends tokens: keep it to one short exchange, read the token by reference as item 89 did, and say the cost here.
+
+## Answered while building
+
+- **Spending tokens to record** (Aria, 2026-10-25, asked by the manager): start it, and prompt her when needed. Build the describing, staging and checks first; the token comes through `secret-run` only when the recording runs, and the cost goes in this item.
