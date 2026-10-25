@@ -1,6 +1,6 @@
 # 236. Where a vehicle stands changes how many draw commands a frame takes
 
-**Open, in progress since 2026-10-24 in the session "item 236". Filed 2026-10-24 (r976), from items 221 and 222 each needing `TestTheWorkAFrameTakes`'s night ceiling raised. Nobody's call — the performance manager measures it first.**
+**Fixed 2026-10-24 (`8752e85`, r1020). Filed 2026-10-24 (r976), from items 221 and 222 each needing `TestTheWorkAFrameTakes`'s night ceiling raised. Nobody's call — the performance manager measures it first.**
 
 Depends on: nothing
 Landed: slice 1 (`241e1a9`, r998).
@@ -39,3 +39,17 @@ Then lower the ceilings back by whatever it saves, and add a case that moving a 
 - **Slice 3's test tree** (manager, 2026-10-24): approved, with one change. Part (a) plans the lights stream in a pure `lightPlays` and passes it through `batch()`; `TestTheLightsStreamBatches` in `pkg/render/stream_test.go` (panes and punches that do not overlap laid in two runs, an overlapping punch and pane kept in order, a warm pane kept after the plain pane it overlaps, batching across rectangles, and every case laying exactly the draws the unbatched order lays), with `--check-frames` and the lights tests proving no pixel changes. Part (b) records the metropolis's work subtests until each run holds at least 104 settled frames, not for a fixed 4 seconds, with a generous give-up, since a slower machine draws fewer frames in the same time and a wall-clock length would fail it there; the ceilings are the worst settled frame of that record, never above 21 and 37. The hamlet and metropolis no-movers subtests keep their short record, having no movers to cross.
 - **Slice 3 measured, and what is left** (the session "item 236", 2026-10-24; manager's ruling): with the lights stream batched by source (cuts commuting with cuts; a window's overlap its padded panes), the long record (at least 104 settled frames a run) reads day 20–21 and night 33–36, the 40s gone, and the ceilings fall to 21 and 36. The moving-vehicle case holds each hour's measured spread, 1 by day and 3 by night, as the item set; the worst-frame ceiling, now taken over the whole settled run, is what holds the count. The 3 at night is depth, not batching: a lit window, the sprite in front of it and the window in front of that must alternate to keep their pixels, so the count still moves a little with where cars pass lit buildings, and taking it lower would change what is drawn. That ends this item's work: the ceilings no longer creep with layout, and each is the worst settled frame of a long record.
 - **Measured again on item 240's heavier metropolis** (the session "item 236", 2026-10-24; manager): item 240 landed first and changed the scene, so on the rebased tree the long record reads day 20 (no spread over 104 frames) and night 35–37 (all four runs at 37). The ceilings are 20 and 37, nothing on `main` rising; the moving-vehicle tolerances are 1 by day, the spread measured on the earlier scene, kept since a slower machine samples other vehicle positions, and 2 by night, the spread measured now.
+
+## Closed
+
+Fixed in three slices.
+Slice 1 (`241e1a9`, r998) taught batching which mipmap level a draw samples.
+Slice 2 (`8168db2`, r1013) drew kit sprites and their night cut-outs without mipmaps, as Aria ruled.
+Slice 3 (`8752e85`, r1020) batches the night's lights laid again where movers are, by source, so a window passes only draws its panes do not overlap and a cut passes other cuts (`TestTheLightsStreamBatches`).
+`TestTheWorkAFrameTakes` now records until each run holds at least 104 settled frames, so its ceiling is the worst settled frame and not the first second's.
+On item 240's scene the metropolis settles at 20 by day and 37 by night, with a tolerance of 1 and 2, and `TestTheStillCityMatchesTheCityDrawnDirectly` shows slice 3 left the lights' pixels as they were.
+The changelog says sprites zoomed out are drawn sharper (`76b7597`).
+
+**Left, flagged for Aria:** the night count still moves by 2 as vehicles pass lit buildings.
+That is depth order, not batching: a window, the sprite in front of it and a window in front of that must be laid in turn, and taking it lower would change pixels.
+The performance manager re-measures after this lands.
