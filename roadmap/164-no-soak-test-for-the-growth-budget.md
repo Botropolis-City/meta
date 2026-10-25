@@ -1,8 +1,9 @@
 # 164. No 8-hour soak test exists, so the growth budget has never been measured
 
-**Open, in progress since 2026-10-25 in the session "item 164". Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the growth budget Aria set the same day. Nobody's call — the budget is set; the run that checks it is missing.**
+**Open. Filed 2026-10-19 (r780), from the 0.2.2 performance reports, against the growth budget Aria set the same day. Nobody's call — the budget is set; the run that checks it is missing.**
 
 Depends on: 245
+Landed: slice 1 (`fe9ea57`, r1028).
 
 [budgets.md](../performance/budgets.md) sets the city's growth at **≤ 1 MiB an hour of `Private_Dirty` + GPU**, measured by "an 8-hour soak with sessions working, before each release".
 No such run exists.
