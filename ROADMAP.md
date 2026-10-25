@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [250](roadmap/250-a-session-running-a-background-command-says-it-needs-you.md) | a session whose turn ended over a running background command shows needs-you | — | nobody, a defect |
 | [251](roadmap/251-a-killed-headless-city-leaves-its-xvfb-running.md) | a killed headless city leaves its Xvfb running: 83 orphans, 8.9 GiB | — | nobody, a defect |
 | [252](roadmap/252-the-second-bridge-is-too-low-for-the-liner.md) | the second bridge's deck is too low for the liner: raise it over the river | 220 | nobody, Aria chose |
+| [253](roadmap/253-a-team-leads-messages-are-never-road-traffic.md) | a team lead's messages to its teammates are never road traffic: the team is named in an Agent result, not after the lead | — | nobody, a defect |
 
 ## Waiting on Aria
 
