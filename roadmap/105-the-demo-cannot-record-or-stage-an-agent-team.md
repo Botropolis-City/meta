@@ -39,3 +39,12 @@ What a team leaves on disk, read from this machine's own teams by their structur
 - `teams/<team>/config.json` names each member with its `cwd`, and Claude Code removes it when the lead's session ends, so a recording cannot rely on exporting it.
 - **Recording a team** (manager, 2026-10-25): `-p` never spawns teammates, so a `team: true` script session is recorded interactively, `claude` in a detached tmux session in the recorder's container, the recorder stopping it at the lead's quiet end, its budget or 10 minutes, and stopping it too when the recorder itself is interrupted. Slices 1–3's trees are approved; the corpus check needs every teammate's lead in the corpus.
 - **A first-run dialog in the recorder** (manager, 2026-10-25): the recorder's own scratch home, inside its container, is set up with onboarding done, the folder trusted and the bypass-permissions warning skipped, so interactive `claude` opens on its prompt; a test holds that nothing is written outside that home, since trusting a directory in Aria's own Claude configuration is hers alone.
+
+## How a team is recorded
+
+A script session marked `team: true` runs its one prompt in an interactive `claude` under tmux, inside the recorder container, with agent teams on.
+The recorder holds it to `budget_usd` itself, by pricing every transcript in the team as it grows, since `--max-budget-usd` is a `-p` flag; it also stops at ten minutes and when it is interrupted.
+
+**First-run dialogs are answered only in the recorder's scratch home** (manager, 2026-10-25): onboarding, folder trust for the toy projects and the bypass-permissions warning are settled in `/home/demo` inside the container and nowhere else.
+Doing the same in Aria's own `~/.claude` or `~/.claude.json` is her decision, never the tool's, and nothing is copied from her Claude data.
+The workspace test holds a sentinel `~/.claude.json` in a temporary `HOME` unchanged.
