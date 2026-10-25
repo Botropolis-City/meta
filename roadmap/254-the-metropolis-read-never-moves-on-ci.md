@@ -18,3 +18,7 @@ Suspects, from item 249's session: the whole read's pass waits on the lane it sh
 3. Turn CI green, and say which commit did.
 
 Tests: a test that reproduces the stall red before the fix and green after; CI on `main` green.
+
+## Answered while building
+
+- **It is snapshots arriving with one session never read** (item 249's session, 2026-10-25, from CI run 40242782845 at `e1d83be`): all ten failing cities in `TestTheStillLayerAFrameKeeps` and `TestTheWorkAFrameTakes` said "1 sessions' hefts still partial, 0 bytes of the scan done, 18 snapshots since it last moved". So the feed keeps polling every 2 s, the read is below the scan's 32 MiB threshold, and every session but one has its heft read whole. The read does not stall as a whole: one session's heft never resolves on the runner. That points away from the shared lane and the idle I/O class, which would hold back every session, and toward something particular to one staged session, such as a stopped session whose file key changes on every load so each pass reads it again, or a session whose usage is partial but which never reaches the whole read. `TestTheLooksAFrameKeeps` passed in that run.
