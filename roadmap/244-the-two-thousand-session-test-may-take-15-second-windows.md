@@ -12,3 +12,5 @@ One window was left waiting for a quiet machine: `TestDaemonWithTwoThousandSessi
 **The rule** (item 226, the manager, 2026-10-24): the test's budget is unmet ([item 213](213-the-2000-session-daemon-is-over-its-cpu-budget.md)) and it skips as unmet, so 15 seconds stands only if every one of five interleaved 15-second runs, paired with five at 30, still reads over the 2% and skips as unmet, and both its worst and its median share fall within the 30-second runs' range; each pair starts with the load under 3 over 4 minutes, recorded. Budgets do not move. If the rule fails, the window stays at 30 seconds and this item closes saying so.
 
 The performance manager runs the pairs with `make test-performance RUN='^TestDaemonWithTwoThousandSessions$'` from detached worktrees at exact commits, and a session lands the change through `make land` only if they pass.
+
+The held commit also survives as the local branch `item-226-part3-twothousand` (`352dae1`) in the botropolis checkout on the machine it was made on; it is not pushed, so the description above is what counts.
