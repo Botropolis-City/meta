@@ -1,6 +1,6 @@
 # 253. A team lead's messages to its teammates are never road traffic
 
-**Open. Filed 2026-10-25 (r1044), found by item 105's session recording a real agent team. Nobody's call — a defect.**
+**Open, in progress since 2026-10-25 in the session "item 253". Filed 2026-10-25 (r1044), found by item 105's session recording a real agent team. Nobody's call — a defect.**
 
 Depends on: nothing
 
