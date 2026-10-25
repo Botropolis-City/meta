@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [225](roadmap/225-testthreadcpu-fails-under-load.md) | TestThreadCPU fails under load | — | nobody, a defect |
 | [230](roadmap/230-the-sheet-path-can-still-die-of-an-interrupted-gamepad-open.md) | the sheet path still dies of an interrupted gamepad open: item 128's hold is missing there; item 226 fixes it | — | nobody |
 | [238](roadmap/238-a-baked-look-can-differ-by-a-pixel-for-some-shapes.md) | a baked look can still differ from the direct draw by a pixel for some shapes | — | nobody, until it shows on the art |
+| [244](roadmap/244-the-two-thousand-session-test-may-take-15-second-windows.md) | the 2,000-session cost test may take 15-second windows, once a quiet machine shows it reads the same | — | nobody |
 | [phase 20 item 3](roadmap/phase-20-explain-itself.md) | the plant's *reading* — the geometry was fixed at r186 and has not been looked at since | — | Aria, from a frame |
 
 ## Waiting on Aria
