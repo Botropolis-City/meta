@@ -1,6 +1,6 @@
 # 275. Release 0.3.2
 
-**Open, in progress since 2026-10-26 in the session "item 275". Filed 2026-10-26 (r1109) at Aria's request. Nobody's call — Aria set what it holds and what it skips.**
+**Done 2026-10-26 (`aefd89b`, r1116; tagged v0.3.2). Filed 2026-10-26 (r1109) at Aria's request. Nobody's call — Aria set what it holds and what it skips.**
 
 Depends on: 272 (slice 1)
 
@@ -24,3 +24,9 @@ Items 273 and 271's slice 2 go in if they land first; nothing waits for them.
 ## Answered while building
 
 - **The candidate on Aria's other laptop** (manager, 2026-10-26, at `aefd89b`; its own daemon on its own socket, state and cache in a temporary directory, nothing installed, everything removed afterwards): the daemon served 723 sessions; the city, run in a virtual display because the laptop's screen was locked, drew its first frame 2.6 s after starting, with 24 districts where 0.3.1 made 559; a keyboard pan changed the frame; and a 15 s recording drew all 150 frames. Opened on the real screen it drew nothing, correctly, since the locker held the input focus, so `q` then `y` was not tried by hand there; item 270's quit fix is held by its test. A 0.3.1 city started on the same laptop earlier sat at a full core and 5.5 GB resident for 80 s.
+
+## Released
+
+0.3.2 was tagged `v0.3.2` at `aefd89b` (r1116) by release run 40400792045, after a dry run (40399396881); CI on that commit was green on every job, and the performance manager's `make test-performance` there met every budget.
+APT, RPM and the Homebrew tap published from it; the AUR packages are `botropolis` `36dadcd` and `botropolis-bin` `af3989a`, both built here first, the source package's `check()` passing on a real config.
+Waived by Aria for this release only: the soak, the re-film and the checklist's A1 to A6, which all run for 0.3.3.
