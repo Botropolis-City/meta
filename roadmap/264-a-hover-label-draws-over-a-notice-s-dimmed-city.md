@@ -1,6 +1,6 @@
 # 264. A hover label draws over a notice's dimmed city, at full brightness
 
-**Open. Filed 2026-10-26 (r1093), from item 190's frames, at Aria's request. Nobody's call — a defect.**
+**Open, in progress since 2026-10-26 in the session "item 264". Filed 2026-10-26 (r1093), from item 190's frames, at Aria's request. Nobody's call — a defect.**
 
 Aria passed item 190's two notices on 2026-10-26 and asked for this to be filed on its own.
 
