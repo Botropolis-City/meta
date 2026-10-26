@@ -28,3 +28,8 @@ Items 271 to 274 take most of those districts and groups off that map; this item
 2. Profile it, fix what dominates, cull what is off screen (signs, monuments, plates, lines) and make the label layout sub-quadratic.
 3. Gate it: the city at that scale opens, pans and quits, within the performance budgets, and the case stays in the suite.
 4. Quitting must always work: `q` then `y` exits even when a frame or a snapshot is slow.
+
+## Answered while building
+
+- **Slice 4's measurement at the stress scale** (session, 2026-10-26; synthetic, 2,400 sessions in 900 districts, a group of 800, real city under Xvfb on its own daemon, a busy machine): first frame 13.5 s against a map within 5 s; Private_Dirty peak 936 MiB, within 1 GiB; settled 693 MiB against 512; drawing 34–55 ms a frame (40 quiet) against 10 ms of CPU. Without a daemon, 1.3 GiB peak and 940 MiB settled, because group detection runs in the city. About 36% of the fitted frame is item 212's noting and dry pass and 20% the depth sort.
+- **Whether the case lands red** (manager, 2026-10-26): neither red nor loosened; slice 4 stays unlanded until Aria sets the bars at this scale, since a red performance-tier case would fail 0.3.2's pre-release run over a scale the release does not claim, and reporting instead of gating would loosen a limit without her. Meanwhile the session looks at the first frame (whether the first-launch progressive map fails at this size, which would be a defect) and at the ~490 MB outside the Go heap.
