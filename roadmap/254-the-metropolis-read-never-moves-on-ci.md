@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-26 in the session "item 254". Filed 2026-10-25 (r1047), found by item 249's session. Nobody's call — a defect.**
 
 Depends on: 249
+Landed: slice 1 (`e04ae93`, r1060).
 
 `main`'s Linux CI has failed `test-lint` on every push since botropolis `73d7d69` ([item 240](240-the-metropolis-demo-reads-as-a-light-user.md)'s metropolis filled with turns at a scenario's pace); the last green run was at `70348ca`.
 The failing tests all film the metropolis demo through `frameLog`: `TestTheLooksAFrameKeeps`, `TestTheStillLayerAFrameKeeps` and `TestTheWorkAFrameTakes`.
