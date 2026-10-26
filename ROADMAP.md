@@ -43,6 +43,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [256](roadmap/256-the-cache-tests-see-no-cache-hit-under-load.md) | the test-cache acceptance tests sometimes see no cache hit when the machine is busy | — | nobody, a flaky test |
 | [257](roadmap/257-every-lamp-glow-splits-a-batch.md) | every lamp's glow splits the night batch: a glow layer of its own, then the bridge road's lamps back | 247 | nobody, the ceiling is set |
 | [259](roadmap/259-a-long-boat-straddling-a-raised-deck-is-drawn-in-one-piece.md) | a long boat straddling a raised deck is drawn all in front of it or all behind | 252 | nobody, a defect |
+| [260](roadmap/260-the-draw-count-wobble-test-fails-under-load.md) | the frame's draw-count wobble test fails on a busy machine | — | nobody, a flaky test |
 
 ## Waiting on Aria
 
