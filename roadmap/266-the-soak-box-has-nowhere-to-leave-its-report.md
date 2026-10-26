@@ -1,6 +1,6 @@
 # 266. The soak box has nowhere to leave its report, so the laptop has to stay up to fetch it
 
-**Open. Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose Cloudflare R2.**
+**Open, in progress since 2026-10-26 in the session "item 266". Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose Cloudflare R2.**
 
 Aria, 2026-10-26, after the first overnight soak was lost when the laptop dropped its IPv6: *"we shouldn't tie the 8 hour soak to this laptop. It should only depend on that server"*.
 She chose that the box cancels itself and uploads its report, and asked whether the upload could go somewhere other than Hetzner's storage; asked where, she chose **Cloudflare R2**, on the account the website already uses, over a private GitHub repository.
