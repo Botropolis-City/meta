@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-26 in the session "item 271". Filed 2026-10-26 (r1099), from Aria's other laptop (item 270). Nobody's call — a defect.**
 
+Depends on: nothing
+Landed: slice 1 (`28f4360`, r1106).
+
 On that laptop the detector made 48 groups, seven of them with 61 to 781 members.
 A group is a set of sessions working together; nobody runs 781 sessions together.
 
