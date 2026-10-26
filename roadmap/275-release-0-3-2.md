@@ -1,6 +1,6 @@
 # 275. Release 0.3.2
 
-**Open. Filed 2026-10-26 (r1109) at Aria's request. Nobody's call — Aria set what it holds and what it skips.**
+**Open, in progress since 2026-10-26 in the session "item 275". Filed 2026-10-26 (r1109) at Aria's request. Nobody's call — Aria set what it holds and what it skips.**
 
 Depends on: 272 (slice 1)
 
