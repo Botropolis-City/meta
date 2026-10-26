@@ -35,7 +35,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [164](roadmap/164-no-soak-test-for-the-growth-budget.md) | an 8-hour soak test for the growth budget, on a release checklist | 245 | nobody, the budget is set |
 | [204](roadmap/204-the-ingest-could-run-in-a-child-process.md) | the ingest shares the daemon's process, so its CPU priority can't be lowered on macOS: run it as a child process | 200 | nobody |
 | [212](roadmap/212-every-frame-re-records-every-drawable.md) | every frame re-records every drawable to find it unchanged: 43–59% of Draw; the way toward 10% of a core | — | nobody |
-| [213](roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md) | a settled daemon on a 2,000-session home is just over its CPU budget: 2.3–2.6% counted against 2% | — | nobody |
 | [214](roadmap/214-the-dashboards-layout-sits-at-its-budget.md) | the unfocused dashboard's layout sits at its 1% budget once kernel time counts: 1.04% | — | nobody |
 | [238](roadmap/238-a-baked-look-can-differ-by-a-pixel-for-some-shapes.md) | a baked look can still differ from the direct draw by a pixel for some shapes | — | nobody, until it shows on the art |
 | [245](roadmap/245-test-machines-in-the-cloud.md) | cloud machines for the overnight soak and the Wayland desktops: Hetzner, plan-only | — | nobody, Aria chose; waits on her account |
