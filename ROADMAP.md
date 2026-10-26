@@ -46,6 +46,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [252](roadmap/252-the-second-bridge-is-too-low-for-the-liner.md) | the second bridge's deck is too low for the liner: raise it over the river | 220 | nobody, Aria chose |
 | [254](roadmap/254-the-metropolis-read-never-moves-on-ci.md) | on CI's Linux runner the metropolis's history read never moves, so main is red | 249 | nobody, a defect |
 | [255](roadmap/255-a-roads-vehicle-says-what-kind-of-traffic-it-is.md) | a road's vehicle says its traffic: car, van, box truck, motorbike; no message rides a group's line | — | nobody, Aria decided |
+| [256](roadmap/256-the-cache-tests-see-no-cache-hit-under-load.md) | the test-cache acceptance tests sometimes see no cache hit when the machine is busy | — | nobody, a flaky test |
 
 ## Waiting on Aria
 
