@@ -12,3 +12,7 @@ Item 209 lands that check as "unmet" (skip over 2%, saying its number; fail over
 Profile the settled 2,000-session daemon (counted, quiet machine) and take the largest per-rescan passes that still walk every session. Item 205's notes list the candidates left after its slices: the view copy, events, power, roads, and the collector.
 
 Tests: item 209's check turns from "unmet" into a plain gate at 2% (its skip removes itself), on instructions plus kernel ticks.
+
+## Answered while building
+
+- **Where the CPU goes, and the plan** (item 213's session and the manager, 2026-10-26): reproduced at 2.54–3.11% counted; a profile puts the statistics store's ingest at 18% of the daemon (12% SQLite parsing statements prepared afresh on every write, since modernc keeps no statement cache), GC 20%, grouping 16%, and the ledger and catalogue walks 7.6% each. Slices: prepared statements once per store; then the largest remaining whole-session walk, with a from-scratch oracle as items 205 and 210 had; then grouping views only when groups change; and last, item 209's skip comes out so the test is a plain gate at 2%.
