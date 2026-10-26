@@ -13,3 +13,7 @@ Today a left press on a district's floor or sign picks that one district up (`pk
 3. The layout saves every moved district at once, so a restart keeps them.
 4. Tests: a selection of three moves together and keeps its shape; a move that would overlap is refused for all; the layout holds all three after a reload; a plain click without Ctrl still picks up one district.
 5. A frame for Aria with three districts selected, and the help and man page updated.
+
+## Answered while building
+
+- **The design** (session's, approved by the manager, 2026-10-26): Ctrl or Cmd click toggles a district, Ctrl or Cmd drag on open ground boxes; a plain click on open ground or Esc clears; dragging a selected district moves all of them by the same offset and is refused whole, shown in red, when an unselected district holds a target, while a single drag keeps swapping as item 85 made it.

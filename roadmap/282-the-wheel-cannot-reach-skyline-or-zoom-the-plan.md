@@ -14,3 +14,7 @@ So two of her asks are already the design and one is missing:
 
 Tests, data-driven over island sizes: wheeling out from any zoom reaches Skyline; at Skyline, a rested wheel-out opens the plan; in the plan, wheel-in and out zoom it about the pointer; at the plan's closest zoom, a rested wheel-in returns to the map.
 Flip the two `cityplan_test.go` cases that hold the old wheel.
+
+## Answered while building
+
+- **The fix's shape** (session's, approved by the manager, 2026-10-26): reproduced on any island whose Skyline zoom lies below the ladder's last step (0.25): the step below that is now Skyline. The plan zooms in steps 1, 1.5, 2, 3, 4, 6 and 8 about the pointer, decides compact badges from those in view, pans by drag held inside the window (right and middle drags too, with item 279), reopens at its widest, and from its closest zoom a rested wheel-in returns to the map at Skyline with the pointed place kept.

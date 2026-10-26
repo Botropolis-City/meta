@@ -12,3 +12,7 @@ Since 0.3.2, more groups end that way: hidden scripted runs, sessions whose tran
 A group draws a line only when its drawn members stand in two or more districts; a group in one district shows its badge on its buildings and no line.
 Count only members on the map when placing stations, so a group whose other members are hidden does not leave a stub.
 Tests: a group in one district draws no line; a group of two districts where one member is hidden draws no line; a group in two drawn districts draws its line; flip `lines_test.go`'s one-district case.
+
+## Answered while building
+
+- **The rule** (manager, 2026-10-26): a group draws a line when its stations — its members' districts and the districts its coordinator's subagents worked in, never the depot — stand in two or more drawn districts; packed members make no station. The coordinator is not changed, so a group whose members stand in one district draws no line even if subagents worked elsewhere.

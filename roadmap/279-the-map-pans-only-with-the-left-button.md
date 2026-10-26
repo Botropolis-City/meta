@@ -13,3 +13,7 @@ Alt+drag fails on i3 because i3's default `floating_modifier` is Mod1, Alt, whic
 1. A **right-button drag** and a **middle-button (wheel) drag** both pan, wherever the press lands, never picking up a district or a building.
 2. Shift+drag stays; the help and man page name the right and middle drags first, and say Alt+drag may be taken by the window manager.
 3. Tests, data-driven over the right and middle buttons and over a press on open ground, a district and the selected building: the drag pans and moves nothing.
+
+## Answered while building
+
+- **The design** (session's, approved by the manager, 2026-10-26): right and middle drags pan from anywhere through their own path, never picking up, carrying or selecting, and not under a scrim, as item 264; the footer reads *right drag: pan*; the help lists right and middle drags first and says Alt+drag may be taken by the window manager; the man page has no input section, so the in-app help, README and `design/city-and-rendering.md` carry it instead. They pan the City Plan too, through item 282's function.
