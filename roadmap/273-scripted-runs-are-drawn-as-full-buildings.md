@@ -14,3 +14,7 @@ Aria, 2026-10-26, on whether they should be buildings: *"Hide by default, settin
 3. The setting follows `pkg/config`'s pattern, with `botropolis config` and the settings panel, documented in the man page.
 4. Tests: a scripted session makes no building by default; with the setting on, it makes a stall; its spend counts either way.
 5. The stall's look is a frame for Aria.
+
+## Answered while building
+
+- **Slice 1's answers** (manager, 2026-10-26): scripted means an `sdk-*` entrypoint; `cli`, empty, IDE extensions and unknown stay buildings. The key is `scripted_runs`, hidden by default or shown. Shown runs are ordinary buildings until slice 2's stall. The hide and show gate is item 274's shared `Shown` filter in `Scene.restate`, with a `Scripted` field. The finder hides them too while hidden, so it matches the map.

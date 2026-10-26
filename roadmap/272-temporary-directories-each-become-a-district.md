@@ -13,3 +13,7 @@ Aria, 2026-10-26: *"If anything in a tmp directory is tied to an existing distri
 2. **Tied** means the session's transcript connects it to a session or district already on the map: a parent session (a subagent's or a spawned run's), a team or a peer message, or a temporary path that names a project — such as Claude Code's own scratchpad, `/tmp/claude-<uid>/<encoded project path>/<session>/scratchpad`. A tied session joins that district.
 3. Every other temporary-directory session goes into **one district**, named for what it is, such as *Temporary*.
 4. Tests, data-driven over each temporary root and each kind of tie, and over a non-temporary directory that merely contains `tmp` in its name, which stays its own district.
+
+## Answered while building
+
+- **The design** (session's, approved by the manager, 2026-10-26): slice 1 folds every temporary directory into one *Temporary* district in `city.ProjectRoot`, matching whole path segments, so `/home/u/tmp-project` stays its own; slice 2 ties a temporary session to a district by its transcript in the loader (team, parent, subagent visits, peer messages, file touches under a district's root as the weakest kind, and Claude Code's scratchpad matched against the districts on the map, since its path encoding is lossy), followed to a fixed point, strongest tie first. A tied session's spend still counts under *Temporary* in the statistics ranges until they follow its district, a follow-up filed at close.

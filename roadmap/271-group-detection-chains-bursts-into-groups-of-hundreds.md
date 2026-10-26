@@ -18,3 +18,8 @@ Item 223 met the same chaining in the staged metropolis and fixed the staging on
 - No transitive chain through timing: a group is held together by its strongest evidence, not by a path of minute-apart neighbours.
 - A bound on what one group can be, with the evidence that would exceed it logged rather than drawn.
 - Tests: a stream of 500 unrelated sessions a minute apart makes no group; two sessions with real evidence and close timing still group; the existing group tests stay green; and a staged history like item 270's makes no group above the bound.
+
+## Answered while building
+
+- **Timing alone** (Aria, 2026-10-26, asked by the manager): starting together only suggests a group; it joins only beside other evidence, never chains, and the two existing cases that held a minute-apart pair as a join become suggestions. This supersedes her earlier ruling that a minute-apart start joined as likely.
+- **The bound and directory evidence** (manager, 2026-10-26): no group takes more than 40 members, a named constant, with refused joins logged; directory evidence means subagents working in the other's directory and shared files, with no new same-directory signal, since a stream of scripted runs in one directory would chain again.
