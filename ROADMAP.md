@@ -50,7 +50,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [270](roadmap/270-the-city-freezes-with-hundreds-of-districts.md) | the city freezes with hundreds of districts and groups of hundreds | — | nobody, a defect |
 | [272](roadmap/272-temporary-directories-each-become-a-district.md) | every temporary directory becomes a district of its own | — | nobody, Aria ruled |
 | [273](roadmap/273-scripted-runs-are-drawn-as-full-buildings.md) | scripted runs hidden by default, shown as a cart or stand | — | nobody, Aria ruled; the stall is a frame for her |
-| [276](roadmap/276-record-team-time-limit-flakes-on-macos.md) | TestRecordTeam's time-limit case can pass the limit without failing on macOS CI | — | nobody, a flaky test |
 
 ## Waiting on Aria
 
