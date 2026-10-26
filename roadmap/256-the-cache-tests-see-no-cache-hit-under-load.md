@@ -16,3 +16,8 @@ Find what differs between the two runs: run the pair with `GODEBUG=gocachehash=1
 Then make the scratch run's inputs fixed (its own `GOCACHE`, environment and file times), so the test asserts only what item 117 asked: an unchanged module is cached, a change it can see is not.
 
 Tests: the two tests pass at a load like a landing's, many times in a row; and mutated, a change under `pkg/render` still breaks the cache as item 117 requires.
+
+## Answered while building
+
+- **What was found** (item 256's session, 2026-10-26): no miss in about 700 second runs, warm and fresh copies, one process and four, loads 6–50, with `GODEBUG=gocachetest=1` on; the two misses on record were each the first scratch pair in their test process. Ruled out: the recorded inputs, `go clean -testcache`, the daily trim, a toolchain upgrade, a full `/tmp`. Left: the build cache the scratch runs share with every session, and directory mtimes in a fresh copy, which go also hashes.
+- **What lands** (manager, 2026-10-26): every scratch `go test` runs with `GODEBUG=gocachetest=1` and `GOFLAGS` cleared, so a miss names its reason, and the scratch copy backdates directories as well as files; not a private build cache, which would add 35–70 s and about 700 MB to every landing for a cause not shown. The item stays open until a miss reports its reason.
