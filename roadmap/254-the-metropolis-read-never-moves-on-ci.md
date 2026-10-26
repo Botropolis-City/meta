@@ -1,6 +1,6 @@
 # 254. On CI's Linux runner, the metropolis's history read never moves, so `main` is red
 
-**Open. Filed 2026-10-25 (r1047), found by item 249's session. Nobody's call — a defect.**
+**Open, in progress since 2026-10-26 in the session "item 254". Filed 2026-10-25 (r1047), found by item 249's session. Nobody's call — a defect.**
 
 Depends on: 249
 
@@ -22,3 +22,7 @@ Tests: a test that reproduces the stall red before the fix and green after; CI o
 ## Answered while building
 
 - **It is snapshots arriving with one session never read** (item 249's session, 2026-10-25, from CI run 40242782845 at `e1d83be`): all ten failing cities in `TestTheStillLayerAFrameKeeps` and `TestTheWorkAFrameTakes` said "1 sessions' hefts still partial, 0 bytes of the scan done, 18 snapshots since it last moved". So the feed keeps polling every 2 s, the read is below the scan's 32 MiB threshold, and every session but one has its heft read whole. The read does not stall as a whole: one session's heft never resolves on the runner. That points away from the shared lane and the idle I/O class, which would hold back every session, and toward something particular to one staged session, such as a stopped session whose file key changes on every load so each pass reads it again, or a session whose usage is partial but which never reaches the whole read. `TestTheLooksAFrameKeeps` passed in that run.
+
+## Answered while building
+
+- **How urgent** (Aria, 2026-10-26): *"we should do immediately. We should always keep ci green."* This item comes before other work, and a red `main` is fixed before anything else lands on top of it.

@@ -1,6 +1,6 @@
 # 250. A session whose turn ended over a running background command says it needs you
 
-**Open. Filed 2026-10-25 (r1032), found by item 246's session running the validation checklist's step 1 live. Nobody's call — a defect.**
+**Open, in progress since 2026-10-26 in the session "item 250". Filed 2026-10-25 (r1032), found by item 246's session running the validation checklist's step 1 live. Nobody's call — a defect.**
 
 Depends on: nothing
 
