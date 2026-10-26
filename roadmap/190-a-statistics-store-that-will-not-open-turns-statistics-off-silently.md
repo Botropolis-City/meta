@@ -29,3 +29,8 @@ This is the silent-fallback pattern the meta `CLAUDE.md` describes for the docs 
 
 Tests: a daemon started over a `stats.db` at `user_version` 3 without `meta` logs the error and reports the store refused; `doctor` warns for it; a store from a newer build produces the "update Botropolis" reason end to end, not only from `migrate`.
 Mutate the logging and the report away and watch each test go red.
+
+## Answered while building
+
+- **A damaged store at the current version** (manager, 2026-10-26, from fix 3's "move the file aside" and item 149's rule that a file is never reset or lost without the user's say): refused, not repaired. A store at this version whose `meta` cannot be read is `ErrDamaged`; nothing on disk changes; the reason names the file and says to move it aside, and the read-only reader refuses it too, so the map agrees with the daemon. A repair would write into a store that may be half-built, which is the silent fallback again.
+- **The plan** (manager): approved in three slices: typed refusals from `migrate` and `OpenReader` with the daemon logging each once; the store's state on every snapshot and the peer answer (omitempty, no protocol bump) and a `statistics` row in `doctor`; a dismissible notice on the map, its frame for Aria.
