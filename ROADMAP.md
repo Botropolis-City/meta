@@ -62,6 +62,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [287](roadmap/287-a-card-changes-size-as-the-pointer-moves-over-its-buttons.md) | a session's card changes size as the pointer moves over its buttons | — | nobody, Aria said what she wants |
 | [288](roadmap/288-there-is-no-obvious-way-to-make-a-new-group.md) | there is no obvious way to make a new group, and move to group offers none | — | nobody, Aria said what she wants |
 | [289](roadmap/289-the-new-session-panel-ignores-typing.md) | the New session panel takes no typed text, only scripted keys | — | nobody, a defect |
+| [290](roadmap/290-no-text-field-takes-a-paste.md) | no text field in the city takes a paste | 289, 284 | nobody, a defect |
 
 ## Waiting on Aria
 
