@@ -29,3 +29,7 @@ The PKGBUILD's own comment already says a package build must not read the builde
 4. Release it as 0.3.2's first fix, or as a 0.3.1 `pkgrel` bump of the AUR package whose `check()` sets `XDG_CONFIG_HOME` and `HOME` to a directory under `$srcdir`, whichever comes first.
 
 Until then, `makepkg -si --nocheck` in the AUR checkout builds 0.3.1, and `botropolis-bin` does not run the tests at all.
+
+## Answered while building
+
+- **Where the isolation goes** (item 263's session, approved by the manager, 2026-10-26): not inside `load`, since about 20 `pkg/config` tests point `XDG_CONFIG_HOME` at a prepared config before calling it, and `pkg/app` and `pkg/cli` do not use `load`. Instead, `pkg/config`, `pkg/app` and `pkg/cli` each take `testing/helpers.RunIsolated` (item 92) as their `TestMain`, so no test in them can forget it, and `RunIsolated` also unsets every variable `pkg/config` reads (`BOTROPOLIS_<KEY>` from `config.Docs()`, plus `BOTROPOLIS_CONFIG` and `BOTROPOLIS_SET`), taken from `config.Docs()` at run time, and not all `BOTROPOLIS_*`, since the acceptance suite passes its binary in that way. The sweep with hostile variables failed 14 tests in `pkg/config` and 6 in `pkg/app`; the config-file and `HOME` routes are swept by slice 2's make target.
