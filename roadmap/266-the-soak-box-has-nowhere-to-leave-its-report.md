@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-26 in the session "item 266". Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose Cloudflare R2.**
 
+Depends on: nothing
+Landed: slice 1 (`90fd16e`, r1096).
+
 Aria, 2026-10-26, after the first overnight soak was lost when the laptop dropped its IPv6: *"we shouldn't tie the 8 hour soak to this laptop. It should only depend on that server"*.
 She chose that the box cancels itself and uploads its report, and asked whether the upload could go somewhere other than Hetzner's storage; asked where, she chose **Cloudflare R2**, on the account the website already uses, over a private GitHub repository.
 
@@ -20,3 +23,9 @@ Item 245's slice 3 changes with it: the soak runs detached, the box uploads its 
 ## Answered while building
 
 - **How the two keys are made** (Aria, 2026-10-26, asked by the manager): the infra token cannot create API tokens (Cloudflare 403, code 9109), so Aria adds *Account API Tokens: Edit* to it, accepting that it can then mint account tokens, and Terraform makes both keys, each one permission group scoped to the bucket alone and expiring a year out. Aria runs `make soak-credentials` once after the apply. Nothing public names the 1Password items they go in; their names come from the git-ignored `.env`.
+
+## Noticed while building
+
+- **The packages bucket has drifted** (2026-10-26): every plan for this item reported *Drift detected (update)* on `cloudflare_r2_bucket.packages` and `cloudflare_r2_custom_domain.packages` at refresh,
+  though none planned a change.
+  Nobody has yet looked at what differs from the configuration.
