@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`2b502b8`, r1032).
+Landed: slice 2 (`a2c45ad`, r1066).
 
 Aria, 2026-10-25, on how to test items 95 and 96 without owning a Mac or a Wayland desktop: *"I won't suddenly own one of these. We need a vm to test."*
 And on item 164's overnight soak, which needs a screen that never blanks or locks: *"I meant remote vm like in linode or gcp or some other cloud env or maybe a cloud intended for perf or cross platform testing"*.
