@@ -43,7 +43,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [259](roadmap/259-a-long-boat-straddling-a-raised-deck-is-drawn-in-one-piece.md) | a long boat straddling a raised deck is drawn all in front of it or all behind | 252 | nobody, a defect |
 | [261](roadmap/261-past-four-seconds-the-metropolis-draws-over-its-ceilings.md) | past 4 s the metropolis draws over its draw ceilings (21 by day, 38 by night) | 260 | nobody, the ceilings are set |
 | [262](roadmap/262-the-darwin-priority-test-can-hang-ci.md) | the macOS priority test can hang a CI job until it dies, silently | — | nobody, a flaky test |
-| [263](roadmap/263-the-package-check-reads-the-builders-own-config.md) | the AUR build's tests read the builder's own config, so 0.3.1 fails to build for some | — | nobody, a defect |
 | [265](roadmap/265-what-1-0-0-needs-is-not-written-down.md) | the bar a build must clear to be 1.0.0, drafted for Aria | — | Aria's, which criteria make the bar |
 | [267](roadmap/267-the-website-s-version-is-typed-by-hand.md) | the site shows the latest release without a hand edit | — | nobody, Aria chose rebuilding on release |
 | [268](roadmap/268-a-first-sighting-shown-only-behind-a-panel-is-spent.md) | a first sighting shown only behind a covering panel is spent and never shows | — | nobody, a defect |
