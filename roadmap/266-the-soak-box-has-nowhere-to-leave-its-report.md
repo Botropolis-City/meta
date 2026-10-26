@@ -1,6 +1,6 @@
 # 266. The soak box has nowhere to leave its report, so the laptop has to stay up to fetch it
 
-**Open, in progress since 2026-10-26 in the session "item 266". Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose Cloudflare R2.**
+**Done 2026-10-26 (`502f667`, r45 of botropolis.city). Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose Cloudflare R2.**
 
 Depends on: nothing
 Landed: slice 1 (`90fd16e`, r1096).
@@ -29,3 +29,25 @@ Item 245's slice 3 changes with it: the soak runs detached, the box uploads its 
 - **The packages bucket has drifted** (2026-10-26): every plan for this item reported *Drift detected (update)* on `cloudflare_r2_bucket.packages` and `cloudflare_r2_custom_domain.packages` at refresh,
   though none planned a change.
   Nobody has yet looked at what differs from the configuration.
+
+## Closed
+
+Done 2026-10-26.
+`infra/soak.tf` (`90fd16e`) makes the private bucket `botropolis-soak` with no custom domain,
+and a lifecycle rule that deletes objects after 30 days and aborts unfinished uploads after a day.
+It also makes two account tokens, each holding one permission group (R2 bucket item write for the box, item read for the laptop), scoped to that bucket alone and expiring 2027-10-26.
+Their S3 keys are a sensitive output, `soak_credentials`, beside `soak_bucket_url`.
+The HCP apply, run-49xa8V3iKVWndEAx, added 4, changed 0 and destroyed 0, matching the plan the manager approved.
+
+`make soak-credentials` copies the keys into 1Password and reads each item back, failing unless every field is present and not empty.
+It took three fixes against the real `op` (`96aaab6`, `6beddb8`, `502f667`): the template now goes to op as a mode-600 file in a private temporary directory that is removed afterwards, and the category is named only in the template.
+The manager ran it, and all four references in item 245's `.env` resolve.
+
+`infra/tests/soak.tftest.hcl` tests the Terraform against a mocked provider, in `make test` and in CI.
+`tools/soak.test.ts` and `tools/store-soak-credentials.test.ts` test the 1Password step, the second against a fake op that refuses what the real one refuses.
+
+Deviations, for Aria:
+
+- The laptop reads with its own read-only key rather than the deploy token, which the manager asked for, so a leaked laptop key cannot write.
+- Nothing has yet checked from outside that the write key cannot read and the read key cannot write.
+  Item 245's first soak run is the first real use of both.
