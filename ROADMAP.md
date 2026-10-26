@@ -49,7 +49,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 
 ## Waiting on Aria
 
-- **Hetzner Robot credentials for the soak box** (item 245): the Cloud project and token are done; the EX44 needs a Robot web-service user (Robot → Settings → Web service and app settings) and its password in 1Password, their references set in `testing/machines/.env`. Item 164's soak waits on it; item 96's Wayland VM does not.
 - **The validation checklist** has its own file, [`validation-checklist.md`](roadmap/validation-checklist.md). **Steps 1 and 8 pass** — step 1 now reconciles by session id rather than by title, which is what item 71 bought. **The other eight need her hands on the keyboard**, and the file says which keys.
 
 The nine unadjudicated entries were read one by one on 2026-09-29 and all nine are now closed: item 24 by Aria's ruling that the six undrawn pieces are a deliberate reserve, and items 22, 23, 26, 27, 28, 29, 31 and 33 by adjudication, each with the reason on its own file.
