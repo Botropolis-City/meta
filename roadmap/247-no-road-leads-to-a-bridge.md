@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-25 in the session "item 247". Filed 2026-10-25 (r1031), found by item 220's session from its frame. Nobody's call — a defect.**
 
 Depends on: 220
+Landed: slice 1 (`5f68e6f`, r1065).
 
 Both bridges' island ends stand on a street in the plan's sense (`IsStreet`, a cell of the ring road's corridor), but nothing draws road there.
 `layRoads` (`botropolis/pkg/city`) lays road only on corridor cells that a route between two districts crosses — "a corridor nothing travels is belt" — and no route goes to a bridge, so the ramp comes down onto grass and the nearest road is a block away.
