@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-25 in the session "item 246". Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose to rewrite it.**
 
+Depends on: nothing
+Landed: slice 1 (`b16f210`, r1067).
+
 [`validation-checklist.md`](validation-checklist.md) is ten steps for Aria to run against a live city, written on 2026-09-29 against a build at r293.
 Since then parked containers became resting buildings, the storage yard became the depot, `d d` and the panels changed, and 0.3.0 moved commands (`status --live`, `attach`, `rm --older-than`, `setup`).
 Steps 1 and 8 were run; the other eight have waited on Aria for four weeks and would no longer test what they say.
