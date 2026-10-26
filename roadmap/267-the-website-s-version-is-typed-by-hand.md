@@ -1,6 +1,6 @@
 # 267. The website's version number is typed by hand, so every release needs a site edit
 
-**Open. Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose rebuilding on release.**
+**Open, in progress since 2026-10-26 in the session "item 267". Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose rebuilding on release.**
 
 Aria, 2026-10-26: *"we should update the website so that it dynamically detects and shows the latest version number without having to edit the website"*.
 
