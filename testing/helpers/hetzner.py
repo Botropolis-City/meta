@@ -36,6 +36,9 @@ def auction():
 
 
 PUBLIC_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINWoPn30OFsbwWfmUhgb6N/ORlz840KoDcMKq315dHRV test@machines\n'
+DEDICATED_PRIVATE = 'dedicated-private-key-body\n'
+PERSONAL_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPersonalKeyOfTheUserNeverToBeSentAnywhere0 user@laptop\n'
+PERSONAL_PRIVATE = 'personal-private-key-body\n'
 
 SPYING_STUB = textwrap.dedent('''\
     #!/usr/bin/env python3
@@ -129,8 +132,12 @@ class Hetzner:
         if path.startswith('/robot/key/') and method == 'GET':
             return (200, {'key': {'fingerprint': path.rsplit('/', 1)[1]}}) if self.key_known else (404, {'error': {'status': 404, 'code': 'NOT_FOUND'}})
         if path == '/robot/key' and method == 'POST':
+            self.key_known = True
             return 201, {'key': {'name': 'botropolis-machines'}}
         if path == '/robot/order/server_market/transaction' and method == 'POST':
+            if not self.key_known:
+                return 400, {'error': {'status': 400, 'code': 'INVALID_INPUT', 'message': 'invalid input',
+                                       'missing': None, 'invalid': ['authorized_key']}}
             return 201, {'transaction': {'id': TRANSACTION, 'status': 'in process', 'server_number': None, 'server_ip': None}}
         if path == '/robot/order/server_market/transaction/' + TRANSACTION:
             return 200, {'transaction': {'id': TRANSACTION, 'status': 'ready',
@@ -156,7 +163,7 @@ class Hetzner:
 class Bench:
     """A temporary top with stubbed tools, a fake Hetzner, a home with a public key and a typed answer."""
 
-    def __init__(self, typed='', **hetzner):
+    def __init__(self, typed='', dedicated_key=True, **hetzner):
         self.top = tempfile.mkdtemp()
         self.spy = os.path.join(self.top, 'spy')
         self.bin = os.path.join(self.top, 'bin')
@@ -168,8 +175,16 @@ class Bench:
         for name in ('terraform', 'ssh', 'scp'):
             executable(os.path.join(self.bin, name), SPYING_STUB)
         executable(os.path.join(self.bin, 'secret-run'), SECRET_RUN)
-        with open(os.path.join(self.home, '.ssh', 'id_ed25519.pub'), 'w') as f:
-            f.write(PUBLIC_KEY)
+        self.dedicated = os.path.join(self.home, '.ssh', 'botropolis-machines')
+        self.personal = os.path.join(self.home, '.ssh', 'id_ed25519')
+        for path, text in ((self.personal + '.pub', PERSONAL_KEY), (self.personal, PERSONAL_PRIVATE)):
+            with open(path, 'w') as f:
+                f.write(text)
+        if dedicated_key:
+            for path, text in ((self.dedicated + '.pub', PUBLIC_KEY), (self.dedicated, DEDICATED_PRIVATE)):
+                with open(path, 'w') as f:
+                    f.write(text)
+            os.chmod(self.dedicated, 0o600)
         self.tty = os.path.join(self.top, 'tty')
         with open(self.tty, 'w') as f:
             f.write(typed + '\n')
@@ -212,6 +227,32 @@ class Bench:
 
     def every_argv(self):
         return [a for tool in os.listdir(self.spy) for argv in self.calls(tool) for a in argv]
+
+    def private_bodies(self):
+        bodies = []
+        for path in (self.dedicated, self.personal):
+            try:
+                with open(path) as f:
+                    bodies += [line.strip() for line in f if line.strip() and 'PRIVATE KEY-----' not in line]
+            except OSError:
+                pass
+        return bodies
+
+    def leaks(self):
+        """Every argv, form value and file the runner wrote that holds a line of a private key."""
+        found = [a for a in self.every_argv() for b in self.private_bodies() if b in a]
+        found += [v for r in self.hetzner.requests for vs in r['form'].values() for v in vs
+                  for b in self.private_bodies() if b in v]
+        for top in (self.state, self.out):
+            for d, _, files in os.walk(top):
+                for name in files:
+                    with open(os.path.join(d, name), errors='replace') as f:
+                        text = f.read()
+                    found += [os.path.join(d, name) for b in self.private_bodies() if b in text]
+        return found
+
+    def uploaded_keys(self):
+        return [r['form'].get('data', [''])[0] for r in self.hetzner.sent('POST', '/robot/key')]
 
     def close(self):
         self.hetzner.close()

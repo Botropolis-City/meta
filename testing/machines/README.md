@@ -41,7 +41,10 @@ HCLOUD_TOKEN_REF=op:Vault/Item/token
 ```
 
 The Robot user is a web service user, made in Robot under *Settings, Web service and app settings*, with ordering enabled.
-The first order uploads `~/.ssh/id_ed25519.pub` to Robot's key store, since an order names keys by fingerprint.
+The machines are reached with the runner's own key, `~/.ssh/botropolis-machines`, never your personal one.
+The runner makes it when it is missing, with no passphrase so an overnight run needs nobody, and readable by you alone.
+The first plan uploads its public half to Robot's key store as `botropolis-machines`, since even a test order may only name keys Robot holds.
+The Wayland VM's Terraform is given the same key.
 
 ## The soak machine
 

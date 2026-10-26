@@ -8,7 +8,8 @@ import time
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'helpers'))
-from hetzner import CHOSEN, CHOSEN_HOURLY, IPV6_NET, SECRET, SERVER_NUMBER, Bench, basic, listing  # noqa: E402
+from hetzner import (CHOSEN, CHOSEN_HOURLY, IPV6_NET, PERSONAL_KEY, PUBLIC_KEY, SECRET, SERVER_NUMBER,  # noqa: E402
+                     Bench, basic, listing)
 from stubs import run_in_own_group  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -32,10 +33,11 @@ class Machines(unittest.TestCase):
     hetzner = {}
     stub_env = {}
     plan_first = False
+    dedicated_key = True
 
     @classmethod
     def setUpClass(cls):
-        cls.bench = Bench(typed=cls.typed, **cls.hetzner)
+        cls.bench = Bench(typed=cls.typed, dedicated_key=cls.dedicated_key, **cls.hetzner)
         if cls.plan_first:
             cls.planned = run_in_own_group([TOOL] + SOAK_PLAN, cls.bench.env(), 60)
             cls.after_plan(cls.bench.hetzner)
@@ -146,8 +148,55 @@ class WhenPlanningTheSoak(Machines):
     def test_it_should_send_no_real_order(self):
         self.assertEqual(self.bench.hetzner.orders(test=False), [])
 
+    def test_it_should_put_no_private_key_in_any_argv_form_or_file_it_writes(self):
+        self.assertEqual(self.bench.leaks(), [])
+
     def test_it_should_order_without_the_paid_ipv4_addon(self):
         self.assertNotIn('addon[]', self.bench.hetzner.orders(test=True)[0]['form'])
+
+
+class WhenPlanningTheSoakAndRobotDoesNotHaveTheKey(Machines):
+    argv = SOAK_PLAN
+    hetzner = {'key_known': False}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_upload_the_key_before_the_test_order(self):
+        paths = [r['path'] for r in self.bench.hetzner.requests if r['method'] == 'POST']
+        self.assertEqual(paths, ['/robot/key', ORDER])
+
+    def test_it_should_upload_the_dedicated_keys_public_half(self):
+        self.assertEqual(self.bench.uploaded_keys(), [PUBLIC_KEY.strip()])
+
+
+class WhenPlanningTheSoakAndTheDedicatedKeyIsMissing(Machines):
+    argv = SOAK_PLAN
+    hetzner = {'key_known': False}
+    dedicated_key = False
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_create_the_dedicated_key(self):
+        self.assertTrue(os.path.exists(self.bench.dedicated))
+
+    def test_it_should_make_its_private_half_readable_by_the_user_alone(self):
+        self.assertEqual(os.stat(self.bench.dedicated).st_mode & 0o777, 0o600)
+
+    def test_it_should_give_it_no_passphrase(self):
+        done = subprocess.run(['ssh-keygen', '-y', '-P', '', '-f', self.bench.dedicated], capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+
+    def test_it_should_upload_its_public_half(self):
+        with open(self.bench.dedicated + '.pub') as f:
+            self.assertEqual(self.bench.uploaded_keys(), [f.read().strip()])
+
+    def test_it_should_never_upload_the_users_personal_key(self):
+        self.assertNotIn(PERSONAL_KEY.strip(), self.bench.uploaded_keys())
+
+    def test_it_should_put_no_private_key_in_any_argv_form_or_file_it_writes(self):
+        self.assertEqual(self.bench.leaks(), [])
 
 
 class WhenPlanningTheSoakWithIPv4(Machines):
@@ -326,6 +375,16 @@ class WhenRunningTheSoakAndItPasses(Machines):
     def test_it_should_cancel_the_server(self):
         self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
 
+    def test_it_should_reach_the_box_with_the_dedicated_key(self):
+        self.assertTrue([c for c in self.ssh_commands() if 'IdentityFile=' + self.bench.dedicated + ' ' in c + ' '],
+                        self.ssh_commands())
+
+    def test_it_should_never_use_the_users_personal_key(self):
+        self.assertFalse([a for a in self.bench.every_argv() if self.bench.personal in a])
+
+    def test_it_should_put_no_private_key_in_any_argv_form_or_file_it_writes(self):
+        self.assertEqual(self.bench.leaks(), [])
+
     def test_it_should_set_up_in_the_rescue_system_without_rebooting(self):
         self.assertFalse([c for c in self.ssh_commands() if 'reboot' in c], self.ssh_commands())
 
@@ -441,6 +500,10 @@ class WhenPlanningWayland(Machines):
 
     def test_it_should_print_the_hourly_price(self):
         self.assertIn('0.0090', self.done.stdout)
+
+    def test_it_should_give_terraform_the_dedicated_public_key(self):
+        self.assertTrue([argv for argv in self.bench.calls('terraform')
+                         if 'ssh_public_key_file=' + self.bench.dedicated + '.pub' in argv], self.bench.calls('terraform'))
 
     def test_it_should_plan_the_kde_desktop(self):
         self.assertTrue([argv for argv in self.bench.calls('terraform') if 'plan' in argv and 'desktop=kde' in argv],
