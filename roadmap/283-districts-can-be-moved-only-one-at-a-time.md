@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-26 in the session "item 283". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria asked for it.**
 
+Depends on: nothing
+Landed: slice 1 (`dd93c5e`, r1124).
+
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"I should be able to select multiple distrcits together and move them together."*
 
 Today a left press on a district's floor or sign picks that one district up (`pkg/city/drag.go`), and its new place is saved in the layout.
