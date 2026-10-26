@@ -1,6 +1,6 @@
 # 190. A statistics store that will not open turns statistics off without a word
 
-**Open, in progress since 2026-10-26 in the session "item 190". Filed 2026-10-21 (r844), found on the Core Ultra 7 265U rig while cleaning up after item 165. Nobody's call — a defect.**
+**Fixed 2026-10-26 (`ba3b48f`, r1081). Filed 2026-10-21 (r844), found on the Core Ultra 7 265U rig while cleaning up after item 165. Nobody's call — a defect.**
 
 Depends on: nothing
 Landed: slice 1 (`325cd5a`, r1076).
@@ -42,3 +42,22 @@ Mutate the logging and the report away and watch each test go red.
 
 - **A damaged store at the current version** (manager, 2026-10-26, from fix 3's "move the file aside" and item 149's rule that a file is never reset or lost without the user's say): refused, not repaired. A store at this version whose `meta` cannot be read is `ErrDamaged`; nothing on disk changes; the reason names the file and says to move it aside, and the read-only reader refuses it too, so the map agrees with the daemon. A repair would write into a store that may be half-built, which is the silent fallback again.
 - **The plan** (manager): approved in three slices: typed refusals from `migrate` and `OpenReader` with the daemon logging each once; the store's state on every snapshot and the peer answer (omitempty, no protocol bump) and a `statistics` row in `doctor`; a dismissible notice on the map, its frame for Aria.
+
+## Closed
+
+Fixed in three slices, each landed through `make land` with CI green on every push.
+
+- **Slice 1** (`325cd5a`, r1076): `stats.Open` refuses a store as a `*stats.Refusal`, whose kind is `ErrNewer` or `ErrDamaged`.
+  A damaged store is caught on a read-only connection before anything opens it to write, so the file is left as it was, journal mode included.
+  `statsSource` logs every refusal on stderr, naming the file, and returns the store's state: open, off, owed or refused.
+  `OpenReader` refuses a damaged store too.
+  Tests: `TestOpen`, `TestOpenReader` (pkg/stats) and `TestStatsWiring` (pkg/appd); removing the log line, the report or the damage check turned each red.
+- **Slice 2** (`f3029b5`, r1079): the daemon sends the state on every snapshot and on the peer answer, and `botropolis doctor` has a `statistics` row that warns with the file and the reason.
+  `TestRefusedStatisticsStore` (acceptance) starts `botropolisd` over a store from a newer build and checks the log line and doctor's "update Botropolis" end to end.
+  The share veil blanks the store's path and reason, which can name the home directory.
+- **Slice 3** (`ba3b48f`, r1081): the city shows a notice once per launch when the store was refused, with the file and what to do, and never while sharing or capturing.
+  `TestStoreNotice` (pkg/render); removing the push or the once-per-launch flag turned it red.
+  Frames for Aria to judge, wording included (`75176bf`, r1082): `botropolis/docs/screenshots/r1081-item-190-notice-newer.png` and `botropolis/docs/screenshots/r1081-item-190-notice-damaged.png`.
+
+Deviation, flagged for Aria: the item's first test asked for a daemon started over a store at version 3 without `meta`.
+That case is tested at `statsSource` (pkg/appd), the daemon's own wiring, and end to end only for the newer store, which goes through the same path.
