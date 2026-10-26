@@ -19,3 +19,7 @@ Shift+P, or *pack* on the card, calls `TogglePack` (`pkg/render/keys.go`, `pkg/c
 
 Reproduce packing a shuttered session, a resting one and a live one, from the key and from the card, and find which path leaves it standing; fix that, with a test per path that holds the session in the depot after the next snapshot.
 If a live session must unpack on work, say so on the card when it is packed, rather than appear to do nothing.
+
+## Answered while building
+
+- **The cause and the fix** (session's diagnosis, approved by the manager, 2026-10-26): the card's *pack* and *unpack* buttons did nothing, because `Scene.Act` had no case for them and fell through to an empty action, which leaves a shuttered building looking *just boarded up*; Shift+P worked throughout. A live session packed comes back as soon as it works, as designed, and packing one now says so. A guard holds that every action every card offers either asks for something or says what happened.

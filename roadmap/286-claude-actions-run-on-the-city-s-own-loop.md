@@ -1,6 +1,6 @@
 # 286. Resume, New, Stop and the other claude actions wait on the city's own loop
 
-**Open. Filed 2026-10-26 (r1122), the follow-up item 284 named. Nobody's call — a defect not yet seen, by the same mechanism as item 284.**
+**Open, in progress since 2026-10-26 in the session "item 286". Filed 2026-10-26 (r1122), the follow-up item 284 named. Nobody's call — a defect not yet seen, by the same mechanism as item 284.**
 
 Item 284 moved copy, copy path, reveal and open pull request beside the city's loop, because waiting on a clipboard tool froze the whole map.
 The actions that run `claude` still wait on the loop: Resume, New, Fork, Stop, Remove (demolish) and Restore.
