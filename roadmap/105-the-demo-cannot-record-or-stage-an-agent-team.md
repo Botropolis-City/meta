@@ -8,6 +8,7 @@ Landed: slice 2 (`a59ad37`, r1027).
 Landed: slice 3 (`4e6c9c6`, r1031).
 Landed: slice 4 (`da7f101`, r1038).
 Landed: slice 5 (`9c731af`, r1042).
+Landed: slice 6 (`417eb79`, r1055).
 
 The demo corpus has no agent-team sessions, so nothing that only teams produce can be filmed: a message between teammates is road traffic only through the team's config (`Roads` in `botropolis/pkg/state/state.go` resolves a recipient through `team.Member` to the member's directory, for transcripts carrying a `teamName`), and Claude Code's agent teams are not recorded or staged by the demo tools.
 Item 89 found this when it could not film its message vans; Aria chose, on 2026-10-17, to build team support rather than leave vans unfilmed.
