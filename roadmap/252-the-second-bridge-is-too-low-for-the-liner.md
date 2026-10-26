@@ -1,6 +1,6 @@
 # 252. The second bridge's deck is too low for the liner that passes under it
 
-**Open. Filed 2026-10-25 (r1041) at Aria's request, from item 220's frames. Nobody's call — Aria chose the fix.**
+**Open, in progress since 2026-10-26 in the session "item 252". Filed 2026-10-25 (r1041) at Aria's request, from item 220's frames. Nobody's call — Aria chose the fix.**
 
 Depends on: 220
 
