@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-26 in the session "item 252". Filed 2026-10-25 (r1041) at Aria's request, from item 220's frames. Nobody's call — Aria chose the fix.**
 
 Depends on: 220
+Landed: slice 1 (`0959e75`, r1071).
 
 [Item 220](220-a-large-island-gets-a-second-bridge.md)'s second bridge crosses the river on a raised deck, and boats pass under it: the deck draws over a boat's stern correctly, but the weekly-usage liner's superstructure and funnels stand well above the deck, so a ship that size could not fit under it.
 Item 220's crops at 4x show it (`liner-58-zoom.png` and `liner-61-zoom.png`, filmed in that item's worktree with weekly usage staged at 58% and 61%).
