@@ -25,3 +25,4 @@ Work down `botropolis/RELEASING.md`, with one change Aria made for this release 
 ## Answered while building
 
 - **Release now** (Aria, 2026-10-26, 03:45): *"Ok, let's just release now while I'm here. We can release without 252. Then we can kick off the soak now and re-release with these items if they're done and a good soak or with a fixed soak if it's not."* So 0.3.1 waits for neither 246 nor 252; the checklist's steps and the website re-film are skipped for 0.3.1 as the soak is, all three recorded in the release's notes here; the soak starts now, and 0.3.2 carries 246, 252 and whatever else is done, or the fix for a leak.
+- **Item 252 joins** (Aria, 2026-10-26, once she had passed its frames: *"If 252 is done now, Why don't we include it in 0.3.1?"*): it lands on top of the version commit with its changelog line in the 0.3.1 section, and the release, the soak's build and CI's verdict all take that commit.
