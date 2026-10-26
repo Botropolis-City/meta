@@ -20,6 +20,7 @@ Landed: slice 14 (`12ba028`, r1094).
 Landed: slice 15 (`c3f457f`, r1096).
 Landed: slice 16 (`daadd49`, r1101).
 Landed: slice 17 (`34a5b66`, r1120).
+Landed: slice 18 (`e15f007`, r1123).
 
 [Item 193](193-a-still-city-is-redrawn-whole-every-frame.md) composes the standing city once and replays only what moves, deciding what changed by hashing each drawable's recorded draws. But to hash them it **records every drawable every frame**: `note` is 43% of Draw at fit and 59% at full zoom on the real history (r935, [item 161](161-drawing-a-frame-costs-41-ms-of-cpu.md)'s profile), tessellating and hashing each building, line and label only to find its record unchanged and blit the standing layer. A focused city on the real history still uses about 60% of a core against 10%, and item 161 sees no other change that can close most of that gap.
 
