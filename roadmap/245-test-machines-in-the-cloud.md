@@ -1,6 +1,6 @@
 # 245. The tests that need another desktop or a whole night have no machine to run on
 
-**Open, in progress since 2026-10-26 in the session "item 245". Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose the providers and where the code lives; the run waits on her Hetzner account.**
+**Open. Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose the providers and where the code lives; the run waits on her Hetzner account.**
 
 Depends on: nothing
 Landed: slice 1 (`2b502b8`, r1032).
