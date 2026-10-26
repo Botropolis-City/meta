@@ -1,6 +1,6 @@
 # 276. TestRecordTeam's time-limit case can pass the limit without failing, on macOS CI
 
-**Open. Filed 2026-10-26 (r1112), from CI on `main`. Nobody's call — a flaky test.**
+**Open, in progress since 2026-10-26 in the session "item 276". Filed 2026-10-26 (r1112), from CI on `main`. Nobody's call — a flaky test.**
 
 CI run 40387126839, on `6c3ea21` (item 270, slice 5), failed only in `test-macos (macos-26-intel)`'s `make test-unit`:
 
