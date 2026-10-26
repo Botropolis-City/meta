@@ -5,6 +5,7 @@
 Depends on: nothing
 Landed: slice 1 (`325cd5a`, r1076).
 Landed: slice 2 (`f3029b5`, r1079).
+Landed: slice 3 (`ba3b48f`, r1081).
 
 `statsSource` (`botropolis/pkg/appd/daemon.go`) opens the statistics store once, when the daemon builds its loaders, and when `stats.Open` returns an error it returns `nil`.
 The daemon then runs with statistics off: hefts come from whole reads, nothing is written to the store, and nothing says so.
