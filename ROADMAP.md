@@ -59,6 +59,8 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [284](roadmap/284-copying-a-path-freezes-the-city-with-xclip.md) | copying a path freezes the whole city when the clipboard tool is xclip | — | nobody, a defect |
 | [285](roadmap/285-a-tied-temporary-session-s-spend-counts-under-temporary.md) | a tied temporary-directory session still counts its spend under Temporary | — | nobody, a defect |
 | [286](roadmap/286-claude-actions-run-on-the-city-s-own-loop.md) | Resume, New, Stop and the other claude actions wait on the city's own loop | — | nobody, a defect |
+| [287](roadmap/287-a-card-changes-size-as-the-pointer-moves-over-its-buttons.md) | a session's card changes size as the pointer moves over its buttons | — | nobody, Aria said what she wants |
+| [288](roadmap/288-there-is-no-obvious-way-to-make-a-new-group.md) | there is no obvious way to make a new group, and move to group offers none | — | nobody, Aria said what she wants |
 
 ## Waiting on Aria
 
