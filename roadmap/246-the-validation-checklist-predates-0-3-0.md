@@ -1,6 +1,6 @@
 # 246. The validation checklist was written for a city that no longer exists
 
-**Open, in progress since 2026-10-25 in the session "item 246". Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose to rewrite it.**
+**Done 2026-10-26 (`1aa7ec4`, r1072). Filed 2026-10-25 (r1024) at Aria's request. Nobody's call — Aria chose to rewrite it.**
 
 Depends on: nothing
 Landed: slice 1 (`b16f210`, r1067).
@@ -25,3 +25,19 @@ Aria, 2026-10-25, asked whether the checklist was still live: drop the plant's f
 - **Step 1's disagreement** (manager): filed as [item 250](250-a-session-running-a-background-command-says-it-needs-you.md), not fixed here.
 - **The checklist on the release path** (Aria, 2026-10-25, asked by the manager): yes, before each release: `RELEASING.md` runs the checklist's steps left to Aria against the release build, between the soak and the re-film, and a release does not ship without it.
 - **Background jobs with no conversation on disk** (manager): `claude agents --all` lists two done jobs with no transcript or session record, so the city has nothing to show; not shown, by design, and noted in step 1.
+
+## Done
+
+Three slices.
+
+- **Slice 1** (`b16f210`, r1067, botropolis) made the steps a drive can run into tests.
+  `TestEveryPanelClosesOnEscape` presses each of sixteen panel keys and then `esc`, and fails as item 137 did when a rung of the Escape ladder is removed.
+  `TestTheAwayListOnRefocus` checks "While you were away" through a focus seam the drive can set, and fails when `watchFocus` stops opening it.
+  `TestBreakdown` now holds the strip's day cost to the 24 h breakdown's, and `TestLayoutBreakdown` found a defect the old step 5 was looking for: a priced row none of whose messages had a price said "$0.00".
+  It now says "cost unknown", with a changelog entry.
+- **Slice 2** (`a2441b5`, this repository) rewrote [`validation-checklist.md`](validation-checklist.md) in three tiers: ten scripted checks each naming its tests, two live checks an agent runs against the real `claude` CLI, and six steps for Aria, A1 to A6, each with its keys and the words she should see.
+  Step L1 was run live on 2026-10-25 and found the disagreement filed and fixed as [item 250](250-a-session-running-a-background-command-says-it-needs-you.md).
+  *Waiting on Aria* now lists only her six steps, and the ten old steps and every dated run of them are kept as history.
+- **Slice 3** (`1aa7ec4`, r1072, botropolis) put the checklist on the release path: `RELEASING.md` step 5 runs its live steps and Aria's against the release build, between the soak and the re-film.
+
+**For Aria:** 0.3.1 was cut while slice 3 waited behind the release freeze, so its release run started before `RELEASING.md` named the checklist, and her steps A1 to A6 have not yet been run against any build.
