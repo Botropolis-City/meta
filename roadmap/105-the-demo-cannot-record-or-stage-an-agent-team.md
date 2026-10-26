@@ -1,6 +1,6 @@
 # 105. The demo cannot record or stage an agent team
 
-**Open, in progress since 2026-10-25 in the session "item 105". Filed 2026-10-17 (r561) at Aria's request, from item 89. Nobody's call.**
+**Done 2026-10-26 (`3495d58`, r1058). Filed 2026-10-17 (r561) at Aria's request, from item 89. Nobody's call.**
 
 Depends on: 89 (slice 5)
 Landed: slice 1 (`8deb342`, r1026).
@@ -9,6 +9,7 @@ Landed: slice 3 (`4e6c9c6`, r1031).
 Landed: slice 4 (`da7f101`, r1038).
 Landed: slice 5 (`9c731af`, r1042).
 Landed: slice 6 (`417eb79`, r1055).
+Landed: slice 7 (`3495d58`, r1058).
 
 The demo corpus has no agent-team sessions, so nothing that only teams produce can be filmed: a message between teammates is road traffic only through the team's config (`Roads` in `botropolis/pkg/state/state.go` resolves a recipient through `team.Member` to the member's directory, for transcripts carrying a `teamName`), and Claude Code's agent teams are not recorded or staged by the demo tools.
 Item 89 found this when it could not film its message vans; Aria chose, on 2026-10-17, to build team support rather than leave vans unfilmed.
@@ -79,3 +80,25 @@ The opening came back empty, `fillHours` filled from the zero time, 204,963,823 
 The opening now allows 50 ms of skew, and `fillHours` refuses an empty opening or one more than a day before its recording; the demo integration tests then took 4 s at a 25.5 MB peak.
 - **The recording, and how a team is really named** (manager, 2026-10-25): the re-recording worked ($0.01, 1m02s, its image ID in the log). A team's name is not its lead's id, and the lead's lines name no team; only its `Agent` results do. The city's half of that is [item 253](253-a-team-leads-messages-are-never-road-traffic.md), which lands first; this item's slice 6 then reshapes `Corpus.Find`'s `@agent` refs, staging's config writer, the lead-clone refusal and the corpus rule to find a team's lead by the team it leads.
 - **Aria's verdict on the team frames** (2026-10-26): the staging, recording and corpus work stands; what the frames showed of the city, carriages floating along a group's line and a van that reads as a car, is [item 255](255-a-roads-vehicle-says-what-kind-of-traffic-it-is.md), which also re-films this item's `team` scenario.
+
+## Closed (2026-10-26)
+
+**Done.**
+The demo can describe, record, stage and film an agent team, and the corpus holds one: the lead `tidepool/tide-team` and its teammate `reader`.
+
+- **Describing**: a script session takes `team: true` and one prompt, and a scenario places a teammate as `<lead ref>@<agent name>`, in any project (slices 1 and 3).
+- **Recording**: `-p` spawns no teammates, so a team runs in an interactive `claude` under tmux in the recorder container, held by the recorder itself to its `budget_usd`, to ten minutes and to its own interruption, and the run exports every file it wrote (slices 3 and 4).
+- **Staging**: while a lead stands live, staging writes its team's `teams/<team>/config.json` with each member's working directory as placed (slices 1 and 6).
+- **Checking**: `make demo-check` refuses a corpus line of a type the app does not read, since the scrub is now an allowlist, and a teammate whose team has no lead in the corpus (slices 2, 4 and 6).
+- **Shown by**: `testing/integration/demo/team_test.go` stages the recorded shape and finds both messages, one each way, as road traffic between tidepool and kiln; `scenarios/team.yaml` films it, and its frames were filmed at r1058.
+
+**The recordings cost $0.018 in all**: $0.0048 for the first run, which priced only its lead and was not committed, and $0.0132 for the committed one, both on haiku, against a $1 cap.
+
+**Recorder images are run by their ID** (slice 5): another worktree's build moved the machine-wide `botropolis-demo-recorder` tag between this checkout's build and its run, and a recording started in an image two days older, without tmux, before it had spent anything.
+Each build now writes its image's ID into its checkout's `bin/`, the recipes run and print that ID, and the recording log carries it on every prompt.
+
+**Claude Code 2.1.310 does not name a team after its lead**: the lead was `3cab0685`, its team `session-2aa29be8`, and the lead's own lines name no team; only the result of the Agent call that spawned the teammate does.
+The city's half, a lead's messages to its teammates as road traffic, was [item 253](253-a-team-leads-messages-are-never-road-traffic.md); this item's half finds a lead by the team its Agent result names (slice 6).
+
+**What the frames showed of the city is [item 255](255-a-roads-vehicle-says-what-kind-of-traffic-it-is.md)**: Aria found the carriages along the team's line confusing, and decided every message is a van on the road, with each kind of road traffic its own vehicle.
+Nothing from this item goes in the changelog: it changed only the demo's tools, and item 253 carries the city's change.
