@@ -19,5 +19,9 @@ Item 254 moved this test onto the recording's own clock for its other cases; thi
 ## The fix
 
 Drive the time limit from the same injected clock as the rest of `TestRecordTeam`, so the limit passes because the test advances the clock, never because a runner is slow; then the case is deterministic on every runner.
-Check the stop path too: when the limit passes, `record` must return the time-out error whatever else ends the run at the same moment.
+Check the stop path's order too, and pin it: going over budget is checked first, then a team that has fallen quiet is done and its recording kept, then the time limit; a real team that genuinely finishes on the poll the limit passes made a complete recording, so failing it would throw paid-for work away (manager, 2026-10-26, correcting this item's first wording, which had the time-out win over everything).
 Red first: make the case fail on demand by ordering the clock so the teammate's end and the limit coincide.
+
+## Answered while building
+
+- **The diagnosis and the tree** (session, approved by the manager, 2026-10-26): the case ran on the real clock with a goroutine rewriting the teammate every 2 ms against a 30 ms quiet, so a starved runner let the lead's ended turn plus 30 ms of quiet read as *done*; the interrupted case had the same shape. Both move onto `fakeTeamClock`, and `fakeTerminal`'s real-time `busy` goroutine goes, so nothing in `TestRecordTeam` reads the wall clock.
