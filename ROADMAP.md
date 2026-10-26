@@ -43,7 +43,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [255](roadmap/255-a-roads-vehicle-says-what-kind-of-traffic-it-is.md) | a road's vehicle says its traffic: car, van, box truck, motorbike; no message rides a group's line | — | nobody, Aria decided |
 | [256](roadmap/256-the-cache-tests-see-no-cache-hit-under-load.md) | the test-cache acceptance tests sometimes see no cache hit when the machine is busy | — | nobody, a flaky test |
 | [257](roadmap/257-every-lamp-glow-splits-a-batch.md) | every lamp's glow splits the night batch: a glow layer of its own, then the bridge road's lamps back | 247 | nobody, the ceiling is set |
-| [258](roadmap/258-release-0-3-1.md) | release 0.3.1, the soak waived once and run after | — | nobody, Aria set it |
 | [259](roadmap/259-a-long-boat-straddling-a-raised-deck-is-drawn-in-one-piece.md) | a long boat straddling a raised deck is drawn all in front of it or all behind | 252 | nobody, a defect |
 
 ## Waiting on Aria

@@ -1,6 +1,6 @@
 # 258. Release 0.3.1
 
-**Open, in progress since 2026-10-26 in the session "item 258". Filed 2026-10-26 (r1067) at Aria's request. Nobody's call — Aria set the version, the soak waiver and what it waits for.**
+**Done 2026-10-26 (`d2bb5f2`, r1069; released from `0959e75`, r1071). Filed 2026-10-26 (r1067) at Aria's request. Nobody's call — Aria set the version, the soak waiver and what it waits for.**
 
 Depends on: nothing
 
