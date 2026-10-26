@@ -1,6 +1,6 @@
 # 292. The quit prompt is a line in the footer, not a prompt in the middle of the screen
 
-**Open. Filed 2026-10-26 (r1124), from Aria's use of 0.3.2. Nobody's call — Aria said what she wants.**
+**Open, in progress since 2026-10-26 in the session "item 292". Filed 2026-10-26 (r1124), from Aria's use of 0.3.2. Nobody's call — Aria said what she wants.**
 
 Aria, 2026-10-26: *"we should make the quit prompt in the middle of the screen not in the bottom screen text."*
 

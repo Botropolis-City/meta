@@ -1,6 +1,6 @@
 # 291. Closing up from the quit prompt notes and pauses, then leaves the city open
 
-**Open. Filed 2026-10-26 (r1124), from Aria's use of 0.3.2. Nobody's call — a defect.**
+**Open, in progress since 2026-10-26 in the session "item 291". Filed 2026-10-26 (r1124), from Aria's use of 0.3.2. Nobody's call — a defect.**
 
 Aria, 2026-10-26: *"Hitting enter on the close up menu doesn't actually close anything but that menu."*
 
