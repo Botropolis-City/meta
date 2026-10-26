@@ -1,6 +1,6 @@
 # 256. The test-cache acceptance tests sometimes see no cache hit when the machine is busy
 
-**Open, in progress since 2026-10-26 in the session "item 256". Filed 2026-10-26 (r1058), seen twice in a day by item sessions landing. Nobody's call — a flaky test.**
+**Open. Filed 2026-10-26 (r1058), seen twice in a day by item sessions landing. Nobody's call — a flaky test.**
 
 Depends on: nothing
 Landed: slice 1 (`7ff52f4`, r1088).
