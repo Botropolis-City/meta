@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-26 in the session "item 270". Filed 2026-10-26 (r1099), from Aria's start of 0.3.1 on another laptop with a long history. Nobody's call — a defect.**
 
+Depends on: nothing
+Landed: slice 1 (`284256c`, r1102).
+
 Aria, 2026-10-26: *"We have way too many districts/groups/sessions. Every single tmp directory and probably work tree dir and such got its own district with one session and groups were generated for all of it. The UI is frozen and unusable, but at least the CPU and memory didn't spike to 100."*
 Minutes later the city would not exit either.
 
