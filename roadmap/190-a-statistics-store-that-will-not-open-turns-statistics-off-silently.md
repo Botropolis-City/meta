@@ -1,6 +1,6 @@
 # 190. A statistics store that will not open turns statistics off without a word
 
-**Open. Filed 2026-10-21 (r844), found on the Core Ultra 7 265U rig while cleaning up after item 165. Nobody's call — a defect.**
+**Open, in progress since 2026-10-26 in the session "item 190". Filed 2026-10-21 (r844), found on the Core Ultra 7 265U rig while cleaning up after item 165. Nobody's call — a defect.**
 
 Depends on: nothing
 

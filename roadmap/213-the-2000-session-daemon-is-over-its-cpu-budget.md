@@ -1,6 +1,6 @@
 # 213. A settled daemon on a 2,000-session home is just over its CPU budget
 
-**Open. Filed 2026-10-23 (r953), from item 209's quiet-machine table. Nobody's call — the budget is set (daemon ≤ 2% of a core, mean, settled).**
+**Open, in progress since 2026-10-26 in the session "item 213". Filed 2026-10-23 (r953), from item 209's quiet-machine table. Nobody's call — the budget is set (daemon ≤ 2% of a core, mean, settled).**
 
 Depends on: nothing
 
