@@ -1,8 +1,10 @@
-# 264. A hover label draws over a notice's dimmed city, at full brightness
+# 264. The city behind a notice or any covering panel can still be hovered through it
 
 **Open, in progress since 2026-10-26 in the session "item 264". Filed 2026-10-26 (r1093), from item 190's frames, at Aria's request. Nobody's call — a defect.**
 
 Aria passed item 190's two notices on 2026-10-26 and asked for this to be filed on its own.
+
+**The filing misread the frame** (item 264's session, 2026-10-26, measured at r1093): the plate in item 190's frame is a first-sighting caption, not a hover label (`pkg/render/explain.go`, `queueSightings`), and it is under the scrim like the chrome, its text at 94/255 behind the notice against 230 without it; being the panel colour, it reads as one more panel. The defect underneath is real, though: hover still resolves while a modal is open, because `notePointer` (`game.go`) runs before anything checks for one, so a pointer resting on the notice over the power plant brings up the plant's hover card behind the dim. The item now fixes that, as its second option said: while anything with a full scrim covers the city, the pointer is reported away. A first sighting spent behind a modal is item 268.
 
 In item 190's frame of the damaged-store notice (`r1081-item-190-notice-damaged.png`), the city behind the notice is dimmed, but the hover label `train · one model's spend today`, at about (920, 390)–(1104, 408) in the 1600×1000 frame, is drawn above the dim at full brightness, beside the notice.
 A notice is modal: everything behind it should read as behind it, and a label that stays bright suggests the city under it can still be hovered.
