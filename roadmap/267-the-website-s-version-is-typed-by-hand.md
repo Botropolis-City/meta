@@ -1,0 +1,24 @@
+# 267. The website's version number is typed by hand, so every release needs a site edit
+
+**Open. Filed 2026-10-26 (r1093) at Aria's request. Aria's call — how the site learns of a release.**
+
+Aria, 2026-10-26: *"we should update the website so that it dynamically detects and shows the latest version number without having to edit the website"*.
+
+0.3.1 shipped on 2026-10-26 and the site still says 0.3.0 everywhere, because the version lives in three hand-edited places in botropolis.city:
+
+- `src/data/release.ts`, `release.version: "0.3.0"`, which `Release.astro` shows as *new in 0.3.0* along with prose and figures written for that release;
+- the media catalog's `version`, which `HudBar.astro` shows as `v0.3.0` and `Hero.astro` as *New in 0.3.0*: that is the version the demo was **filmed** from, which is honestly a different fact from the latest release;
+- prose: the index page's description and `Install.astro`'s note on restarting the daemon both name 0.3.0.
+
+`src/data/install.ts` already links `releases/latest/download`, so the download buttons were never stale.
+
+## Two ways, for Aria
+
+1. **Rebuilt on release (recommended).** The site's build reads the latest release from GitHub (`/repos/Botropolis-City/botropolis/releases/latest`) and its section of `CHANGELOG.md` (`release.ts`'s `section()` already cuts one out), and botropolis's release workflow sends a `repository_dispatch` to botropolis.city as its last step, so the site rebuilds and deploys minutes after every release. The page stays static and needs nothing at request time; a build that cannot reach GitHub fails rather than show a guess.
+2. **Read at request time.** The Worker serving the site fetches the latest release, cached for some minutes, and rewrites the version into the page with `HTMLRewriter`. Always current, but every page view depends on a GitHub call or its cache, and the rest of the page stays as built.
+
+Either way:
+
+- The **latest version** shows in one place, from one source; the **filmed version** stays labelled as such where it captions the film, so the site never claims a frame came from a build it did not.
+- The *new in* section comes from the release's own changelog section, so it is never about the wrong release; the hand-written performance figures for 0.3.0 either name 0.3.0 as the version they measured or move under it.
+- The acceptance test (`testing/acceptance/site/page.spec.ts`) holds the page's version to the latest release in a fixture, and fails on any hard-coded version number left in `src/`.
