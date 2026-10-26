@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-10-26 in the session "item 267". Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose rebuilding on release.**
 
+Landed: slice 1 (`aaa00be`, r1096).
+
 Aria, 2026-10-26: *"we should update the website so that it dynamically detects and shows the latest version number without having to edit the website"*.
 
 0.3.1 shipped on 2026-10-26 and the site still says 0.3.0 everywhere, because the version lives in three hand-edited places in botropolis.city:
