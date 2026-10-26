@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-10-26 in the session "item 263". Filed 2026-10-26 (r1093), from Aria's install of 0.3.1 on another laptop. Nobody's call — a defect.**
 
+Landed: slice 1 (`5a316ad`, r1095).
+
 Aria, 2026-10-26, installing `botropolis` 0.3.1 from the AUR over 0.2.2: the PKGBUILD's `check()` runs `go test ./cmd/... ./pkg/...`, and one test failed, so the package never built.
 
 ```
