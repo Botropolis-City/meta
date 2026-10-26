@@ -14,3 +14,8 @@ Reproduce it beside a parallel `go test` of other packages (as item 225 did), lo
 Then make "settled" mean what the test assumes — no snapshot, bake or spawn since — so load can lengthen the wait but not change the count, and keep the wobble limits as they are: a limit is the goal, never loosened to pass.
 
 Tests: the test passes many times in a row beside a loaded machine and still fails when a real wobble is introduced (a vehicle drawn on its own batch).
+
+## Answered while building
+
+- **The cause** (item 260's session, 2026-10-26, reproduced deterministically): not a late snapshot but the first-sighting caption. The staged home has sighted nothing, so the city captions a kind every 8 s of its own clock; the record of settled frames started at 4 s and doubled only when short of 104 frames, which at 4 s it barely met, so one dropped frame under load made it record 8 s and cross a caption coming down, where the labels layer is drawn straight for a frame (spread 19–29, the 10 item 213 saw). Forced to 8 s it failed 5 of 5.
+- **The fix** (manager, approved): a debug-build `BOTROPOLIS_FRAME_SIGHTED=all` so the test's cities draw no first-sighting captions (captions keep their own tests); the record starts at 8 s, so load can only add a doubling; a failing wobble case logs the frames off the common count; each ceiling is lowered to what the 8 s record measures (day 19), never raised, and the wobble limits stay.
