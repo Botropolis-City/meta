@@ -1,6 +1,6 @@
 # 214. The unfocused dashboard's layout sits right at its 1% budget once kernel time counts
 
-**Open. Filed 2026-10-23 (r954), from item 209's quiet-machine table. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
+**Open, in progress since 2026-10-26 in the session "item 214". Filed 2026-10-23 (r954), from item 209's quiet-machine table. Nobody's call — Aria's dashboard ruling sets the budget (an unfocused, visible city ≤ 1% of a core).**
 
 Depends on: nothing
 
@@ -12,3 +12,7 @@ Item 209 lands the check as "unmet" (skip over 1% saying its number; fail over 2
 Cut what a snapshot that shapes little allocates: reuse layout's buffers across snapshots, and the remaining per-snapshot passes item 206 named (groups' input). Measure allocations per snapshot before and after, and the kernel share.
 
 Tests: item 209's unfocused check becomes a plain gate at 1% (its skip removes itself); a benchmark of allocations per activity-only snapshot.
+
+## Answered while building
+
+- **Where it stands at starting** (manager, 2026-10-26): `make test-performance` at r1089 read the unfocused city at 0.84% of a core, the first quiet reading under 1% since this item was filed; the work may now be mostly proving it, as item 213 did, with five quiet runs interleaved with a build from before (the performance manager's runner), before the skip comes out and the check becomes a plain gate at 1%. If the margin is too thin, the item's own fix (layout's buffers reused across snapshots, allocations per activity-only snapshot measured) comes first.
