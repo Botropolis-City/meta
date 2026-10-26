@@ -16,3 +16,7 @@ The deck's height comes from the boats' own drawn heights, not a number tuned by
 The first bridge crosses no river and stays as it is.
 
 Tests: the deck's underside over the channel is above the tallest boat's drawn top, at every heading; the ramps climb no more steeply than the first bridge's; trucks still ride the deck and boats still pass under it in draw order; frames of the liner under the deck at fit and at 4x, by day and night, for Aria.
+
+## Answered while building
+
+- **The shape** (manager, 2026-10-26, from the fix above): a hump, at channel height over the river band the boats sail in (not the banks' wander), climbing over rail and belt and coming back down to deck height as far past the band as it climbed, so the far end, the haze and the fog are unchanged. Channel height is the tallest boat's per-column drawn top (the liner, 100 px at zoom 1 against the deck's 56) plus the first bridge's 15% headroom and the girder, measured off the sprites once per page; the climb is about 0.30 against the first bridge's 0.42. `Bridge.Rise` becomes `Bridge.Lift`, item 146's cases kept.
