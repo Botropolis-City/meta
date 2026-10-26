@@ -1,6 +1,6 @@
 # 247. No road leads to a bridge, so its ramp comes down onto grass
 
-**Open, in progress since 2026-10-25 in the session "item 247". Filed 2026-10-25 (r1031), found by item 220's session from its frame. Nobody's call — a defect.**
+**Fixed 2026-10-26 (`5f68e6f`, r1065). Filed 2026-10-25 (r1031), found by item 220's session from its frame. Nobody's call — a defect.**
 
 Depends on: 220
 Landed: slice 1 (`5f68e6f`, r1065).
@@ -27,3 +27,33 @@ Tests: for each bridge (data-driven over `Bridges()`), its landing cell is road 
 - **The fixed road and the trucks** (manager, 2026-10-26): a bridge road from a fixed driveway can end short of the roads between districts (a 3-cell gap each side in the 17-district city), so where such a road ends within reach of it a short joining road links the two, laid and faded like any route; the bridge's own road never moves, and every truck on road reaches the bridge on road.
 - **A turn, and a driveway that moved** (manager, 2026-10-26): a camera turn re-lays the bridge road as it re-lays every road from the camera-facing driveways (item 108). The bridge road starts from the district's current driveway, not its camera-facing side, so a district never shows a second pad that means nothing; it follows that driveway once, the first time the driveway moves for a road, and then stays.
 - **The bridge road's lamps** (Aria, 2026-10-26, asked by the manager with item 247's measurements: 36 with no lamps, 37 with the district roads', 40 with the bridge road's, against a ceiling of 37): land the bridge road and its joints unlit, so 37 holds, and get the lamps back through [item 257](257-every-lamp-glow-splits-a-batch.md), a light layer for every glow.
+
+## Closed
+
+Fixed by slice 1, three commits in botropolis: `5f5132d` (r1063), `6c42f2d` (r1064) and `5f68e6f` (r1065), with its changelog entry under `[Unreleased]`.
+Every bridge's landing that no route reaches gets road from the nearest lot, out of that lot's own driveway,
+and the road runs on a cell past the landing, so the landing is a T whose stem runs along the ramp.
+Where a run of road between districts does not meet a bridge's road, a short joint links the two by the cheapest walk and fades with that road;
+the bridge's road itself stays put.
+A delivery truck crosses as few unpaved corridor cells as it can, then takes the shortest way among those.
+
+Tests: `TestRoadToTheBridge` in `botropolis/pkg/city/bridgeroad_test.go` holds that the landing is road, joined to a driveway and to the bridge, and a T; that every truck from a district on road runs on road; that the anchored landing keeps its road and a second bridge gets its own; that the bridge road is the same cells as roads come and go, follows a driveway that moves once and then stays, and keeps while a joint fades; and that no lamp stands on it.
+`TestRoadMeetsTheRamp` in `botropolis/pkg/render/rampmeet_test.go` reads the landing's road piece off the atlas at every heading and both zooms.
+`TestRoadJoinsTheBridge` gained a case that no road is laid beyond a route that already reaches the landing.
+Each was red before the code it holds, and the truck routing and the driveway start were mutated red.
+
+**Deviations, flagged for Aria:**
+
+- `TestRoadMeetsTheRamp` holds the road's middle within 3 pixels of the ramp's, not the 1 the manager asked for.
+  The kit's own straight piece, measured the same way, sits up to 2.5 pixels off its cell's middle at some headings, where the atlas rounds its anchor, so a pixel is finer than the art.
+  The T measures 0.55 at worst; the bend that was there measured 5 to 23.
+- The bridge road and its joints are unlit until item 257 lays every lamp's glow in one layer; lit, they took the metropolis's night frame from 37 draws to 40.
+- A truck from a district with no road of its own still crosses unpaved corridor until it reaches road.
+  Paving every truck's whole way instead would have laid 96 to 118 of the 17-district city's 246 corridor cells.
+- Preferring road can make a long way round: in the 17-district test city a truck from d04 takes a 32-cell road detour over 9 unpaved cells.
+- A camera turn lays the bridge road again from the driveways the camera now faces, as it does every road (item 108).
+
+**Frames**, git-ignored in the item 247 worktree at `botropolis/dist/item-247/`: `out/bridges/hero.png`, the 17-district city at fit with both bridges, and `landing1.png` and `landing2.png`, 2x crops of each landing as a T.
+Aria on the first frames (2026-10-25): *"The roads don't attach to the ramps. They're half a road width off."*
+On these (2026-10-26): *"Approve and close"*.
+[Item 252](252-the-second-bridge-is-too-low-for-the-liner.md) raises the second bridge's deck in the same code, and item 257 puts the bridge road's lamps back.
