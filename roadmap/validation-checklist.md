@@ -1,5 +1,91 @@
 # Validation checklist
 
+The checks a release runs against a live city before it ships (`RELEASING.md` in botropolis).
+Rewritten on 2026-10-25 by [item 246](246-the-validation-checklist-predates-0-3-0.md), against the city as it is after 0.3.0.
+Every key and every word below is quoted from the app (`pkg/render/keys.go`, `pkg/city`, `pkg/ui`, the manual pages), not from memory.
+
+The checklist used to be ten steps for Aria.
+Most of them were things a script can do, so each step is now in one of three tiers:
+
+- **Scripted**: a test checks it on every landing, and it needs no one.
+- **Live**: a check against the real `claude` CLI on Aria's machine, which an agent runs and writes up below; it needs no desktop.
+- **Aria's**: it needs her own terminal, notifications and desktop, so only she can run it.
+
+## Before a run
+
+1. Install the build under test from its package, and run `botropolis setup`, which registers the hooks, makes sure the daemon runs and prints the shell line.
+   A city that meets an older daemon says so and offers **Restart Daemon**.
+2. `botropolis doctor` checks the daemon, the hooks, a terminal, the claude CLI, the harnesses and the display; every line should pass.
+3. `systemctl --user enable --now botropolis-notify` if the notifier is not running yet: it runs `botropolis notify`.
+4. Make any session the steps create or demolish in a scratch folder, such as `~/workspaces/botropolis-validation/valley`, so nothing real is touched.
+
+## Scripted
+
+These run in `make test`, so `make land` runs them on every landing.
+A step here fails a landing, rather than waiting for someone to try it.
+
+| # | check | tests |
+| --- | --- | --- |
+| S1 | `enter` on the selection attaches it, and on a resting session resumes it in its own folder first; `botropolis attach <id>` does the same in the terminal you are in | `pkg/control` `TestControl` ("it should spawn a terminal running claude attach"), `pkg/commands` `TestSessionsOpen`, `testing/acceptance` `TestAnswerAndComeBack` |
+| S2 | `c` starts a session in the selected building's folder or the hovered district's, `shift+n` opens New session for any folder, and `botropolis new` prints the job id | `pkg/city` `TestSelectionActions`, `pkg/render` `TestNewSession`, `testing/acceptance` `TestStartASessionAnywhere`, `pkg/cli` `TestSessionCLIs` |
+| S3 | when the city regains focus after something needed you, it opens "While you were away" listing it, and otherwise opens nothing | `testing/acceptance` `TestTheAwayListOnRefocus` (item 246) |
+| S4 | `x`, or a click on the plant: the breakdown's 24 h cost is the strip's, and a row none of whose messages has a price says "cost unknown", never "$0.00" | `pkg/city` `TestBreakdown` ("it should give the strip the 24 h breakdown's own cost"), `pkg/ui` `TestLayoutBreakdown` (item 246) |
+| S5 | `b`, `t`, `s`, `?`, `x`, `g`, `/`, `w`, `shift+w`, `v`, `shift+n`, `shift+q`, `m`, `h`, `o` and `i` each open their panel, and `esc` closes it, leaving nothing else open and the camera where it was (`w` leaves the session it stopped on selected) | `testing/acceptance` `TestEveryPanelClosesOnEscape` (item 246); it fails as [item 137](137-escape-skips-the-sidebar-and-the-hidden-interface.md) did when a rung of the ladder is removed |
+| S6 | `d d` on the selection: "press d again within 3s to demolish <title>", then "demolished <title>"; it leaves the map, and stays gone after the daemon restarts | `pkg/city` `TestDemolish`, `pkg/commands` `TestDemolished`, `pkg/daemon` `TestServeForget`, `pkg/state` `TestLedgerForget` ([items 144](144-a-demolished-session-stays-on-the-map.md) and [145](145-a-demolished-session-with-a-transcript-comes-back.md)) |
+| S7 | `botropolis bar` gives waybar the class `needs-you` and a tooltip of "needs you:" with each title, longest-waiting first | `pkg/commands` `TestBar`, `pkg/cli` `TestBarCLI` |
+| S8 | `b` with more rows than fit: the wheel, `pgup`, `pgdn`, `home` and `end` scroll it, "N more above" and "N more below" say what is out of view, and `tab` keeps the selected row in view | `testing/acceptance` `TestSidebarScrolls`, `pkg/ui` `TestLayoutSidebar` ([item 136](136-the-sidebar-cuts-off-rows-past-the-window.md)) |
+| S9 | a session the CLI calls `shell`, as `!` or a background command makes it, reads as working, not needs-you, even after its Stop hook; a permission prompt still needs you | `pkg/state` `TestRecordStatus` ("when the record says shell while the tail awaits the user"; [bug 12](012-a-third-cli-status-word-appeared.md)), `pkg/daemon` `TestDaemon` ("when a Stop event arrives for a session whose record says shell"), `testing/acceptance` `TestShellRecord` ([item 250](250-a-session-running-a-background-command-says-it-needs-you.md)) |
+| S10 | a state change reaches the daemon's snapshot promptly while the statistics backfill runs | `pkg/daemon` `TestStateChangeDuringBackfill` ([item 138](138-state-changes-lag-while-statistics-backfill.md)) |
+
+What these do not cover is what the next two tiers are for:
+the tests use a fake `claude` and a fake terminal, and stage demo homes rather than a real one.
+
+## Live
+
+| # | check | last run |
+| --- | --- | --- |
+| L1 | `botropolis status --all --json` against `claude agents --json --all` and the CLI's own records in `~/.claude/sessions`, read in the same pass and matched by `sessionId`: each live session's state agrees | 2026-10-25, below: one class disagreed, fixed by [item 250](250-a-session-running-a-background-command-says-it-needs-you.md) at r1061; run it again against the next release |
+| L2 | `botropolis rm <id>` on a stopped session in the scratch folder: it leaves `claude agents --json --all` and the daemon within seconds, and stays off after `systemctl --user restart botropolisd` | 0.2.2, 2026-10-19, below: passes |
+
+## Aria's
+
+Each of these needs a real window, a real terminal or a real notification.
+Run them against the release build, in order; each says what to press and what to see.
+
+| # | press | see |
+| --- | --- | --- |
+| A1 | `botropolis`; `tab` to the first session that needs you, then `enter` | your terminal opens running `claude attach` on that conversation. Close the window: the session keeps running, and its building stays on the map. |
+| A2 | hover the scratch folder's district, press `c` | the status line says "new session in <dir>", and a new building rises in that district within seconds |
+| A3 | with the notifier running, prompt a session in the scratch folder, switch the city's window away before it answers, and wait | a desktop notification "<title> needs you", its body the folder and branch. Switch back: "While you were away" lists it, "needs you". |
+| A4 | in a session attached in your terminal, type `! sleep 20`, then look at the map | its building reads as working while the command runs, not needs-you |
+| A5 | waybar with the module in the README (`botropolis bar --watch`), while a session needs you | the module takes the `needs-you` class and your style for it, and its tooltip names the session |
+| A6 | `botropolis status --live` in a terminal; `enter` on a resting session; `x` then `x` again on one in the scratch folder | `enter` resumes it and attaches; the first `x` says "press x again within 3s to demolish <title>", and the second removes it |
+
+S3, A3's second half, is scripted, but only through a stand-in for the window's focus; A3 is the check that the real window manager's focus reaches it.
+Likewise S9 stages the `shell` record; A4 is the check that a real `!` in Claude Code writes it.
+
+## Step L1, run 2026-10-25
+
+Against the installed 0.3.0 package, with 44 records in `claude agents --json --all` and 237 sessions in `botropolis status --all --json`.
+
+**Agrees.** Every session the CLI calls `working` whose record says `busy` is `working` in botropolis, every `done`, `stopped` and `failed` job with no live process is `resting`, and every idle background session that has handed its turn back is needs-you, where the CLI says `done`, which is the CLI's word for a finished turn rather than a disagreement.
+
+**One class disagreed, filed as [item 250](250-a-session-running-a-background-command-says-it-needs-you.md) and fixed at r1061.**
+Five background sessions whose record says `shell`, where the CLI calls them `working` or `blocked`, showed as needs-you: each had ended its turn while a background command was still running.
+`derive` alone called `shell` working; the daemon's overlay from the Stop hook was newer and set needs-you over it.
+Item 250 made the overlay yield to a `shell` record, and S9 now covers the daemon's path as well as the derived state.
+
+Two jobs the CLI still calls `blocked` have no live process, and botropolis calls them resting, which is right: nothing is running to answer.
+One the CLI called `blocked` while its own record said `busy` was working in botropolis; that is the CLI disagreeing with itself between two reads, not botropolis.
+
+**Two jobs are not shown, by design.**
+`claude agents --all` lists two `done` background jobs with no transcript and no session record anywhere under `~/.claude`, so there is nothing to draw, read or resume, and `claude rm` is the only way to remove them.
+
+## History
+
+The ten steps as written on 2026-09-29, against r293, and every run of them, kept as they were run.
+The table is the old checklist's own; its words — parked containers, `parked_days` — are the city of that date.
+
 Ten steps, written for Aria to run against a live city.
 It lived inside item 67's file until 2026-09-29 and was cross-referenced by a section number that no longer existed, which is why it had never been run end to end.
 
@@ -19,6 +105,8 @@ I have not installed or restarted anything on Aria's machine for this.
 | 8 | `botropolis bar` in waybar: the class changes colour when a session needs you | **run 2026-09-29, passes** |
 | 9 | `b` with more projects than fit: the wheel over the sidebar and PageUp, PageDown, Home and End scroll it, "N more above" and "N more below" say what is out of view, the arrows still pan, and `tab` keeps the selected session's row in view | needs Aria |
 | 10 | type `!` in a session, then look at the map: it reads as working, not needs-you (bug 12) | needs Aria |
+
+Old step 1 is L1, 2 is S1 and A1, 3 is S2 and A2, 4 is S3 and A3, 5 is S4, 6 is S5, 7 is S6 and L2, 8 is S7 and A5, 9 is S8, and 10 is S9 and A4.
 
 ## Step 1, run 2026-09-29
 
