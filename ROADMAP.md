@@ -44,9 +44,12 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [261](roadmap/261-past-four-seconds-the-metropolis-draws-over-its-ceilings.md) | past 4 s the metropolis draws over its draw ceilings (21 by day, 38 by night) | 260 | nobody, the ceilings are set |
 | [262](roadmap/262-the-darwin-priority-test-can-hang-ci.md) | the macOS priority test can hang a CI job until it dies, silently | — | nobody, a flaky test |
 | [263](roadmap/263-the-package-check-reads-the-builders-own-config.md) | the AUR build's tests read the builder's own config, so 0.3.1 fails to build for some | — | nobody, a defect |
+| [264](roadmap/264-a-hover-label-draws-over-a-notice-s-dimmed-city.md) | a hover label draws over a notice's dimmed city at full brightness | — | nobody, a defect |
+| [265](roadmap/265-what-1-0-0-needs-is-not-written-down.md) | the bar a build must clear to be 1.0.0, drafted for Aria | — | Aria's, which criteria make the bar |
 
 ## Waiting on Aria
 
+- **What 1.0.0 needs**, [item 265](roadmap/265-what-1-0-0-needs-is-not-written-down.md): nine drafted criteria to keep, change or drop.
 - **The validation checklist's six steps left to her**, A1–A6 in [`validation-checklist.md`](roadmap/validation-checklist.md): attach in a real terminal, `c` in a real district, a real notification and the away list, `!` in a real session, the waybar module, and `status --live`. Each says the keys to press and what she should see; everything else on it is scripted or run by an agent (item 246). They run against each release build.
 
 The nine unadjudicated entries were read one by one on 2026-09-29 and all nine are now closed: item 24 by Aria's ruling that the six undrawn pieces are a deliberate reserve, and items 22, 23, 26, 27, 28, 29, 31 and 33 by adjudication, each with the reason on its own file.

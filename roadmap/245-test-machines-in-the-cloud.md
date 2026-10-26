@@ -31,6 +31,23 @@ Three tests have nowhere to run:
 Research, with sources, is in items 95 and 96's *Testing without the hardware* sections; prices are as found on 2026-10-25.
 The machines, and how a run goes, are in [testing/machines](../testing/machines/README.md).
 
+## Slice 3: a soak that survives losing its connection
+
+The first overnight soak (2026-10-26, auction server 3100438, 04:01 to 10:49) died at about 6¾ of its 8 hours, and its report died with it.
+The laptop slept at 10:41 and woke on Wi-Fi with no IPv6, after the mobile link that had carried the IPv6-only box's address went down.
+The soak ran as the foreground command of one `ssh`, so the session's loss ended it (`perf-soak exited 255`); the report lived only on the box, in the rescue system's RAM; the fetch then failed (`Network is unreachable`), and the runner's `finally` cancelled the box anyway, as it is written to.
+Nothing about botropolis failed that anyone knows of; the cost was about EUR 1.20 and the night.
+
+Aria, 2026-10-26, chose to fix the runner before the soak is ordered again.
+The runner (`testing/machines/machines`, `run_soak`) needs to:
+
+1. **Run the soak detached on the box**, under `setsid` or a systemd transient unit there, so it survives the ssh session, and reconnect to watch it rather than hold one connection for eight hours.
+2. **Fetch the report as it grows**, every hour and at the end, so a lost box loses at most an hour.
+3. **Never cancel a box it could not fetch from** while the box is billing under the run's ceiling: retry the fetch, with backoff, for a bounded time (say an hour), then say loudly that the box is left up and how to fetch and cancel it, rather than cancel it silently. The ceiling on cost still holds: the runner cancels once the run's time and price limit is reached, fetched or not, and says what was lost.
+4. **Refuse to start an IPv6-only box from a machine with no IPv6 route**, and say to add `IPV4=1`, rather than order a box it cannot reach.
+
+The tests pin each against a fake transport: a dropped session mid-soak, a fetch that fails then succeeds, a fetch that never succeeds before the ceiling, and a planning machine with no IPv6 route.
+
 ## Answered while building
 
 - **The plan and tree** (manager, 2026-10-25): approved. One stdlib Python CLI and a Makefile in `testing/machines/`; a real soak box order only after Aria types the hourly price back, and `terraform apply` without `-auto-approve`; destroy in a `finally` that runs on failure and on interrupt.
