@@ -7,6 +7,7 @@ Landed: slice 1 (`8e88ccf`, r1080).
 Landed: slice 2 (`bf1c169`, r1083).
 Landed: slice 3 (`6397662`, r1085).
 Landed: slice 4 (`174cdbd`, r1086).
+Landed: slice 5 (`e458c9f`, r1089).
 
 [Item 209](209-cost-gates-fail-landings-on-a-busy-machine.md) measured every cost gate on a quiet machine (load 1.8, under the landing lock), in retired instructions at the bursty CoreRate Aria chose, beside the same run's process ticks. The daemon on the synthetic home plus 2,000 small sessions, one session writing and a prompt every 5 s, read **2.32 and 2.57% of a core counted, and 1.96 and 2.22% by ticks**, against 2%. [Item 205](205-a-daemon-load-reads-every-stopped-transcript-again.md) closed with it at 1.9% under load; on a quiet machine, counted honestly, it is over. Grouping's share per prompt is within [item 210](210-a-prompt-costs-over-50-ms-at-2000-sessions.md)'s 50 ms (about 12 ms added), so the remainder is the per-rescan load at that size.
 Item 209 lands that check as "unmet" (skip over 2%, saying its number; fail over 4%), naming this item.
