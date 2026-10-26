@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-26 in the session "item 190". Filed 2026-10-21 (r844), found on the Core Ultra 7 265U rig while cleaning up after item 165. Nobody's call — a defect.**
 
 Depends on: nothing
+Landed: slice 1 (`325cd5a`, r1076).
 
 `statsSource` (`botropolis/pkg/appd/daemon.go`) opens the statistics store once, when the daemon builds its loaders, and when `stats.Open` returns an error it returns `nil`.
 The daemon then runs with statistics off: hefts come from whole reads, nothing is written to the store, and nothing says so.
@@ -26,6 +27,11 @@ This is the silent-fallback pattern the meta `CLAUDE.md` describes for the docs 
 2. The daemon reports the store's state over the protocol — open, off by setting, or refused with the reason — and `botropolis doctor` adds a `statistics` row that is `warn` with the reason when the setting is on and the store is not open.
 3. The map shows a notice when statistics are on but the store was refused, as it does for a daemon of another release (item 152), with the file's path and what to do: update Botropolis for a newer store, or move the file aside for a damaged one.
 4. Decide what a damaged store at the current version should do — refuse and say so, or repair a missing `meta` table — and record the choice in item 149's terms: a file is never reset or lost without the user's say.
+
+**Decided: refuse** (the roadmap manager, 2026-10-26, from fix 3 and item 149).
+A store at the current version with no `meta` table is refused as damaged before anything opens it to write, so the file is left exactly as it was found, journal mode included.
+Repair was ruled out because step 3 adds `meta` and that version's columns together, so a file without `meta` may lack the columns too, and a repair would make a half-built store look healthy: the silent fallback again.
+The reason says to move the file aside, after which Botropolis starts a new one, so nothing is reset or lost without the user's say.
 
 Tests: a daemon started over a `stats.db` at `user_version` 3 without `meta` logs the error and reports the store refused; `doctor` warns for it; a store from a newer build produces the "update Botropolis" reason end to end, not only from `migrate`.
 Mutate the logging and the report away and watch each test go red.
