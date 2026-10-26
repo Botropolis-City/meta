@@ -48,7 +48,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [268](roadmap/268-a-first-sighting-shown-only-behind-a-panel-is-spent.md) | a first sighting shown only behind a covering panel is spent and never shows | — | nobody, a defect |
 | [269](roadmap/269-make-publishable-fails-in-a-worktree-once-main-moves.md) | `make publishable` fails in a worktree once github's main moves | — | nobody, a defect in a guard |
 | [270](roadmap/270-the-city-freezes-with-hundreds-of-districts.md) | the city freezes with hundreds of districts and groups of hundreds | — | nobody, a defect |
-| [272](roadmap/272-temporary-directories-each-become-a-district.md) | every temporary directory becomes a district of its own | — | nobody, Aria ruled |
 | [273](roadmap/273-scripted-runs-are-drawn-as-full-buildings.md) | scripted runs hidden by default, shown as a cart or stand | — | nobody, Aria ruled; the stall is a frame for her |
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [278](roadmap/278-packing-a-session-does-not-take-it-to-the-depot.md) | packing a session leaves it boarded up instead of taking it to the depot | — | nobody, a defect |
