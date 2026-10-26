@@ -1,6 +1,6 @@
 # 260. The frame's draw-count wobble test fails on a busy machine
 
-**Open. Filed 2026-10-26 (r1083), seen by item 213's session while landing. Nobody's call — a flaky test.**
+**Open, in progress since 2026-10-26 in the session "item 260". Filed 2026-10-26 (r1083), seen by item 213's session while landing. Nobody's call — a flaky test.**
 
 Depends on: nothing
 
