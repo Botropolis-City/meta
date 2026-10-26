@@ -51,7 +51,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [271](roadmap/271-group-detection-chains-bursts-into-groups-of-hundreds.md) | group detection chains bursts of sessions into groups of hundreds | — | nobody, a defect |
 | [272](roadmap/272-temporary-directories-each-become-a-district.md) | every temporary directory becomes a district of its own | — | nobody, Aria ruled |
 | [273](roadmap/273-scripted-runs-are-drawn-as-full-buildings.md) | scripted runs hidden by default, shown as a cart or stand | — | nobody, Aria ruled; the stall is a frame for her |
-| [274](roadmap/274-a-session-whose-transcript-is-gone-stays-on-the-map.md) | a session whose transcript was deleted leaves the map by default | — | nobody, Aria ruled |
 
 ## Waiting on Aria
 
