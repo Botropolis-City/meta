@@ -49,6 +49,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [266](roadmap/266-the-soak-box-has-nowhere-to-leave-its-report.md) | an R2 bucket and a scoped credential so the soak box leaves its report without the laptop | — | nobody, Aria chose R2 |
 | [267](roadmap/267-the-website-s-version-is-typed-by-hand.md) | the site shows the latest release without a hand edit | — | nobody, Aria chose rebuilding on release |
 | [268](roadmap/268-a-first-sighting-shown-only-behind-a-panel-is-spent.md) | a first sighting shown only behind a covering panel is spent and never shows | — | nobody, a defect |
+| [269](roadmap/269-make-publishable-fails-in-a-worktree-once-main-moves.md) | `make publishable` fails in a worktree once github's main moves | — | nobody, a defect in a guard |
 
 ## Waiting on Aria
 
