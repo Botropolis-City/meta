@@ -58,6 +58,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [283](roadmap/283-districts-can-be-moved-only-one-at-a-time.md) | several districts can be selected and moved together | — | nobody, Aria asked |
 | [284](roadmap/284-copying-a-path-freezes-the-city-with-xclip.md) | copying a path freezes the whole city when the clipboard tool is xclip | — | nobody, a defect |
 | [285](roadmap/285-a-tied-temporary-session-s-spend-counts-under-temporary.md) | a tied temporary-directory session still counts its spend under Temporary | — | nobody, a defect |
+| [286](roadmap/286-claude-actions-run-on-the-city-s-own-loop.md) | Resume, New, Stop and the other claude actions wait on the city's own loop | — | nobody, a defect |
 
 ## Waiting on Aria
 
