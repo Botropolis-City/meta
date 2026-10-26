@@ -1,6 +1,6 @@
 # 274. A session whose transcript was deleted stays on the map
 
-**Open. Filed 2026-10-26 (r1099), from Aria's other laptop (item 270). Nobody's call — Aria ruled.**
+**Open, in progress since 2026-10-26 in the session "item 274". Filed 2026-10-26 (r1099), from Aria's other laptop (item 270). Nobody's call — Aria ruled.**
 
 `pkg/state/loader.go` catalogues every stopped session, however old: time ages a session and never takes it off the map.
 The catalogue (`sessions.json`) keeps a session after its transcript is gone, so the 489 temporary-directory sessions on Aria's other laptop, whose transcripts no longer exist, are all still drawn.

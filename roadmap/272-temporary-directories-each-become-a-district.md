@@ -1,6 +1,6 @@
 # 272. Every temporary directory becomes a district of its own
 
-**Open. Filed 2026-10-26 (r1099), from Aria's other laptop (item 270). Nobody's call — Aria ruled on what to do.**
+**Open, in progress since 2026-10-26 in the session "item 272". Filed 2026-10-26 (r1099), from Aria's other laptop (item 270). Nobody's call — Aria ruled on what to do.**
 
 A district is a session's working directory (`city.ProjectRoot`, `pkg/city/city.go`), cut back to the repository only for `.claude/worktrees/`.
 A session in `/tmp/tmp.XXXX` or under `$TMPDIR` is a district of its own, so 489 sessions in temporary directories on Aria's other laptop made hundreds of one-building districts.

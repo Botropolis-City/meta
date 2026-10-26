@@ -1,6 +1,6 @@
 # 273. Scripted, non-interactive runs are drawn as full buildings
 
-**Open. Filed 2026-10-26 (r1099), from Aria's other laptop (item 270). Nobody's call — Aria ruled; the stall's look is a frame for her.**
+**Open, in progress since 2026-10-26 in the session "item 273". Filed 2026-10-26 (r1099), from Aria's other laptop (item 270). Nobody's call — Aria ruled; the stall's look is a frame for her.**
 
 Of the transcripts on Aria's other laptop, 365 are scripted runs (`entrypoint` `sdk-cli`: `claude -p`, the Agent SDK, tools that drive Claude) and 145 interactive (`cli`).
 `pkg/claude` parses `Entrypoint` (`transcript.go`, `sessions.go`) and nothing reads it, so each scripted run is a building like a session someone works in.
