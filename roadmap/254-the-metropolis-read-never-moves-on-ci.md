@@ -1,6 +1,6 @@
 # 254. On CI's Linux runner, the metropolis's history read never moves, so `main` is red
 
-**Open, in progress since 2026-10-26 in the session "item 254". Filed 2026-10-25 (r1047), found by item 249's session. Nobody's call — a defect.**
+**Fixed 2026-10-26 (`ce509e8`, r1066). Filed 2026-10-25 (r1047), found by item 249's session. Nobody's call — a defect.**
 
 Depends on: 249
 Landed: slice 1 (`e04ae93`, r1060).
@@ -30,3 +30,23 @@ Tests: a test that reproduces the stall red before the fix and green after; CI o
 - **How urgent** (Aria, 2026-10-26): *"we should do immediately. We should always keep ci green."* This item comes before other work, and a red `main` is fixed before anything else lands on top of it.
 - **The cause** (item 254's session, 2026-10-26): a headless capture takes a stopped session's heft from the statistics store, whose first ingest pass runs at item 138's background priority, nice 10 and Linux's idle I/O class; every SQLite commit fsyncs from that thread, and on the runner `/tmp` is a real disk whose scheduler honours the idle class, so while parallel cities write frames the pass is never served. Locally `/tmp` is tmpfs and the NVMe scheduler is `none`, so the class does nothing there. The fix (manager, approved): only a pass paced for part of the clock lowers its priority, so a capture's full-speed passes keep normal priority, and the daemon and the windowed city keep the idle class.
 - **A second red** (manager, 2026-10-26): `main`'s unit stage also fails on item 105's `TestRecordTeam`, a wall-clock assertion ("661µs is not greater than or equal to 30ms"); this item fixes it first, with an injected clock, so the acceptance stage runs at all.
+
+## Closed
+
+`main`'s CI is green again from `ce509e8` (run 40295691276, every job), and the three metropolis captures pass on the runner: `TestTheLooksAFrameKeeps` in 29.7 s, `TestTheStillLayerAFrameKeeps` in 42.4 s and `TestTheWorkAFrameTakes` in 62.1 s.
+
+The stall was step 1's first kind: snapshots arriving with one session never read.
+A headless capture keeps its state private, so it takes a stopped session's heft from the statistics store rather than the whole read, and the metropolis has exactly one partial stopped session; the fourteen live ones resolve through the later read.
+A probe staging the metropolis locally showed that one session partial until the store's first ingest pass finished, about three loads in.
+That pass ran at item 138's background priority, and each SQLite commit fsyncs from its thread in the idle I/O class, on `/tmp`, which on the runner is a real disk.
+
+Slice 1 (`e04ae93`) fixed the red that hid this one: `TestRecordTeam`'s fake teammate rewrote its transcript at the same size, and the runner's coarse modification times hid the rewrites.
+The recorder now runs on a `TeamClock`, and the test asserts in polls on a fake clock with a teammate whose transcript grows.
+Its CI run passed the unit stage and failed only the three metropolis captures.
+
+Slice 2 (`ce509e8`) lowers a pass's priority only when its pace is for part of the clock (`pace.lower`, `pkg/state/pace.go`), so a capture's full-speed passes keep normal CPU and I/O priority, and the daemon and the windowed city keep the idle class.
+`TestAPaceLowersOnlyAPacedPass` and `TestAFullSpeedLoaderKeepsItsPriority` (`pkg/state/pace_priority_internal_linux_test.go`) were red before the fix, with the store's ingest and the whole read running in the idle class, and green after.
+
+Deviation, flagged for Aria: step 2 asked for the stall to be reproduced under the runner's I/O class behaviour.
+This machine's `/tmp` is tmpfs and its NVMe scheduler is `none`, and switching the scheduler needs root, so the red test checks the I/O class the passes run in rather than a starved disk; the runner's green run is the evidence that the class was the cause.
+The daemon keeps the idle class on purpose (item 138), so on a disk whose scheduler honours it, a person's statistics store can still wait behind a steadily busy disk; nobody has reported that.

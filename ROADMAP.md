@@ -42,7 +42,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [245](roadmap/245-test-machines-in-the-cloud.md) | cloud machines for the overnight soak and the Wayland desktops: Hetzner, plan-only | — | nobody, Aria chose; waits on her account |
 | [246](roadmap/246-the-validation-checklist-predates-0-3-0.md) | the validation checklist rewritten against 0.3.0, scripted where it can be | — | nobody |
 | [252](roadmap/252-the-second-bridge-is-too-low-for-the-liner.md) | the second bridge's deck is too low for the liner: raise it over the river | 220 | nobody, Aria chose |
-| [254](roadmap/254-the-metropolis-read-never-moves-on-ci.md) | on CI's Linux runner the metropolis's history read never moves, so main is red | 249 | nobody, a defect |
 | [255](roadmap/255-a-roads-vehicle-says-what-kind-of-traffic-it-is.md) | a road's vehicle says its traffic: car, van, box truck, motorbike; no message rides a group's line | — | nobody, Aria decided |
 | [256](roadmap/256-the-cache-tests-see-no-cache-hit-under-load.md) | the test-cache acceptance tests sometimes see no cache hit when the machine is busy | — | nobody, a flaky test |
 | [257](roadmap/257-every-lamp-glow-splits-a-batch.md) | every lamp's glow splits the night batch: a glow layer of its own, then the bridge road's lamps back | 247 | nobody, the ceiling is set |
