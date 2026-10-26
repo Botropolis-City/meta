@@ -59,7 +59,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [286](roadmap/286-claude-actions-run-on-the-city-s-own-loop.md) | Resume, New, Stop and the other claude actions wait on the city's own loop | — | nobody, a defect |
 | [287](roadmap/287-a-card-changes-size-as-the-pointer-moves-over-its-buttons.md) | a session's card changes size as the pointer moves over its buttons | — | nobody, Aria said what she wants |
 | [288](roadmap/288-there-is-no-obvious-way-to-make-a-new-group.md) | there is no obvious way to make a new group, and move to group offers none | — | nobody, Aria said what she wants |
-| [289](roadmap/289-the-new-session-panel-ignores-typing.md) | the New session panel takes no typed text, only scripted keys | — | nobody, a defect |
 | [290](roadmap/290-no-text-field-takes-a-paste.md) | no text field in the city takes a paste | 289, 284 | nobody, a defect |
 | [291](roadmap/291-closing-up-does-not-quit-the-city.md) | closing up from the quit prompt notes and pauses, then leaves the city open | — | nobody, a defect |
 | [292](roadmap/292-the-quit-prompt-is-a-line-in-the-footer.md) | the quit prompt becomes a centered panel | — | nobody, Aria said what she wants |
