@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import signal
@@ -20,6 +21,11 @@ HCLOUD_REFS = ['--hcloud-token-ref', 'op:Test/hcloud/token']
 CANCELLATION = '/robot/server/%d/cancellation' % SERVER_NUMBER
 ORDER = '/robot/order/server_market/transaction'
 SOAK_PLAN = ['plan', 'soak'] + ROBOT_REFS
+STATUS = 'cat /home/soak/run/out/perf-soak.exit'
+REPORT = '/home/soak/run/out/.'
+NO_IPV6 = {'STUB_FAIL': 'ip:route'}
+CEILING = ['--max-hours', '0.0005']
+GENTLE = {'MACHINES_POLL_SECONDS': '0.05'}
 
 
 def loud_skip(case, reason):
@@ -60,6 +66,31 @@ class Machines(unittest.TestCase):
 
     def ssh_commands(self):
         return [' '.join(argv) for argv in self.bench.calls('ssh')]
+
+    def launches(self):
+        return [c for c in self.ssh_commands() if 'setsid' in c and 'perf-soak' in c]
+
+    def polls(self):
+        return [c for c in self.ssh_commands() if STATUS in c]
+
+    def fetches(self):
+        return [argv for argv in self.bench.calls('scp') if any(a.endswith(REPORT) for a in argv)]
+
+    def sequence(self):
+        with open(os.path.join(self.bench.spy, 'sequence')) as f:
+            return [json.loads(line) for line in f]
+
+    def positions(self, match):
+        return [i for i, entry in enumerate(self.sequence()) if match(entry)]
+
+    def fetched_at(self):
+        return self.positions(lambda e: e[0] == 'scp' and any(a.endswith(REPORT) for a in e[1:]))
+
+    def cancelled_at(self):
+        return self.positions(lambda e: e == ['robot', 'POST', CANCELLATION])
+
+    def polled_at(self):
+        return self.positions(lambda e: e[0] == 'ssh' and any(STATUS in a for a in e[1:]))
 
 
 SOAK_RUN = ['run', 'soak'] + ROBOT_REFS + ['--build', '{build}', '--stager', '{stager}', '--corpus', '{corpus}',
@@ -369,8 +400,14 @@ class WhenRunningTheSoakAndItPasses(Machines):
     def test_it_should_run_the_soak_on_the_boxs_display(self):
         self.assertTrue([c for c in self.ssh_commands() if 'perf-soak' in c and 'DISPLAY=:0' in c], self.ssh_commands())
 
-    def test_it_should_fetch_the_report(self):
-        self.assertTrue([argv for argv in self.bench.calls('scp') if argv[-1] == self.bench.out], self.bench.calls('scp'))
+    def test_it_should_start_the_soak_detached_on_the_box(self):
+        self.assertTrue(self.launches(), self.ssh_commands())
+
+    def test_it_should_start_it_once(self):
+        self.assertEqual(len(self.launches()), 1, self.ssh_commands())
+
+    def test_it_should_fetch_the_report_into_the_results(self):
+        self.assertTrue(os.path.exists(os.path.join(self.bench.out, 'soak.md')), self.bench.calls('scp'))
 
     def test_it_should_cancel_the_server(self):
         self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
@@ -426,13 +463,13 @@ class WhenRunningTheSoakAndItFails(Machines):
     typed = CHOSEN_HOURLY
     plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
-    stub_env = {'STUB_FAIL': 'ssh:perf-soak'}
+    stub_env = {'STUB_SEQ': 'ssh:%s=0:1' % STATUS}
 
     def test_it_should_exit_nonzero(self):
         self.assertNotEqual(self.done.returncode, 0)
 
     def test_it_should_still_fetch_the_report(self):
-        self.assertTrue([argv for argv in self.bench.calls('scp') if argv[-1] == self.bench.out], self.bench.calls('scp'))
+        self.assertTrue(os.path.exists(os.path.join(self.bench.out, 'soak.md')), self.bench.calls('scp'))
 
     def test_it_should_cancel_the_server(self):
         self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
@@ -471,16 +508,142 @@ class WhenRunningTheSoakAndItIsInterrupted(Machines):
     def setUpClass(cls):
         cls.bench = Bench(typed=cls.typed, **cls.hetzner)
         run_in_own_group([TOOL] + SOAK_PLAN, cls.bench.env(), 60)
-        proc = subprocess.Popen([TOOL] + cls.expand(cls.argv), env=cls.bench.env(STUB_HANG='ssh:perf-soak'),
+        proc = subprocess.Popen([TOOL] + cls.expand(cls.argv), env=cls.bench.env(STUB_HANG='ssh:' + STATUS),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
         deadline = time.monotonic() + 30
-        while time.monotonic() < deadline and not [c for c in cls.bench.calls('ssh') if 'perf-soak' in ' '.join(c)]:
+        while time.monotonic() < deadline and not [c for c in cls.bench.calls('ssh') if STATUS in ' '.join(c)]:
             time.sleep(0.1)
         proc.send_signal(signal.SIGINT)
         try:
             proc.communicate(timeout=30)
         finally:
             os.killpg(proc.pid, signal.SIGKILL) if proc.poll() is None else None
+
+    def test_it_should_fetch_the_report_once(self):
+        self.assertEqual(len(self.fetches()), 1, self.bench.calls('scp'))
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+
+
+class WhenPlanningTheSoakAndThisMachineHasNoIPv6Route(Machines):
+    argv = SOAK_PLAN
+    stub_env = NO_IPV6
+
+    def test_it_should_refuse_with_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr)
+
+    def test_it_should_say_to_add_ipv4(self):
+        self.assertIn('IPV4=1', self.done.stderr)
+
+    def test_it_should_send_nothing_to_hetzner(self):
+        self.assertEqual(self.bench.hetzner.requests, [])
+
+    def test_it_should_not_resolve_any_secret(self):
+        self.assertEqual(self.bench.calls('secret-run'), [])
+
+
+class WhenPlanningTheSoakWithIPv4AndThisMachineHasNoIPv6Route(Machines):
+    argv = ['plan', 'soak', '--ipv4'] + ROBOT_REFS
+    stub_env = NO_IPV6
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+
+class WhenRunningTheSoakAndThisMachineHasNoIPv6Route(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    stub_env = NO_IPV6
+
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
+
+
+class WhenRunningTheSoakAndTheSshSessionDropsMidSoak(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+    stub_env = {'STUB_SEQ': 'ssh:%s=255|255|0:running|0:0' % STATUS}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_not_start_the_soak_a_second_time(self):
+        self.assertEqual(len(self.launches()), 1, self.ssh_commands())
+
+    def test_it_should_keep_reconnecting_until_the_soak_finishes(self):
+        self.assertEqual(len(self.polls()), 4, self.ssh_commands())
+
+    def test_it_should_fetch_the_report(self):
+        self.assertTrue(os.path.exists(os.path.join(self.bench.out, 'soak.md')), self.bench.calls('scp'))
+
+    def test_it_should_cancel_the_server_once(self):
+        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+
+
+class WhenRunningTheSoakAndAnHourlyFetchComesRoundWhileItRuns(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+    stub_env = {'STUB_SEQ': 'ssh:%s=0:running|0:running|0:0' % STATUS, 'MACHINES_FETCH_SECONDS': '0'}
+
+    def test_it_should_fetch_the_report_before_the_soak_finishes(self):
+        self.assertLess(self.fetched_at()[0], self.polled_at()[-1], self.sequence())
+
+
+class WhenRunningTheSoakAndTheFetchFailsThenSucceeds(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+    stub_env = {'STUB_SEQ': 'scp:%s=1|1|0' % REPORT}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_try_the_fetch_three_times(self):
+        self.assertEqual(len(self.fetches()), 3, self.bench.calls('scp'))
+
+    def test_it_should_cancel_only_after_the_fetch_succeeded(self):
+        self.assertGreater(self.cancelled_at()[0], self.fetched_at()[2], self.sequence())
+
+
+class WhenRunningTheSoakAndTheFetchNeverSucceedsBeforeTheCeiling(Machines):
+    argv = SOAK_RUN + ['--max-hours', '0.003']
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+    stub_env = dict(GENTLE, STUB_SEQ='scp:%s=1' % REPORT)
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_retry_the_fetch(self):
+        self.assertGreater(len(self.fetches()), 1, self.bench.calls('scp'))
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+
+    def test_it_should_say_the_report_was_lost(self):
+        self.assertIn('lost', self.done.stderr)
+
+
+class WhenRunningTheSoakAndItNeverFinishesBeforeTheCeiling(Machines):
+    argv = SOAK_RUN + CEILING
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+    stub_env = dict(GENTLE, STUB_SEQ='ssh:%s=0:running' % STATUS)
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_say_the_ceiling_was_reached(self):
+        self.assertIn('ceiling', self.done.stderr)
 
     def test_it_should_cancel_the_server(self):
         self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)

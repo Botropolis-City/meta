@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import shlex
+import shutil
 import signal
 import subprocess
 import sys
@@ -24,9 +25,14 @@ from edid import edid_1080p  # noqa: E402
 ROBOT = os.environ.get('MACHINES_ROBOT_URL', 'https://robot-ws.your-server.de')
 HCLOUD = os.environ.get('MACHINES_HCLOUD_URL', 'https://api.hetzner.cloud/v1')
 POLL = float(os.environ.get('MACHINES_POLL_SECONDS', '30'))
+FETCH_EVERY = float(os.environ.get('MACHINES_FETCH_SECONDS', '3600'))
+BACKOFF_CAP = 300
+IPV6_PROBE = '2a01:4f8::1'
 MARKET = '/order/server_market'
 DEDICATED_KEY = '~/.ssh/botropolis-machines'
 REMOTE = '/home/soak/run'
+REPORT = REMOTE + '/out'
+EXIT_FILE = REPORT + '/perf-soak.exit'
 SECRETS = {
     'soak': [('ROBOT_USER', 'robot_user_ref', '--robot-user-ref'),
              ('ROBOT_PASSWORD', 'robot_password_ref', '--robot-password-ref')],
@@ -43,7 +49,11 @@ COMMAND
   plan      say what MACHINE costs and what would be made; spend nothing
   apply     make MACHINE, after a human approves at the terminal
   run       apply, run the test on it, fetch its results, destroy it; the
-            destroy runs when the test fails and when the run is interrupted
+            destroy runs when the test fails and when the run is interrupted.
+            The soak runs detached on the box, so losing the connection does
+            not end it: the runner reconnects to watch it, fetches the report
+            every hour and at the end, and retries a failed fetch until the
+            run's ceiling (--max-hours), where it cancels the box regardless
   destroy   destroy MACHINE
 
 MACHINE
@@ -95,12 +105,25 @@ def parse(argv):
     p.add_argument('--corpus', help="run soak: botropolis's demo directory")
     p.add_argument('--history', help='run soak: a synthetic ~/.claude (botropolis-demo synth-home, item 248)')
     p.add_argument('--soak-flags', default='', help='run soak: extra perf-soak flags')
+    p.add_argument('--max-hours', type=float, default=10.0,
+                   help='run soak: the ceiling, in hours from delivery; the box is cancelled then, fetched or not')
     p.add_argument('--script', help='run wayland: the test to run in the desktop session')
     p.add_argument('--out', help='run: where results land')
     return p.parse_args(argv)
 
 
+def ipv6_route():
+    try:
+        return subprocess.run(['ip', '-6', 'route', 'get', IPV6_PROBE], stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL).returncode == 0
+    except OSError:
+        return False
+
+
 def check(args):
+    if args.machine == 'soak' and args.command != 'destroy' and not args.ipv4 and not ipv6_route():
+        raise Refused('this machine has no IPv6 route, and the soak box is IPv6 only, so nothing could reach it: '
+                      'add IPV4=1 (Robot charges for the address) or run from a network with IPv6. Nothing ordered.')
     missing = [flag for _, attr, flag in SECRETS[args.machine] if not getattr(args, attr)]
     if missing:
         raise Refused('%s %s needs %s: a secret-run reference such as op:Vault/Item/field, '
@@ -200,6 +223,11 @@ def ssh_options(args):
 
 def ssh(args, ip, command):
     return subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command]).returncode
+
+
+def ssh_answer(args, ip, command):
+    done = subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command], capture_output=True, text=True)
+    return done.returncode, done.stdout.strip()
 
 
 def ssh_output(args, ip, command):
@@ -387,19 +415,84 @@ def count_history(history):
     return sessions, used
 
 
+def clock(t):
+    return datetime.datetime.fromtimestamp(t).isoformat(timespec='seconds')
+
+
+class Report:
+    def __init__(self, args, ip, out):
+        self.args, self.ip, self.out = args, ip, out
+        self.last = None
+
+    def fetch(self):
+        staging = tempfile.mkdtemp(prefix='.fetching-', dir=self.out)
+        try:
+            if scp(self.args, remote(self.ip, REPORT + '/.'), staging) != 0:
+                return False
+            shutil.copytree(staging, self.out, dirs_exist_ok=True)
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
+        self.last = time.time()
+        return True
+
+    def fetch_until(self, ceiling):
+        delay = POLL
+        while not self.fetch():
+            if time.time() >= ceiling:
+                return False
+            warn('could not fetch the soak report from %s; retrying in %d s, until the ceiling at %s'
+                 % (self.ip, delay, clock(ceiling)))
+            time.sleep(max(0.0, min(delay, ceiling - time.time())))
+            delay = min(max(delay * 2, 1), BACKOFF_CAP)
+        return True
+
+    def lost(self):
+        if self.last is None:
+            return 'nothing of the report was fetched: it is lost'
+        return 'the report since the fetch at %s is lost; what was fetched is in %s' % (clock(self.last), self.out)
+
+
+def watch(args, ip, report, ceiling):
+    next_fetch = time.time() + FETCH_EVERY
+    connected = True
+    while True:
+        if time.time() >= ceiling:
+            warn('the run reached its ceiling of %g hours at %s with the soak still running' % (args.max_hours, clock(ceiling)))
+            return None
+        code, answer = ssh_answer(args, ip, 'cat %s 2>/dev/null || echo running' % EXIT_FILE)
+        if code == 0 and answer.isdigit():
+            return int(answer)
+        if code != 0 and connected:
+            warn('lost the connection to the soak box (ssh exit %d); the soak runs on, reconnecting' % code)
+        if code == 0 and not connected:
+            say('reconnected to the soak box; the soak is still running')
+        connected = code == 0
+        if time.time() >= next_fetch:
+            if report.fetch():
+                say('fetched the report so far, at %s' % clock(report.last))
+            else:
+                warn('could not fetch the report so far; trying again at the next fetch or the end')
+            next_fetch = time.time() + FETCH_EVERY
+        time.sleep(POLL)
+
+
 def run_soak(args):
     robot = Robot()
     out = out_dir(args, 'soak')
     sessions, projects = count_history(args.history)
-    started = False
+    report = None
+    interrupted = False
     rc = 1
     try:
         state = robot.apply(args)
         ip = state['ip']
+        ceiling = time.time() + args.max_hours * 3600
+        say('The run\'s ceiling: %g hours, until %s, about EUR %.2f; the box is cancelled then, fetched or not.'
+            % (args.max_hours, clock(ceiling), args.max_hours * float(state['hourly'])))
         with open(os.path.join(out, 'machine.txt'), 'w') as f:
             f.write('machine: Hetzner auction server %d (listing %s), %s at %s, in Hetzner\'s rescue system '
-                    '(Debian, in RAM), EUR %s an hour\n' % (state['server_number'], state['listing'], state['cpu'], state['datacenter'],
-                                          state['hourly']))
+                    '(Debian, in RAM), EUR %s an hour\n' % (state['server_number'], state['listing'], state['cpu'],
+                                                           state['datacenter'], state['hourly']))
             f.write('display: Xorg modesetting on the iGPU, forced 1920x1080 EDID, i3, no blanking, no locker\n')
             f.write('synthetic history: %d sessions in %d projects (botropolis-demo synth-home, item 248); '
                     'nothing from a real ~/.claude\n' % (sessions, projects))
@@ -426,17 +519,35 @@ def run_soak(args):
             if scp(args, src, remote(ip, dst)) != 0:
                 raise Refused('could not copy %s to %s' % (src, ip), 1)
         ssh(args, ip, 'chown -R soak: /home/soak')
-        started = True
+        report = Report(args, ip, out)
         command = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
                    'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE,
-                   '%s/performance/tools/perf-soak' % REMOTE, '--out', REMOTE + '/out'] \
+                   '%s/performance/tools/perf-soak' % REMOTE, '--out', REPORT] \
             + shlex.split(args.soak_flags) + [REMOTE + '/build']
-        rc = ssh(args, ip, shlex.join(command))
-        say('perf-soak exited %d' % rc)
+        detached = '%s >%s/perf-soak.log 2>&1; echo $? >%s.tmp && mv %s.tmp %s' % (
+            shlex.join(command), REPORT, EXIT_FILE, EXIT_FILE, EXIT_FILE)
+        if ssh(args, ip, 'rm -f %s && setsid -f bash -c %s </dev/null >/dev/null 2>&1'
+               % (EXIT_FILE, shlex.quote(detached))) != 0:
+            raise Refused('could not start the soak on %s' % ip, 1)
+        say('The soak runs detached on the box; this run watches it and fetches the report every %d minutes.'
+            % (FETCH_EVERY // 60))
+        soak = watch(args, ip, report, ceiling)
+        if soak is not None:
+            rc = soak
+            say('perf-soak exited %d' % rc)
+    except KeyboardInterrupt:
+        interrupted = True
+        raise
     finally:
         try:
-            if started and scp(args, remote(robot.load()['ip'], REMOTE + '/out/.'), out) != 0:
-                warn('could not fetch the soak report from the soak box')
+            if report is not None:
+                if interrupted:
+                    fetched = report.fetch()
+                else:
+                    fetched = report.fetch_until(ceiling)
+                if not fetched:
+                    warn('could not fetch the soak report from %s before cancelling it: %s' % (report.ip, report.lost()))
+                    rc = rc or 1
         finally:
             robot.destroy()
     say('Results: %s' % out)

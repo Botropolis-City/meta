@@ -45,8 +45,30 @@ SPYING_STUB = textwrap.dedent('''\
     import json, os, sys, time
     name = os.path.basename(sys.argv[0])
     args = sys.argv[1:]
-    with open(os.path.join(os.environ['MACHINES_TEST_SPY'], name), 'a') as f:
+    spy = os.environ['MACHINES_TEST_SPY']
+    with open(os.path.join(spy, name), 'a') as f:
         f.write(json.dumps(args) + '\\n')
+    with open(os.path.join(spy, 'sequence'), 'a') as f:
+        f.write(json.dumps([name] + args) + '\\n')
+    def scripted():
+        for n, rule in enumerate(filter(None, os.environ.get('STUB_SEQ', '').split(';'))):
+            head, _, series = rule.partition('=')
+            tool, _, word = head.partition(':')
+            if tool != name or not any(word in a for a in args):
+                continue
+            counter = os.path.join(spy, 'seq-%d' % n)
+            try:
+                with open(counter) as f:
+                    i = int(f.read())
+            except OSError:
+                i = 0
+            with open(counter, 'w') as f:
+                f.write(str(i + 1))
+            items = series.split('|')
+            code, _, out = items[min(i, len(items) - 1)].partition(':')
+            if out:
+                print(out)
+            sys.exit(int(code))
     def matches(var):
         for rule in filter(None, os.environ.get(var, '').split(',')):
             tool, _, word = rule.partition(':')
@@ -57,6 +79,12 @@ SPYING_STUB = textwrap.dedent('''\
         time.sleep(60)
     if matches('STUB_FAIL'):
         sys.exit(1)
+    scripted()
+    if name == 'scp' and any(a.endswith('/run/out/.') for a in args) and os.path.isdir(args[-1]):
+        with open(os.path.join(args[-1], 'soak.md'), 'w') as f:
+            f.write('verdict\\n')
+    if name == 'ssh' and any(a.startswith('cat ') and 'perf-soak.exit' in a for a in args):
+        print('0')
     if name == 'ssh' and any('libgl1-mesa-dri' in a for a in args):
         print('25.0.7-2')
     if name == 'terraform' and 'output' in args:
@@ -83,8 +111,9 @@ SECRET_RUN = textwrap.dedent('''\
 class Hetzner:
     """A stand-in for Robot and the Cloud API: it records every request and answers like them."""
 
-    def __init__(self, market=None, server_ip=None, key_known=True):
+    def __init__(self, market=None, server_ip=None, key_known=True, spy=None):
         self.requests = []
+        self.spy = spy
         self.market = auction() if market is None else market
         self.server_ip = server_ip
         self.key_known = key_known
@@ -100,6 +129,9 @@ class Hetzner:
                 hetzner.requests.append({'method': method, 'path': self.path,
                                          'form': urllib.parse.parse_qs(body),
                                          'auth': self.headers.get('Authorization', '')})
+                if hetzner.spy:
+                    with open(os.path.join(hetzner.spy, 'sequence'), 'a') as f:
+                        f.write(json.dumps(['robot', method, urllib.parse.urlparse(self.path).path]) + '\n')
                 status, answer = hetzner.answer(method, self.path)
                 data = json.dumps(answer).encode()
                 self.send_response(status)
@@ -172,7 +204,7 @@ class Bench:
         self.out = os.path.join(self.top, 'out')
         for d in (self.spy, self.bin, os.path.join(self.home, '.ssh'), self.state):
             os.makedirs(d)
-        for name in ('terraform', 'ssh', 'scp'):
+        for name in ('terraform', 'ssh', 'scp', 'ip'):
             executable(os.path.join(self.bin, name), SPYING_STUB)
         executable(os.path.join(self.bin, 'secret-run'), SECRET_RUN)
         self.dedicated = os.path.join(self.home, '.ssh', 'botropolis-machines')
@@ -203,7 +235,7 @@ class Bench:
                 f.write('{}\n')
         self.real_history = os.path.join(self.home, '.claude')
         os.makedirs(os.path.join(self.real_history, 'projects'))
-        self.hetzner = Hetzner(**hetzner)
+        self.hetzner = Hetzner(spy=self.spy, **hetzner)
 
     def env(self, **extra):
         return dict(os.environ,
@@ -215,8 +247,7 @@ class Bench:
                     MACHINES_ROBOT_URL=self.hetzner.url + '/robot',
                     MACHINES_HCLOUD_URL=self.hetzner.url + '/cloud',
                     MACHINES_TTY=self.tty,
-                    MACHINES_POLL_SECONDS='0',
-                    **extra)
+                    **dict({'MACHINES_POLL_SECONDS': '0'}, **extra))
 
     def calls(self, tool):
         try:
@@ -226,7 +257,8 @@ class Bench:
             return []
 
     def every_argv(self):
-        return [a for tool in os.listdir(self.spy) for argv in self.calls(tool) for a in argv]
+        return [a for tool in os.listdir(self.spy) if tool not in ('sequence',) and not tool.startswith('seq-')
+                for argv in self.calls(tool) for a in argv]
 
     def private_bodies(self):
         bodies = []

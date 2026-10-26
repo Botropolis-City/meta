@@ -16,7 +16,7 @@ SOAK_PROJECTS ?= 150
 PLUGINS := $${XDG_CACHE_HOME:-$$HOME/.cache}/botropolis-machines/plugins
 
 REFS := --robot-user-ref "${ROBOT_USER_REF}" --robot-password-ref "${ROBOT_PASSWORD_REF}" --hcloud-token-ref "${HCLOUD_TOKEN_REF}"
-OPTS := --desktop ${DESKTOP} $(if ${IPV4},--ipv4)
+OPTS := --desktop ${DESKTOP} $(if ${IPV4},--ipv4) $(if ${MAX_HOURS},--max-hours ${MAX_HOURS})
 
 targets ::
 	@awk -F'::?[[:space:]]*' '/^[a-zA-Z0-9][^$#\/\t=]*::?([^=]|$$)/ { \

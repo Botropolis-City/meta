@@ -14,7 +14,7 @@ A run is plan, approval, apply, test, destroy, and the destroy runs when the tes
 
 ```
 make plan MACHINE=soak                   # choose the soak box, its price, and a test order Hetzner does not process
-make run-soak PERF_BUILD=dir             # order the planned box, install Arch, set up, soak 8 hours, fetch the report, cancel
+make run-soak PERF_BUILD=dir             # order the planned box, set up, soak 8 hours, fetch the report, cancel
 make plan MACHINE=wayland DESKTOP=kde    # the price, and terraform plan
 make run-wayland DESKTOP=kde SCRIPT=file # make the VM, run SCRIPT in the session, fetch results, destroy
 make destroy MACHINE=soak                # cancel by hand, if a run could not
@@ -66,11 +66,21 @@ It writes what it found in `/dev/dri`, the Mesa version and the renderer to `dri
 `machine.txt` names the rescue system's Mesa version, since it is Debian's and not the one on Aria's laptop.
 A failed set-up cancels the box like any other failure.
 
+The soak runs detached on the box, under `setsid`, so losing the connection does not end it, as it ended the first overnight soak on 2026-10-26 (item 245, slice 3).
+The runner reconnects every 30 seconds to see whether it has finished,
+and fetches the report every hour and at the end, so a lost box loses at most an hour of it.
+A fetch lands in a staging directory first, so one that drops halfway leaves the last good copy as it was.
+A failed final fetch is retried with backoff, up to five minutes apart, and the box is not cancelled while it is retried.
+The run's ceiling still holds: `MAX_HOURS` (10 by default, counted from delivery) is when the box is cancelled, fetched or not, and the runner says what of the report was lost.
+Interrupting a run makes one fetch and then cancels.
+
 The soak runs on a synthetic history of 200 sessions in 150 projects, made by `botropolis-demo synth-home` ([item 248](../../roadmap/248-a-synthetic-history-cannot-be-made-outside-go-test.md)).
 Nothing from a real `~/.claude` goes to a rented machine: the runner refuses one.
 
 The soak box is ordered without the paid IPv4 address.
 This was decided on a machine whose IPv6 came over a mobile link (`wwan0`); on a network without IPv6, add `IPV4=1`.
+The runner checks for an IPv6 route before it plans, orders or runs a soak box without IPv4,
+and refuses, naming `IPV4=1`, rather than order a box it cannot reach.
 
 ## The Wayland machine
 
