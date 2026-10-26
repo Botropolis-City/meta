@@ -12,3 +12,7 @@ Give the panel's fields the finder's input path, a `textinput.Composer` per focu
 Look for any other text field that reads only the scripted rune, and give it the same path.
 Tests: a field fed through the same seam the finder's tests use receives typed text, a composition, and a commit; switching fields with the arrows sends text to the focused one only; and a guard that every text field in `pkg/render` reads the keyboard, not only the scripted rune.
 Confirm by hand in the real app before and after: a frame for Aria is not needed, but the item's close says it was tried.
+
+## Answered while building
+
+- **Confirmed, and the shape** (session's, approved by the manager, 2026-10-26): on a city of its own under Xvfb with keys sent through XTest, Shift+N opened the panel and typing left the directory empty. The panel gets a `textinput.Composer` while the city has a window, with `commit` and `compose` methods on the focused field as the test seam, since the library's commit and composition types cannot be built with text in a test; moving focus or closing cancels a composition. A guard walks `pkg/render`'s source and fails for any type holding a text field that reads neither a composer nor `ebiten.AppendInputChars`, and it holds item 288's new name field too.
