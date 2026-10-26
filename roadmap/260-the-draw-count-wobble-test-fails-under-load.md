@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-26 in the session "item 260". Filed 2026-10-26 (r1083), seen by item 213's session while landing. Nobody's call — a flaky test.**
 
 Depends on: nothing
+Landed: slice 1 (`eb932f0`, r1087).
 
 `TestTheWorkAFrameTakes` (`botropolis/testing/acceptance/framework_test.go`) asserts, from [item 236](236-where-a-vehicle-stands-changes-a-frames-draw-count.md), that the draw count moves by no more than a small `wobble` between settled frames as vehicles move along their lanes (1 by day).
 On 2026-10-26 item 213's first landing failed it with a spread of 10 against 1, at a load average of about 25; it passed on `main` and on the same tree straight after, and item 213's change is in the daemon, which the frame's draw count cannot see.
