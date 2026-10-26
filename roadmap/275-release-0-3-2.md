@@ -20,3 +20,7 @@ Items 273 and 271's slice 2 go in if they land first; nothing waits for them.
 4. The candidate is run on Aria's other laptop, over ssh, by the manager: its own daemon on its own socket, a temporary directory, nothing installed; it must open, draw a sensible number of districts, pan and quit. Nothing from that machine is named in any public file.
 5. **Waived for 0.3.2 by Aria:** the soak (step 4), the re-film (step 6). The checklist's A1 to A6 (step 5) is not run, as for 0.3.1; all three run for 0.3.3.
 6. The release workflow, `dry_run` first, then for real; then the AUR packages, with the `aur-update` skill.
+
+## Answered while building
+
+- **The candidate on Aria's other laptop** (manager, 2026-10-26, at `aefd89b`; its own daemon on its own socket, state and cache in a temporary directory, nothing installed, everything removed afterwards): the daemon served 723 sessions; the city, run in a virtual display because the laptop's screen was locked, drew its first frame 2.6 s after starting, with 24 districts where 0.3.1 made 559; a keyboard pan changed the frame; and a 15 s recording drew all 150 frames. Opened on the real screen it drew nothing, correctly, since the locker held the input focus, so `q` then `y` was not tried by hand there; item 270's quit fix is held by its test. A 0.3.1 city started on the same laptop earlier sat at a full core and 5.5 GB resident for 80 s.
