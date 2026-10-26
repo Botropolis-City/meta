@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-26 in the session "item 250". Filed 2026-10-25 (r1032), found by item 246's session running the validation checklist's step 1 live. Nobody's call — a defect.**
 
 Depends on: nothing
+Landed: slice 1 (`cd37e3f`, r1062).
 
 Against installed 0.3.0, `claude agents --json --all` and `botropolis status --all --json`, matched by session id, agree except for one class: five background sessions (four item sessions and the performance manager) showed **needs you** while Claude Code's own session record said `"status": "shell"` and `claude agents` said working or blocked.
 A record of `shell` is a session whose turn has ended while a background command it started is still running; it carries on by itself when that command finishes, so it does not need anyone.
