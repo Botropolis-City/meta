@@ -1,6 +1,6 @@
 # 282. The wheel cannot always reach Skyline, and the City Plan cannot be zoomed
 
-**Open. Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria said what she wants.**
+**Open, in progress since 2026-10-26 in the session "item 282". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria said what she wants.**
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"I should be able to zoom all the way out into the top view. Currently, I need to hit f, and then I can zoom out into it. I should be able to just zoom all the way out and then hit a debounce on zooming out for the last level ... Also, I should be able to zoom all the way out to the skyline view. It's weird that the only way to get there is hitting f because I can't manually zoom that far. Also, I should be able to zoom in on the top down view without going straight into the normal view. Some of the things are hard to see with lots of sessions."*
 

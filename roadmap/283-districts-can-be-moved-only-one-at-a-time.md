@@ -1,6 +1,6 @@
 # 283. Districts can be moved only one at a time
 
-**Open. Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria asked for it.**
+**Open, in progress since 2026-10-26 in the session "item 283". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria asked for it.**
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"I should be able to select multiple distrcits together and move them together."*
 

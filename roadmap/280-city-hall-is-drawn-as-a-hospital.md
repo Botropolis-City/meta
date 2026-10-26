@@ -1,6 +1,6 @@
 # 280. City Hall is drawn as a hospital, and the hospital should stand for what needs Aria
 
-**Open. Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria ruled what the hospital becomes; its look is a frame for her.**
+**Open, in progress since 2026-10-26 in the session "item 280". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria ruled what the hospital becomes; its look is a frame for her.**
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"city hall is a hospital. I haven't noticed that before because I haven't seen this side. We should swap that with another building. We should also reuse the hospital for something else because I like it. Maybe something like errors or a quick menu of what sessions need me right now?"*
 Asked which, she chose **both**: one building for what needs her now, and errors.

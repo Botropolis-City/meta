@@ -1,6 +1,6 @@
 # 281. A group's line can stand alone with one station and lead nowhere
 
-**Open. Filed 2026-10-26 (r1120), from Aria's other laptop on 0.3.2. Nobody's call — a defect.**
+**Open, in progress since 2026-10-26 in the session "item 281". Filed 2026-10-26 (r1120), from Aria's other laptop on 0.3.2. Nobody's call — a defect.**
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: some group lines *"don't go anywhere"*.
 

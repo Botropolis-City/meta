@@ -1,6 +1,6 @@
 # 278. Packing a session leaves it standing, boarded up, instead of taking it to the depot
 
-**Open. Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — a defect; Aria ruled packing keeps its meaning.**
+**Open, in progress since 2026-10-26 in the session "item 278". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — a defect; Aria ruled packing keeps its meaning.**
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"Manually packing a session, just makes it boarded up. It doesn't actually pack it up. Is that not how we get sessions to disappear manually?"*
 Asked, she ruled it a defect to investigate: packing still means *off the district and into the depot*, and unpacking brings it back.
