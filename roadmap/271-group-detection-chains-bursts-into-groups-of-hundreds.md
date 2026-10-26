@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`28f4360`, r1106).
+Landed: slice 2 (`b3bce70`, r1112).
 
 On that laptop the detector made 48 groups, seven of them with 61 to 781 members.
 A group is a set of sessions working together; nobody runs 781 sessions together.
