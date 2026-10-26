@@ -13,3 +13,7 @@ If `claude --bg` or anything it starts keeps a pipe open, or `claude` stalls on 
 2. Move these actions beside the loop through the set item 284 adds, with their results, including New's and Resume's notices, coming back as notices; keep move, mute, review and close-up synchronous, since they write the groups file in order.
 3. Restore resumes several sessions in a loop: it runs beside the loop as one job, reporting each.
 4. Tests, data-driven over each verb: a `claude` that never exits returns at its deadline with a notice; a `claude` whose child holds the pipe returns once `claude` exits; the city keeps drawing while each runs.
+
+## Answered while building
+
+- **The plan's five questions** (manager, 2026-10-26): deadlines of 2 minutes for new, resume and fork, 30 s for stop and rm, 20 s for listing agents, and a 1 s wait delay, set in `pkg/control` so the CLI shares them; starting a session and close-up also run beside the loop, with every groups-file load and save in `commands.Actor` behind one mutex so no move is lost; one action in flight per session and verb, a second press saying it is already running, since a second resume spends twice; and *resuming <title>…* shows while one runs, with no success notice, since the building changing is the answer.
