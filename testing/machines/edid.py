@@ -1,4 +1,4 @@
-"""A 1920x1080 at 60 Hz EDID, so the EX44's iGPU drives a display nobody plugged in (item 245).
+"""A 1920x1080 at 60 Hz EDID, so the soak box's iGPU drives a display nobody plugged in (item 245).
 
 The kernel dropped its built-in EDIDs, so drm.edid_firmware needs a file of its own.
 """

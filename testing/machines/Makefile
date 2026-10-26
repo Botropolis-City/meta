@@ -41,7 +41,7 @@ apply ::
 # The synthetic history comes from botropolis-demo synth-home (item 248).
 run-soak ::
 	@[ -n "${PERF_BUILD}" ] || { echo "set PERF_BUILD to a directory holding botropolis and botropolisd"; exit 2; }
-	$(LOG) "Pricing an EX44, then soaking ${PERF_BUILD} on it for 8 hours and cancelling it"
+	$(LOG) "Choosing the soak box from the plan, then soaking ${PERF_BUILD} on it for 8 hours and cancelling it"
 	@work=$$(mktemp -d); trap 'rm -rf "$$work"' EXIT; \
 		go -C "${BOTROPOLIS}" build -o "$$work/botropolis-demo" ./cmd/botropolis-demo && \
 		"$$work/botropolis-demo" synth-home --home "$$work/synthetic" \

@@ -18,13 +18,13 @@ import urllib.request
 HERE = os.path.dirname(os.path.realpath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
+from auction import choose  # noqa: E402
 from edid import edid_1080p  # noqa: E402
 
 ROBOT = os.environ.get('MACHINES_ROBOT_URL', 'https://robot-ws.your-server.de')
 HCLOUD = os.environ.get('MACHINES_HCLOUD_URL', 'https://api.hetzner.cloud/v1')
 POLL = float(os.environ.get('MACHINES_POLL_SECONDS', '30'))
-PRODUCT = 'EX44'
-DIST = 'Arch Linux latest minimal'
+MARKET = '/order/server_market'
 REMOTE = '/home/soak/run'
 SECRETS = {
     'soak': [('ROBOT_USER', 'robot_user_ref', '--robot-user-ref'),
@@ -46,9 +46,13 @@ COMMAND
   destroy   destroy MACHINE
 
 MACHINE
-  soak      a Hetzner EX44 dedicated server, ordered through Robot, for
-            item 164's 8-hour soak on a real iGPU. Approving means typing its
-            hourly price back. It is cancelled with cancellation_date=now.
+  soak      the soak box: the cheapest server in Hetzner's server auction with
+            an Intel Core 12th gen or later iGPU, billed by the hour with no
+            setup fee, for item 164's 8-hour soak. plan chooses it and saves
+            the choice; apply orders that listing only if it is unchanged and
+            only after its hourly price is typed back. The soak runs in
+            Hetzner's rescue system, Debian in RAM, with no reboot. It is
+            cancelled with cancellation_date=now.
   wayland   a Hetzner Cloud VM with GNOME or KDE Plasma on Wayland, made by
             Terraform in cloud/, for item 96. Approving is Terraform's own yes.
 
@@ -80,7 +84,7 @@ def parse(argv):
     p.add_argument('--hcloud-token-ref', default='', help='secret-run reference to a Hetzner Cloud API token')
     p.add_argument('--ssh-key', default=os.path.expanduser('~/.ssh/id_ed25519.pub'), help='public key the machine trusts')
     p.add_argument('--ipv4', action='store_true', help='give the machine an IPv4 address (Robot charges for it)')
-    p.add_argument('--location', default=None, help='soak: FSN1 (default); wayland: nbg1 (default)')
+    p.add_argument('--location', default=None, help='wayland: nbg1 (default); the soak box is where its listing is')
     p.add_argument('--desktop', choices=['gnome', 'kde'], default='gnome', help='wayland: the desktop')
     p.add_argument('--server-type', default='cx33', help='wayland: the Hetzner Cloud server type')
     p.add_argument('--image', default='fedora-42', help='wayland: the Fedora image')
@@ -180,12 +184,22 @@ def ssh(args, ip, command):
     return subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command]).returncode
 
 
+def ssh_output(args, ip, command):
+    done = subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command], capture_output=True, text=True)
+    return done.stdout.strip() if done.returncode == 0 else ''
+
+
 def remote(ip, path):
     return 'root@%s:%s' % ('[%s]' % ip if ':' in ip else ip, path)
 
 
 def scp(args, *paths):
     return subprocess.run(['scp', '-r'] + ssh_options(args) + list(paths)).returncode
+
+
+def forget(ip):
+    subprocess.run(['ssh-keygen', '-R', ip, '-f', os.path.join(state_dir(), 'known_hosts')],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def wait_for_ssh(args, ip):
@@ -212,28 +226,17 @@ class Robot:
             raise Refused('Robot answered %d to %s %s: %s' % (status, method, path, json.dumps(body)), 1)
         return status, body
 
-    def price(self, location):
-        _, body = self.call('GET', '/order/server/product/' + PRODUCT)
-        product = body['product']
-        if DIST not in product.get('dist', []):
-            raise Refused('Robot no longer offers %r for the %s; it offers %s' % (DIST, PRODUCT, product.get('dist')), 3)
-        match = [p for p in product['prices'] if p['location'] == location]
-        if not match:
-            raise Refused('the %s is not sold at %s; it is at %s' % (PRODUCT, location, product.get('location')), 3)
-        hourly, setup = match[0]['price'].get('hourly_net'), match[0]['price_setup']['net']
-        if hourly is None:
-            raise Refused('the %s at %s is not billed by the hour, so a cancelled server would still cost the month. '
-                          'Nothing ordered; ask Aria.' % (PRODUCT, location), 3)
-        if float(setup) > 0:
-            raise Refused('the %s at %s now has a setup fee of EUR %.2f; Aria chose it for having none. '
-                          'Nothing ordered; ask her.' % (PRODUCT, location, float(setup)), 3)
-        say('%s at %s: EUR %s an hour, setup fee EUR %.2f (net, VAT extra); a 10-hour run is about EUR %.2f.'
-            % (PRODUCT, location, hourly, float(setup), 10 * float(hourly)))
-        return hourly
+    def plan_path(self):
+        return os.path.join(state_dir(), 'soak-plan.json')
 
-    def order_form(self, args, key, test):
-        form = {'product_id': PRODUCT, 'location': args.location or 'FSN1', 'dist': DIST,
-                'authorized_key[]': [fingerprint(key)]}
+    def describe(self, p):
+        hourly = float(p['price_hourly'])
+        return ('auction server %s, %s at %s: EUR %s an hour (EUR %.2f a month), setup fee EUR %.2f; '
+                'a 10-hour run is about EUR %.2f' % (p['id'], p['cpu'], p['datacenter'], p['price_hourly'],
+                                                     float(p['price']), float(p['price_setup']), 10 * hourly))
+
+    def order_form(self, args, listing, key, test):
+        form = {'product_id': listing['id'], 'authorized_key[]': [fingerprint(key)]}
         if args.ipv4:
             form['addon[]'] = ['primary_ipv4']
         if test:
@@ -245,13 +248,45 @@ class Robot:
         return status == 200
 
     def plan(self, args):
-        self.price(args.location or 'FSN1')
+        status, body = self.call('GET', MARKET + '/product', ok=(200, 404))
+        listings = [x['product'] for x in body] if status == 200 and isinstance(body, list) else []
+        chosen, why = choose(listings)
+        if not chosen:
+            raise Refused('no auction server fits the soak: %s. Nothing ordered; ask Aria.' % why, 3)
+        say('The soak box: %s (net, VAT extra).' % self.describe(chosen))
         key = public_key(args)
         if not self.key_known(key):
             say('Your key %s is not in Robot yet; apply uploads it.' % fingerprint(key))
-        _, body = self.call('POST', '/order/server/transaction', self.order_form(args, key, test=True))
-        say('Robot accepted a test order (not processed): %s, %s, %s.'
-            % (PRODUCT, args.location or 'FSN1', 'with IPv4' if args.ipv4 else 'IPv6 only'))
+        self.call('POST', MARKET + '/transaction', self.order_form(args, chosen, key, test=True))
+        with open(self.plan_path(), 'w') as f:
+            json.dump({'id': chosen['id'], 'cpu': chosen['cpu'], 'datacenter': chosen['datacenter'],
+                       'hourly': chosen['price_hourly']}, f)
+        say('Robot accepted a test order (not processed) for auction server %s, %s. '
+            'apply and run-soak order this listing, and refuse if it is gone or its price has changed.'
+            % (chosen['id'], 'with IPv4' if args.ipv4 else 'IPv6 only'))
+
+    def planned(self):
+        try:
+            with open(self.plan_path()) as f:
+                plan = json.load(f)
+        except OSError:
+            raise Refused('no soak plan here: run `make plan MACHINE=soak` first and read what it chose', 2)
+        status, body = self.call('GET', '%s/product/%s' % (MARKET, plan['id']), ok=(200, 404))
+        if status == 404:
+            raise Refused('auction server %s (%s) is gone since the plan. Nothing ordered; plan again.'
+                          % (plan['id'], plan['cpu']), 3)
+        listing = body['product']
+        if listing.get('price_hourly') is None:
+            raise Refused('auction server %s is no longer billed by the hour, so a cancelled server would still '
+                          'cost the month. Nothing ordered; plan again.' % plan['id'], 3)
+        if float(listing['price_setup']) > 0:
+            raise Refused('auction server %s now has a setup fee of EUR %.2f. Nothing ordered; plan again.'
+                          % (plan['id'], float(listing['price_setup'])), 3)
+        if float(listing['price_hourly']) != float(plan['hourly']):
+            raise Refused('auction server %s is now EUR %s an hour, not the EUR %s planned. Nothing ordered; plan again.'
+                          % (plan['id'], listing['price_hourly'], plan['hourly']), 3)
+        say('The soak box: %s (net, VAT extra).' % self.describe(listing))
+        return listing
 
     def save(self, state):
         with open(self.state, 'w') as f:
@@ -265,9 +300,10 @@ class Robot:
             return None
 
     def apply(self, args):
-        hourly = self.price(args.location or 'FSN1')
+        listing = self.planned()
+        hourly = listing['price_hourly']
         tty = os.environ.get('MACHINES_TTY', '/dev/tty')
-        warn('Type the hourly price, %s, to order the %s now (anything else stops): ' % (hourly, PRODUCT))
+        warn('Type the hourly price, %s, to order auction server %s now (anything else stops): ' % (hourly, listing['id']))
         with open(tty) as f:
             typed = f.readline().strip()
         if typed != hourly:
@@ -275,16 +311,18 @@ class Robot:
         key = public_key(args)
         if not self.key_known(key):
             self.call('POST', '/key', {'name': 'botropolis-machines', 'data': key})
-        _, body = self.call('POST', '/order/server/transaction', self.order_form(args, key, test=False))
-        state = {'transaction': body['transaction']['id'], 'hourly': hourly}
+        _, body = self.call('POST', MARKET + '/transaction', self.order_form(args, listing, key, test=False))
+        state = {'transaction': body['transaction']['id'], 'hourly': hourly, 'listing': listing['id'],
+                 'cpu': listing['cpu'], 'datacenter': listing['datacenter']}
         self.save(state)
+        os.remove(self.plan_path())
         say('Ordered: transaction %s. It bills from delivery until destroy.' % state['transaction'])
         return self.delivered(state)
 
     def delivered(self, state):
         deadline = time.monotonic() + float(os.environ.get('MACHINES_ORDER_TIMEOUT', '14400'))
         while True:
-            _, body = self.call('GET', '/order/server/transaction/' + state['transaction'])
+            _, body = self.call('GET', MARKET + '/transaction/' + state['transaction'])
             t = body['transaction']
             if t['status'] == 'ready':
                 break
@@ -300,13 +338,14 @@ class Robot:
             ip = server['server']['server_ipv6_net'].split('/')[0] + '2'
         state['ip'] = ip
         self.save(state)
-        say('EX44 %d is up at %s and billing; `make destroy MACHINE=soak` cancels it.' % (state['server_number'], ip))
+        say('The soak box, server %d, is up at %s and billing; `make destroy MACHINE=soak` cancels it.'
+            % (state['server_number'], ip))
         return state
 
     def destroy(self):
         state = self.load()
         if not state:
-            say('No EX44 is on order here; nothing to cancel.')
+            say('No soak box is on order here; nothing to cancel.')
             return
         try:
             if 'server_number' not in state:
@@ -314,10 +353,10 @@ class Robot:
             self.call('POST', '/server/%d/cancellation' % state['server_number'],
                       {'cancellation_date': 'now', 'reserve_location': 'false'})
         except BaseException:
-            warn('EX44 NOT CANCELLED (%s): cancel it in Robot by hand.' % json.dumps(state))
+            warn('THE SOAK BOX IS NOT CANCELLED (%s): cancel it in Robot by hand.' % json.dumps(state))
             raise
         os.remove(self.state)
-        say('EX44 %d cancelled.' % state['server_number'])
+        say('The soak box, server %d, is cancelled.' % state['server_number'])
 
 
 def count_history(history):
@@ -332,7 +371,7 @@ def count_history(history):
 
 def run_soak(args):
     robot = Robot()
-    out = out_dir(args, 'soak-ex44')
+    out = out_dir(args, 'soak')
     sessions, projects = count_history(args.history)
     started = False
     rc = 1
@@ -340,26 +379,27 @@ def run_soak(args):
         state = robot.apply(args)
         ip = state['ip']
         with open(os.path.join(out, 'machine.txt'), 'w') as f:
-            f.write('machine: Hetzner %s %d at %s, %s, EUR %s an hour\n'
-                    % (PRODUCT, state['server_number'], args.location or 'FSN1', DIST, state['hourly']))
+            f.write('machine: Hetzner auction server %d (listing %s), %s at %s, in Hetzner\'s rescue system '
+                    '(Debian, in RAM), EUR %s an hour\n' % (state['server_number'], state['listing'], state['cpu'], state['datacenter'],
+                                          state['hourly']))
             f.write('display: Xorg modesetting on the iGPU, forced 1920x1080 EDID, i3, no blanking, no locker\n')
             f.write('synthetic history: %d sessions in %d projects (botropolis-demo synth-home, item 248); '
                     'nothing from a real ~/.claude\n' % (sessions, projects))
             f.write('started: %s\n' % datetime.datetime.now().isoformat(timespec='seconds'))
+        forget(ip)
         wait_for_ssh(args, ip)
         with tempfile.TemporaryDirectory() as tmp:
             edid = os.path.join(tmp, 'botropolis-1080p.bin')
             with open(edid, 'wb') as f:
                 f.write(edid_1080p())
-            if scp(args, os.path.join(HERE, 'ex44', 'setup'), edid, remote(ip, '/root/')) != 0:
+            if scp(args, os.path.join(HERE, 'soak', 'setup'), edid, remote(ip, '/root/')) != 0:
                 raise Refused('could not copy the set-up to %s' % ip, 1)
         setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin')
-        if setup == 100:
-            time.sleep(POLL)
-            wait_for_ssh(args, ip)
-            setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin')
         if setup != 0:
             raise Refused('the set-up failed on %s (exit %d); the soak did not start' % (ip, setup), 1)
+        mesa = ssh_output(args, ip, "dpkg-query -W -f='${Version}' libgl1-mesa-dri") or 'unknown'
+        with open(os.path.join(out, 'machine.txt'), 'a') as f:
+            f.write("mesa: %s (Debian's, in the rescue system; not the version on Aria's laptop)\n" % mesa)
         for src, dst in ((os.path.join(ROOT, 'performance'), REMOTE + '/performance'),
                          (args.corpus, REMOTE + '/botropolis/demo'),
                          (args.build, REMOTE + '/build'),
@@ -378,7 +418,7 @@ def run_soak(args):
     finally:
         try:
             if started and scp(args, remote(robot.load()['ip'], REMOTE + '/out/.'), out) != 0:
-                warn('could not fetch the soak report from the EX44')
+                warn('could not fetch the soak report from the soak box')
         finally:
             robot.destroy()
     say('Results: %s' % out)

@@ -8,7 +8,7 @@ import time
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'helpers'))
-from hetzner import IPV6_NET, SECRET, SERVER_NUMBER, Bench, basic  # noqa: E402
+from hetzner import CHOSEN, CHOSEN_HOURLY, IPV6_NET, SECRET, SERVER_NUMBER, Bench, basic, listing  # noqa: E402
 from stubs import run_in_own_group  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -17,6 +17,8 @@ TOOL = os.path.join(MACHINES, 'machines')
 ROBOT_REFS = ['--robot-user-ref', 'op:Test/robot/user', '--robot-password-ref', 'op:Test/robot/password']
 HCLOUD_REFS = ['--hcloud-token-ref', 'op:Test/hcloud/token']
 CANCELLATION = '/robot/server/%d/cancellation' % SERVER_NUMBER
+ORDER = '/robot/order/server_market/transaction'
+SOAK_PLAN = ['plan', 'soak'] + ROBOT_REFS
 
 
 def loud_skip(case, reason):
@@ -29,11 +31,19 @@ class Machines(unittest.TestCase):
     typed = ''
     hetzner = {}
     stub_env = {}
+    plan_first = False
 
     @classmethod
     def setUpClass(cls):
         cls.bench = Bench(typed=cls.typed, **cls.hetzner)
+        if cls.plan_first:
+            cls.planned = run_in_own_group([TOOL] + SOAK_PLAN, cls.bench.env(), 60)
+            cls.after_plan(cls.bench.hetzner)
         cls.done = run_in_own_group([TOOL] + cls.expand(cls.argv), cls.bench.env(**cls.stub_env), 60)
+
+    @classmethod
+    def after_plan(cls, hetzner):
+        pass
 
     @classmethod
     def expand(cls, argv):
@@ -92,7 +102,7 @@ class WhenRunningWaylandWithoutATokenReference(Machines):
 
 
 class WhenPlanningTheSoak(Machines):
-    argv = ['plan', 'soak'] + ROBOT_REFS
+    argv = SOAK_PLAN
 
     def test_it_should_exit_zero(self):
         self.assertEqual(self.done.returncode, 0, self.done.stderr)
@@ -109,20 +119,32 @@ class WhenPlanningTheSoak(Machines):
     def test_it_should_never_put_a_secret_in_any_argv(self):
         self.assertFalse([a for a in self.bench.every_argv() if SECRET in a])
 
-    def test_it_should_print_the_hourly_price(self):
-        self.assertIn('0.0700', self.done.stdout)
+    def test_it_should_print_the_chosen_listings_id(self):
+        self.assertIn(str(CHOSEN), self.done.stdout)
 
-    def test_it_should_print_the_setup_fee(self):
-        self.assertIn('setup', self.done.stdout.lower())
+    def test_it_should_print_its_cpu(self):
+        self.assertIn('Intel Core i5-12500', self.done.stdout)
+
+    def test_it_should_print_its_datacenter(self):
+        self.assertIn('FSN1-DC4', self.done.stdout)
+
+    def test_it_should_print_its_hourly_price(self):
+        self.assertIn(CHOSEN_HOURLY, self.done.stdout)
+
+    def test_it_should_print_its_monthly_price(self):
+        self.assertIn('109.90', self.done.stdout)
+
+    def test_it_should_print_its_setup_fee(self):
+        self.assertIn('setup fee EUR 0.00', self.done.stdout)
 
     def test_it_should_send_one_test_order(self):
         self.assertEqual(len(self.bench.hetzner.orders(test=True)), 1)
 
+    def test_it_should_send_the_test_order_for_the_chosen_listing(self):
+        self.assertEqual(self.bench.hetzner.orders(test=True)[0]['form'].get('product_id'), [str(CHOSEN)])
+
     def test_it_should_send_no_real_order(self):
         self.assertEqual(self.bench.hetzner.orders(test=False), [])
-
-    def test_it_should_order_arch(self):
-        self.assertEqual(self.bench.hetzner.orders(test=True)[0]['form'].get('dist'), ['Arch Linux latest minimal'])
 
     def test_it_should_order_without_the_paid_ipv4_addon(self):
         self.assertNotIn('addon[]', self.bench.hetzner.orders(test=True)[0]['form'])
@@ -135,34 +157,91 @@ class WhenPlanningTheSoakWithIPv4(Machines):
         self.assertEqual(self.bench.hetzner.orders(test=True)[0]['form'].get('addon[]'), ['primary_ipv4'])
 
 
-class WhenPlanningTheSoakAndTheEX44IsNotBilledHourly(Machines):
-    argv = ['plan', 'soak'] + ROBOT_REFS
-    hetzner = {'hourly_net': None}
+class WhenPlanningTheSoakAndNoListingQualifies(Machines):
+    argv = SOAK_PLAN
+    hetzner = {'market': [listing(1, 'Intel Core i5-13500', '0.1200', setup='39.0000'),
+                          listing(2, 'Intel Core i5-12500', None),
+                          listing(3, 'AMD Ryzen 7 7700', '0.1000')]}
 
     def test_it_should_refuse(self):
         self.assertNotEqual(self.done.returncode, 0)
 
+    def test_it_should_say_why(self):
+        self.assertIn('1 with a setup fee, 1 with no hourly price', self.done.stderr)
+
     def test_it_should_send_no_order_at_all(self):
-        self.assertEqual(self.bench.hetzner.sent('POST', '/robot/order/server/transaction'), [])
+        self.assertEqual(self.bench.hetzner.sent('POST', ORDER), [])
 
 
-class WhenPlanningTheSoakAndTheEX44HasASetupFee(Machines):
-    argv = ['plan', 'soak'] + ROBOT_REFS
-    hetzner = {'setup_net': '39.0000'}
+class WhenApplyingTheSoakWithoutAPlan(Machines):
+    argv = ['apply', 'soak'] + ROBOT_REFS
+    typed = CHOSEN_HOURLY
 
     def test_it_should_refuse(self):
         self.assertNotEqual(self.done.returncode, 0)
 
-    def test_it_should_say_what_the_fee_is(self):
-        self.assertIn('39.00', self.done.stderr)
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
 
-    def test_it_should_send_no_order_at_all(self):
-        self.assertEqual(self.bench.hetzner.sent('POST', '/robot/order/server/transaction'), [])
+
+class WhenApplyingTheSoakAndTheListingIsGoneSinceThePlan(Machines):
+    argv = ['apply', 'soak'] + ROBOT_REFS
+    typed = CHOSEN_HOURLY
+    plan_first = True
+
+    @classmethod
+    def after_plan(cls, hetzner):
+        hetzner.market = [p for p in hetzner.market if p['id'] != CHOSEN]
+
+    def test_it_should_refuse(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_say_the_listing_is_gone(self):
+        self.assertIn('gone', self.done.stderr)
+
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
+
+
+class WhenApplyingTheSoakAndItsHourlyPriceChangedSinceThePlan(Machines):
+    argv = ['apply', 'soak'] + ROBOT_REFS
+    typed = '0.1690'
+    plan_first = True
+
+    @classmethod
+    def after_plan(cls, hetzner):
+        [p for p in hetzner.market if p['id'] == CHOSEN][0]['price_hourly'] = '0.1690'
+
+    def test_it_should_refuse(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_say_both_prices(self):
+        self.assertTrue(CHOSEN_HOURLY in self.done.stderr and '0.1690' in self.done.stderr, self.done.stderr)
+
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
+
+
+class WhenApplyingTheSoakAndTheListingNowHasASetupFee(Machines):
+    argv = ['apply', 'soak'] + ROBOT_REFS
+    typed = CHOSEN_HOURLY
+    plan_first = True
+
+    @classmethod
+    def after_plan(cls, hetzner):
+        [p for p in hetzner.market if p['id'] == CHOSEN][0]['price_setup'] = '39.0000'
+
+    def test_it_should_refuse(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
 
 
 class WhenApplyingTheSoakAndTheTypedPriceDoesNotMatch(Machines):
     argv = ['apply', 'soak'] + ROBOT_REFS
     typed = 'yes'
+    plan_first = True
 
     def test_it_should_refuse(self):
         self.assertNotEqual(self.done.returncode, 0)
@@ -173,14 +252,18 @@ class WhenApplyingTheSoakAndTheTypedPriceDoesNotMatch(Machines):
 
 class WhenApplyingTheSoakAndTheTypedPriceMatches(Machines):
     argv = ['apply', 'soak'] + ROBOT_REFS
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
     hetzner = {'key_known': False}
+    plan_first = True
 
     def test_it_should_exit_zero(self):
         self.assertEqual(self.done.returncode, 0, self.done.stderr)
 
     def test_it_should_send_one_real_order(self):
         self.assertEqual(len(self.bench.hetzner.orders(test=False)), 1)
+
+    def test_it_should_order_the_planned_listing(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False)[0]['form'].get('product_id'), [str(CHOSEN)])
 
     def test_it_should_authorize_the_public_keys_fingerprint(self):
         self.assertEqual(self.bench.hetzner.orders(test=False)[0]['form'].get('authorized_key[]'),
@@ -208,12 +291,13 @@ class WhenDestroyingTheSoakWithNothingOrdered(Machines):
 
 class WhenDestroyingTheSoakAfterAnApply(Machines):
     argv = ['destroy', 'soak'] + ROBOT_REFS
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
 
     @classmethod
     def setUpClass(cls):
         cls.bench = Bench(typed=cls.typed)
         env = cls.bench.env()
+        run_in_own_group([TOOL] + SOAK_PLAN, env, 60)
         run_in_own_group([TOOL, 'apply', 'soak'] + ROBOT_REFS, env, 60)
         cls.done = run_in_own_group([TOOL] + cls.argv, env, 60)
 
@@ -223,7 +307,8 @@ class WhenDestroyingTheSoakAfterAnApply(Machines):
 
 class WhenRunningTheSoakAndItPasses(Machines):
     argv = SOAK_RUN
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
+    plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
 
     def test_it_should_exit_zero(self):
@@ -241,6 +326,17 @@ class WhenRunningTheSoakAndItPasses(Machines):
     def test_it_should_cancel_the_server(self):
         self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
 
+    def test_it_should_set_up_in_the_rescue_system_without_rebooting(self):
+        self.assertFalse([c for c in self.ssh_commands() if 'reboot' in c], self.ssh_commands())
+
+    def test_it_should_record_the_rescue_systems_mesa_version(self):
+        with open(os.path.join(self.bench.out, 'machine.txt')) as f:
+            self.assertIn('mesa: 25.0.7-2', f.read())
+
+    def test_it_should_name_the_auction_servers_cpu(self):
+        with open(os.path.join(self.bench.out, 'machine.txt')) as f:
+            self.assertIn('Intel Core i5-12500', f.read())
+
     def test_it_should_say_the_history_was_synthetic_and_how_big(self):
         with open(os.path.join(self.bench.out, 'machine.txt')) as f:
             self.assertIn('synthetic history: 3 sessions in 2 projects', f.read())
@@ -254,7 +350,7 @@ class WhenRunningTheSoakAndItPasses(Machines):
 
 class WhenRunningTheSoakOnTheUsersOwnHistory(Machines):
     argv = [a if a != '{history}' else '{real-history}' for a in SOAK_RUN]
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
 
     def test_it_should_refuse_with_exit_two(self):
         self.assertEqual(self.done.returncode, 2, self.done.stderr)
@@ -268,7 +364,8 @@ class WhenRunningTheSoakOnTheUsersOwnHistory(Machines):
 
 class WhenRunningTheSoakAndItFails(Machines):
     argv = SOAK_RUN
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
+    plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
     stub_env = {'STUB_FAIL': 'ssh:perf-soak'}
 
@@ -284,7 +381,8 @@ class WhenRunningTheSoakAndItFails(Machines):
 
 class WhenRunningTheSoakAndTheSetUpFails(Machines):
     argv = SOAK_RUN
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
+    plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
     stub_env = {'STUB_FAIL': 'ssh:setup'}
 
@@ -297,7 +395,8 @@ class WhenRunningTheSoakAndTheSetUpFails(Machines):
 
 class WhenRunningTheSoakAndRobotGivesNoIPv4(Machines):
     argv = SOAK_RUN
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
+    plan_first = True
 
     def test_it_should_reach_the_box_on_its_ipv6_nets_second_address(self):
         self.assertTrue([c for c in self.ssh_commands() if 'root@%s2' % IPV6_NET in c], self.ssh_commands())
@@ -305,12 +404,14 @@ class WhenRunningTheSoakAndRobotGivesNoIPv4(Machines):
 
 class WhenRunningTheSoakAndItIsInterrupted(Machines):
     argv = SOAK_RUN
-    typed = '0.0700'
+    typed = CHOSEN_HOURLY
+    plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
 
     @classmethod
     def setUpClass(cls):
         cls.bench = Bench(typed=cls.typed, **cls.hetzner)
+        run_in_own_group([TOOL] + SOAK_PLAN, cls.bench.env(), 60)
         proc = subprocess.Popen([TOOL] + cls.expand(cls.argv), env=cls.bench.env(STUB_HANG='ssh:perf-soak'),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
         deadline = time.monotonic() + 30
@@ -473,7 +574,7 @@ class WhenCheckingTheGuestSetUp(unittest.TestCase):
             loud_skip(self, 'shellcheck is not installed')
 
     def test_it_should_pass_shellcheck(self):
-        done = subprocess.run(['shellcheck', os.path.join(MACHINES, 'ex44', 'setup')], capture_output=True, text=True)
+        done = subprocess.run(['shellcheck', os.path.join(MACHINES, 'soak', 'setup')], capture_output=True, text=True)
         self.assertEqual(done.returncode, 0, done.stdout)
 
 

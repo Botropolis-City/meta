@@ -13,6 +13,28 @@ from stubs import executable
 SECRET = 'resolved-s3cr3t-value'
 SERVER_NUMBER = 4242
 IPV6_NET = '2a01:4f8:111:4221::'
+CHOSEN = 3100777
+CHOSEN_HOURLY = '0.1763'
+TRANSACTION = 'B20261026-1'
+
+
+def listing(id, cpu, hourly, setup='0.0000', datacenter='FSN1-DC1', monthly='110.0000'):
+    return {'id': id, 'name': 'Server Auction', 'cpu': cpu, 'datacenter': datacenter, 'dist': ['Rescue system'],
+            'price': monthly, 'price_vat': monthly, 'price_hourly': hourly, 'price_hourly_vat': hourly,
+            'price_setup': setup, 'price_setup_vat': setup, 'fixed_price': False}
+
+
+def auction():
+    return [listing(3100001, 'AMD Ryzen 7 7700', '0.1000'),
+            listing(3100002, 'Intel Core i5-12400F', '0.1100'),
+            listing(3100003, 'Intel Core i7-6700', '0.1150'),
+            listing(3100004, 'Intel Core i5-13500', '0.1200', setup='39.0000'),
+            listing(3100005, 'Intel Core i5-12500', None),
+            listing(3100006, 'Intel Core i9-13900', '0.2949'),
+            listing(CHOSEN, 'Intel Core i5-12500', CHOSEN_HOURLY, datacenter='FSN1-DC4', monthly='109.9000'),
+            listing(3100008, 'Intel Xeon E5-1650V3', '0.0900')]
+
+
 PUBLIC_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINWoPn30OFsbwWfmUhgb6N/ORlz840KoDcMKq315dHRV test@machines\n'
 
 SPYING_STUB = textwrap.dedent('''\
@@ -32,6 +54,8 @@ SPYING_STUB = textwrap.dedent('''\
         time.sleep(60)
     if matches('STUB_FAIL'):
         sys.exit(1)
+    if name == 'ssh' and any('libgl1-mesa-dri' in a for a in args):
+        print('25.0.7-2')
     if name == 'terraform' and 'output' in args:
         print(json.dumps({'ipv6_address': {'value': '2a01:4f8:c0c:1::1'}, 'ipv4_address': {'value': '192.0.2.7'}}))
     ''')
@@ -56,10 +80,9 @@ SECRET_RUN = textwrap.dedent('''\
 class Hetzner:
     """A stand-in for Robot and the Cloud API: it records every request and answers like them."""
 
-    def __init__(self, hourly_net='0.0700', setup_net='0.0000', server_ip=None, key_known=True):
+    def __init__(self, market=None, server_ip=None, key_known=True):
         self.requests = []
-        self.hourly_net = hourly_net
-        self.setup_net = setup_net
+        self.market = auction() if market is None else market
         self.server_ip = server_ip
         self.key_known = key_known
         hetzner = self
@@ -98,21 +121,19 @@ class Hetzner:
 
     def answer(self, method, path):
         path = urllib.parse.urlparse(path).path
-        if path == '/robot/order/server/product/EX44':
-            price = {'net': '45.0000', 'gross': '53.5500', 'hourly_net': self.hourly_net, 'hourly_gross': self.hourly_net}
-            return 200, {'product': {'id': 'EX44', 'name': 'Dedicated Root Server EX44',
-                                     'dist': ['Debian 12 base', 'Arch Linux latest minimal'],
-                                     'location': ['FSN1', 'NBG1'],
-                                     'prices': [{'location': 'FSN1', 'price': price,
-                                                 'price_setup': {'net': self.setup_net, 'gross': self.setup_net}}]}}
+        if path == '/robot/order/server_market/product':
+            return (200, [{'product': p} for p in self.market]) if self.market else (404, {'error': {'status': 404, 'code': 'NOT_FOUND'}})
+        if path.startswith('/robot/order/server_market/product/'):
+            found = [p for p in self.market if str(p['id']) == path.rsplit('/', 1)[1]]
+            return (200, {'product': found[0]}) if found else (404, {'error': {'status': 404, 'code': 'NOT_FOUND'}})
         if path.startswith('/robot/key/') and method == 'GET':
             return (200, {'key': {'fingerprint': path.rsplit('/', 1)[1]}}) if self.key_known else (404, {'error': {'status': 404, 'code': 'NOT_FOUND'}})
         if path == '/robot/key' and method == 'POST':
             return 201, {'key': {'name': 'botropolis-machines'}}
-        if path == '/robot/order/server/transaction' and method == 'POST':
-            return 201, {'transaction': {'id': 'B20261025-1', 'status': 'in process', 'server_number': None, 'server_ip': None}}
-        if path == '/robot/order/server/transaction/B20261025-1':
-            return 200, {'transaction': {'id': 'B20261025-1', 'status': 'ready',
+        if path == '/robot/order/server_market/transaction' and method == 'POST':
+            return 201, {'transaction': {'id': TRANSACTION, 'status': 'in process', 'server_number': None, 'server_ip': None}}
+        if path == '/robot/order/server_market/transaction/' + TRANSACTION:
+            return 200, {'transaction': {'id': TRANSACTION, 'status': 'ready',
                                          'server_number': SERVER_NUMBER, 'server_ip': self.server_ip}}
         if path == '/robot/server/%d' % SERVER_NUMBER and method == 'GET':
             return 200, {'server': {'server_number': SERVER_NUMBER, 'server_ip': self.server_ip, 'server_ipv6_net': IPV6_NET}}
@@ -128,7 +149,7 @@ class Hetzner:
         return [r for r in self.requests if r['method'] == method and urllib.parse.urlparse(r['path']).path == path]
 
     def orders(self, test):
-        return [r for r in self.sent('POST', '/robot/order/server/transaction')
+        return [r for r in self.sent('POST', '/robot/order/server_market/transaction')
                 if (r['form'].get('test') == ['true']) == test]
 
 

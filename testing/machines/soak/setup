@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+report=/home/soak/run/out/dri.txt
+edid_name=botropolis-1080p.bin
+
+usage() {
+	cat <<USAGE
+Usage: setup EDID_FILE
+
+Turns the soak box, as Hetzner's server auction delivers it, booted into the
+Debian-based rescue system that runs from RAM, into the soak machine
+(item 245), with no reboot: Xorg with the modesetting driver on the Intel
+iGPU (Mesa's iris), a display forced on with EDID_FILE through the DRM
+debugfs override, i3, no blanking, no DPMS and no locker. X runs on :0, and
+i3 and the soak run as the user soak.
+
+It reports what it finds in /dev/dri, the Mesa version and the renderer to
+${report}.
+
+Exit status: 0 ready, 3 no iGPU or no connector to force, 4 X did not come up.
+USAGE
+}
+
+case "${1:-}" in
+-h | --help) usage; exit 0 ;;
+"") usage >&2; exit 2 ;;
+esac
+edid="$1"
+
+export DEBIAN_FRONTEND=noninteractive
+
+getent group render >/dev/null || groupadd --system render
+id soak >/dev/null 2>&1 || useradd -m -s /bin/bash -G video,render soak
+install -d -o soak -g soak /home/soak/run /home/soak/run/out /home/soak/run/botropolis /home/soak/.config/i3
+
+modprobe i915 2>/dev/null || true
+{
+	echo "# /dev/dri on $(hostname) at $(date -Is), in Hetzner's rescue system ($(uname -r))"
+	ls -l /dev/dri 2>&1 || true
+	lspci -nnk 2>/dev/null | grep -A3 -E 'VGA|Display' || echo "lspci found no display controller"
+	for status in /sys/class/drm/card*-*/status; do
+		[[ -e "${status}" ]] && echo "$(basename "$(dirname "${status}")"): $(cat "${status}")"
+	done
+} >"${report}"
+cat "${report}"
+
+if ! compgen -G '/dev/dri/renderD*' >/dev/null; then
+	echo "no /dev/dri/renderD*: the iGPU is not enabled on this server, so it cannot run the soak" | tee -a "${report}" >&2
+	exit 3
+fi
+
+apt-get update -q
+apt-get install -y -q --no-install-recommends \
+	xserver-xorg-core xinit x11-xserver-utils i3-wm fonts-dejavu-core mesa-utils \
+	libgl1-mesa-dri libgl1 libegl1 libx11-6 libxcursor1 libxi6 libxinerama1 libxrandr2 hicolor-icon-theme \
+	python3 pciutils
+echo "mesa: $(dpkg-query -W -f='${Version}' libgl1-mesa-dri)" >>"${report}"
+
+connector=""
+card=""
+for path in /sys/class/drm/card*-*; do
+	name=$(basename "${path}")
+	case "${name#card*-}" in
+	HDMI-* | DP-*)
+		connector="${name#card*-}"
+		card="${name%%-*}"
+		break
+		;;
+	esac
+done
+[[ -n "${connector}" ]] || { echo "no HDMI or DP connector to force on" | tee -a "${report}" >&2; exit 3; }
+
+mountpoint -q /sys/kernel/debug || mount -t debugfs none /sys/kernel/debug
+override="/sys/kernel/debug/dri/${card#card}/${connector}"
+[[ -d "${override}" ]] || { echo "no ${override} to force ${connector} through" | tee -a "${report}" >&2; exit 3; }
+install -D -m 0644 "${edid}" "/usr/lib/firmware/edid/${edid_name}"
+cat "${edid}" >"${override}/edid_override"
+echo on >"${override}/force"
+echo "forced connector: ${connector} (${card}), $(cat "/sys/class/drm/${card}-${connector}/status")" >>"${report}"
+
+mkdir -p /etc/X11/xorg.conf.d
+cat >/etc/X11/xorg.conf.d/20-botropolis.conf <<'XORG'
+Section "ServerFlags"
+	Option "BlankTime" "0"
+	Option "StandbyTime" "0"
+	Option "SuspendTime" "0"
+	Option "OffTime" "0"
+EndSection
+
+Section "Device"
+	Identifier "iGPU"
+	Driver "modesetting"
+EndSection
+XORG
+
+cat >/home/soak/.config/i3/config <<'I3'
+font pango:DejaVu Sans Mono 10
+exec --no-startup-id xset s off -dpms
+I3
+chown soak: /home/soak/.config/i3/config
+
+setsid Xorg :0 vt1 -nolisten tcp -noreset </dev/null >/var/log/soak-xorg.out 2>&1 &
+
+for _ in $(seq 60); do
+	if DISPLAY=:0 xset q >/dev/null 2>&1; then
+		DISPLAY=:0 xhost +SI:localuser:soak >/dev/null
+		DISPLAY=:0 xset s off -dpms
+		runuser -u soak -- env DISPLAY=:0 HOME=/home/soak setsid i3 </dev/null >/home/soak/i3.log 2>&1 &
+		{
+			echo "# X on :0"
+			DISPLAY=:0 xrandr --query
+			DISPLAY=:0 xset q | grep -A2 -E 'Screen Saver|DPMS'
+			runuser -u soak -- env DISPLAY=:0 glxinfo -B 2>&1 | grep -E 'renderer|version' || true
+			grep -E 'modeset|glamor|iris' /var/log/Xorg.0.log 2>/dev/null | head -20 || true
+		} >>"${report}"
+		chown soak: "${report}"
+		exit 0
+	fi
+	sleep 1
+done
+echo "X did not come up on :0" | tee -a "${report}" >&2
+tail -40 /var/log/soak-xorg.out >>"${report}" 2>/dev/null || true
+exit 4
