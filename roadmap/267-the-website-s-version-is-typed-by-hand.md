@@ -1,6 +1,6 @@
 # 267. The website's version number is typed by hand, so every release needs a site edit
 
-**Open. Filed 2026-10-26 (r1093) at Aria's request. Aria's call — how the site learns of a release.**
+**Open. Filed 2026-10-26 (r1093) at Aria's request. Nobody's call — Aria chose rebuilding on release.**
 
 Aria, 2026-10-26: *"we should update the website so that it dynamically detects and shows the latest version number without having to edit the website"*.
 
@@ -22,3 +22,7 @@ Either way:
 - The **latest version** shows in one place, from one source; the **filmed version** stays labelled as such where it captions the film, so the site never claims a frame came from a build it did not.
 - The *new in* section comes from the release's own changelog section, so it is never about the wrong release; the hand-written performance figures for 0.3.0 either name 0.3.0 as the version they measured or move under it.
 - The acceptance test (`testing/acceptance/site/page.spec.ts`) holds the page's version to the latest release in a fixture, and fails on any hard-coded version number left in `src/`.
+
+## Answered while building
+
+- **How the site learns of a release** (Aria, 2026-10-26, after the manager's case for it: *"Ok, ya let's do option 1. But we don't need to rebuild hourly. I'm a solo dev and things don't change that often if I'm not working on the project actively."*): option 1, rebuilt on release. botropolis's release workflow dispatches the site's build as its last step, and nothing rebuilds on a schedule; a dispatch that is ever lost is made up by running the site's workflow by hand (`workflow_dispatch`), which the release checklist says to do if the site does not show the new version.

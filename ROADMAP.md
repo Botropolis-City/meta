@@ -47,12 +47,11 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [264](roadmap/264-a-hover-label-draws-over-a-notice-s-dimmed-city.md) | the city behind a notice or covering panel can still be hovered through it | — | nobody, a defect |
 | [265](roadmap/265-what-1-0-0-needs-is-not-written-down.md) | the bar a build must clear to be 1.0.0, drafted for Aria | — | Aria's, which criteria make the bar |
 | [266](roadmap/266-the-soak-box-has-nowhere-to-leave-its-report.md) | an R2 bucket and a scoped credential so the soak box leaves its report without the laptop | — | nobody, Aria chose R2 |
-| [267](roadmap/267-the-website-s-version-is-typed-by-hand.md) | the site shows the latest release without a hand edit | — | Aria's, rebuilt on release or read at request time |
+| [267](roadmap/267-the-website-s-version-is-typed-by-hand.md) | the site shows the latest release without a hand edit | — | nobody, Aria chose rebuilding on release |
 | [268](roadmap/268-a-first-sighting-shown-only-behind-a-panel-is-spent.md) | a first sighting shown only behind a covering panel is spent and never shows | — | nobody, a defect |
 
 ## Waiting on Aria
 
-- **How the site learns of a release**, [item 267](roadmap/267-the-website-s-version-is-typed-by-hand.md): rebuilt on each release, or read at request time.
 - **What 1.0.0 needs**, [item 265](roadmap/265-what-1-0-0-needs-is-not-written-down.md): nine drafted criteria to keep, change or drop.
 - **The validation checklist's six steps left to her**, A1–A6 in [`validation-checklist.md`](roadmap/validation-checklist.md): attach in a real terminal, `c` in a real district, a real notification and the away list, `!` in a real session, the waybar module, and `status --live`. Each says the keys to press and what she should see; everything else on it is scripted or run by an agent (item 246). They run against each release build.
 
