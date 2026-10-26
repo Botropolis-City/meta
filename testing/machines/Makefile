@@ -16,6 +16,7 @@ SOAK_PROJECTS ?= 150
 PLUGINS := $${XDG_CACHE_HOME:-$$HOME/.cache}/botropolis-machines/plugins
 
 REFS := --robot-user-ref "${ROBOT_USER_REF}" --robot-password-ref "${ROBOT_PASSWORD_REF}" --hcloud-token-ref "${HCLOUD_TOKEN_REF}"
+BUCKET := --bucket-url "${BUCKET_URL}" --bucket-write-id-ref "${BUCKET_WRITE_ID_REF}" --bucket-write-secret-ref "${BUCKET_WRITE_SECRET_REF}" --bucket-read-id-ref "${BUCKET_READ_ID_REF}" --bucket-read-secret-ref "${BUCKET_READ_SECRET_REF}"
 OPTS := --desktop ${DESKTOP} $(if ${IPV4},--ipv4) $(if ${MAX_HOURS},--max-hours ${MAX_HOURS})
 
 targets ::
@@ -41,12 +42,12 @@ apply ::
 # The synthetic history comes from botropolis-demo synth-home (item 248).
 run-soak ::
 	@[ -n "${PERF_BUILD}" ] || { echo "set PERF_BUILD to a directory holding botropolis and botropolisd"; exit 2; }
-	$(LOG) "Choosing the soak box from the plan, then soaking ${PERF_BUILD} on it for 8 hours and cancelling it"
+	$(LOG) "Choosing the soak box from the plan, booking its own cancellation, soaking ${PERF_BUILD} on it for 8 hours with its report going to the bucket, and cancelling it"
 	@work=$$(mktemp -d); trap 'rm -rf "$$work"' EXIT; \
 		go -C "${BOTROPOLIS}" build -o "$$work/botropolis-demo" ./cmd/botropolis-demo && \
 		"$$work/botropolis-demo" synth-home --home "$$work/synthetic" \
 			--sessions ${SOAK_SESSIONS} --projects ${SOAK_PROJECTS} --seed 245 && \
-		./machines run soak ${REFS} ${OPTS} --build "${PERF_BUILD}" --stager "$$work/botropolis-demo" \
+		./machines run soak ${REFS} ${BUCKET} ${OPTS} --build "${PERF_BUILD}" --stager "$$work/botropolis-demo" \
 			--corpus "${BOTROPOLIS}/demo" --history "$$work/synthetic/.claude" --soak-flags "${PERF_SOAK_FLAGS}"
 
 run-wayland ::

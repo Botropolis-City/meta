@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import shutil
@@ -7,6 +8,7 @@ import sys
 import tempfile
 import time
 import unittest
+import zoneinfo
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'helpers'))
 from hetzner import (CHOSEN, CHOSEN_HOURLY, IPV6_NET, PERSONAL_KEY, PUBLIC_KEY, SECRET, SERVER_NUMBER,  # noqa: E402
@@ -21,11 +23,18 @@ HCLOUD_REFS = ['--hcloud-token-ref', 'op:Test/hcloud/token']
 CANCELLATION = '/robot/server/%d/cancellation' % SERVER_NUMBER
 ORDER = '/robot/order/server_market/transaction'
 SOAK_PLAN = ['plan', 'soak'] + ROBOT_REFS
-STATUS = 'cat /home/soak/run/out/perf-soak.exit'
 REPORT = '/home/soak/run/out/.'
 NO_IPV6 = {'STUB_FAIL': 'ip:route'}
 CEILING = ['--max-hours', '0.0005']
 GENTLE = {'MACHINES_POLL_SECONDS': '0.05'}
+BUCKET_REFS = ['--bucket-url', '{bucket}',
+               '--bucket-write-id-ref', 'op:Test/bucket/write-id', '--bucket-write-secret-ref', 'op:Test/bucket/write-secret',
+               '--bucket-read-id-ref', 'op:Test/bucket/read-id', '--bucket-read-secret-ref', 'op:Test/bucket/read-secret']
+BERLIN = zoneinfo.ZoneInfo('Europe/Berlin')
+
+
+def booking_for(t, hours=10):
+    return (datetime.datetime.fromtimestamp(t + hours * 3600, BERLIN).date() + datetime.timedelta(days=1)).isoformat()
 
 
 def loud_skip(case, reason):
@@ -37,17 +46,20 @@ class Machines(unittest.TestCase):
     argv = []
     typed = ''
     hetzner = {}
+    bucket = {}
     stub_env = {}
     plan_first = False
     dedicated_key = True
 
     @classmethod
     def setUpClass(cls):
-        cls.bench = Bench(typed=cls.typed, dedicated_key=cls.dedicated_key, **cls.hetzner)
+        cls.bench = Bench(typed=cls.typed, dedicated_key=cls.dedicated_key, bucket=cls.bucket, **cls.hetzner)
         if cls.plan_first:
             cls.planned = run_in_own_group([TOOL] + SOAK_PLAN, cls.bench.env(), 60)
             cls.after_plan(cls.bench.hetzner)
+        cls.started = time.time()
         cls.done = run_in_own_group([TOOL] + cls.expand(cls.argv), cls.bench.env(**cls.stub_env), 60)
+        cls.finished = time.time()
 
     @classmethod
     def after_plan(cls, hetzner):
@@ -57,7 +69,7 @@ class Machines(unittest.TestCase):
     def expand(cls, argv):
         b = cls.bench
         names = {'{build}': b.build, '{stager}': b.stager, '{corpus}': b.corpus, '{script}': b.script, '{out}': b.out,
-                 '{history}': b.history, '{real-history}': b.real_history}
+                 '{history}': b.history, '{real-history}': b.real_history, '{bucket}': b.bucket.url}
         return [names.get(a, a) for a in argv]
 
     @classmethod
@@ -70,11 +82,27 @@ class Machines(unittest.TestCase):
     def launches(self):
         return [c for c in self.ssh_commands() if 'setsid' in c and 'perf-soak' in c]
 
-    def polls(self):
-        return [c for c in self.ssh_commands() if STATUS in c]
+    def cancellations(self):
+        return self.bench.hetzner.sent('POST', CANCELLATION)
 
-    def fetches(self):
-        return [argv for argv in self.bench.calls('scp') if any(a.endswith(REPORT) for a in argv)]
+    def cancelled_now(self):
+        return [r for r in self.cancellations() if r['form'].get('cancellation_date') == ['now']]
+
+    def booked(self):
+        return [r['form']['cancellation_date'][0] for r in self.cancellations()
+                if r['form'].get('cancellation_date') != ['now']]
+
+    def cancellation_steps(self):
+        return [' '.join(e[1:2] + e[3:]) for e in self.sequence() if e[0] == 'robot' and e[2] == CANCELLATION
+                and e[1] != 'GET']
+
+    def machine_txt(self):
+        with open(os.path.join(self.bench.out, 'machine.txt')) as f:
+            return f.read()
+
+    def results_report(self):
+        with open(os.path.join(self.bench.out, 'soak.md')) as f:
+            return f.read()
 
     def sequence(self):
         with open(os.path.join(self.bench.spy, 'sequence')) as f:
@@ -84,17 +112,23 @@ class Machines(unittest.TestCase):
         return [i for i, entry in enumerate(self.sequence()) if match(entry)]
 
     def fetched_at(self):
-        return self.positions(lambda e: e[0] == 'scp' and any(a.endswith(REPORT) for a in e[1:]))
+        return self.positions(lambda e: e[:2] == ['bucket', 'GET'] and e[2].endswith('/report.tar.gz'))
 
     def cancelled_at(self):
-        return self.positions(lambda e: e == ['robot', 'POST', CANCELLATION])
+        return self.positions(lambda e: e == ['robot', 'POST', CANCELLATION, 'now'])
+
+    def booked_at(self):
+        return self.positions(lambda e: e[:3] == ['robot', 'POST', CANCELLATION] and e[3:] != ['now'])
 
     def polled_at(self):
-        return self.positions(lambda e: e[0] == 'ssh' and any(STATUS in a for a in e[1:]))
+        return self.positions(lambda e: e[:2] == ['bucket', 'GET'] and e[2].endswith('/exit'))
+
+    def first_ssh_at(self):
+        return self.positions(lambda e: e[0] == 'ssh')[0]
 
 
-SOAK_RUN = ['run', 'soak'] + ROBOT_REFS + ['--build', '{build}', '--stager', '{stager}', '--corpus', '{corpus}',
-                                           '--history', '{history}', '--out', '{out}']
+SOAK_RUN = ['run', 'soak'] + ROBOT_REFS + BUCKET_REFS + ['--build', '{build}', '--stager', '{stager}',
+                                                         '--corpus', '{corpus}', '--history', '{history}', '--out', '{out}']
 WAYLAND_RUN = ['run', 'wayland'] + HCLOUD_REFS + ['--desktop', 'kde', '--script', '{script}', '--out', '{out}']
 
 
@@ -353,7 +387,10 @@ class WhenApplyingTheSoakAndTheTypedPriceMatches(Machines):
         self.assertEqual(len(self.bench.hetzner.sent('POST', '/robot/key')), 1)
 
     def test_it_should_not_cancel_the_server(self):
-        self.assertEqual(self.bench.hetzner.sent('POST', CANCELLATION), [])
+        self.assertEqual(self.cancelled_now(), [])
+
+    def test_it_should_book_the_servers_cancellation(self):
+        self.assertIn(self.booked(), [[booking_for(self.started)], [booking_for(self.finished)]])
 
     def test_it_should_say_how_to_destroy_it(self):
         self.assertIn('destroy', self.done.stdout)
@@ -366,7 +403,7 @@ class WhenDestroyingTheSoakWithNothingOrdered(Machines):
         self.assertEqual(self.done.returncode, 0, self.done.stderr)
 
     def test_it_should_cancel_nothing(self):
-        self.assertEqual(self.bench.hetzner.sent('POST', CANCELLATION), [])
+        self.assertEqual(self.cancelled_now(), [])
 
 
 class WhenDestroyingTheSoakAfterAnApply(Machines):
@@ -381,8 +418,8 @@ class WhenDestroyingTheSoakAfterAnApply(Machines):
         run_in_own_group([TOOL, 'apply', 'soak'] + ROBOT_REFS, env, 60)
         cls.done = run_in_own_group([TOOL] + cls.argv, env, 60)
 
-    def test_it_should_cancel_the_server_now(self):
-        self.assertEqual([r['form'].get('cancellation_date') for r in self.bench.hetzner.sent('POST', CANCELLATION)], [['now']])
+    def test_it_should_revoke_the_booking_then_cancel_now(self):
+        self.assertEqual(self.cancellation_steps()[1:], ['DELETE', 'POST now'])
 
 
 class WhenRunningTheSoakAndItPasses(Machines):
@@ -400,6 +437,37 @@ class WhenRunningTheSoakAndItPasses(Machines):
     def test_it_should_run_the_soak_on_the_boxs_display(self):
         self.assertTrue([c for c in self.ssh_commands() if 'perf-soak' in c and 'DISPLAY=:0' in c], self.ssh_commands())
 
+    def test_it_should_book_the_cancellation_right_after_delivery_before_any_set_up(self):
+        self.assertLess(self.booked_at()[0], self.first_ssh_at(), self.sequence())
+
+    def test_it_should_book_the_day_after_the_ceiling_in_berlin(self):
+        self.assertIn(self.booked(), [[booking_for(self.started)], [booking_for(self.finished)]])
+
+    def test_it_should_record_the_booked_date(self):
+        self.assertIn('cancellation booked: %s' % self.booked()[0], self.machine_txt())
+
+    def test_it_should_record_when_the_box_was_cancelled(self):
+        self.assertIn('cancelled: ', self.machine_txt())
+
+    def test_it_should_write_the_write_key_on_the_box_through_ssh_stdin(self):
+        with open(os.path.join(self.bench.spy, 'ssh-stdin')) as f:
+            self.assertIn('BUCKET_SECRET=' + SECRET, f.read())
+
+    def test_it_should_write_the_key_file_readable_by_root_alone(self):
+        self.assertTrue([c for c in self.ssh_commands() if 'bucket.env' in c and 'umask 077' in c], self.ssh_commands())
+
+    def test_it_should_never_put_a_bucket_key_in_any_argv(self):
+        self.assertFalse([a for a in self.bench.every_argv() if SECRET in a])
+
+    def test_it_should_watch_the_soak_through_the_bucket(self):
+        self.assertTrue(self.bench.bucket.sent('GET', '/exit'), self.bench.bucket.requests)
+
+    def test_it_should_fetch_the_report_from_the_bucket(self):
+        self.assertEqual(self.results_report(), 'verdict from the bucket\n')
+
+    def test_it_should_cancel_early_by_revoking_the_booking_then_cancelling_now(self):
+        self.assertEqual(self.cancellation_steps()[1:], ['DELETE', 'POST now'])
+
     def test_it_should_start_the_soak_detached_on_the_box(self):
         self.assertTrue(self.launches(), self.ssh_commands())
 
@@ -410,7 +478,7 @@ class WhenRunningTheSoakAndItPasses(Machines):
         self.assertTrue(os.path.exists(os.path.join(self.bench.out, 'soak.md')), self.bench.calls('scp'))
 
     def test_it_should_cancel_the_server(self):
-        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+        self.assertEqual(len(self.cancelled_now()), 1)
 
     def test_it_should_reach_the_box_with_the_dedicated_key(self):
         self.assertTrue([c for c in self.ssh_commands() if 'IdentityFile=' + self.bench.dedicated + ' ' in c + ' '],
@@ -463,7 +531,7 @@ class WhenRunningTheSoakAndItFails(Machines):
     typed = CHOSEN_HOURLY
     plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
-    stub_env = {'STUB_SEQ': 'ssh:%s=0:1' % STATUS}
+    bucket = {'exit': '1'}
 
     def test_it_should_exit_nonzero(self):
         self.assertNotEqual(self.done.returncode, 0)
@@ -472,7 +540,7 @@ class WhenRunningTheSoakAndItFails(Machines):
         self.assertTrue(os.path.exists(os.path.join(self.bench.out, 'soak.md')), self.bench.calls('scp'))
 
     def test_it_should_cancel_the_server(self):
-        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+        self.assertEqual(len(self.cancelled_now()), 1)
 
 
 class WhenRunningTheSoakAndTheSetUpFails(Machines):
@@ -486,7 +554,7 @@ class WhenRunningTheSoakAndTheSetUpFails(Machines):
         self.assertFalse([c for c in self.ssh_commands() if 'perf-soak' in c])
 
     def test_it_should_cancel_the_server(self):
-        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+        self.assertEqual(len(self.cancelled_now()), 1)
 
 
 class WhenRunningTheSoakAndRobotGivesNoIPv4(Machines):
@@ -506,12 +574,12 @@ class WhenRunningTheSoakAndItIsInterrupted(Machines):
 
     @classmethod
     def setUpClass(cls):
-        cls.bench = Bench(typed=cls.typed, **cls.hetzner)
+        cls.bench = Bench(typed=cls.typed, bucket={'exit': None}, **cls.hetzner)
         run_in_own_group([TOOL] + SOAK_PLAN, cls.bench.env(), 60)
-        proc = subprocess.Popen([TOOL] + cls.expand(cls.argv), env=cls.bench.env(STUB_HANG='ssh:' + STATUS),
+        proc = subprocess.Popen([TOOL] + cls.expand(cls.argv), env=cls.bench.env(),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
         deadline = time.monotonic() + 30
-        while time.monotonic() < deadline and not [c for c in cls.bench.calls('ssh') if STATUS in ' '.join(c)]:
+        while time.monotonic() < deadline and not cls.bench.bucket.sent('GET', '/exit'):
             time.sleep(0.1)
         proc.send_signal(signal.SIGINT)
         try:
@@ -520,10 +588,10 @@ class WhenRunningTheSoakAndItIsInterrupted(Machines):
             os.killpg(proc.pid, signal.SIGKILL) if proc.poll() is None else None
 
     def test_it_should_fetch_the_report_once(self):
-        self.assertEqual(len(self.fetches()), 1, self.bench.calls('scp'))
+        self.assertEqual(len(self.bench.bucket.sent('GET', '/report.tar.gz')), 1, self.bench.bucket.requests)
 
     def test_it_should_cancel_the_server(self):
-        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+        self.assertEqual(len(self.cancelled_now()), 1)
 
 
 class WhenPlanningTheSoakAndThisMachineHasNoIPv6Route(Machines):
@@ -561,27 +629,37 @@ class WhenRunningTheSoakAndThisMachineHasNoIPv6Route(Machines):
         self.assertEqual(self.bench.hetzner.orders(test=False), [])
 
 
-class WhenRunningTheSoakAndTheSshSessionDropsMidSoak(Machines):
+class WhenRunningTheSoakWithoutBucketReferences(Machines):
+    argv = [a for a in SOAK_RUN if a not in BUCKET_REFS]
+    typed = CHOSEN_HOURLY
+    plan_first = True
+
+    def test_it_should_refuse_with_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr)
+
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
+
+
+class WhenRunningTheSoakAndTheLaptopCannotReachTheBoxOnceItRuns(Machines):
     argv = SOAK_RUN
     typed = CHOSEN_HOURLY
     plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
-    stub_env = {'STUB_SEQ': 'ssh:%s=255|255|0:running|0:0' % STATUS}
+    bucket = {'exit_after': 2}
+    stub_env = {'STUB_FAIL': 'scp:' + REPORT}
 
     def test_it_should_exit_zero(self):
         self.assertEqual(self.done.returncode, 0, self.done.stderr)
 
-    def test_it_should_not_start_the_soak_a_second_time(self):
-        self.assertEqual(len(self.launches()), 1, self.ssh_commands())
+    def test_it_should_see_it_finish_through_the_bucket(self):
+        self.assertEqual(len(self.bench.bucket.sent('GET', '/exit')), 3, self.bench.bucket.requests)
 
-    def test_it_should_keep_reconnecting_until_the_soak_finishes(self):
-        self.assertEqual(len(self.polls()), 4, self.ssh_commands())
-
-    def test_it_should_fetch_the_report(self):
-        self.assertTrue(os.path.exists(os.path.join(self.bench.out, 'soak.md')), self.bench.calls('scp'))
+    def test_it_should_fetch_the_report_from_the_bucket(self):
+        self.assertEqual(self.results_report(), 'verdict from the bucket\n')
 
     def test_it_should_cancel_the_server_once(self):
-        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+        self.assertEqual(len(self.cancelled_now()), 1)
 
 
 class WhenRunningTheSoakAndAnHourlyFetchComesRoundWhileItRuns(Machines):
@@ -589,27 +667,43 @@ class WhenRunningTheSoakAndAnHourlyFetchComesRoundWhileItRuns(Machines):
     typed = CHOSEN_HOURLY
     plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
-    stub_env = {'STUB_SEQ': 'ssh:%s=0:running|0:running|0:0' % STATUS, 'MACHINES_FETCH_SECONDS': '0'}
+    bucket = {'exit_after': 2}
+    stub_env = {'MACHINES_FETCH_SECONDS': '0'}
 
     def test_it_should_fetch_the_report_before_the_soak_finishes(self):
         self.assertLess(self.fetched_at()[0], self.polled_at()[-1], self.sequence())
 
 
-class WhenRunningTheSoakAndTheFetchFailsThenSucceeds(Machines):
+class WhenRunningTheSoakAndTheBucketFetchFailsThenSucceeds(Machines):
     argv = SOAK_RUN
     typed = CHOSEN_HOURLY
     plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
-    stub_env = {'STUB_SEQ': 'scp:%s=1|1|0' % REPORT}
+    bucket = {'fail_reports': 2}
+    stub_env = {'STUB_FAIL': 'scp:' + REPORT}
 
     def test_it_should_exit_zero(self):
         self.assertEqual(self.done.returncode, 0, self.done.stderr)
 
     def test_it_should_try_the_fetch_three_times(self):
-        self.assertEqual(len(self.fetches()), 3, self.bench.calls('scp'))
+        self.assertEqual(len(self.fetched_at()), 3, self.sequence())
 
     def test_it_should_cancel_only_after_the_fetch_succeeded(self):
         self.assertGreater(self.cancelled_at()[0], self.fetched_at()[2], self.sequence())
+
+
+class WhenRunningTheSoakAndTheBucketFetchFailsAtTheEnd(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+    bucket = {'fail_reports': -1}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_fall_back_to_fetching_from_the_box(self):
+        self.assertEqual(self.results_report(), 'verdict\n')
 
 
 class WhenRunningTheSoakAndTheFetchNeverSucceedsBeforeTheCeiling(Machines):
@@ -617,16 +711,17 @@ class WhenRunningTheSoakAndTheFetchNeverSucceedsBeforeTheCeiling(Machines):
     typed = CHOSEN_HOURLY
     plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
-    stub_env = dict(GENTLE, STUB_SEQ='scp:%s=1' % REPORT)
+    bucket = {'fail_reports': -1}
+    stub_env = dict(GENTLE, STUB_FAIL='scp:' + REPORT)
 
     def test_it_should_exit_nonzero(self):
         self.assertNotEqual(self.done.returncode, 0)
 
     def test_it_should_retry_the_fetch(self):
-        self.assertGreater(len(self.fetches()), 1, self.bench.calls('scp'))
+        self.assertGreater(len(self.fetched_at()), 1, self.sequence())
 
     def test_it_should_cancel_the_server(self):
-        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+        self.assertEqual(len(self.cancelled_now()), 1)
 
     def test_it_should_say_the_report_was_lost(self):
         self.assertIn('lost', self.done.stderr)
@@ -637,7 +732,8 @@ class WhenRunningTheSoakAndItNeverFinishesBeforeTheCeiling(Machines):
     typed = CHOSEN_HOURLY
     plan_first = True
     hetzner = {'server_ip': '192.0.2.44'}
-    stub_env = dict(GENTLE, STUB_SEQ='ssh:%s=0:running' % STATUS)
+    bucket = {'exit': None}
+    stub_env = GENTLE
 
     def test_it_should_exit_nonzero(self):
         self.assertNotEqual(self.done.returncode, 0)
@@ -646,7 +742,36 @@ class WhenRunningTheSoakAndItNeverFinishesBeforeTheCeiling(Machines):
         self.assertIn('ceiling', self.done.stderr)
 
     def test_it_should_cancel_the_server(self):
-        self.assertEqual(len(self.bench.hetzner.sent('POST', CANCELLATION)), 1)
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+
+class WhenRunningTheSoakAndRobotsEarliestCancellationIsLaterThanWanted(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44', 'earliest': '2099-12-31'}
+
+    def test_it_should_book_the_earliest_date_robot_allows(self):
+        self.assertEqual(self.booked(), ['2099-12-31'])
+
+    def test_it_should_say_so(self):
+        self.assertIn('2099-12-31', self.done.stdout)
+
+
+class WhenRunningTheSoakAndRobotRefusesToRevokeTheBooking(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44', 'revoke_refused': True}
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_say_loudly_the_box_runs_to_its_booked_date(self):
+        self.assertIn('RUNS UNTIL ITS BOOKED CANCELLATION ON %s' % self.booked()[0], self.done.stderr)
+
+    def test_it_should_say_what_that_costs(self):
+        self.assertIn('EUR', self.done.stderr.split('BOOKED CANCELLATION', 1)[-1])
 
 
 class WhenPlanningWayland(Machines):

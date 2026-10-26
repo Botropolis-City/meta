@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 import os
 import shutil
@@ -8,6 +9,7 @@ import threading
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+from bucket import FakeBucket
 from stubs import executable
 
 SECRET = 'resolved-s3cr3t-value'
@@ -77,14 +79,15 @@ SPYING_STUB = textwrap.dedent('''\
         return False
     if matches('STUB_HANG'):
         time.sleep(60)
+    if name == 'ssh' and any('bucket.env' in a for a in args):
+        with open(os.path.join(spy, 'ssh-stdin'), 'a') as f:
+            f.write(sys.stdin.read())
     if matches('STUB_FAIL'):
         sys.exit(1)
     scripted()
     if name == 'scp' and any(a.endswith('/run/out/.') for a in args) and os.path.isdir(args[-1]):
         with open(os.path.join(args[-1], 'soak.md'), 'w') as f:
             f.write('verdict\\n')
-    if name == 'ssh' and any(a.startswith('cat ') and 'perf-soak.exit' in a for a in args):
-        print('0')
     if name == 'ssh' and any('libgl1-mesa-dri' in a for a in args):
         print('25.0.7-2')
     if name == 'terraform' and 'output' in args:
@@ -111,9 +114,13 @@ SECRET_RUN = textwrap.dedent('''\
 class Hetzner:
     """A stand-in for Robot and the Cloud API: it records every request and answers like them."""
 
-    def __init__(self, market=None, server_ip=None, key_known=True, spy=None):
+    def __init__(self, market=None, server_ip=None, key_known=True, earliest=None, revoke_refused=False, spy=None):
         self.requests = []
         self.spy = spy
+        self.earliest = earliest or datetime.date.today().isoformat()
+        self.revoke_refused = revoke_refused
+        self.booked = None
+        self.cancelled = False
         self.market = auction() if market is None else market
         self.server_ip = server_ip
         self.key_known = key_known
@@ -130,9 +137,11 @@ class Hetzner:
                                          'form': urllib.parse.parse_qs(body),
                                          'auth': self.headers.get('Authorization', '')})
                 if hetzner.spy:
+                    entry = ['robot', method, urllib.parse.urlparse(self.path).path]
+                    entry += urllib.parse.parse_qs(body).get('cancellation_date', [])
                     with open(os.path.join(hetzner.spy, 'sequence'), 'a') as f:
-                        f.write(json.dumps(['robot', method, urllib.parse.urlparse(self.path).path]) + '\n')
-                status, answer = hetzner.answer(method, self.path)
+                        f.write(json.dumps(entry) + '\n')
+                status, answer = hetzner.answer(method, self.path, hetzner.requests[-1]['form'])
                 data = json.dumps(answer).encode()
                 self.send_response(status)
                 self.send_header('Content-Type', 'application/json')
@@ -146,6 +155,9 @@ class Hetzner:
             def do_POST(self):
                 self._answer('POST')
 
+            def do_DELETE(self):
+                self._answer('DELETE')
+
         self.server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
         self.url = 'http://127.0.0.1:%d' % self.server.server_address[1]
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
@@ -154,7 +166,7 @@ class Hetzner:
         self.server.shutdown()
         self.server.server_close()
 
-    def answer(self, method, path):
+    def answer(self, method, path, form=None):
         path = urllib.parse.urlparse(path).path
         if path == '/robot/order/server_market/product':
             return (200, [{'product': p} for p in self.market]) if self.market else (404, {'error': {'status': 404, 'code': 'NOT_FOUND'}})
@@ -176,13 +188,32 @@ class Hetzner:
                                          'server_number': SERVER_NUMBER, 'server_ip': self.server_ip}}
         if path == '/robot/server/%d' % SERVER_NUMBER and method == 'GET':
             return 200, {'server': {'server_number': SERVER_NUMBER, 'server_ip': self.server_ip, 'server_ipv6_net': IPV6_NET}}
-        if path == '/robot/server/%d/cancellation' % SERVER_NUMBER and method == 'POST':
-            return 200, {'cancellation': {'server_number': SERVER_NUMBER, 'cancelled': True}}
+        if path == '/robot/server/%d/cancellation' % SERVER_NUMBER:
+            return self.cancellation(method, (form or {}).get('cancellation_date', [''])[0])
         if path == '/cloud/server_types':
             return 200, {'server_types': [{'name': 'cx33', 'prices': [
                 {'location': 'nbg1', 'price_hourly': {'net': '0.0090000000', 'gross': '0.0107100000'},
                  'price_monthly': {'net': '5.4900000000', 'gross': '6.5331000000'}}]}]}
         return 404, {'error': {'status': 404, 'code': 'NOT_FOUND', 'path': path}}
+
+    def cancellation(self, method, date):
+        conflict = {'error': {'status': 409, 'code': 'CONFLICT', 'message': 'The server is already cancelled'}}
+        if method == 'POST':
+            if self.booked or self.cancelled:
+                return 409, conflict
+            if date == 'now':
+                self.cancelled = True
+            else:
+                self.booked = date
+        if method == 'DELETE':
+            if self.revoke_refused:
+                return 409, {'error': {'status': 409, 'code': 'CONFLICT', 'message': 'The cancellation cannot be revoked'}}
+            self.booked = None
+            return 200, {}
+        return 200, {'cancellation': {'server_number': SERVER_NUMBER, 'earliest_cancellation_date': self.earliest,
+                                      'cancelled': bool(self.booked or self.cancelled), 'reservation_possible': False,
+                                      'reservation': False,
+                                      'cancellation_date': self.booked or (self.earliest if self.cancelled else None)}}
 
     def sent(self, method, path):
         return [r for r in self.requests if r['method'] == method and urllib.parse.urlparse(r['path']).path == path]
@@ -195,7 +226,7 @@ class Hetzner:
 class Bench:
     """A temporary top with stubbed tools, a fake Hetzner, a home with a public key and a typed answer."""
 
-    def __init__(self, typed='', dedicated_key=True, **hetzner):
+    def __init__(self, typed='', dedicated_key=True, bucket=None, **hetzner):
         self.top = tempfile.mkdtemp()
         self.spy = os.path.join(self.top, 'spy')
         self.bin = os.path.join(self.top, 'bin')
@@ -236,6 +267,7 @@ class Bench:
         self.real_history = os.path.join(self.home, '.claude')
         os.makedirs(os.path.join(self.real_history, 'projects'))
         self.hetzner = Hetzner(spy=self.spy, **hetzner)
+        self.bucket = FakeBucket({SECRET: SECRET}, spy=self.spy, **dict({'exit': '0'}, **(bucket or {})))
 
     def env(self, **extra):
         return dict(os.environ,
@@ -257,7 +289,7 @@ class Bench:
             return []
 
     def every_argv(self):
-        return [a for tool in os.listdir(self.spy) if tool not in ('sequence',) and not tool.startswith('seq-')
+        return [a for tool in os.listdir(self.spy) if tool not in ('sequence', 'ssh-stdin') and not tool.startswith('seq-')
                 for argv in self.calls(tool) for a in argv]
 
     def private_bodies(self):
@@ -288,6 +320,7 @@ class Bench:
 
     def close(self):
         self.hetzner.close()
+        self.bucket.close()
         shutil.rmtree(self.top, ignore_errors=True)
 
 

@@ -3,6 +3,7 @@ import argparse
 import base64
 import datetime
 import hashlib
+import io
 import json
 import os
 import shlex
@@ -10,17 +11,20 @@ import shutil
 import signal
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import zoneinfo
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 from auction import choose  # noqa: E402
 from edid import edid_1080p  # noqa: E402
+from s3 import Bucket, BucketError  # noqa: E402
 
 ROBOT = os.environ.get('MACHINES_ROBOT_URL', 'https://robot-ws.your-server.de')
 HCLOUD = os.environ.get('MACHINES_HCLOUD_URL', 'https://api.hetzner.cloud/v1')
@@ -28,6 +32,7 @@ POLL = float(os.environ.get('MACHINES_POLL_SECONDS', '30'))
 FETCH_EVERY = float(os.environ.get('MACHINES_FETCH_SECONDS', '3600'))
 BACKOFF_CAP = 300
 IPV6_PROBE = '2a01:4f8::1'
+BERLIN = zoneinfo.ZoneInfo('Europe/Berlin')
 MARKET = '/order/server_market'
 DEDICATED_KEY = '~/.ssh/botropolis-machines'
 REMOTE = '/home/soak/run'
@@ -38,6 +43,10 @@ SECRETS = {
              ('ROBOT_PASSWORD', 'robot_password_ref', '--robot-password-ref')],
     'wayland': [('HCLOUD_TOKEN', 'hcloud_token_ref', '--hcloud-token-ref')],
 }
+BUCKET_SECRETS = [('BUCKET_WRITE_ID', 'bucket_write_id_ref', '--bucket-write-id-ref'),
+                  ('BUCKET_WRITE_SECRET', 'bucket_write_secret_ref', '--bucket-write-secret-ref'),
+                  ('BUCKET_READ_ID', 'bucket_read_id_ref', '--bucket-read-id-ref'),
+                  ('BUCKET_READ_SECRET', 'bucket_read_secret_ref', '--bucket-read-secret-ref')]
 
 USAGE = '''\
 machines COMMAND MACHINE [options]
@@ -50,10 +59,11 @@ COMMAND
   apply     make MACHINE, after a human approves at the terminal
   run       apply, run the test on it, fetch its results, destroy it; the
             destroy runs when the test fails and when the run is interrupted.
-            The soak runs detached on the box, so losing the connection does
-            not end it: the runner reconnects to watch it, fetches the report
-            every hour and at the end, and retries a failed fetch until the
-            run's ceiling (--max-hours), where it cancels the box regardless
+            The soak depends on the box alone: apply books the box's own
+            cancellation for the day after --max-hours, the soak runs detached
+            and uploads its report to a bucket every hour and at the end, and
+            the runner, while it is up, watches the bucket, fetches the report
+            and cancels the box early; fetching over ssh is the fallback
   destroy   destroy MACHINE
 
 MACHINE
@@ -106,7 +116,13 @@ def parse(argv):
     p.add_argument('--history', help='run soak: a synthetic ~/.claude (botropolis-demo synth-home, item 248)')
     p.add_argument('--soak-flags', default='', help='run soak: extra perf-soak flags')
     p.add_argument('--max-hours', type=float, default=10.0,
-                   help='run soak: the ceiling, in hours from delivery; the box is cancelled then, fetched or not')
+                   help='soak: the ceiling, in hours from delivery; the runner cancels the box then, fetched or not, '
+                        'and the box\'s own cancellation is booked for the day after')
+    p.add_argument('--bucket-url', default='', help='run soak: the report bucket, https://HOST/BUCKET (item 266)')
+    p.add_argument('--bucket-write-id-ref', default='', help='run soak: reference to the box\'s write-only key id')
+    p.add_argument('--bucket-write-secret-ref', default='', help='run soak: reference to its secret')
+    p.add_argument('--bucket-read-id-ref', default='', help='run soak: reference to the laptop\'s read-only key id')
+    p.add_argument('--bucket-read-secret-ref', default='', help='run soak: reference to its secret')
     p.add_argument('--script', help='run wayland: the test to run in the desktop session')
     p.add_argument('--out', help='run: where results land')
     return p.parse_args(argv)
@@ -120,14 +136,20 @@ def ipv6_route():
         return False
 
 
+def secrets(args):
+    return SECRETS[args.machine] + (BUCKET_SECRETS if (args.machine, args.command) == ('soak', 'run') else [])
+
+
 def check(args):
     if args.machine == 'soak' and args.command != 'destroy' and not args.ipv4 and not ipv6_route():
         raise Refused('this machine has no IPv6 route, and the soak box is IPv6 only, so nothing could reach it: '
                       'add IPV4=1 (Robot charges for the address) or run from a network with IPv6. Nothing ordered.')
-    missing = [flag for _, attr, flag in SECRETS[args.machine] if not getattr(args, attr)]
+    missing = [flag for _, attr, flag in secrets(args) if not getattr(args, attr)]
+    if (args.machine, args.command) == ('soak', 'run') and not args.bucket_url:
+        missing.append('--bucket-url')
     if missing:
-        raise Refused('%s %s needs %s: a secret-run reference such as op:Vault/Item/field, '
-                      'never the secret (set them in testing/machines/.env)'
+        raise Refused('%s %s needs %s: a secret-run reference such as op:Vault/Item/field, never the secret, '
+                      'and the bucket\'s URL (set them in testing/machines/.env)'
                       % (args.command, args.machine, ' and '.join(missing)))
     if args.command != 'run':
         return
@@ -147,7 +169,7 @@ def resolve_secrets(args, argv):
     if os.environ.get('MACHINES_RESOLVED') == '1':
         return
     cmd = ['secret-run']
-    for name, attr, _ in SECRETS[args.machine]:
+    for name, attr, _ in secrets(args):
         cmd += ['--env', '%s=%s' % (name, getattr(args, attr))]
     cmd += ['--', os.path.realpath(__file__)] + argv
     os.environ['MACHINES_RESOLVED'] = '1'
@@ -225,9 +247,8 @@ def ssh(args, ip, command):
     return subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command]).returncode
 
 
-def ssh_answer(args, ip, command):
-    done = subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command], capture_output=True, text=True)
-    return done.returncode, done.stdout.strip()
+def ssh_input(args, ip, command, text):
+    return subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command], input=text, text=True).returncode
 
 
 def ssh_output(args, ip, command):
@@ -347,6 +368,25 @@ class Robot:
         except OSError:
             return None
 
+    def cancellation(self, state):
+        return '/server/%d/cancellation' % state['server_number']
+
+    def book(self, args, state):
+        _, body = self.call('GET', self.cancellation(state))
+        earliest = body['cancellation']['earliest_cancellation_date']
+        wanted = (datetime.datetime.fromtimestamp(time.time() + args.max_hours * 3600, BERLIN).date()
+                  + datetime.timedelta(days=1)).isoformat()
+        state['booked'], state['earliest'] = max(earliest, wanted), earliest
+        self.call('POST', self.cancellation(state), {'cancellation_date': state['booked'], 'reserve_location': 'false'})
+        self.save(state)
+        say('Booked the box\'s own cancellation for %s (Robot allows %s at the earliest), so it stops billing '
+            'with nobody watching: at most about EUR %.2f.' % (state['booked'], earliest, self.cost_until(state)))
+
+    def cost_until(self, state):
+        end = datetime.datetime.combine(datetime.date.fromisoformat(state['booked']) + datetime.timedelta(days=1),
+                                        datetime.time(), BERLIN)
+        return max(0.0, (end.timestamp() - time.time()) / 3600) * float(state['hourly'])
+
     def apply(self, args):
         listing = self.planned()
         hourly = listing['price_hourly']
@@ -363,7 +403,14 @@ class Robot:
         self.save(state)
         os.remove(self.plan_path())
         say('Ordered: transaction %s. It bills from delivery until destroy.' % state['transaction'])
-        return self.delivered(state)
+        state = self.delivered(state)
+        try:
+            self.book(args, state)
+        except BaseException:
+            warn('could not book the box\'s cancellation, so nothing would stop it without this laptop: cancelling it')
+            self.destroy()
+            raise
+        return state
 
     def delivered(self, state):
         deadline = time.monotonic() + float(os.environ.get('MACHINES_ORDER_TIMEOUT', '14400'))
@@ -396,8 +443,20 @@ class Robot:
         try:
             if 'server_number' not in state:
                 state = self.delivered(state)
-            self.call('POST', '/server/%d/cancellation' % state['server_number'],
-                      {'cancellation_date': 'now', 'reserve_location': 'false'})
+            if state.get('booked'):
+                status, _ = self.call('DELETE', self.cancellation(state), ok=(200, 409))
+                if status == 409:
+                    os.remove(self.state)
+                    raise Refused('THE SOAK BOX, SERVER %d, RUNS UNTIL ITS BOOKED CANCELLATION ON %s: Robot will not '
+                                  'revoke the booking, so it cannot be cancelled sooner. That is up to about EUR %.2f '
+                                  'more; see it in Robot.' % (state['server_number'], state['booked'],
+                                                             self.cost_until(state)), 1)
+            self.call('POST', self.cancellation(state), {'cancellation_date': 'now', 'reserve_location': 'false'})
+        except Refused as e:
+            if 'BOOKED CANCELLATION' in str(e):
+                raise
+            warn('THE SOAK BOX IS NOT CANCELLED (%s): cancel it in Robot by hand.' % json.dumps(state))
+            raise
         except BaseException:
             warn('THE SOAK BOX IS NOT CANCELLED (%s): cancel it in Robot by hand.' % json.dumps(state))
             raise
@@ -420,14 +479,26 @@ def clock(t):
 
 
 class Report:
-    def __init__(self, args, ip, out):
-        self.args, self.ip, self.out = args, ip, out
+    def __init__(self, args, ip, out, bucket, run_id):
+        self.args, self.ip, self.out, self.bucket, self.run_id = args, ip, out, bucket, run_id
         self.last = None
+
+    def from_bucket(self, staging):
+        try:
+            data = self.bucket.get(self.run_id + '/report.tar.gz')
+        except BucketError as e:
+            warn('could not fetch the report from the bucket (%s); trying the box' % e)
+            return False
+        if data is None:
+            return False
+        with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as tar:
+            tar.extractall(staging, filter='data')
+        return True
 
     def fetch(self):
         staging = tempfile.mkdtemp(prefix='.fetching-', dir=self.out)
         try:
-            if scp(self.args, remote(self.ip, REPORT + '/.'), staging) != 0:
+            if not self.from_bucket(staging) and scp(self.args, remote(self.ip, REPORT + '/.'), staging) != 0:
                 return False
             shutil.copytree(staging, self.out, dirs_exist_ok=True)
         finally:
@@ -440,33 +511,37 @@ class Report:
         while not self.fetch():
             if time.time() >= ceiling:
                 return False
-            warn('could not fetch the soak report from %s; retrying in %d s, until the ceiling at %s'
-                 % (self.ip, delay, clock(ceiling)))
+            warn('could not fetch the soak report; retrying in %d s, until the ceiling at %s' % (delay, clock(ceiling)))
             time.sleep(max(0.0, min(delay, ceiling - time.time())))
             delay = min(max(delay * 2, 1), BACKOFF_CAP)
         return True
 
     def lost(self):
         if self.last is None:
-            return 'nothing of the report was fetched: it is lost'
-        return 'the report since the fetch at %s is lost; what was fetched is in %s' % (clock(self.last), self.out)
+            return ('nothing of the report was fetched, so it is lost here unless the bucket holds it, as %s/'
+                    % self.run_id)
+        return ('the report since the fetch at %s is lost here unless the bucket holds it, as %s/; what was fetched '
+                'is in %s' % (clock(self.last), self.run_id, self.out))
 
 
-def watch(args, ip, report, ceiling):
+def watch(args, report, ceiling):
     next_fetch = time.time() + FETCH_EVERY
-    connected = True
+    reachable = True
     while True:
         if time.time() >= ceiling:
             warn('the run reached its ceiling of %g hours at %s with the soak still running' % (args.max_hours, clock(ceiling)))
             return None
-        code, answer = ssh_answer(args, ip, 'cat %s 2>/dev/null || echo running' % EXIT_FILE)
-        if code == 0 and answer.isdigit():
-            return int(answer)
-        if code != 0 and connected:
-            warn('lost the connection to the soak box (ssh exit %d); the soak runs on, reconnecting' % code)
-        if code == 0 and not connected:
-            say('reconnected to the soak box; the soak is still running')
-        connected = code == 0
+        try:
+            answer = report.bucket.get(report.run_id + '/exit')
+            if not reachable:
+                say('the bucket answers again; the soak is still running')
+            reachable = True
+            if answer is not None and answer.strip().lstrip(b'-').isdigit():
+                return int(answer)
+        except BucketError as e:
+            if reachable:
+                warn('could not read the bucket (%s); the box carries on and uploads on its own' % e)
+            reachable = False
         if time.time() >= next_fetch:
             if report.fetch():
                 say('fetched the report so far, at %s' % clock(report.last))
@@ -486,6 +561,7 @@ def run_soak(args):
     try:
         state = robot.apply(args)
         ip = state['ip']
+        run_id = 'soak-%s-%d' % (datetime.datetime.now().strftime('%Y%m%d-%H%M%S'), state['server_number'])
         ceiling = time.time() + args.max_hours * 3600
         say('The run\'s ceiling: %g hours, until %s, about EUR %.2f; the box is cancelled then, fetched or not.'
             % (args.max_hours, clock(ceiling), args.max_hours * float(state['hourly'])))
@@ -497,13 +573,17 @@ def run_soak(args):
             f.write('synthetic history: %d sessions in %d projects (botropolis-demo synth-home, item 248); '
                     'nothing from a real ~/.claude\n' % (sessions, projects))
             f.write('started: %s\n' % datetime.datetime.now().isoformat(timespec='seconds'))
+            f.write('cancellation booked: %s (Robot\'s earliest: %s), so the box stops with nobody watching\n'
+                    % (state['booked'], state['earliest']))
+            f.write('report: %s/report.tar.gz in the bucket\n' % run_id)
         forget(ip)
         wait_for_ssh(args, ip)
         with tempfile.TemporaryDirectory() as tmp:
             edid = os.path.join(tmp, 'botropolis-1080p.bin')
             with open(edid, 'wb') as f:
                 f.write(edid_1080p())
-            if scp(args, os.path.join(HERE, 'soak', 'setup'), edid, remote(ip, '/root/')) != 0:
+            if scp(args, os.path.join(HERE, 'soak', 'setup'), os.path.join(HERE, 'soak', 'detached'),
+                   os.path.join(HERE, 's3.py'), edid, remote(ip, '/root/')) != 0:
                 raise Refused('could not copy the set-up to %s' % ip, 1)
         setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin')
         if setup != 0:
@@ -519,19 +599,24 @@ def run_soak(args):
             if scp(args, src, remote(ip, dst)) != 0:
                 raise Refused('could not copy %s to %s' % (src, ip), 1)
         ssh(args, ip, 'chown -R soak: /home/soak')
-        report = Report(args, ip, out)
+        key = 'BUCKET_URL=%s\nBUCKET_ID=%s\nBUCKET_SECRET=%s\n' % (
+            args.bucket_url, os.environ['BUCKET_WRITE_ID'], os.environ['BUCKET_WRITE_SECRET'])
+        if ssh_input(args, ip, 'umask 077 && cat >/root/bucket.env', key) != 0:
+            raise Refused('could not give the box its bucket key', 1)
+        report = Report(args, ip, out, Bucket(args.bucket_url, os.environ['BUCKET_READ_ID'],
+                                              os.environ['BUCKET_READ_SECRET']), run_id)
         command = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
                    'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE,
                    '%s/performance/tools/perf-soak' % REMOTE, '--out', REPORT] \
             + shlex.split(args.soak_flags) + [REMOTE + '/build']
-        detached = '%s >%s/perf-soak.log 2>&1; echo $? >%s.tmp && mv %s.tmp %s' % (
-            shlex.join(command), REPORT, EXIT_FILE, EXIT_FILE, EXIT_FILE)
-        if ssh(args, ip, 'rm -f %s && setsid -f bash -c %s </dev/null >/dev/null 2>&1'
-               % (EXIT_FILE, shlex.quote(detached))) != 0:
+        detached = ['setsid', '-f', 'python3', '/root/detached', '--env', '/root/bucket.env', '--run-id', run_id,
+                    '--every', '%g' % FETCH_EVERY, '--out', REPORT, '--'] + command
+        if ssh(args, ip, 'rm -f %s && %s </dev/null >%s/detached.log 2>&1'
+               % (EXIT_FILE, shlex.join(detached), REPORT)) != 0:
             raise Refused('could not start the soak on %s' % ip, 1)
-        say('The soak runs detached on the box; this run watches it and fetches the report every %d minutes.'
-            % (FETCH_EVERY // 60))
-        soak = watch(args, ip, report, ceiling)
+        say('The soak runs detached on the box and uploads its report every %d minutes; this run watches the '
+            'bucket and cancels the box when the soak ends.' % (FETCH_EVERY // 60))
+        soak = watch(args, report, ceiling)
         if soak is not None:
             rc = soak
             say('perf-soak exited %d' % rc)
@@ -546,10 +631,13 @@ def run_soak(args):
                 else:
                     fetched = report.fetch_until(ceiling)
                 if not fetched:
-                    warn('could not fetch the soak report from %s before cancelling it: %s' % (report.ip, report.lost()))
+                    warn('could not fetch the soak report before cancelling the box: %s' % report.lost())
                     rc = rc or 1
         finally:
             robot.destroy()
+            if os.path.exists(os.path.join(out, 'machine.txt')):
+                with open(os.path.join(out, 'machine.txt'), 'a') as f:
+                    f.write('cancelled: %s\n' % datetime.datetime.now().isoformat(timespec='seconds'))
     say('Results: %s' % out)
     return rc
 

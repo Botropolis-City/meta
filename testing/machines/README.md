@@ -38,7 +38,14 @@ Put the references in `testing/machines/.env`, which git ignores, so the public 
 ROBOT_USER_REF=op:Vault/Item/username
 ROBOT_PASSWORD_REF=op:Vault/Item/password
 HCLOUD_TOKEN_REF=op:Vault/Item/token
+BUCKET_URL=https://ACCOUNT.r2.cloudflarestorage.com/BUCKET
+BUCKET_WRITE_ID_REF=op:Vault/Item/write-id
+BUCKET_WRITE_SECRET_REF=op:Vault/Item/write-secret
+BUCKET_READ_ID_REF=op:Vault/Item/read-id
+BUCKET_READ_SECRET_REF=op:Vault/Item/read-secret
 ```
+
+The bucket's keys come from item 266: a write-only key the soak box uploads with, and a read-only key the laptop fetches with.
 
 The Robot user is a web service user, made in Robot under *Settings, Web service and app settings*, with ordering enabled.
 The machines are reached with the runner's own key, `~/.ssh/botropolis-machines`, never your personal one.
@@ -66,13 +73,21 @@ It writes what it found in `/dev/dri`, the Mesa version and the renderer to `dri
 `machine.txt` names the rescue system's Mesa version, since it is Debian's and not the one on Aria's laptop.
 A failed set-up cancels the box like any other failure.
 
-The soak runs detached on the box, under `setsid`, so losing the connection does not end it, as it ended the first overnight soak on 2026-10-26 (item 245, slice 3).
-The runner reconnects every 30 seconds to see whether it has finished,
-and fetches the report every hour and at the end, so a lost box loses at most an hour of it.
-A fetch lands in a staging directory first, so one that drops halfway leaves the last good copy as it was.
-A failed final fetch is retried with backoff, up to five minutes apart, and the box is not cancelled while it is retried.
-The run's ceiling still holds: `MAX_HOURS` (10 by default, counted from delivery) is when the box is cancelled, fetched or not, and the runner says what of the report was lost.
+### The soak depends on the box alone
+
+The first overnight soak, on 2026-10-26, died when the laptop that held its ssh session dropped its IPv6, and its report died with it.
+So the soak no longer needs the laptop once it has started (item 245, slice 3):
+
+- **The box stops billing on its own.** Right after delivery, `apply` books Robot's cancellation for the day after `MAX_HOURS` (10 by default) from delivery, Berlin time, or Robot's earliest date if that is later. A box no one ever cancels runs at most to the end of that day, about EUR 10. If the booking fails, the box is cancelled at once.
+- **The soak runs detached** under `setsid`, through `soak/detached`, so losing the connection does not end it.
+- **The box uploads its report** to the soak bucket ([item 266](../../roadmap/266-the-soak-box-has-nowhere-to-leave-its-report.md)) as `<run>/report.tar.gz` every hour and at the end, and then the exit code as `<run>/exit`. It signs with a write-only key that the runner writes to `/root/bucket.env`, mode 600, through ssh's standard input, so the key is never in an argument list or on the laptop's disk. `s3.py` signs the requests with nothing but Python's standard library, so the box needs no S3 client.
+- **The laptop, while it is up**, watches the bucket for the exit code with a read-only key, fetches the report every hour and at the end, and then cancels early. Cancelling early means revoking the booking and cancelling `now`, since Robot refuses to cancel a server already booked for cancellation. If Robot will not revoke it, the runner says so loudly, with the date and what it costs.
+- **Fetching over ssh is the fallback**, for a report the bucket does not answer with. A fetch lands in a staging directory first, so one that drops halfway leaves the last good copy as it was.
+
+A failed final fetch is retried with backoff, up to five minutes apart, until `MAX_HOURS`; the box is then cancelled, fetched or not, and the runner says what was lost and where the bucket keeps it.
 Interrupting a run makes one fetch and then cancels.
+`machine.txt` records the booked date, the run's name in the bucket and when the box was cancelled.
+After the first real run, check there when Robot ended a booked server, at the start or the end of its day, since its documentation does not say.
 
 The soak runs on a synthetic history of 200 sessions in 150 projects, made by `botropolis-demo synth-home` ([item 248](../../roadmap/248-a-synthetic-history-cannot-be-made-outside-go-test.md)).
 Nothing from a real `~/.claude` goes to a rented machine: the runner refuses one.

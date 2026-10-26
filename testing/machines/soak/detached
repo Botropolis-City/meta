@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+import argparse
+import datetime
+import io
+import os
+import subprocess
+import sys
+import tarfile
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+from s3 import Bucket, BucketError  # noqa: E402
+
+USAGE = '''\
+detached --env FILE --run-id ID --every SECONDS --out DIR -- COMMAND...
+
+The soak box's half of a soak (item 245, slice 3), started under setsid so it
+outlives the ssh session that started it: it runs COMMAND, perf-soak, with its
+output in DIR/perf-soak.log, and uploads DIR as ID/report.tar.gz to the bucket
+every SECONDS and once more at the end. Then it writes the exit code to
+DIR/perf-soak.exit and uploads it as ID/exit, last, so a reader that sees the
+exit code knows the report beside it is final.
+
+FILE holds BUCKET_URL, BUCKET_ID and BUCKET_SECRET, one KEY=VALUE a line: a
+write-only key to that one bucket, written mode 600 by the runner. A refused
+upload is logged to DIR/upload.log and tried again at the next turn; it never
+stops the soak, and the final uploads are retried until they succeed or
+the box is cancelled under them.
+'''
+
+
+def parse(argv):
+    p = argparse.ArgumentParser(prog='detached', usage=USAGE, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument('--env', required=True)
+    p.add_argument('--run-id', required=True)
+    p.add_argument('--every', type=float, default=3600)
+    p.add_argument('--out', required=True)
+    p.add_argument('command', nargs=argparse.REMAINDER)
+    args = p.parse_args(argv)
+    if args.command[:1] == ['--']:
+        args.command = args.command[1:]
+    if not args.command:
+        p.error('no COMMAND after --')
+    return args
+
+
+def bucket_from(path):
+    values = {}
+    with open(path) as f:
+        for line in f:
+            key, _, value = line.strip().partition('=')
+            if key:
+                values[key] = value
+    return Bucket(values['BUCKET_URL'], values['BUCKET_ID'], values['BUCKET_SECRET'])
+
+
+def log(out, text):
+    with open(os.path.join(out, 'upload.log'), 'a') as f:
+        f.write('%s %s\n' % (datetime.datetime.now().isoformat(timespec='seconds'), text))
+
+
+def tarball(out):
+    data = io.BytesIO()
+    with tarfile.open(fileobj=data, mode='w:gz') as tar:
+        for name in sorted(os.listdir(out)):
+            if name != 'upload.log':
+                tar.add(os.path.join(out, name), arcname=name)
+    return data.getvalue()
+
+
+def upload(bucket, out, key, body):
+    try:
+        bucket.put(key, body)
+        log(out, 'uploaded %s (%d bytes)' % (key, len(body)))
+        return True
+    except BucketError as e:
+        log(out, 'could not upload %s: %s' % (key, e))
+        return False
+
+
+def main(argv):
+    if not argv or argv[0] in ('-h', '--help'):
+        print(USAGE)
+        return 0
+    args = parse(argv)
+    bucket = bucket_from(args.env)
+    report = args.run_id + '/report.tar.gz'
+    with open(os.path.join(args.out, 'perf-soak.log'), 'ab') as logfile:
+        soak = subprocess.Popen(args.command, stdin=subprocess.DEVNULL, stdout=logfile, stderr=subprocess.STDOUT)
+        while True:
+            try:
+                code = soak.wait(timeout=args.every)
+                break
+            except subprocess.TimeoutExpired:
+                upload(bucket, args.out, report, tarball(args.out))
+    exit_file = os.path.join(args.out, 'perf-soak.exit')
+    with open(exit_file + '.tmp', 'w') as f:
+        f.write('%d\n' % code)
+    os.replace(exit_file + '.tmp', exit_file)
+    while not upload(bucket, args.out, report, tarball(args.out)):
+        time.sleep(min(args.every, 60))
+    while not upload(bucket, args.out, args.run_id + '/exit', b'%d\n' % code):
+        time.sleep(min(args.every, 60))
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
