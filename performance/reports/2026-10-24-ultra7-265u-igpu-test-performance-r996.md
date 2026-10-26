@@ -45,6 +45,7 @@ The figures are the table's above, in its order of rows, from the tests' own log
 | r1020 `8752e85` | `73d7d69..8752e85`: item 236 slice 3 | 70 pass, 2 skip | 1.06%, 1.09% | 2.65%, 2.82% | 57%, 28 MiB | 0.10 CPU-s | 0.37%, 0.93%, 0.71% | 199 MiB | 0.7 |
 | r1041 `ee7891d` | `8752e85..ee7891d`: items 224, 183, 76, 105, 220, 95, 212 | 70 pass, 2 skip | 1.06%, 0.97% | 2.68%, 2.76% | 55%, 28 MiB | 0.13 CPU-s | 0.44%, 0.88%, 0.74% | 242 MiB | 0.7 |
 | r1052 `a0ec129` | `ee7891d..a0ec129`: items 248 (the cost tests' home generator moved), 105, 249, 251, 95, 212 | 70 pass, 2 skip | 0.95%, 1.21% | 2.87%, 2.85% | 55%, 28 MiB | 0.09 CPU-s | 0.44%, 0.91%, 0.75% | 202 MiB | 25.4, not quiet |
+| r1054 `c1cbcf1` | `a0ec129..c1cbcf1`: item 212's two follow-ups | 70 pass, 2 skip | 1.06%, 1.14% | 2.88%, 2.85% | 54%, 28 MiB | 0.07 CPU-s | 0.44%, 0.87%, 0.77% | 241 MiB | 2.2 |
 
 At r1000 the 2,000-session daemon read about 0.1 of a core higher, twice, and is recorded as the machine's load rather than filed: `botropolisd` links neither `pkg/city` nor `pkg/render`, the only code the range changed; its CPU ticks held at 2.16–2.39% in all four runs; and the test itself says this measure spans 2.3–2.6% on a quiet machine.
 It is still over its budget, which is [item 213](../../roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md).
@@ -52,7 +53,7 @@ A single performance test could not be rerun on its own: `make test-acceptance-l
 
 The settled city's 242 MiB at r1041, against 199 at r1020, is the suite and not the code.
 `TestSettledMemory` run alone, `make test-performance RUN='^TestSettledMemory$'`, twice at each revision, read 247–248 MiB at r1020 and 253–255 at r1041, rising a MiB or two at a time across the range, about 3 of it [item 212](../../roadmap/212-every-frame-re-records-every-drawable.md)'s record caches.
-Inside the whole suite the same test read 194–201 MiB at every run before this one; so its figure moves by some 50 MiB with what ran before it, against a budget of 512, and a change in it between suite runs is only a lead until the test, run alone, agrees.
+Inside the whole suite the same test has read either about 200 MiB (194–202, at r996 to r1020 and r1052) or about 241 (r1041, r1054), with no tie to the machine's load or the revision; so its figure moves by some 50 MiB with what ran before it, against a budget of 512, and a change in it between suite runs is only a lead until the test, run alone, agrees.
 
 ## What it does not show
 
