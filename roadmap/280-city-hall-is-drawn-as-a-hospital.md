@@ -27,3 +27,9 @@ The hall's sprite is Kenney's `city-kit-commercial/building-n` (`pkg/render/reci
 - **The clinic is dark at night, for now** (manager, 2026-10-27, landing for 0.3.3's overnight soak): its lit windows took the metropolis demo's night frame to 38 draw commands against item 236's ceiling of 37, and unlit it measures 37 again.
   Raising the ceiling is Aria's call, so slices 1–3 landed with the clinic unlit at night (`ef66361`), a temporary departure from the lit frames she approved in `r1138-item-280-clinic.png`.
   Next: fold its lights into the hall's or library's batch within the ceiling, time-boxed to about an hour; if that fails, the manager puts the ceiling to Aria.
+- **Folding the clinic's lights into another batch does not work** (session's measurement, 2026-10-27, about half an hour of the hour's time box).
+  The night lights are laid in depth order, each lit building's panes one draw, after any earlier cut that meets them.
+  Logged on the metropolis demo's night frame, lighting the clinic changes one place in that order: a punch cut, from a sprite behind the clinic whose box meets its panes, is laid before the clinic's warm draw and not with the next cut, and the clinic's draw follows it.
+  The cuts cost the same either way, so the one command over the ceiling is the clinic's own window draw, and the cut it must follow is what keeps it from joining the hall's or library's warm draw, which are elsewhere in the order.
+  Laying it earlier would let things behind it cut its lit windows, so the order is the picture, not batching.
+  Lighting a fourth landmark at night therefore costs one draw command a frame by this design: Aria's choice is to raise item 236's night ceiling from 37 to 38, or keep the clinic dark at night.
