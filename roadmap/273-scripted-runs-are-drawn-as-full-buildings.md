@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`a0df84b`, r1115).
+Landed: slice 2 (`64ccc26`, r1149).
 
 Of the transcripts on Aria's other laptop, 365 are scripted runs (`entrypoint` `sdk-cli`: `claude -p`, the Agent SDK, tools that drive Claude) and 145 interactive (`cli`).
 `pkg/claude` parses `Entrypoint` (`transcript.go`, `sessions.go`) and nothing reads it, so each scripted run is a building like a session someone works in.
