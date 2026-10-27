@@ -57,7 +57,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [284](roadmap/284-copying-a-path-freezes-the-city-with-xclip.md) | copying a path freezes the whole city when the clipboard tool is xclip | — | nobody, a defect |
 | [286](roadmap/286-claude-actions-run-on-the-city-s-own-loop.md) | Resume, New, Stop and the other claude actions wait on the city's own loop | — | nobody, a defect |
 | [287](roadmap/287-a-card-changes-size-as-the-pointer-moves-over-its-buttons.md) | a session's card changes size as the pointer moves over its buttons | — | nobody, Aria said what she wants |
-| [288](roadmap/288-there-is-no-obvious-way-to-make-a-new-group.md) | there is no obvious way to make a new group, and move to group offers none | — | nobody, Aria said what she wants |
 | [290](roadmap/290-no-text-field-takes-a-paste.md) | no text field in the city takes a paste | 289, 284 | nobody, a defect |
 | [292](roadmap/292-the-quit-prompt-is-a-line-in-the-footer.md) | the quit prompt becomes a centered panel | — | nobody, Aria said what she wants |
 | [293](roadmap/293-closing-the-window-quits-without-asking.md) | closing the window asks, or goes to the tray by setting, with a tray icon on both Linux standards | 292 | nobody, Aria ruled |
