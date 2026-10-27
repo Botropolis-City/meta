@@ -1,6 +1,6 @@
 # 304. A packed session's truck drives to the depot at road speed, not in a fixed 2 s
 
-**Open, in progress since 2026-10-27 in the session "item 304". Filed 2026-10-27 (r1181), from Aria's use of the 0.3.3 candidate, as a regression; it was not one. Nobody's call — Aria ruled the speed.**
+**Done 2026-10-27 (`8d6ce3f`, r1187). Filed 2026-10-27 (r1181), from Aria's use of the 0.3.3 candidate, as a regression; it was not one. Nobody's call — Aria ruled the speed.**
 
 Aria, 2026-10-27: *"noticed that the pack command doesn't play the animation anymore. Where did that go?"*
 
@@ -26,3 +26,7 @@ In 2 s a truck crosses a large city to the depot faster than anything else on it
 Aria's ruling, 2026-10-27: the haul drives at the speed of the city's other trucks, `TruckSpeed`, as deliveries and messages do, so a far depot takes longer.
 It takes at least 2 s and at most about 6 s.
 Reduced motion keeps its 300 ms cross-fade.
+
+## Closed
+
+A packed or unpacked session's truck now takes its distance at road speed, 3 cells a second as deliveries do, between 2 s and 6 s, set when the haul starts; reduced motion keeps the 300 ms cross-fade. Nothing since v0.3.2 had lost the haul: it was there, only too quick across a big island to follow. `TestHaulFor` and the extended `TestHauls` hold it, red first with a fixed span; landed as `8d6ce3f` (r1187), with a Changed entry.
