@@ -1,12 +1,13 @@
 # 280. City Hall is drawn as a hospital, and the hospital should stand for what needs Aria
 
-**Open, in progress since 2026-10-26 in the session "item 280". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria ruled what the hospital becomes; its look is a frame for her.**
+**Done 2026-10-27 (`d6b2b27`, r1186). Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria ruled what the hospital becomes; its look is a frame for her.**
 
 Depends on: nothing
 Landed: slice 1 (`296cd0b`, r1169).
 Landed: slice 2 (`ef66361`, r1175).
 Landed: slice 3 (`6f672d8`, r1174).
 Landed: slice 4 (`77ae413`, r1179).
+Landed: slice 5 (`d6b2b27`, r1186).
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"city hall is a hospital. I haven't noticed that before because I haven't seen this side. We should swap that with another building. We should also reuse the hospital for something else because I like it. Maybe something like errors or a quick menu of what sessions need me right now?"*
 Asked which, she chose **both**: one building for what needs her now, and errors.
@@ -38,3 +39,13 @@ The hall's sprite is Kenney's `city-kit-commercial/building-n` (`pkg/render/reci
   The standing key and the plate asked for the clinic's count every frame, and it built the whole list to count it, putting every building through the trouble test: the walk item 270 took out of triage.
   The city now lists what may be in trouble when it is indexed, and the count looks only at that and what needs you (`77ae413`, r1179), held to a walk over every building across the 24 h edge.
 - **The clinic at night** (Aria, 2026-10-27): *"Raise to 38 and light it"*: item 236's night ceiling goes from 37 to 38 draw commands a frame, and the clinic is lit at night like the hall and the library, after 0.3.3.
+- **The clinic lights at night** (Aria, 2026-10-27): she raised item 236's night ceiling from 37 to 38 draw commands, and the clinic's windows light as the library's and the hall's do (`d6b2b27`, r1186), so 0.3.3's dark clinic lasted one release.
+
+## Done
+
+City Hall is a stone hall modelled in the sprite pipeline, with a six-column portico, a pediment and a clock tower whose face shows from every heading, lettered on its frieze and lit at night (`296cd0b`).
+The old hall's building-n, at 70% of its size, is the clinic in the plaza's fourth corner: its plate counts the sessions needing Aria plus those in trouble — an API error last, stopped mid-turn within a day though not interrupted, or three or more failed tools in a row — and a click or `a` opens the list, needing-you first in triage order, then trouble, most recent first, with `1`–`9` and the arrows to jump (`69fc896` to `ef66361`, `95e0988`).
+The count is held to a walk over every building at scale (`77ae413`), and the clinic lights at night (`d6b2b27`).
+Frames: `botropolis/docs/screenshots/r1138-item-280-hall.png`, `r1138-item-280-clinic.png` and `r1138-item-280-clinic-menu.png`, which Aria judged *"Good, land them."*
+Tests: `pkg/city/clinic_test.go` (rows, order, count, reasons), `pkg/render/clinic_test.go` (click, `a`, keys), `TestClinicCountAtScale`, `TestTranscriptTailTrouble` and `TestTrouble`.
+Budgets Aria moved for it: z1 resident 18 → 20 MiB, and the night draw-command ceiling 37 → 38; z1.5 stays at 40 MiB with its third page nearly full.

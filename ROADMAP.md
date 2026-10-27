@@ -48,7 +48,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [268](roadmap/268-a-first-sighting-shown-only-behind-a-panel-is-spent.md) | a first sighting shown only behind a covering panel is spent and never shows | — | nobody, a defect |
 | [269](roadmap/269-make-publishable-fails-in-a-worktree-once-main-moves.md) | `make publishable` fails in a worktree once github's main moves | — | nobody, a defect in a guard |
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
-| [280](roadmap/280-city-hall-is-drawn-as-a-hospital.md) | City Hall gets a hall; the hospital becomes the clinic for what needs Aria and errors | — | nobody, Aria ruled; frames for her |
 | [293](roadmap/293-closing-the-window-quits-without-asking.md) | closing the window asks, or goes to the tray by setting, with a tray icon on both Linux standards | 292 | nobody, Aria ruled |
 | [294](roadmap/294-a-building-is-drawn-small-the-frame-its-scaffold-comes-down.md) | a building is drawn small for one frame as its scaffold finishes coming down | — | nobody, a defect |
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
