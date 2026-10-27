@@ -2,7 +2,7 @@
 
 **Open. Filed 2026-10-27 (r1153) at Aria's request. Nobody's call — Aria set what it holds and what it runs.**
 
-Depends on: 280, 286, 290, 293 (slice 1), 212
+Depends on: 280 (slice 3), 286, 290, 293 (slice 1), 212 (slice 21), 298
 
 Aria, 2026-10-26, on 0.3.2's plan: everything planned for 0.3.2 goes into 0.3.3, which runs what 0.3.2 waived (*"Run everything. We already skipped re-film for 0.3.1"*).
 And 2026-10-27, on what it waits for: *"Ship with just window close"*, item 293's first slice, the tray following later; then *"That path looks good. Let's go"*.
