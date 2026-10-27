@@ -1,6 +1,6 @@
 # 295. `make land` serves its lock in no order, so a landing can wait behind later ones
 
-**Open. Filed 2026-10-26 (r1136), from the manager's and the performance manager's watch on the landing queue. Nobody's call — a defect in the landing process.**
+**Open, in progress since 2026-10-26 in the session "item 295". Filed 2026-10-26 (r1136), from the manager's and the performance manager's watch on the landing queue. Nobody's call — a defect in the landing process.**
 
 `make land` takes `/tmp/botropolis-land.lock` with `flock` (item 186).
 `flock` is not first come, first served: when the lock is released, any waiter may get it.
