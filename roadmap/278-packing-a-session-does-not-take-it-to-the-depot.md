@@ -1,6 +1,9 @@
 # 278. Packing a session leaves it standing, boarded up, instead of taking it to the depot
 
-**Open, in progress since 2026-10-26 in the session "item 278". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — a defect; Aria ruled packing keeps its meaning.**
+**Fixed 2026-10-26 (`71bef08`, r1130). Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — a defect; Aria ruled packing keeps its meaning.**
+
+Depends on: nothing
+Landed: slice 1 (`71bef08`, r1130).
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"Manually packing a session, just makes it boarded up. It doesn't actually pack it up. Is that not how we get sessions to disappear manually?"*
 Asked, she ruled it a defect to investigate: packing still means *off the district and into the depot*, and unpacking brings it back.
@@ -23,3 +26,20 @@ If a live session must unpack on work, say so on the card when it is packed, rat
 ## Answered while building
 
 - **The cause and the fix** (session's diagnosis, approved by the manager, 2026-10-26): the card's *pack* and *unpack* buttons did nothing, because `Scene.Act` had no case for them and fell through to an empty action, which leaves a shuttered building looking *just boarded up*; Shift+P worked throughout. A live session packed comes back as soon as it works, as designed, and packing one now says so. A guard holds that every action every card offers either asks for something or says what happened.
+
+## What it was
+
+The card's *pack* and *unpack* buttons did nothing.
+`Scene.Act` had no case for either, so pressing one asked the actor for nothing and said nothing, and a shuttered building stayed boarded up where it stood.
+Shift+P went another way, through `TogglePack`, and worked: driven in the real city against a private daemon on the real home, a shuttered session and a resting one each went to the depot as a crate and stayed there across later snapshots.
+The daemon, the ledger, the deltas and the depot were all sound.
+
+A live session packed comes back within seconds, as `unpackOnWork` intends: this item's own session, packed at 22:31:26, was back on its lot by 22:31:31.
+The manager ruled pack stays offered on a live session, because one waiting on you is live but quiet, and the footer now says *"packed <title>; it comes back when it works again"*.
+
+## What landed
+
+`Act` handles pack and unpack, Shift+P goes through `Act` too, and the footer says what happened.
+`TestCardActionsDoSomething` presses every action each card state offers (working, needs you, resting, shuttered, overgrown, packed) and fails on any that asks for nothing, says nothing and changes nothing; only pack and unpack failed it.
+The Drive harness gained a `button:<label>` target, and `TestPackFromTheCity` clicks the card's *pack* and presses Shift+P through the city's own input.
+`TestServePack` holds a packed session through a second rescan, and brings back one that works after packing; the second was checked by mutating `unpackOnWork`.
