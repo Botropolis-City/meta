@@ -6,6 +6,7 @@ Depends on: nothing
 Landed: slice 1 (`296cd0b`, r1169).
 Landed: slice 2 (`ef66361`, r1175).
 Landed: slice 3 (`6f672d8`, r1174).
+Landed: slice 4 (`77ae413`, r1179).
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"city hall is a hospital. I haven't noticed that before because I haven't seen this side. We should swap that with another building. We should also reuse the hospital for something else because I like it. Maybe something like errors or a quick menu of what sessions need me right now?"*
 Asked which, she chose **both**: one building for what needs her now, and errors.
@@ -33,3 +34,6 @@ The hall's sprite is Kenney's `city-kit-commercial/building-n` (`pkg/render/reci
   The cuts cost the same either way, so the one command over the ceiling is the clinic's own window draw, and the cut it must follow is what keeps it from joining the hall's or library's warm draw, which are elsewhere in the order.
   Laying it earlier would let things behind it cut its lit windows, so the order is the picture, not batching.
   Lighting a fourth landmark at night therefore costs one draw command a frame by this design: Aria's choice is to raise item 236's night ceiling from 37 to 38, or keep the clinic dark at night.
+- **Slice 4, the clinic's count at scale** (manager, 2026-10-27, from 0.3.3's release check): the 600-district fit frame came in at a 16.47 ms median against item 270's 16 ms bar, and a control put the regression in r1166–r1176.
+  The standing key and the plate asked for the clinic's count every frame, and it built the whole list to count it, putting every building through the trouble test: the walk item 270 took out of triage.
+  The city now lists what may be in trouble when it is indexed, and the count looks only at that and what needs you (`77ae413`, r1179), held to a walk over every building across the 24 h edge.
