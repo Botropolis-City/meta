@@ -58,6 +58,7 @@ The figures are the table's above, in its order of rows, from the tests' own log
 | r1130 `71bef08` | `3ab7634..71bef08`: items 285, 289, 278 | 75 pass, 1 skip: every budget met | 0.65%, 0.72% | 1.58%, 1.73% | 55%, 28 MiB, read in 9 s | 0.09 CPU-s | 0.59%, 0.90%, 0.82% | 202 MiB | 1.3 |
 | r1149 `64ccc26` | `71bef08..64ccc26`: items 212, 270 (slices 8–10, the 300 MiB cap), 281, 282, 284, 287, 288, 291 | 75 pass, 1 skip: every budget met | 0.54%, 0.73% | 1.60%, 1.81% | 55%, 28 MiB, read in 9 s | 0.11 CPU-s | 0.52%, 0.88%, 0.82% | 240 MiB | 15.2, not quiet |
 | r1153 `21bbb9f` | `64ccc26..21bbb9f`: items 292, 212 (the still key, slices 1–2) | 75 pass, 1 skip: every budget met | 0.54%, 0.79% | 1.60%, 1.71% | 55%, 27 MiB, read in 9 s | 0.08 CPU-s | 0.59%, 0.85%, 0.82% | 245 MiB | 1.9 |
+| r1176 `7691a05` | `21bbb9f..7691a05`: items 286, 212, 270, 280, 290, 293, 298 | 75 pass, 1 skip: every budget met | 0.47%, 0.79% | 1.56%, 1.86% | 55%, 28 MiB, read in 9 s | 0.10 CPU-s | 0.45%, 0.89%, 0.83% | 242 MiB | 3.0 |
 
 At r1000 the 2,000-session daemon read about 0.1 of a core higher, twice, and is recorded as the machine's load rather than filed: `botropolisd` links neither `pkg/city` nor `pkg/render`, the only code the range changed; its CPU ticks held at 2.16–2.39% in all four runs; and the test itself says this measure spans 2.3–2.6% on a quiet machine.
 It is still over its budget, which is [item 213](../../roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md).
@@ -66,6 +67,8 @@ A single performance test could not be rerun on its own: `make test-acceptance-l
 The settled city's 242 MiB at r1041, against 199 at r1020, is the suite and not the code.
 `TestSettledMemory` run alone, `make test-performance RUN='^TestSettledMemory$'`, twice at each revision, read 247–248 MiB at r1020 and 253–255 at r1041, rising a MiB or two at a time across the range, about 3 of it [item 212](../../roadmap/212-every-frame-re-records-every-drawable.md)'s record caches.
 Inside the whole suite the same test has read either about 200 MiB (194–202, at r996 to r1020 and r1052) or about 241 (r1041, r1054), with no tie to the machine's load or the revision; so its figure moves by some 50 MiB with what ran before it, against a budget of 512, and a change in it between suite runs is only a lead until the test, run alone, agrees.
+
+The 2,000-session daemon's own memory, against its budget of 63 MiB, read 54–57 MiB in every run from r996 to r1130, then 58 at r1149, 57 at r1153 and 59 at r1176, with its live heap flat at 24–26 MB: a creep of a few MiB outside the Go heap, within two or three of the runs' own spread, to be watched or bisected between r1130 (`71bef08`) and r1176 (`7691a05`).
 
 ## What it does not show
 
