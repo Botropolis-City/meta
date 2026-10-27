@@ -989,6 +989,127 @@ class WhenRunningTheSoakToKeepOnFailureAndItIsInterrupted(WhenRunningTheSoakAndI
     argv = SOAK_RUN + KEEP
 
 
+LOCK_DOWN = 'bash -s -- --allow'
+
+
+class LockDown(SoakBox):
+    def answered_at(self):
+        return self.positions(lambda e: e[0] == 'ssh' and e[-1] == 'true')[0]
+
+    def lock_downs(self):
+        return [c for c in self.ssh_commands() if LOCK_DOWN in c]
+
+    def after_lock_down(self):
+        start = self.ssh_at(LOCK_DOWN)[0]
+        return [e for e in self.sequence()[start + 1:] if e[0] in ('ssh', 'scp')]
+
+
+class WhenRunningTheSoakItLocksDownSsh(LockDown):
+    def test_it_should_ask_the_box_where_the_runner_connects_from_once_it_answers(self):
+        self.assertEqual(self.ssh_at('SSH_CLIENT')[0], self.answered_at() + 1, self.sequence())
+
+    def test_it_should_lock_down_next(self):
+        self.assertEqual(self.ssh_at(LOCK_DOWN)[0], self.ssh_at('SSH_CLIENT')[0] + 1, self.sequence())
+
+    def test_it_should_open_port_22_to_the_runners_address_alone(self):
+        self.assertEqual(self.lock_downs(), [c for c in self.lock_downs() if c.endswith('--allow 198.51.100.7/32')])
+
+    def test_it_should_lock_down_once(self):
+        self.assertEqual(len(self.lock_downs()), 1, self.ssh_commands())
+
+    def test_it_should_lock_down_before_the_box_streams_or_is_set_up(self):
+        self.assertLess(self.ssh_at(LOCK_DOWN)[0], min(self.ssh_at('dmesg --follow')[0], self.scp_at('setup')[0]),
+                        self.sequence())
+
+    def test_it_should_send_the_lock_down_script_on_ssh_stdin(self):
+        with open(os.path.join(MACHINES, 'soak', 'lockdown')) as script, \
+                open(os.path.join(self.bench.spy, 'ssh-stdin')) as sent:
+            self.assertIn(script.read(), sent.read())
+
+    def test_it_should_record_who_may_reach_the_box(self):
+        self.assertIn('ssh: open to 198.51.100.7/32 alone, with no passwords', self.machine_txt())
+
+    def test_it_should_share_one_connection_for_every_ssh_and_scp_after_it(self):
+        self.assertEqual([e for e in self.after_lock_down() if not any(a.startswith('ControlPath=') for a in e)], [])
+
+    def test_it_should_let_the_first_connection_become_the_shared_one(self):
+        self.assertEqual([e for e in self.after_lock_down() if 'ControlMaster=auto' not in e], [])
+
+    def test_it_should_close_the_shared_connection_at_the_end(self):
+        self.assertTrue([argv for argv in self.bench.calls('ssh') if argv[-3:-1] == ['-O', 'exit']],
+                        self.bench.calls('ssh'))
+
+
+class WhenRunningTheSoakFromAnIPv6Address(LockDown):
+    stub_env = {'STUB_SEQ': 'ssh:SSH_CLIENT=0:2001:db8:5:6:a:b:c:d 53122 22'}
+
+    def test_it_should_open_port_22_to_the_runners_slash_64(self):
+        self.assertTrue(self.lock_downs()[0].endswith('--allow 2001:db8:5:6::/64'), self.lock_downs())
+
+
+class WhenRunningTheSoakAndTheBoxCannotSayWhereTheRunnerConnectsFrom(LockDown):
+    stub_env = {'STUB_SEQ': 'ssh:SSH_CLIENT=0:'}
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_not_set_up_the_box(self):
+        self.assertEqual(self.ssh_at(SET_UP), [])
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+
+class WhenRunningTheSoakAndTheLockDownFails(LockDown):
+    stub_env = {'STUB_SEQ': 'ssh:%s=1' % LOCK_DOWN}
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_try_it_once(self):
+        self.assertEqual(len(self.lock_downs()), 1, self.ssh_commands())
+
+    def test_it_should_not_set_up_the_box(self):
+        self.assertEqual(self.ssh_at(SET_UP), [])
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+
+class WhenRunningTheSoakAndTheLockDownDropsItsConnectionOnce(LockDown):
+    stub_env = {'STUB_SEQ': 'ssh:%s=255|0' % LOCK_DOWN}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_try_it_again(self):
+        self.assertEqual(len(self.lock_downs()), 2, self.ssh_commands())
+
+
+class WhenReadingTheLockDown(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.path = os.path.join(MACHINES, 'soak', 'lockdown')
+        with open(cls.path) as f:
+            cls.text = f.read()
+
+    def test_it_should_turn_off_password_logins(self):
+        self.assertIn('PasswordAuthentication no', self.text)
+
+    def test_it_should_turn_off_keyboard_interactive_logins(self):
+        self.assertIn('KbdInteractiveAuthentication no', self.text)
+
+    def test_it_should_check_sshds_configuration_before_reloading_it(self):
+        self.assertIn('sshd -t', self.text)
+
+    def test_it_should_drop_port_22_from_everyone_else(self):
+        self.assertIn('dport 22 drop', self.text)
+
+    def test_it_should_answer_help(self):
+        done = subprocess.run(['bash', self.path, '--help'], capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+
+
 class WhenReadingTheSetUp(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -1168,8 +1289,11 @@ class WhenCheckingTheGuestSetUp(unittest.TestCase):
             loud_skip(self, 'shellcheck is not installed')
 
     def test_it_should_pass_shellcheck(self):
-        done = subprocess.run(['shellcheck', os.path.join(MACHINES, 'soak', 'setup')], capture_output=True, text=True)
-        self.assertEqual(done.returncode, 0, done.stdout)
+        for script in ('setup', 'lockdown'):
+            with self.subTest(script=script):
+                done = subprocess.run(['shellcheck', os.path.join(MACHINES, 'soak', script)],
+                                      capture_output=True, text=True)
+                self.assertEqual(done.returncode, 0, done.stdout)
 
 
 if __name__ == '__main__':

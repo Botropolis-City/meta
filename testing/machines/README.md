@@ -77,8 +77,12 @@ A failed set-up cancels the box like any other failure.
 ### When the box goes quiet
 
 0.3.3's first two soak boxes stopped answering ssh right after a set-up that had succeeded, and each was cancelled before anything could be seen ([item 301](../../roadmap/301-the-soak-runner-gives-up-on-one-ssh-timeout.md)).
+The cause, from a kept box's sshd log: an ssh brute-force bot found the box's fresh IPv4 address within minutes, and the rescue system's sshd, at the default `MaxStartups` of 10:30:100, then dropped new connections at random, the runner's among them.
+The 26th's box was IPv6-only and was never scanned.
 So:
 
+- **The box's ssh is closed to everyone but the runner**, first thing after it answers and before anything else runs there. The runner asks the box where it connects from (`SSH_CLIENT`, never a web service), and `soak/lockdown`, sent on ssh's standard input, accepts port 22 from that address alone, or its /64 for IPv6, drops it from everyone else with nftables (iptables where there is none), turns off password logins and reloads sshd. `machine.txt` records who may reach the box. If the laptop's address changes during the soak, it cannot reach the box any more, but the soak goes on and the bucket still has its report.
+- **One connection carries every ssh and scp** after that (`ControlMaster`), so the box sees one connection instead of dozens; the runner closes it at the end.
 - **Every ssh and scp to the box is patient.** A connection failure (exit 255) is tried again, five times, `MACHINES_POLL_SECONDS` apart (`MACHINES_SSH_ATTEMPTS` changes the count). A remote command's own failure is never retried. The set-up can be run twice, and the soak's start is guarded by `/root/soak.started`, so a retry cannot start it twice. After the set-up, the runner waits for ssh to answer before it copies.
 - **The set-up says each step** after apt, and keeps all it says in `/root/setup.log` on the box.
 - **`box.log` in the results** holds the box's kernel log and a heartbeat (load and memory) every five seconds, streamed over one ssh from just after delivery until the soak starts. If the box wedges, its last words are on the laptop, and the heartbeat says when it stopped.

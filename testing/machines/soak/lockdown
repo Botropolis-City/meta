@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+	cat <<USAGE
+Usage: lockdown --allow NETWORK
+
+Shuts the soak box's ssh to everyone but the runner (item 301), first thing
+after delivery and before the set-up. A box on a fresh IPv4 address is found
+by ssh brute-force bots within minutes, and the rescue system's sshd, at the
+default MaxStartups of 10:30:100, then drops new connections at random, the
+runner's among them.
+
+It accepts port 22 from NETWORK alone and drops it from everyone else, with
+nftables or, where there is none, iptables and ip6tables; it turns off
+password and keyboard-interactive logins, checks sshd's configuration and
+reloads it, which keeps the connections already open.
+
+The runner sends this script on ssh's standard input, with NETWORK as the
+box saw the runner connect: its address, or its /64 for IPv6.
+USAGE
+}
+
+case "${1:-}" in
+-h | --help) usage; exit 0 ;;
+--allow) [[ -n "${2:-}" ]] || { usage >&2; exit 2; } ;;
+*) usage >&2; exit 2 ;;
+esac
+allow="$2"
+case "${allow}" in
+*:*) family=ip6 ;;
+*) family=ip ;;
+esac
+
+if command -v nft >/dev/null; then
+	nft delete table inet botropolis 2>/dev/null || true
+	nft -f - <<NFT
+table inet botropolis {
+	chain ssh {
+		type filter hook input priority -10; policy accept;
+		tcp dport 22 ${family} saddr ${allow} accept
+		tcp dport 22 drop
+	}
+}
+NFT
+	echo "lockdown: port 22 open to ${allow} alone, with nftables"
+elif command -v iptables >/dev/null && command -v ip6tables >/dev/null; then
+	for tool in iptables ip6tables; do
+		"${tool}" -I INPUT -p tcp --dport 22 -j DROP
+	done
+	if [[ "${family}" == ip6 ]]; then
+		ip6tables -I INPUT -p tcp --dport 22 -s "${allow}" -j ACCEPT
+	else
+		iptables -I INPUT -p tcp --dport 22 -s "${allow}" -j ACCEPT
+	fi
+	echo "lockdown: port 22 open to ${allow} alone, with iptables"
+else
+	echo "lockdown: neither nft nor iptables is here, so port 22 cannot be closed to the bots" >&2
+	exit 1
+fi
+
+config=/etc/ssh/sshd_config
+if ! grep -q '^# botropolis lockdown' "${config}"; then
+	{
+		echo '# botropolis lockdown (item 301): keys only'
+		echo 'PasswordAuthentication no'
+		echo 'KbdInteractiveAuthentication no'
+		cat "${config}"
+	} >"${config}.botropolis"
+	mv "${config}.botropolis" "${config}"
+fi
+sshd -t
+systemctl reload ssh 2>/dev/null || kill -HUP "$(cat /run/sshd.pid)"
+echo "lockdown: password and keyboard-interactive logins are off"

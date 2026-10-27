@@ -81,7 +81,7 @@ SPYING_STUB = textwrap.dedent('''\
         with open(os.path.join(spy, 'hung-%d' % os.getpid()), 'w') as f:
             f.write(name)
         time.sleep(60)
-    if name == 'ssh' and any('bucket.env' in a for a in args):
+    if name == 'ssh' and any('bucket.env' in a or 'bash -s' in a for a in args):
         with open(os.path.join(spy, 'ssh-stdin'), 'a') as f:
             f.write(sys.stdin.read())
     if matches('STUB_FAIL'):
@@ -92,6 +92,8 @@ SPYING_STUB = textwrap.dedent('''\
             f.write('verdict\\n')
     if name == 'ssh' and any('libgl1-mesa-dri' in a for a in args):
         print('25.0.7-2')
+    if name == 'ssh' and any('SSH_CLIENT' in a for a in args):
+        print('198.51.100.7 53122 22')
     if name == 'terraform' and 'output' in args:
         print(json.dumps({'ipv6_address': {'value': '2a01:4f8:c0c:1::1'}, 'ipv4_address': {'value': '192.0.2.7'}}))
     ''')

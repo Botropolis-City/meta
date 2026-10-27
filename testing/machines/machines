@@ -4,6 +4,7 @@ import base64
 import datetime
 import hashlib
 import io
+import ipaddress
 import json
 import os
 import shlex
@@ -250,11 +251,40 @@ def fingerprint(key):
     return ':'.join(digest[i:i + 2] for i in range(0, 32, 2))
 
 
+def control_dir():
+    d = os.path.join(os.environ.get('XDG_RUNTIME_DIR') or tempfile.gettempdir(), 'botropolis-machines-%d' % os.getuid())
+    os.makedirs(d, mode=0o700, exist_ok=True)
+    return d
+
+
 def ssh_options(args):
+    shared = ['-o', 'ControlMaster=auto', '-o', 'ControlPath=' + os.path.join(control_dir(), '%C'),
+              '-o', 'ControlPersist=600'] if args.machine == 'soak' else []
     return ['-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=accept-new',
             '-o', 'UserKnownHostsFile=' + os.path.join(state_dir(), 'known_hosts'),
             '-o', 'IdentityFile=' + private_key(args), '-o', 'ConnectTimeout=10',
-            '-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=10']
+            '-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=10'] + shared
+
+
+def close_shared(args, ip):
+    subprocess.run(['ssh'] + ssh_options(args) + ['-O', 'exit', 'root@' + ip],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def lock_down(args, ip, out):
+    seen = ssh_output(args, ip, 'echo "$SSH_CLIENT"', patient=True).split()
+    try:
+        address = ipaddress.ip_address(seen[0])
+    except (IndexError, ValueError):
+        raise Refused('%s could not say where this runner connects from (SSH_CLIENT %r), so its ssh cannot be '
+                      'closed to everyone else; the set-up did not start' % (ip, ' '.join(seen)), 1)
+    network = ipaddress.ip_network('%s/%d' % (address, 64 if address.version == 6 else 32), strict=False)
+    with open(os.path.join(HERE, 'soak', 'lockdown')) as f:
+        script = f.read()
+    if ssh_input(args, ip, 'bash -s -- --allow %s' % network, script, patient=True) != 0:
+        raise Refused('could not close %s\'s ssh to everyone but %s; the set-up did not start' % (ip, network), 1)
+    with open(os.path.join(out, 'machine.txt'), 'a') as f:
+        f.write('ssh: open to %s alone, with no passwords (item 301)\n' % network)
 
 
 def patiently(what, attempt):
@@ -630,6 +660,7 @@ def run_soak(args):
     sessions, projects = count_history(args.history)
     report = None
     interrupted = kept = False
+    ip = None
     rc = 1
     try:
         state = robot.apply(args)
@@ -651,11 +682,14 @@ def run_soak(args):
             f.write('report: %s/report.tar.gz in the bucket\n' % run_id)
         forget(ip)
         wait_for_ssh(args, ip)
-        stream = Stream(args, ip, os.path.join(out, 'box.log'))
+        stream = None
         try:
+            lock_down(args, ip, out)
+            stream = Stream(args, ip, os.path.join(out, 'box.log'))
             report = start_soak(args, ip, out, run_id)
         except Exception:
-            stream.stop()
+            if stream:
+                stream.stop()
             diagnose(args, ip, out)
             kept = args.keep_on_failure
             raise
@@ -679,6 +713,8 @@ def run_soak(args):
                     warn('could not fetch the soak report before cancelling the box: %s' % report.lost())
                     rc = rc or 1
         finally:
+            if ip:
+                close_shared(args, ip)
             if kept:
                 keep(args, robot, out)
             else:

@@ -44,9 +44,22 @@ so the fix instruments, retries and keeps,
 and the next run names the cause.
 What it does is in [testing/machines/README.md](../testing/machines/README.md#when-the-box-goes-quiet).
 
+## The cause (manager, 2026-10-27)
+
+The diagnostic run's box, server 3100620, was kept, and its sshd log names it: an ssh brute-force bot found the box's fresh IPv4 address within minutes and tried a password every two to five seconds, for root, pi, deploy, toor and the rest.
+The rescue system's sshd runs at the default `MaxStartups` of 10:30:100,
+so with the bot's unauthenticated connections open,
+it drops new ones at random, which gave the runner its banner and connect timeouts while the box answered ping and was otherwise healthy.
+The 26th's box was IPv6-only and was never scanned.
+
+So a second slice closes the box's ssh to the runner alone, before anything else runs there,
+and carries every later ssh and scp over one shared connection;
+the retries stay.
+
 ## Decided
 
 - **The diagnosis, the fix, the instruments and the test tree** (manager, 2026-10-27): approved.
 - **Keeping a failed box** (manager, 2026-10-27): opt-in, `KEEP_ON_FAILURE=1`, since a kept box bills until its booked date, up to a day. The manager passes it for the diagnostic run.
 - **The retry budget** (manager, 2026-10-27): five attempts over about two minutes, configurable with `MACHINES_SSH_ATTEMPTS`.
 - **An IPv6-only datapoint** (manager, 2026-10-27): not possible from the laptop today, which has no IPv6 route.
+- **The second slice** (manager, 2026-10-27): right after the box answers ssh, close port 22 to the runner's own address and turn off password logins; one multiplexed connection for every ssh and scp after that; keep the retries. The runner learns its address from the box's own view of the connection (`SSH_CLIENT`), not from a web service. For IPv6 it opens the /64, since the laptop's temporary addresses rotate during an eight-hour run.
