@@ -57,6 +57,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [301](roadmap/301-the-soak-runner-gives-up-on-one-ssh-timeout.md) | the soak runner gives up the whole run on one ssh timeout while copying to the box | — | nobody, a defect |
 | [302](roadmap/302-a-new-session-from-c-does-not-open-and-leaves-you-home.md) | a new session from `c` doesn't open, starts slowly, and exiting it lands you in your home folder | — | nobody, Aria said what she wants |
 | [304](roadmap/304-packing-no-longer-plays-its-haul.md) | a packed session's truck drives to the depot at road speed, 2 to 6 s, not in a fixed 2 s | — | nobody, Aria ruled |
+| [306](roadmap/306-a-slow-runner-measures-no-stress-city-frames.md) | on a slow runner the stress city measures no frames, and that check still fails the release | — | nobody, follows item 305 |
 
 ## Waiting on Aria
 
