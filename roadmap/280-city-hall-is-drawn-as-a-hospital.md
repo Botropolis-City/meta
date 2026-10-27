@@ -37,3 +37,4 @@ The hall's sprite is Kenney's `city-kit-commercial/building-n` (`pkg/render/reci
 - **Slice 4, the clinic's count at scale** (manager, 2026-10-27, from 0.3.3's release check): the 600-district fit frame came in at a 16.47 ms median against item 270's 16 ms bar, and a control put the regression in r1166–r1176.
   The standing key and the plate asked for the clinic's count every frame, and it built the whole list to count it, putting every building through the trouble test: the walk item 270 took out of triage.
   The city now lists what may be in trouble when it is indexed, and the count looks only at that and what needs you (`77ae413`, r1179), held to a walk over every building across the 24 h edge.
+- **The clinic at night** (Aria, 2026-10-27): *"Raise to 38 and light it"*: item 236's night ceiling goes from 37 to 38 draw commands a frame, and the clinic is lit at night like the hall and the library, after 0.3.3.
