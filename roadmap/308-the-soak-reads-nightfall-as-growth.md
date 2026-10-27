@@ -11,3 +11,29 @@
 1. `perf-soak` pins the city's light for the run, forced day or forced night, through the city's own setting or the demo's clock, so the wall clock cannot change what is drawn; or each phase runs wholly in one light. The 1 MiB an hour budget does not change.
 2. The report names any step it finds, its time and size, and the slopes either side, so a reader sees a step as a step.
 3. Recorded here: the switch to night costs about 49 MiB, 32 of it GPU, once a night, within the settled budgets.
+
+## The method (performance manager, 2026-10-27)
+
+**Pin the light at start, not with a key.**
+Today the light is pinned only by `n` in the city (`cycleLight`, `pkg/render/keys.go`), which needs the window focused, and the soak hides the window halfway through.
+So the city takes the light as a start-up setting, `--light night|day|live` with `live` the default, setting `Scene.light` before the first frame, and `perf-soak` passes `--light night` to every run.
+Night is the pin because it draws everything day draws plus the lit windows and the lights stream (item 236), so it is the one that can grow more.
+`perf-soak --light day` stays available for a day run, and the report names the light it ran in.
+
+**Every phase runs in one light, and the verdict does not change.**
+Each phase's least-squares slope from 600 s stays the verdict, at most 1 MiB an hour, exit 1 over it.
+A pinned run has no clock step to explain, so nothing is subtracted, split out or excused.
+
+**Steps are named, not excused.**
+`soak.md` lists every step it finds: two samples 10 s apart differing by more than 8 MiB of `Private_Dirty` + GPU, or by more than four times the phase's residual standard deviation, whichever is larger.
+For each step it gives the time on the box's clock and in UTC, its size split into `Private_Dirty` and GPU, and the slopes either side.
+A step still counts toward its phase's slope, because memory taken in a step is memory taken.
+The table is what tells a reader whether an over-budget slope is a ramp or a step.
+
+**Prove the switch gives its memory back.**
+The 49 MiB at nightfall is within the settled budgets, but only if it is paid once.
+The item's acceptance adds one short check: the city on the 600-district fixture, `--light live` with the scene's clock scrubbed across night → day → night → day, sampled as the soak samples.
+It passes when the second night settles within 4 MiB of the first, and the second day within 4 MiB of the first day.
+If a second night adds again, that is a leak at the light switch, and its own item.
+
+**Done when:** a soak run with `--light night` reports one light, an empty or explained step table, and both phases within 1 MiB an hour; the light-cycle check passes; and `performance/method.md` step 8 says all of this, which the performance manager writes once it lands.
