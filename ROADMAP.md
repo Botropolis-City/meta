@@ -62,6 +62,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [291](roadmap/291-closing-up-does-not-quit-the-city.md) | closing up from the quit prompt notes and pauses, then leaves the city open | — | nobody, a defect |
 | [292](roadmap/292-the-quit-prompt-is-a-line-in-the-footer.md) | the quit prompt becomes a centered panel | — | nobody, Aria said what she wants |
 | [293](roadmap/293-closing-the-window-quits-without-asking.md) | closing the window asks, or goes to the tray by setting, with a tray icon on both Linux standards | 292 | nobody, Aria ruled |
+| [294](roadmap/294-a-building-is-drawn-small-the-frame-its-scaffold-comes-down.md) | a building is drawn small for one frame as its scaffold finishes coming down | — | nobody, a defect |
 
 ## Waiting on Aria
 
