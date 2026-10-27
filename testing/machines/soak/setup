@@ -59,7 +59,7 @@ fi
 echo "setup: installing Xorg, i3 and Mesa"
 apt-get -o DPkg::Lock::Timeout=300 update -q
 apt-get -o DPkg::Lock::Timeout=300 install -y -q --no-install-recommends \
-	xserver-xorg-core xinit x11-xserver-utils i3-wm fonts-dejavu-core mesa-utils \
+	xserver-xorg-core xinit x11-xserver-utils x11-utils i3-wm fonts-dejavu-core mesa-utils \
 	libgl1-mesa-dri libgl1 libegl1 libx11-6 libxcursor1 libxi6 libxinerama1 libxrandr2 hicolor-icon-theme \
 	python3 pciutils
 echo "mesa: $(dpkg-query -W -f='${Version}' libgl1-mesa-dri)" >>"${report}"

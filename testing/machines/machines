@@ -750,15 +750,24 @@ def start_soak(args, ip, out, run_id):
             raise Refused('could not copy %s to %s' % (src, ip), 1)
     if ssh(args, ip, 'chown -R soak: /home/soak', patient=True) != 0:
         raise Refused('could not give the soak user its files on %s' % ip, 1)
+    as_soak = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
+               'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE]
+    preflight = ssh_run(args, ip, shlex.join(as_soak + ['%s/performance/tools/perf-soak' % REMOTE, '--preflight',
+                                                         '--out', REMOTE + '/preflight', REMOTE + '/build']),
+                        patient=True, capture_output=True, text=True)
+    said = (preflight.stdout + preflight.stderr).strip()
+    if preflight.returncode != 0:
+        raise Refused('the pre-flight failed on %s (exit %d), so the soak did not start: %s'
+                      % (ip, preflight.returncode, said or 'it said nothing'), 1)
+    with open(os.path.join(out, 'machine.txt'), 'a') as f:
+        f.write('pre-flight: passed, %s (item 309)\n' % (said.splitlines() or ['as the soak user on :0'])[-1])
     key = 'BUCKET_URL=%s\nBUCKET_ID=%s\nBUCKET_SECRET=%s\n' % (
         args.bucket_url, os.environ['BUCKET_WRITE_ID'], os.environ['BUCKET_WRITE_SECRET'])
     if ssh_input(args, ip, 'umask 077 && cat >/root/bucket.env', key, patient=True) != 0:
         raise Refused('could not give the box its bucket key', 1)
     report = Report(args, ip, out, Bucket(args.bucket_url, os.environ['BUCKET_READ_ID'],
                                           os.environ['BUCKET_READ_SECRET']), run_id)
-    command = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
-               'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE,
-               '%s/performance/tools/perf-soak' % REMOTE, '--out', REPORT] \
+    command = as_soak + ['%s/performance/tools/perf-soak' % REMOTE, '--out', REPORT] \
         + shlex.split(args.soak_flags) + [REMOTE + '/build']
     detached = ['setsid', '-f', 'python3', '/root/detached', '--env', '/root/bucket.env', '--run-id', run_id,
                 '--every', '%g' % FETCH_EVERY, '--out', REPORT, '--'] + command

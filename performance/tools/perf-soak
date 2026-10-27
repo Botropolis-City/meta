@@ -16,6 +16,7 @@ light=night
 display="${DISPLAY:-}"
 out=""
 build=""
+preflight=0
 
 usage() {
 	cat <<USAGE
@@ -57,8 +58,17 @@ locked screen stops the visible phase drawing, and the verdict refuses it.
                      Night draws everything day does and the lit windows too.
                      live follows the clock and sets nothing, for a build from
                      before the key
-  --out DIR         run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  --out DIR          run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  --preflight        do not soak: check the desk, then open the city for a minute,
+                     find its window, hide it and show it again (item 309).
+                     Exit 0 when all of that worked, 2 naming what did not
   -h, --help         this
+
+Hiding the window needs xprop and xwininfo (Debian's x11-utils), i3-msg (i3)
+and xset (x11-xserver-utils), each able to reach the display. A run that will
+hide the window checks for them first and, without one, exits 2 at once,
+naming it, rather than soak for hours towards a run that cannot be a
+measurement.
 
 It does not take the landing lock, so landings can run beside it; soak.md
 records the load at the start and the end and how many commits landed on
@@ -72,7 +82,8 @@ and GPU, and the slopes either side. A step still counts in its phase's slope. E
 
 For tests: PERF_SOAK_REPO is the botropolis checkout whose landings are
 counted (default: ${repo}/botropolis), and PERF_SOAK_SETTLE and
-PERF_SOAK_MIN_PHASE scale the 600 s settle and the 1800 s phase floor.
+PERF_SOAK_MIN_PHASE scale the 600 s settle and the 1800 s phase floor, and
+PERF_SOAK_PREFLIGHT_SECONDS the pre-flight's minute.
 USAGE
 }
 
@@ -86,6 +97,7 @@ while [[ $# -gt 0 ]]; do
 	--writers) writers="$2"; shift 2 ;;
 	--light) light="$2"; shift 2 ;;
 	--out) out="$2"; shift 2 ;;
+	--preflight) preflight=1; shift ;;
 	-h | --help) usage; exit 0 ;;
 	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
 	*) build="$1"; shift ;;
@@ -103,6 +115,45 @@ else
 	hide_after=0
 fi
 export DISPLAY="${display}"
+
+desk_check() {
+	local tool package probe
+	while read -r tool package probe; do
+		if ! command -v "${tool}" >/dev/null; then
+			echo "perf-soak: ${tool} is not installed (${package}); hiding the window needs xprop, xwininfo, i3-msg and xset, so this run could not be a measurement" >&2
+			exit 2
+		fi
+		# shellcheck disable=SC2086
+		if ! ${tool} ${probe} >/dev/null 2>&1; then
+			echo "perf-soak: ${tool} did not run on display '${display}' (${tool} ${probe}); hiding the window needs it, so this run could not be a measurement" >&2
+			exit 2
+		fi
+	done <<-TOOLS
+		xprop x11-utils -root _NET_SUPPORTING_WM_CHECK
+		xwininfo x11-utils -root
+		i3-msg i3 -t get_version
+		xset x11-xserver-utils q
+	TOOLS
+}
+
+if [[ "${preflight}" == 1 ]]; then
+	desk_check
+	span="${PERF_SOAK_PREFLIGHT_SECONDS:-60}"
+	out="${out:-${XDG_STATE_HOME:-$HOME/.local/state}/botropolis-perf/preflight-$(date +%Y%m%d-%H%M%S)}"
+	mkdir -p "${out}"
+	PERF_BUSY_SETTLE="${PERF_BUSY_SETTLE:-60}" "${here}/perf-busy-city" --seconds "${span}" --hide-after "$((span / 3))" \
+		--show-after "$((span * 2 / 3))" --keep-focus --writers 0 --interval 1 --profile-seconds 0 "${sets[@]}" --out "${out}" "${build}" >/dev/null &
+	busy=$!
+	wait "${busy}"
+	marks="${out}/run/env.txt"
+	failed() { echo "perf-soak: pre-flight failed on display '${display}': $1; see ${out}" >&2; exit 2; }
+	grep -qE '^window_at_start=[0-9]+x[0-9]+' "${marks}" 2>/dev/null || failed "the city's window was not found"
+	grep -q '^hidden_at_s=' "${marks}" || failed "could not hide the window"
+	grep -q '^shown_at_s=' "${marks}" || failed "could not show the window again after hiding it"
+	echo "perf-soak: pre-flight passed on display '${display}': the desk's tools ran, and the city's window was found, hidden and shown again"
+	exit 0
+fi
+[[ "${hide}" == 1 ]] && desk_check
 
 out="${out:-${XDG_STATE_HOME:-$HOME/.local/state}/botropolis-perf/soak-$(date +%Y%m%d-%H%M%S)}"
 mkdir -p "${out}"

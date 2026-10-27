@@ -67,12 +67,20 @@ Auction prices drop on a schedule, so a drop since the plan refuses too; plan ag
 
 The auction delivers the box booted into Hetzner's rescue system, which is Debian and runs from RAM, and the soak runs right there, with nothing installed to disk and no reboot.
 `soak/setup` turns the rescue system into the soak's display:
-it installs Xorg, i3, Mesa and botropolis's libraries with apt,
+it installs Xorg, i3, Mesa, botropolis's libraries and the X tools that hide the window (`xprop` and `xwininfo` from `x11-utils`, `xset` from `x11-xserver-utils`) with apt,
 forces a 1920x1080 display on with an EDID from `edid.py` through the DRM debugfs `edid_override`, since the kernel command line cannot change without a reboot,
 and starts Xorg with the `modesetting` driver on the iGPU, i3, `xset s off -dpms` and no locker.
 It writes what it found in `/dev/dri`, the Mesa version and the renderer to `dri.txt` in the results, and stops if there is no iGPU, since Hetzner may not leave it enabled.
 `machine.txt` names the rescue system's Mesa version, since it is Debian's and not the one on Aria's laptop.
 A failed set-up cancels the box like any other failure.
+
+Once the files are copied and before the soak starts, the runner runs `perf-soak --preflight` as the soak user on `:0` ([item 309](../../roadmap/309-the-soak-box-cannot-hide-the-city.md)).
+It checks that `xprop`, `xwininfo`, `i3-msg` and `xset` are installed and reach the display,
+then opens the city for a minute and finds its window, hides it and shows it again.
+0.3.3's soak ran four hours before it found it could not hide the window, because the set-up had left out `x11-utils`.
+A pre-flight that fails stops the run before the soak, with its diagnostics, and the box is cancelled or, with `KEEP_ON_FAILURE=1`, kept.
+`machine.txt` records the pass.
+A soak that will hide the window also checks for those tools itself when it starts, and exits 2 at once, naming the missing one.
 
 ### When the box goes quiet
 

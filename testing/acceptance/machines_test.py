@@ -989,6 +989,62 @@ class WhenRunningTheSoakToKeepOnFailureAndItIsInterrupted(WhenRunningTheSoakAndI
     argv = SOAK_RUN + KEEP
 
 
+PREFLIGHT = 'perf-soak --preflight'
+
+
+class WhenRunningTheSoakItPreflightsTheBox(SoakBox):
+    def preflights(self):
+        return [c for c in self.ssh_commands() if PREFLIGHT in c]
+
+    def test_it_should_run_the_pre_flight_as_the_soak_user(self):
+        self.assertIn('runuser -u soak', self.preflights()[0], self.ssh_commands())
+
+    def test_it_should_run_the_pre_flight_on_the_boxs_display(self):
+        self.assertIn('DISPLAY=:0', self.preflights()[0], self.ssh_commands())
+
+    def test_it_should_run_the_pre_flight_after_copying_the_tools(self):
+        self.assertGreater(self.ssh_at(PREFLIGHT)[0], self.scp_at(PERF_COPY)[0], self.sequence())
+
+    def test_it_should_run_the_pre_flight_before_starting_the_soak(self):
+        self.assertLess(self.ssh_at(PREFLIGHT)[0], self.ssh_at('setsid')[0], self.sequence())
+
+    def test_it_should_record_that_the_pre_flight_passed(self):
+        self.assertIn('pre-flight: passed', self.machine_txt())
+
+
+class WhenRunningTheSoakAndThePreFlightFails(SoakBox):
+    stub_env = {'STUB_SEQ': 'ssh:--preflight=2:perf-soak: xprop is missing'}
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_not_start_the_soak(self):
+        self.assertEqual(self.launches(), [])
+
+    def test_it_should_try_it_once(self):
+        self.assertEqual(len(self.ssh_at(PREFLIGHT)), 1, self.ssh_commands())
+
+    def test_it_should_say_the_pre_flight_failed(self):
+        self.assertIn('pre-flight failed', self.done.stderr)
+
+    def test_it_should_say_what_the_pre_flight_said(self):
+        self.assertIn('xprop is missing', self.done.stderr)
+
+    def test_it_should_collect_the_diagnostics(self):
+        self.assertTrue(self.diagnostics_at(), self.sequence())
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+
+class WhenRunningTheSoakToKeepOnFailureAndThePreFlightFails(SoakBox):
+    argv = SOAK_RUN + KEEP
+    stub_env = WhenRunningTheSoakAndThePreFlightFails.stub_env
+
+    def test_it_should_not_cancel_the_server(self):
+        self.assertEqual(self.cancelled_now(), [])
+
+
 LOCK_DOWN = 'bash -s -- --allow'
 
 
@@ -1210,6 +1266,10 @@ class WhenReadingTheSetUp(unittest.TestCase):
     def setUpClass(cls):
         with open(os.path.join(MACHINES, 'soak', 'setup')) as f:
             cls.text = f.read()
+
+    def test_it_should_install_x11_utils_on_the_same_apt_line_as_x11_xserver_utils(self):
+        apt = [c.split() for c in self.text.replace('\\\n', ' ').splitlines() if 'x11-xserver-utils' in c.split()]
+        self.assertIn('x11-utils', apt[0], apt)
 
     def test_it_should_tee_everything_it_says_to_root_setup_log(self):
         self.assertIn('tee -a /root/setup.log', self.text)

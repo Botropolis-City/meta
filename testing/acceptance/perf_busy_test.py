@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'helpers'))
-from stubs import BusyDesk, path_without, run_in_own_group, snapshot  # noqa: E402
+from stubs import DESK, BusyDesk, fake_desk, path_without, run_in_own_group, snapshot  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 TOOL = os.path.join(ROOT, 'performance', 'tools', 'perf-busy-city')
@@ -70,6 +70,29 @@ class WhenI3XpropAndXsetAreAbsent(unittest.TestCase):
 
     def test_it_should_leave_the_callers_state_config_cache_and_data_untouched(self):
         self.assertEqual(self.after, self.before)
+
+
+class WhenRunningOnADeskWithAShowAfterTheHide(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.top = tempfile.mkdtemp()
+        desk = BusyDesk(cls.top)
+        out = os.path.join(cls.top, 'out')
+        env = desk.env(path_without(set(DESK), os.path.join(cls.top, 'bin'), fake_desk()))
+        cls.done = run_in_own_group([TOOL, '--seconds', '6', '--hide-after', '2', '--show-after', '4', '--keep-focus',
+                                     '--profile-seconds', '0', '--out', out, desk.build], env, 90)
+        try:
+            with open(os.path.join(out, 'run', 'env.txt')) as f:
+                cls.marks = f.read().splitlines()
+        except OSError:
+            cls.marks = []
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.top, ignore_errors=True)
+
+    def test_it_should_record_when_it_showed_the_window_again(self):
+        self.assertIn('shown_at_s=4', self.marks, self.done.stderr[-2000:])
 
 
 if __name__ == '__main__':

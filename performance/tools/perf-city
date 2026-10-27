@@ -9,6 +9,7 @@ procgroup_lead "$@"
 bin=$(command -v botropolis || true)
 seconds=600
 hide_after=0
+show_after=0
 interval=2
 out=""
 headless=0
@@ -24,7 +25,11 @@ Open the city, sample it and the daemon for a while, and write a run directory.
   --seconds N         how long to sample (default: ${seconds})
   --hide-after N      after N seconds, move the window to i3's scratchpad so the
                       rest of the run measures a hidden window (default: never);
-                      env.txt records hidden_at_s and the frames drawn by then
+                      env.txt records hidden_at_s and the frames drawn by then;
+                      it counts as hidden only once xwininfo says it is not viewable
+  --show-after N      after N seconds (more than --hide-after), show the hidden
+                      window again and check it is viewable; env.txt records
+                      shown_at_s, or show_failed_at_s (default: never)
   --interval N        seconds between samples (default: ${interval})
   --headless          run on a virtual display (llvmpipe: CPU and memory are NOT
                       representative of a real GPU; use only to compare two builds).
@@ -52,6 +57,7 @@ while [[ $# -gt 0 ]]; do
 	--bin) bin="$2"; shift 2 ;;
 	--seconds) seconds="$2"; shift 2 ;;
 	--hide-after) hide_after="$2"; shift 2 ;;
+	--show-after) show_after="$2"; shift 2 ;;
 	--interval) interval="$2"; shift 2 ;;
 	--headless) headless=1; shift ;;
 	--out) out="$2"; shift 2 ;;
@@ -99,6 +105,16 @@ city_window() {
 	done
 	return 0
 }
+settles() {
+	local state
+	for _ in $(seq 10); do
+		state=no
+		xwininfo -id "$1" 2>/dev/null | grep -q 'Map State: IsViewable' && state=yes
+		[[ "${state}" == "$2" ]] && return 0
+		sleep 0.2
+	done
+	return 1
+}
 window_size() {
 	local id
 	command -v xwininfo >/dev/null || return 0
@@ -125,9 +141,10 @@ sampler=$!
 if [[ "${hide_after}" -gt 0 && "${headless}" == 0 ]]; then
 	sleep "${hide_after}"
 	hidden=0
+	windows=()
 	if command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
 		for id in $(city_window); do
-			i3-msg "[id=${id}] move scratchpad" | grep -q '"success":true' && hidden=1
+			i3-msg "[id=${id}] move scratchpad" | grep -q '"success":true' && settles "${id}" no && hidden=1 && windows+=("${id}")
 		done
 	fi
 	if [[ "${hidden}" == 1 ]]; then
@@ -137,6 +154,20 @@ if [[ "${hide_after}" -gt 0 && "${headless}" == 0 ]]; then
 	else
 		echo "# could not hide the window at ${hide_after}s (needs i3 and xprop); the rest of the run is NOT a hidden window" >&2
 		echo "hide_failed_at_s=${hide_after}" >>"${out}/env.txt"
+	fi
+	if [[ "${hidden}" == 1 && "${show_after}" -gt "${hide_after}" ]]; then
+		sleep "$((show_after - hide_after))"
+		shown=0
+		for id in "${windows[@]}"; do
+			i3-msg "[id=${id}] scratchpad show" | grep -q '"success":true' && settles "${id}" yes && shown=1
+		done
+		if [[ "${shown}" == 1 ]]; then
+			echo "# shown again at ${show_after}s" >&2
+			echo "shown_at_s=${show_after}" >>"${out}/env.txt"
+		else
+			echo "# could not show the window again at ${show_after}s" >&2
+			echo "show_failed_at_s=${show_after}" >>"${out}/env.txt"
+		fi
 	fi
 fi
 

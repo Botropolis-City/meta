@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -6,13 +7,12 @@ import tempfile
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'helpers'))
-from stubs import BusyDesk, executable, path_without, run_in_own_group, snapshot  # noqa: E402
+from stubs import DESK, DESK_WINDOW, BusyDesk, executable, fake_desk, path_without, run_in_own_group, snapshot  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 TOOL = os.path.join(ROOT, 'performance', 'tools', 'perf-soak')
-DESKTOP = {'i3-msg', 'xprop', 'xset'}
 SECONDS = 6
-SCALED = {'PERF_SOAK_SETTLE': '1', 'PERF_SOAK_MIN_PHASE': '1'}
+SCALED = {'PERF_SOAK_SETTLE': '1', 'PERF_SOAK_MIN_PHASE': '1', 'PERF_SOAK_PREFLIGHT_SECONDS': str(SECONDS)}
 
 
 def read(path):
@@ -24,8 +24,9 @@ def read(path):
 
 
 class Soak(unittest.TestCase):
-    absent = DESKTOP
-    extra_bin = {}
+    absent = set(DESK)
+    desk_tools = DESK
+    broken = ''
     flags = []
 
     @classmethod
@@ -34,14 +35,20 @@ class Soak(unittest.TestCase):
         cls.desk = BusyDesk(cls.top)
         cls.out = os.path.join(cls.top, 'out')
         cls.before = snapshot(cls.desk.watched)
-        cls.env = cls.desk.env(path_without(cls.absent, os.path.join(cls.top, 'bin'), cls.extra_bin),
-                               PERF_SOAK_REPO=os.path.join(cls.top, 'not-a-checkout'), **SCALED)
-        cls.argv = [TOOL, '--seconds', str(SECONDS), '--hide-after', str(SECONDS // 2), '--interval', '1',
-                    '--out', cls.out] + cls.flags + [cls.desk.build]
+        extra = fake_desk(without=set(DESK) - set(cls.desk_tools))
+        cls.env = cls.desk.env(path_without(cls.absent,os.path.join(cls.top, 'bin'), extra),
+                               PERF_SOAK_REPO=os.path.join(cls.top, 'not-a-checkout'), FAKE_DESK_BROKEN=cls.broken,
+                               **SCALED)
+        cls.argv = cls.command()
         cls.run_soak()
         cls.after = snapshot(cls.desk.watched)
         cls.soak = read(os.path.join(cls.out, 'soak.md'))
         cls.busy = read(os.path.join(cls.out, 'busy.txt'))
+
+    @classmethod
+    def command(cls):
+        return [TOOL, '--seconds', str(SECONDS), '--hide-after', str(SECONDS // 2), '--interval', '1',
+                '--out', cls.out] + cls.flags + [cls.desk.build]
 
     @classmethod
     def run_soak(cls):
@@ -51,16 +58,19 @@ class Soak(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.top, ignore_errors=True)
 
+    def desk_calls(self):
+        return [json.loads(line) for line in self.desk.spied('desk').splitlines()]
 
-class WhenSoakingAStubBuildWithoutADesktop(Soak):
+    def i3_commands(self):
+        return [' '.join(c[1:]) for c in self.desk_calls() if c[0] == 'i3-msg' and c[1:2] != ['-t']]
+
+
+class WhenSoakingAStubBuildOnADesk(Soak):
     def test_it_should_run_to_the_end_and_write_its_verdict(self):
         self.assertTrue(self.soak.startswith('# Soak verdict:'), self.done.stderr[-2000:])
 
-    def test_it_should_say_the_window_could_not_be_hidden(self):
-        self.assertIn('could not hide the window', self.done.stderr)
-
-    def test_it_should_exit_as_not_a_measurement(self):
-        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+    def test_it_should_hide_the_window_part_way(self):
+        self.assertIn('hidden_at_s: %d' % (SECONDS // 2), self.soak)
 
     def test_it_should_record_the_scratch_daemons_pid(self):
         self.assertIn('daemon_pid=%s' % self.desk.spied('daemon-pid').strip(), self.busy.splitlines())
@@ -87,6 +97,16 @@ class WhenSoakingAStubBuildWithoutADesktop(Soak):
         self.assertEqual(self.after, self.before)
 
 
+class WhenSoakingAndTheWindowCannotBeHidden(Soak):
+    broken = 'no-hide'
+
+    def test_it_should_say_the_window_could_not_be_hidden(self):
+        self.assertIn('could not hide the window', self.done.stderr)
+
+    def test_it_should_exit_as_not_a_measurement(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+
 class WhenSoakingOnADisplayItIsGiven(Soak):
     flags = ['--display', ':164']
 
@@ -95,7 +115,11 @@ class WhenSoakingOnADisplayItIsGiven(Soak):
 
 
 class WhenSoakingWithTheHideTurnedOff(Soak):
+    desk_tools = ()
     flags = ['--no-hide']
+
+    def test_it_should_run_to_the_end_without_a_desk(self):
+        self.assertTrue(self.soak.startswith('# Soak verdict:'), self.done.stderr[-2000:])
 
     def test_it_should_record_that_it_hid_nothing(self):
         self.assertIn('hide: none', self.soak)
@@ -107,6 +131,84 @@ class WhenSoakingWithTheHideTurnedOff(Soak):
         self.assertNotIn('| city | hidden |', self.soak)
 
 
+class Refusing:
+    tool = ''
+
+    def test_it_should_exit_as_not_a_measurement(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+    def test_it_should_name_the_tool(self):
+        self.assertIn(self.tool, self.done.stderr)
+
+    def test_it_should_open_no_city(self):
+        self.assertEqual(self.desk.spied('city-pid'), '')
+
+
+class Preflight(Soak):
+    @classmethod
+    def command(cls):
+        return [TOOL, '--preflight', '--out', cls.out, cls.desk.build]
+
+
+for _tool in DESK:
+    _name = _tool.replace('-', '').capitalize()
+    for _kind, _base in (('Soaking', Soak), ('Preflighting', Preflight)):
+        _missing = 'When%sAndAToolIsMissing_%s' % (_kind, _name)
+        globals()[_missing] = type(_missing, (Refusing, _base), {'tool': _tool, 'desk_tools': tuple(t for t in DESK if t != _tool)})
+        _failing = 'When%sAndAToolFailsToRun_%s' % (_kind, _name)
+        globals()[_failing] = type(_failing, (Refusing, _base), {'tool': _tool, 'broken': _tool})
+del _tool, _name, _kind, _base, _missing, _failing
+
+
+class WhenPreflightingOnADeskWithEveryTool(Preflight):
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr[-2000:])
+
+    def test_it_should_hide_the_citys_window(self):
+        self.assertIn('[id=%d] move scratchpad' % DESK_WINDOW, self.i3_commands())
+
+    def test_it_should_show_it_again_after_the_hide(self):
+        commands = self.i3_commands()
+        self.assertGreater(commands.index('[id=%d] scratchpad show' % DESK_WINDOW),
+                           commands.index('[id=%d] move scratchpad' % DESK_WINDOW), commands)
+
+    def test_it_should_start_no_soak(self):
+        self.assertEqual(self.soak, '')
+
+    def test_it_should_say_it_passed(self):
+        self.assertIn('pre-flight passed', self.done.stdout + self.done.stderr)
+
+
+class WhenPreflightingAndTheWindowCannotBeFound(Preflight):
+    broken = 'no-window'
+
+    def test_it_should_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+    def test_it_should_say_the_window_was_not_found(self):
+        self.assertIn("the city's window was not found", self.done.stderr)
+
+
+class WhenPreflightingAndTheWindowDoesNotHide(Preflight):
+    broken = 'no-hide'
+
+    def test_it_should_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+    def test_it_should_say_it_could_not_hide_the_window(self):
+        self.assertIn('could not hide the window', self.done.stderr)
+
+
+class WhenPreflightingAndTheWindowDoesNotShowAgain(Preflight):
+    broken = 'no-show'
+
+    def test_it_should_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+    def test_it_should_say_it_could_not_show_the_window(self):
+        self.assertIn('could not show the window', self.done.stderr)
+
+
 ON_DESKTOP = (os.environ.get('PERF_SOAK_ON_DESKTOP') == '1'
               and subprocess.run(['pgrep', '-x', 'i3'], capture_output=True).returncode == 0
               and shutil.which('zenity') is not None)
@@ -115,6 +217,7 @@ ON_DESKTOP = (os.environ.get('PERF_SOAK_ON_DESKTOP') == '1'
 @unittest.skipUnless(ON_DESKTOP, 'opens a window on the desktop: set PERF_SOAK_ON_DESKTOP=1 on an i3 desktop with zenity')
 class WhenSoakingAWindowOnAnI3Desktop(Soak):
     absent = set()
+    desk_tools = ()
 
     @classmethod
     def setUpClass(cls):

@@ -24,6 +24,7 @@ DAEMON = textwrap.dedent('''\
 CITY = textwrap.dedent('''\
     #!/usr/bin/env bash
     [[ -n "${PERF_BUSY_TEST_SPY:-}" ]] && echo "${DISPLAY:-}" >"$PERF_BUSY_TEST_SPY/city-display"
+    [[ -n "${PERF_BUSY_TEST_SPY:-}" ]] && echo $$ >"$PERF_BUSY_TEST_SPY/city-pid"
     echo "FRAME 120 draw 1.0 ms" >&2
     sleep 600 &
     wait
@@ -41,6 +42,55 @@ STAGER = textwrap.dedent('''\
         printf '{"sessionId": "s%s", "cwd": "/demo"}' "$n" >"$home/.claude/sessions/$n.json"
     done
     ''')
+
+DESK = ('xprop', 'xwininfo', 'i3-msg', 'xset')
+DESK_WINDOW = 4242
+DESK_TOOL = textwrap.dedent('''\
+    #!/usr/bin/env python3
+    import json, os, sys
+    name, args = os.path.basename(sys.argv[0]), sys.argv[1:]
+    spy = os.environ['PERF_BUSY_TEST_SPY']
+    broken = set(filter(None, os.environ.get('FAKE_DESK_BROKEN', '').split(',')))
+    with open(os.path.join(spy, 'desk'), 'a') as f:
+        f.write(json.dumps([name] + args) + '\\n')
+    def read(n):
+        try:
+            with open(os.path.join(spy, n)) as f:
+                return f.read().strip()
+        except OSError:
+            return ''
+    def write(n, v):
+        with open(os.path.join(spy, n), 'w') as f:
+            f.write(v)
+    if name in broken:
+        sys.exit(1)
+    if name == 'xset':
+        print('  Monitor is On')
+    elif name == 'xprop' and '-id' in args:
+        print('_NET_WM_PID(CARDINAL) = %s' % ('1' if 'no-window' in broken else read('city-pid')))
+    elif name == 'xwininfo' and '-id' in args:
+        print('  Width: 1920\\n  Height: 1080\\n  Map State: %s'
+              % ('IsUnMapped' if read('window') == 'hidden' else 'IsViewable'))
+    elif name == 'i3-msg' and args[:2] == ['-t', 'get_tree']:
+        print(json.dumps({'nodes': [{'window': WINDOW, 'nodes': []}] if read('city-pid') else []}))
+    elif name == 'i3-msg' and args[:2] == ['-t', 'get_version']:
+        print(json.dumps({'human_readable': '4.24'}))
+    elif name == 'i3-msg':
+        command, ok = ' '.join(args), True
+        if 'move scratchpad' in command:
+            ok = 'no-hide' not in broken
+            if ok:
+                write('window', 'hidden')
+        elif 'scratchpad show' in command and 'no-show' not in broken:
+            write('window', 'shown')
+        print(json.dumps([{'success': ok}], separators=(',', ':')))
+    ''').replace('WINDOW', str(DESK_WINDOW))
+
+
+def fake_desk(without=()):
+    """xprop, xwininfo, i3-msg and xset that find, hide and show the stub city's window, less any named."""
+    return {name: DESK_TOOL for name in DESK if name not in without}
+
 
 def executable(path, text):
     with open(path, 'w') as f:
