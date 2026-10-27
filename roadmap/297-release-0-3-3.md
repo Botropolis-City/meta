@@ -21,3 +21,7 @@ Item 270's last bar and the other ready items do not hold it.
 5. **The validation checklist**: the agent's live steps, and Aria's A1 to A6, against that build.
 6. **The re-film**: `make demo-media` and `make media-import`, with item 76's new media; Aria judges the frames.
 7. The release workflow, `dry_run` first, then for real; the AUR packages with `aur-update`; the website rebuilt (by hand unless `SITE_DISPATCH_TOKEN` is stored, item 267).
+
+## Answered while building
+
+- **The bump and the release check** (manager, 2026-10-27): the bump landed as `7c852c5` (r1178) on item 270's slice 4; the release check failed item 270's 600-district fit bar, five quiet runs of five at 16.05–17.72 ms against 16, the first time `main` was measured against it, and a control at `c616baf` passed, placing the cost in r1166–r1176. Item 280's clinic was walking every building per frame to count; its fix, `77ae413` (r1179), passes five quiet runs at 15.24–15.93 ms and the full suite with every budget met, so 0.3.3 is cut from `77ae413`. The fit bar's margin is under a tenth of a millisecond, to carry into 0.3.4. A suspected creep in the 2,000-session daemon's memory was within run-to-run spread over ten quiet runs. The soak waits for Aria's 1Password approval in the morning.
