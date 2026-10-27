@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-27 in the session "item 308". Filed 2026-10-27 (r1192), from 0.3.3's soak, the first to run. Nobody's call — the method is the performance manager's to specify, its build an item session's.**
 
+Depends on: nothing
+Landed: slice 1 (`8003765`, r1193).
+
 0.3.3's soak (server 3101537, from 11:47 MDT) measured the city's memory and GPU flat for 122 minutes, +0.61 MiB an hour, and then 325 → 375 MiB in one 10-second sample at 21:00:05 UTC: Private_Dirty +16 MiB and GPU +32 MiB, flat again after (−3.0 MiB an hour).
 21:00 is `NightFrom` (`pkg/city/scene.go`) on the box's clock, which the city reads in UTC: the windows lit and the lights were drawn.
 `performance/method.md` fits one least-squares slope per phase, so a one-time step inside a phase reads as hourly growth, +21 MiB an hour against the 1 MiB budget; whether a soak crosses 21:00 or 06:00 depends only on when it was ordered.
@@ -40,3 +43,14 @@ It passes when the second night settles within 4 MiB of the first, and the secon
 If a second night adds again, that is a leak at the light switch, and its own item.
 
 **Done when:** a soak run with `--light night` reports one light, an empty or explained step table, and both phases within 1 MiB an hour; the light-cycle check passes; and `performance/method.md` step 8 says all of this, which the performance manager writes once it lands.
+
+## Slices (item session, 2026-10-27)
+
+The light is the config key `light = live | night | day`, set for one run with `--set light=night`, not a flag: the soak measures the release build, which has no devtools flags, and a key adds no public flag (item 149).
+`perf-soak --light night|day|live` passes it through `perf-busy-city --set`; `live` sets nothing, so a build from before the key can still be soaked.
+
+1. **Slice 1, landed:** the key, the hostile config set to night, an acceptance test that shoots the city at noon pinned to night against day and at midnight live, and the perf tools' `--light` and step table.
+2. **Slice 2, owed:** the light-cycle check.
+   A `--record` city on the 600-district fixture wrote no frame in 10 minutes while using about six cores, where the headless city opens in about 4 s.
+   A recording opens only on a read history (item 202), so it waits on the daemon's paced first read.
+   The in-process driver never runs Ebitengine's loop, so it may not measure the GPU half of the switch.

@@ -513,6 +513,94 @@ class WhenJudgingASoak(unittest.TestCase):
         self.assertEqual(perf.judge_soak(soak_rows(), marks)['verdict'], 'not a measurement')
 
 
+def stepped_rows(step_at=None, private_dirty=16, gpu=32, noise=0.0, end=7200, every=10):
+    rows = []
+    for t in range(0, end + 1, every):
+        wobble = noise if (t // every) % 2 else -noise
+        after = step_at is not None and t >= step_at
+        rows.append(soak_row(t, 'botropolis', 10, 200 + wobble + (private_dirty if after else 0),
+                             100 + (gpu if after else 0)))
+        rows.append(soak_row(t, 'botropolisd', 20, 30))
+    return rows
+
+
+STEP_PHASES = {'visible': (600, 7200)}
+
+
+class WhenFindingSoakSteps(unittest.TestCase):
+    def steps(self, **kwargs):
+        return perf.soak_steps(stepped_rows(**kwargs), STEP_PHASES, '20')
+
+    def test_and_a_flat_phase_jumps_49_mib_once_it_should_find_one_step(self):
+        self.assertEqual(len(self.steps(step_at=3600)), 1)
+
+    def test_and_a_flat_phase_jumps_49_mib_once_it_should_place_it_at_that_sample(self):
+        self.assertEqual(self.steps(step_at=3600)[0]['at_s'], 3600)
+
+    def test_and_a_flat_phase_jumps_49_mib_once_it_should_name_the_process_and_phase(self):
+        step = self.steps(step_at=3600)[0]
+        self.assertEqual((step['process'], step['phase']), ('city', 'visible'))
+
+    def test_and_a_flat_phase_jumps_49_mib_once_it_should_split_its_size_into_private_dirty_and_gpu(self):
+        step = self.steps(step_at=3600)[0]
+        self.assertEqual((round(step['private_dirty_mib']), round(step['gpu_mib'])), (16, 32))
+
+    def test_and_a_flat_phase_jumps_49_mib_once_it_should_give_a_flat_slope_before_it(self):
+        self.assertAlmostEqual(self.steps(step_at=3600)[0]['before_mib_h'], 0.0)
+
+    def test_and_a_flat_phase_jumps_49_mib_once_it_should_give_a_flat_slope_after_it(self):
+        self.assertAlmostEqual(self.steps(step_at=3600)[0]['after_mib_h'], 0.0)
+
+    def test_and_a_flat_phase_jumps_49_mib_once_it_should_give_its_time_in_utc(self):
+        self.assertEqual(self.steps(step_at=3600)[0]['utc'], '2027-01-15T09:00:00Z')
+
+    def test_and_a_phase_only_wobbles_under_8_mib_it_should_find_no_step(self):
+        self.assertEqual(self.steps(noise=3), [])
+
+    def test_and_a_jump_is_over_8_mib_but_under_four_times_the_phases_noise_it_should_find_no_step(self):
+        self.assertEqual(self.steps(step_at=3600, private_dirty=12, gpu=0, noise=6), [])
+
+    def test_and_a_jump_is_outside_every_phase_it_should_find_no_step(self):
+        self.assertEqual(self.steps(step_at=300), [])
+
+
+class WhenReportingASoakStep(unittest.TestCase):
+    def setUp(self):
+        marks = dict(SOAK_MARKS, light='night')
+        rows = stepped_rows(step_at=3600)
+        result = perf.judge_soak(rows, marks, settle_s=600, min_phase_s=0)
+        self.report = perf.soak_report(result, marks)
+
+    def test_it_should_name_the_light_the_run_drew(self):
+        self.assertIn('Light: night', self.report)
+
+    def test_it_should_list_the_step_in_utc(self):
+        self.assertIn('2027-01-15T09:00:00Z', self.report)
+
+    def test_it_should_count_the_step_in_its_phases_slope(self):
+        result = perf.judge_soak(stepped_rows(step_at=3600), dict(SOAK_MARKS, hide='none', frames_at_end='1'),
+                                 settle_s=600, min_phase_s=0)
+        self.assertGreater(result['phases'][0]['slope_mib_h'], 1.0)
+
+
+class WhenReportingASoakWithoutSteps(unittest.TestCase):
+    def setUp(self):
+        result = perf.judge_soak(stepped_rows(), SOAK_MARKS, settle_s=600, min_phase_s=0)
+        self.report = perf.soak_report(result, SOAK_MARKS)
+
+    def test_it_should_say_it_found_none(self):
+        self.assertIn('No steps', self.report)
+
+    def test_and_the_run_named_no_light_it_should_say_the_light_followed_the_clock(self):
+        self.assertIn('Light: live', self.report)
+
+
+class WhenAskingPerfSoakForHelp(unittest.TestCase):
+    def test_it_should_offer_light(self):
+        out = subprocess.run([os.path.join(HERE, 'perf-soak'), '--help'], capture_output=True, text=True).stdout
+        self.assertIn('--light', out)
+
+
 class WhenJudgingASoakWithTheHideTurnedOff(unittest.TestCase):
     MARKS = {'hide': 'none', 'frames_at_end': '90000', 'daemon_pid': '20', 'monitor_at_end': 'Monitor is On'}
 

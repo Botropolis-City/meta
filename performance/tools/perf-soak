@@ -12,6 +12,7 @@ hide_after=""
 hide=1
 interval=10
 writers=2
+light=night
 display="${DISPLAY:-}"
 out=""
 build=""
@@ -50,7 +51,13 @@ locked screen stops the visible phase drawing, and the verdict refuses it.
                      so a virtual machine's is not this machine's
   --interval N       seconds between samples (default: ${interval})
   --writers N        sessions writing (default: ${writers})
-  --out DIR          run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  --light L          night, day or live: the light the city is held in for the
+                     whole run (default: ${light}), through its light key, so
+                     the box's clock cannot switch it mid-phase (item 308).
+                     Night draws everything day does and the lit windows too.
+                     live follows the clock and sets nothing, for a build from
+                     before the key
+  --out DIR         run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
   -h, --help         this
 
 It does not take the landing lock, so landings can run beside it; soak.md
@@ -58,7 +65,10 @@ records the load at the start and the end and how many commits landed on
 botropolis's github main during the run.
 
 The run directory holds perf-busy-city's files, soak.txt, and soak.md, the
-verdict. Exit status: 0 within budget, 1 over it, 2 not a measurement.
+verdict. soak.md names the light and lists every step it finds: two samples
+differing by more than 8 MiB, or four times the phase's sample-to-sample noise,
+with its time on the box's clock and in UTC, its size split into Private_Dirty
+and GPU, and the slopes either side. A step still counts in its phase's slope. Exit status: 0 within budget, 1 over it, 2 not a measurement.
 
 For tests: PERF_SOAK_REPO is the botropolis checkout whose landings are
 counted (default: ${repo}/botropolis), and PERF_SOAK_SETTLE and
@@ -74,6 +84,7 @@ while [[ $# -gt 0 ]]; do
 	--display) display="$2"; shift 2 ;;
 	--interval) interval="$2"; shift 2 ;;
 	--writers) writers="$2"; shift 2 ;;
+	--light) light="$2"; shift 2 ;;
 	--out) out="$2"; shift 2 ;;
 	-h | --help) usage; exit 0 ;;
 	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
@@ -81,6 +92,11 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 [[ -n "${build}" ]] || { usage >&2; exit 2; }
+case "${light}" in
+night | day) sets=(--set "light=${light}") ;;
+live) sets=() ;;
+*) echo "unknown light: ${light}; use night, day or live" >&2; exit 2 ;;
+esac
 if [[ "${hide}" == 1 ]]; then
 	hide_after="${hide_after:-$((seconds / 2))}"
 else
@@ -92,11 +108,12 @@ out="${out:-${XDG_STATE_HOME:-$HOME/.local/state}/botropolis-perf/soak-$(date +%
 mkdir -p "${out}"
 note() { echo "$1" >>"${out}/soak.txt"; }
 note "display=${display}"
+note "light=${light}"
 [[ "${hide}" == 1 ]] && note "hide=after ${hide_after} s" || note "hide=none"
 
 started=$(date --iso-8601=seconds)
 "${here}/perf-busy-city" --seconds "${seconds}" --hide-after "${hide_after}" --keep-focus \
-	--interval "${interval}" --writers "${writers}" --profile-seconds 0 --out "${out}" "${build}" >/dev/null &
+	--interval "${interval}" --writers "${writers}" --profile-seconds 0 "${sets[@]}" --out "${out}" "${build}" >/dev/null &
 busy=$!
 wait "${busy}"
 

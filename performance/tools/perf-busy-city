@@ -15,6 +15,7 @@ scenario=hamlet
 interval=1
 hide_after=0
 keep_focus=0
+sets=()
 out=""
 build=""
 
@@ -46,7 +47,9 @@ perf-city; the city's CPU is profiled when the build has a pprof endpoint.
   --hide-after N         hide the window N s in, as perf-city does (default: never)
   --keep-focus           leave the city focused rather than handing the focus back,
                          so the run until the hide measures a city that draws
-  --out DIR              run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
+  --set KEY=VALUE        pass a config key to the city for this run, as its own
+                         --set does, e.g. light=night (item 308); repeatable
+  --out DIR             run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
   -h, --help             this
 
 Optional steps, each recorded in busy.txt and said aloud when skipped:
@@ -76,6 +79,7 @@ while [[ $# -gt 0 ]]; do
 	--interval) interval="$2"; shift 2 ;;
 	--hide-after) hide_after="$2"; shift 2 ;;
 	--keep-focus) keep_focus=1; shift ;;
+	--set) sets+=(--set "$2"); shift 2 ;;
 	--out) out="$2"; shift 2 ;;
 	-h | --help) usage; exit 0 ;;
 	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
@@ -184,7 +188,7 @@ fi
 note "load_at_start=$(cut -d' ' -f1-3 /proc/loadavg)"
 
 PERF_PPROF=127.0.0.1:6078 XDG_RUNTIME_DIR="${work}/run" XDG_STATE_HOME="${work}/state" XDG_CONFIG_HOME="${work}/config" \
-	"${here}/perf-city" --bin "${build}/botropolis" --seconds "${seconds}" --interval "${interval}" --hide-after "${hide_after}" --out "${out}/run" -- --socket "${sock}" 2>"${out}/perf-city.err" &
+	"${here}/perf-city" --bin "${build}/botropolis" --seconds "${seconds}" --interval "${interval}" --hide-after "${hide_after}" --out "${out}/run" -- --socket "${sock}" "${sets[@]}" 2>"${out}/perf-city.err" &
 city_run=$!
 pids+=("${city_run}")
 city=""

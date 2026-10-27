@@ -460,6 +460,65 @@ def soak_series(rows, process, daemon_pid):
     return sorted(by_at.items())
 
 
+SOAK_STEP_MIB = 8.0
+SOAK_STEP_NOISES = 4
+
+
+def soak_parts(rows, process, daemon_pid):
+    by_at = {}
+    for row in rows:
+        if process == 'city' and row['comm'] != 'botropolis':
+            continue
+        if process == 'daemon' and (row['comm'] != 'botropolisd' or row['pid'] != str(daemon_pid)):
+            continue
+        at = float(row['elapsed_s'])
+        ts, pd, gpu = by_at.get(at, (row.get('ts', ''), 0.0, 0.0))
+        pd += float(row.get('private_dirty_kib') or 0) / 1024
+        gpu += float(row.get('gpu_kib') or 0) / 1024
+        by_at[at] = (ts, pd, gpu)
+    return [(at,) + parts for at, parts in sorted(by_at.items())]
+
+
+def noise_mib(diffs):
+    if not diffs:
+        return 0.0
+    ordered = sorted(diffs)
+    mid = ordered[len(ordered) // 2]
+    deviations = sorted(abs(d - mid) for d in diffs)
+    return 1.4826 * deviations[len(deviations) // 2]
+
+
+def utc_of(ts):
+    try:
+        local = datetime.datetime.fromisoformat(ts)
+    except ValueError:
+        return ''
+    return local.astimezone(datetime.timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
+
+
+def soak_steps(rows, phases, daemon_pid):
+    steps = []
+    for process in ('city', 'daemon'):
+        parts = soak_parts(rows, process, daemon_pid)
+        for phase, (start, end) in phases.items():
+            inside = [p for p in parts if start <= p[0] <= end]
+            totals = [pd + gpu for _, _, pd, gpu in inside]
+            diffs = [b - a for a, b in zip(totals, totals[1:])]
+            threshold = max(SOAK_STEP_MIB, SOAK_STEP_NOISES * noise_mib(diffs))
+            for i, d in enumerate(diffs):
+                if abs(d) <= threshold:
+                    continue
+                before, after = inside[:i + 1], inside[i + 1:]
+                at, ts = inside[i + 1][0], inside[i + 1][1]
+                steps.append({
+                    'process': process, 'phase': phase, 'at_s': at, 'box': ts, 'utc': utc_of(ts),
+                    'private_dirty_mib': inside[i + 1][2] - inside[i][2], 'gpu_mib': inside[i + 1][3] - inside[i][3],
+                    'before_mib_h': slope_per_hour([p[0] for p in before], [p[2] + p[3] for p in before]),
+                    'after_mib_h': slope_per_hour([p[0] for p in after], [p[2] + p[3] for p in after]),
+                })
+    return steps
+
+
 def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE_S, min_phase_s=SOAK_MIN_PHASE_S):
     reasons = []
     end_s = max((float(r['elapsed_s']) for r in rows), default=0)
@@ -492,7 +551,8 @@ def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE
         verdict = 'fail'
     else:
         verdict = 'pass'
-    return {'verdict': verdict, 'reasons': reasons, 'phases': judged, 'budget_mib_h': budget_mib_h}
+    return {'verdict': verdict, 'reasons': reasons, 'phases': judged, 'budget_mib_h': budget_mib_h,
+            'steps': soak_steps(rows, phases, marks.get('daemon_pid'))}
 
 
 SOAK_EXIT = {'pass': 0, 'fail': 1, 'not a measurement': 2}
@@ -504,7 +564,8 @@ SOAK_NOTES = ('display', 'hide', 'hidden_at_s', 'hide_failed_at_s', 'frames_at_h
 def soak_report(result, marks):
     lines = ['# Soak verdict: %s' % result['verdict'], '',
              'Budget: growth of at most %.1f MiB an hour of `Private_Dirty` + GPU, per process and phase '
-             '(performance/budgets.md).' % result['budget_mib_h'], '']
+             '(performance/budgets.md).' % result['budget_mib_h'], '',
+             'Light: %s' % (marks.get('light') or 'live, following the clock'), '']
     for reason in result['reasons']:
         lines.append('- not a measurement: %s' % reason)
     if result['reasons']:
@@ -515,8 +576,28 @@ def soak_report(result, marks):
         lines.append('| %s | %s | %.0f-%.0f | %d | %s | %s |' % (p['process'], p['phase'], p['start_s'], p['end_s'],
                                                               p['samples'], slope, 'yes' if p['over'] else 'no'))
     lines.append('')
+    lines += soak_step_lines(result.get('steps', []))
+    lines.append('')
     lines += ['- %s: %s' % (key, marks[key]) for key in SOAK_NOTES if key in marks]
     return '\n'.join(lines) + '\n'
+
+
+def soak_step_lines(steps):
+    rule = ('two samples differing by more than %.0f MiB of `Private_Dirty` + GPU, or four times the phase\'s '
+            'sample-to-sample noise, whichever is larger; a step still counts in its phase\'s slope' % SOAK_STEP_MIB)
+    if not steps:
+        return ['No steps: no %s.' % rule.split(';')[0]]
+    lines = ['## Steps', '', 'A step is %s.' % rule, '',
+             '| process | phase | second | box clock | UTC | Private_Dirty MiB | GPU MiB | MiB/hour before | MiB/hour after |',
+             '| --- | --- | --- | --- | --- | --- | --- | --- | --- |']
+
+    def slope(v):
+        return '-' if v is None else '%.2f' % v
+    for s in steps:
+        lines.append('| %s | %s | %.0f | %s | %s | %+.1f | %+.1f | %s | %s |' % (
+            s['process'], s['phase'], s['at_s'], s['box'], s['utc'], s['private_dirty_mib'], s['gpu_mib'],
+            slope(s['before_mib_h']), slope(s['after_mib_h'])))
+    return lines
 
 
 def print_soak_verdict(samples_path, *marks_paths):
