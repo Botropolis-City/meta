@@ -54,6 +54,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [290](roadmap/290-no-text-field-takes-a-paste.md) | no text field in the city takes a paste | 289, 284 | nobody, a defect |
 | [293](roadmap/293-closing-the-window-quits-without-asking.md) | closing the window asks, or goes to the tray by setting, with a tray icon on both Linux standards | 292 | nobody, Aria ruled |
 | [294](roadmap/294-a-building-is-drawn-small-the-frame-its-scaffold-comes-down.md) | a building is drawn small for one frame as its scaffold finishes coming down | — | nobody, a defect |
+| [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 
 ## Waiting on Aria
 
