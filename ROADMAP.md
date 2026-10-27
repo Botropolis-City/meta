@@ -51,7 +51,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [273](roadmap/273-scripted-runs-are-drawn-as-full-buildings.md) | scripted runs hidden by default, shown as a cart or stand | — | nobody, Aria ruled; the stall is a frame for her |
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [280](roadmap/280-city-hall-is-drawn-as-a-hospital.md) | City Hall gets a hall; the hospital becomes the clinic for what needs Aria and errors | — | nobody, Aria ruled; frames for her |
-| [281](roadmap/281-a-group-line-can-lead-nowhere.md) | a group's line can stand alone with one station and lead nowhere | — | nobody, a defect |
 | [282](roadmap/282-the-wheel-cannot-reach-skyline-or-zoom-the-plan.md) | the wheel cannot always reach Skyline, and the City Plan cannot be zoomed | — | nobody, Aria said what she wants |
 | [283](roadmap/283-districts-can-be-moved-only-one-at-a-time.md) | several districts can be selected and moved together | — | nobody, Aria asked |
 | [284](roadmap/284-copying-a-path-freezes-the-city-with-xclip.md) | copying a path freezes the whole city when the clipboard tool is xclip | — | nobody, a defect |
