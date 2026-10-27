@@ -1,6 +1,6 @@
 # 302. A new session from `c` starts in the background, slowly, and exiting it lands you in your home folder
 
-**Open. Filed 2026-10-27 (r1181), from Aria's validation of 0.3.3 (A2). Nobody's call — Aria said what she wants.**
+**Open, in progress since 2026-10-27 in the session "item 302". Filed 2026-10-27 (r1181), from Aria's validation of 0.3.3 (A2). Nobody's call — Aria said what she wants.**
 
 Aria, 2026-10-27, after A1 to A6 passed: *"pressing c in a directory should attach us to the session after it starts (which is a little slow (like 6 seconds) not the end of the world, but faster would be nice). Exiting a session started in a district with 'c' puts us back in my home directory which means a prompt about trusting that folder."*
 Asked what exiting should leave her with: *"The terminal closes"*.
