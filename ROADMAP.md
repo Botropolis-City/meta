@@ -51,7 +51,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [273](roadmap/273-scripted-runs-are-drawn-as-full-buildings.md) | scripted runs hidden by default, shown as a cart or stand | — | nobody, Aria ruled; the stall is a frame for her |
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [280](roadmap/280-city-hall-is-drawn-as-a-hospital.md) | City Hall gets a hall; the hospital becomes the clinic for what needs Aria and errors | — | nobody, Aria ruled; frames for her |
-| [283](roadmap/283-districts-can-be-moved-only-one-at-a-time.md) | several districts can be selected and moved together | — | nobody, Aria asked |
 | [286](roadmap/286-claude-actions-run-on-the-city-s-own-loop.md) | Resume, New, Stop and the other claude actions wait on the city's own loop | — | nobody, a defect |
 | [290](roadmap/290-no-text-field-takes-a-paste.md) | no text field in the city takes a paste | 289, 284 | nobody, a defect |
 | [292](roadmap/292-the-quit-prompt-is-a-line-in-the-footer.md) | the quit prompt becomes a centered panel | — | nobody, Aria said what she wants |
