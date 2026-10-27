@@ -11,8 +11,10 @@ by ssh brute-force bots within minutes, and the rescue system's sshd, at the
 default MaxStartups of 10:30:100, then drops new connections at random, the
 runner's among them.
 
-It accepts port 22 from NETWORK alone and drops it from everyone else, with
-nftables or, where there is none, iptables and ip6tables; it turns off
+It accepts port 22 from NETWORK alone and drops it from everyone else, over
+IPv4 and IPv6, with iptables-legacy and ip6tables-legacy: the rescue kernel
+(6.12.67) has no nf_tables, so nft and the nft-backed iptables both fail
+there. nft is used only where there is no legacy iptables. It turns off
 password and keyboard-interactive logins, checks sshd's configuration and
 reloads it, which keeps the connections already open.
 
@@ -32,7 +34,17 @@ case "${allow}" in
 *) family=ip ;;
 esac
 
-if command -v nft >/dev/null; then
+if command -v iptables-legacy >/dev/null && command -v ip6tables-legacy >/dev/null; then
+	if [[ "${family}" == ip6 ]]; then
+		ours=ip6tables-legacy other=iptables-legacy
+	else
+		ours=iptables-legacy other=ip6tables-legacy
+	fi
+	"${ours}" -I INPUT 1 -p tcp --dport 22 -s "${allow}" -j ACCEPT
+	"${ours}" -I INPUT 2 -p tcp --dport 22 -j DROP
+	"${other}" -I INPUT 1 -p tcp --dport 22 -j DROP
+	echo "lockdown: port 22 open to ${allow} alone, with iptables-legacy"
+elif command -v nft >/dev/null; then
 	nft delete table inet botropolis 2>/dev/null || true
 	nft -f - <<NFT
 table inet botropolis {
@@ -44,22 +56,12 @@ table inet botropolis {
 }
 NFT
 	echo "lockdown: port 22 open to ${allow} alone, with nftables"
-elif command -v iptables >/dev/null && command -v ip6tables >/dev/null; then
-	for tool in iptables ip6tables; do
-		"${tool}" -I INPUT -p tcp --dport 22 -j DROP
-	done
-	if [[ "${family}" == ip6 ]]; then
-		ip6tables -I INPUT -p tcp --dport 22 -s "${allow}" -j ACCEPT
-	else
-		iptables -I INPUT -p tcp --dport 22 -s "${allow}" -j ACCEPT
-	fi
-	echo "lockdown: port 22 open to ${allow} alone, with iptables"
 else
-	echo "lockdown: neither nft nor iptables is here, so port 22 cannot be closed to the bots" >&2
+	echo "lockdown: neither iptables-legacy nor nft is here, so port 22 cannot be closed to the bots" >&2
 	exit 1
 fi
 
-config=/etc/ssh/sshd_config
+config="${SSHD_CONFIG:-/etc/ssh/sshd_config}"
 if ! grep -q '^# botropolis lockdown' "${config}"; then
 	{
 		echo '# botropolis lockdown (item 301): keys only'
@@ -69,6 +71,6 @@ if ! grep -q '^# botropolis lockdown' "${config}"; then
 	} >"${config}.botropolis"
 	mv "${config}.botropolis" "${config}"
 fi
-sshd -t
+sshd -t -f "${config}"
 systemctl reload ssh 2>/dev/null || kill -HUP "$(cat /run/sshd.pid)"
 echo "lockdown: password and keyboard-interactive logins are off"

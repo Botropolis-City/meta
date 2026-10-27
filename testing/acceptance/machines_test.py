@@ -13,7 +13,7 @@ import zoneinfo
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'helpers'))
 from hetzner import (CHOSEN, CHOSEN_HOURLY, IPV6_NET, PERSONAL_KEY, PUBLIC_KEY, SECRET, SERVER_NUMBER,  # noqa: E402
                      Bench, basic, listing)
-from stubs import run_in_own_group  # noqa: E402
+from stubs import path_without, run_in_own_group  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 MACHINES = os.path.join(ROOT, 'testing', 'machines')
@@ -1084,6 +1084,101 @@ class WhenRunningTheSoakAndTheLockDownDropsItsConnectionOnce(LockDown):
 
     def test_it_should_try_it_again(self):
         self.assertEqual(len(self.lock_downs()), 2, self.ssh_commands())
+
+
+FIREWALL_TOOLS = ('nft', 'iptables', 'ip6tables', 'iptables-legacy', 'ip6tables-legacy', 'sshd', 'systemctl')
+RECORDING = '#!/usr/bin/env bash\necho "$(basename "$0") $*" >>"$LOCKDOWN_SPY"\n'
+
+
+class LockingDownABox(unittest.TestCase):
+    tools = ('nft', 'iptables', 'ip6tables', 'iptables-legacy', 'ip6tables-legacy')
+    allow = '198.51.100.7/32'
+
+    @classmethod
+    def setUpClass(cls):
+        cls.top = tempfile.mkdtemp()
+        cls.spy = os.path.join(cls.top, 'spy')
+        cls.config = os.path.join(cls.top, 'sshd_config')
+        with open(cls.config, 'w') as f:
+            f.write('Port 22\n')
+        bin = path_without(FIREWALL_TOOLS, os.path.join(cls.top, 'bin'),
+                           {t: RECORDING for t in cls.tools + ('sshd', 'systemctl')})
+        cls.done = subprocess.run(['bash', os.path.join(MACHINES, 'soak', 'lockdown'), '--allow', cls.allow],
+                                  env=dict(os.environ, PATH=bin, LOCKDOWN_SPY=cls.spy, SSHD_CONFIG=cls.config),
+                                  capture_output=True, text=True, timeout=60)
+        try:
+            with open(cls.spy) as f:
+                cls.calls = f.read().splitlines()
+        except OSError:
+            cls.calls = []
+        with open(cls.config) as f:
+            cls.configured = f.read()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.top, ignore_errors=True)
+
+    def used(self, tool):
+        return [c for c in self.calls if c.split()[0] == tool]
+
+
+class WhenLockingDownABoxThatHasLegacyIptablesAndNft(LockingDownABox):
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_accept_the_runner_first_with_legacy_iptables(self):
+        self.assertIn('iptables-legacy -I INPUT 1 -p tcp --dport 22 -s 198.51.100.7/32 -j ACCEPT', self.calls)
+
+    def test_it_should_drop_everyone_else_right_after(self):
+        self.assertIn('iptables-legacy -I INPUT 2 -p tcp --dport 22 -j DROP', self.calls)
+
+    def test_it_should_drop_port_22_over_ipv6_altogether(self):
+        self.assertIn('ip6tables-legacy -I INPUT 1 -p tcp --dport 22 -j DROP', self.calls)
+
+    def test_it_should_not_use_nft(self):
+        self.assertEqual(self.used('nft'), [])
+
+    def test_it_should_not_use_the_nft_backed_iptables(self):
+        self.assertEqual(self.used('iptables') + self.used('ip6tables'), [])
+
+    def test_it_should_turn_off_password_logins(self):
+        self.assertIn('PasswordAuthentication no', self.configured)
+
+    def test_it_should_keep_the_rest_of_sshds_configuration(self):
+        self.assertIn('Port 22', self.configured)
+
+    def test_it_should_reload_sshd(self):
+        self.assertIn('systemctl reload ssh', self.calls)
+
+
+class WhenLockingDownABoxForAnIPv6Runner(LockingDownABox):
+    allow = '2001:db8:5:6::/64'
+
+    def test_it_should_accept_the_runners_slash_64_with_legacy_ip6tables(self):
+        self.assertIn('ip6tables-legacy -I INPUT 1 -p tcp --dport 22 -s 2001:db8:5:6::/64 -j ACCEPT', self.calls)
+
+    def test_it_should_drop_port_22_over_ipv4_altogether(self):
+        self.assertIn('iptables-legacy -I INPUT 1 -p tcp --dport 22 -j DROP', self.calls)
+
+
+class WhenLockingDownABoxThatHasOnlyNft(LockingDownABox):
+    tools = ('nft',)
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_use_nft(self):
+        self.assertTrue(self.used('nft'), self.calls)
+
+
+class WhenLockingDownABoxThatHasNoFirewall(LockingDownABox):
+    tools = ()
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_leave_sshd_alone(self):
+        self.assertEqual(self.configured, 'Port 22\n')
 
 
 class WhenReadingTheLockDown(unittest.TestCase):
