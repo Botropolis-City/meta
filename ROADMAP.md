@@ -55,6 +55,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [297](roadmap/297-release-0-3-3.md) | release 0.3.3, with soak, checklist and re-film | 280 (slice 3), 286, 290, 293 (slice 1), 212 (slice 21), 298 | nobody, Aria set it |
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [300](roadmap/300-testpaste-presses-ctrl-v-on-macos.md) | TestPaste presses Ctrl+V on macOS, where paste is Cmd+V, so CI on main is red | — | nobody, a red main |
+| [301](roadmap/301-the-soak-runner-gives-up-on-one-ssh-timeout.md) | the soak runner gives up the whole run on one ssh timeout while copying to the box | — | nobody, a defect |
 
 ## Waiting on Aria
 
