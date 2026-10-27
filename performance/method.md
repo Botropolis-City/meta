@@ -72,6 +72,16 @@ Only the numbers go into a report here.
    Its verdict, `soak.md`, gives the least-squares slope of `Private_Dirty` + GPU per hour for the city and for the run's own daemon, **in each phase apart**: from 600 s to the hide, and from 600 s after the hide to the end.
    One slope over the whole run would be wrong, because hiding frees memory by design and the drop would cancel a leak.
    Each slope must be at most 1 MiB an hour, and the script exits 0 within budget, 1 over it, and 2 when the run is not a measurement: the window was never hidden, the visible half drew no frames, the monitor was not on at the end, or a phase holds under 30 minutes.
+   **The light is pinned for the whole run** (item 308): `perf-soak --light night`, the default, sets the city's `light` key before its first frame, so the clock on the box never changes what is drawn.
+   Without it, 0.3.3's soak read nightfall as growth: 49 MiB, 32 of it GPU, in one sample at 21:00 on the box, flat on both sides, and +21 MiB an hour for its phase.
+   Night is the default because it draws everything day does and the lit windows and the lights besides.
+   `--light live` follows the clock, and is the only light a build older than r1193 accepts, since an older build refuses the unknown key at start.
+   `soak.md` says which light it ran in.
+   **Steps are named, not excused.**
+   `soak.md` lists every step: a change between two consecutive samples larger than 8 MiB, or four times the phase's noise, whichever is larger.
+   The noise is 1.4826 times the median absolute deviation of the sample-to-sample differences, not the residual of the fitted slope, since a residual includes the step and would let it hide.
+   For each step it gives the phase, the second, the box's clock and UTC, the change in `Private_Dirty` and in GPU, and the slopes before and after, or says "No steps".
+   A step still counts in its phase's slope, and the verdict does not change: a step is memory taken.
    **Run it overnight, never while someone works at the machine** (Aria, 2026-10-25), since a focused window for four hours is not compatible with using the desk.
    A blanked or locked screen stops the visible half drawing, and the verdict refuses a run whose monitor was not on at the end.
    `--display` opens the city on another X display, such as a virtual machine's, whose GPU memory is that driver's and not this machine's; `--no-hide` makes the whole run one visible phase, for a display with no i3 to hide the window on.
