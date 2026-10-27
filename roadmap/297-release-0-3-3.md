@@ -1,6 +1,6 @@
 # 297. Release 0.3.3
 
-**Open, in progress since 2026-10-27 in the session "item 297". Filed 2026-10-27 (r1153) at Aria's request. Nobody's call — Aria set what it holds and what it runs.**
+**Done 2026-10-27 (`56796db`, r1185; tagged v0.3.3). Filed 2026-10-27 (r1153) at Aria's request. Nobody's call — Aria set what it holds and what it runs.**
 
 Depends on: 280 (slice 3), 286, 290, 293 (slice 1), 212 (slice 21), 298
 
@@ -27,3 +27,10 @@ Item 270's last bar and the other ready items do not hold it.
 - **The bump and the release check** (manager, 2026-10-27): the bump landed as `7c852c5` (r1178) on item 270's slice 4; the release check failed item 270's 600-district fit bar, five quiet runs of five at 16.05–17.72 ms against 16, the first time `main` was measured against it, and a control at `c616baf` passed, placing the cost in r1166–r1176. Item 280's clinic was walking every building per frame to count; its fix, `77ae413` (r1179), passes five quiet runs at 15.24–15.93 ms and the full suite with every budget met, so 0.3.3 is cut from `77ae413`. The fit bar's margin is under a tenth of a millisecond, to carry into 0.3.4. A suspected creep in the 2,000-session daemon's memory was within run-to-run spread over ten quiet runs. The soak waits for Aria's 1Password approval in the morning.
 - **The re-film** (Aria, 2026-10-27): 46 shots filmed overnight from `77ae413`, passed, *"publish with 0.3.3"*: the site imports them with the release. **The soak**: the first box (3100496) was cancelled when one scp timed out after its set-up, nothing soaked, about EUR 0.18 (item 301); reordered as 3100616 under Aria's OK.
 - **The checklist** (Aria, 2026-10-27, on the candidate `77ae413` installed from CI's Arch package): A1 to A6 pass. The scratch folder step 4 named did not exist, and the checklist now says how to make it. Her notes on `c` became item 302, for 0.3.4.
+
+## Released
+
+0.3.3 was tagged `v0.3.3` at `56796db` (r1185) by release run 40549442919, after two dry runs failed on the shared runner's stress-city bars, which items 303, 305 and 306 made report there and gate on the reference machine, as Aria ruled; its code is the candidate the performance manager checked, `77ae413`, the later commits being tests and release paperwork.
+APT, RPM and the Homebrew tap published; the AUR packages are `botropolis` `faf9296` and `botropolis-bin` `2c11fea`; botropolis.city shows v0.3.3 with the re-film Aria passed (`25cf612`), after the media host's cache was purged, the deploy token having been given *Cache Purge* (item 307 for the upload script).
+Aria's checklist A1 to A6 passed on the candidate.
+The soak, run in parallel at Aria's choice, first ran on 2026-10-27 after item 301's fix; its verdict, and item 308 on the nightfall step it measured, are recorded on item 164.
