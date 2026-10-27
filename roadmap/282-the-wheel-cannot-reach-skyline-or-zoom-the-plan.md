@@ -1,9 +1,10 @@
 # 282. The wheel cannot always reach Skyline, and the City Plan cannot be zoomed
 
-**Open, in progress since 2026-10-26 in the session "item 282". Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria said what she wants.**
+**Done 2026-10-26 (`83a1a47`, r1137). Filed 2026-10-26 (r1120), from Aria's use of 0.3.2. Nobody's call — Aria said what she wants.**
 
 Depends on: nothing
 Landed: slice 1 (`1bce28b`, r1126).
+Landed: slice 2 (`83a1a47`, r1137).
 
 Aria, 2026-10-26, reporting what she met in 0.3.2 for 0.3.3: *"I should be able to zoom all the way out into the top view. Currently, I need to hit f, and then I can zoom out into it. I should be able to just zoom all the way out and then hit a debounce on zooming out for the last level ... Also, I should be able to zoom all the way out to the skyline view. It's weird that the only way to get there is hitting f because I can't manually zoom that far. Also, I should be able to zoom in on the top down view without going straight into the normal view. Some of the things are hard to see with lots of sessions."*
 
@@ -21,3 +22,14 @@ Flip the two `cityplan_test.go` cases that hold the old wheel.
 ## Answered while building
 
 - **The fix's shape** (session's, approved by the manager, 2026-10-26): reproduced on any island whose Skyline zoom lies below the ladder's last step (0.25): the step below that is now Skyline. The plan zooms in steps 1, 1.5, 2, 3, 4, 6 and 8 about the pointer, decides compact badges from those in view, pans by drag held inside the window (right and middle drags too, with item 279), reopens at its widest, and from its closest zoom a rested wheel-in returns to the map at Skyline with the pointed place kept.
+
+## Closed
+
+Slice 1 (`1bce28b`, r1126) makes the step past the wheel ladder's last step Skyline itself on the isometric map, so the wheel reaches Skyline on any island, and a rested notch there opens the plan.
+`TestCityPlan` runs it over five islands, three of them held by a precondition to have Skyline below the ladder; before the fix those three stopped at 0.25 and never opened the plan.
+Slice 2 (`83a1a47`, r1137) gives the plan its own zoom, `PlanZoomSteps`, about the pointer, a pan through `Scene.Pan` held so the sheet covers the window, badges left off for districts off the window, compact badges decided by those in view, and a rested notch in at the closest zoom back to the map at Skyline.
+The two old wheel cases are flipped, and the hold, the off-window filter and the compact choice were each mutated red.
+The help's line for the wheel now reads "wheel to zoom it, and in past its closest to return".
+
+For Aria to judge: `botropolis/docs/screenshots/r1126-item-282-plan-widest.png` and `r1126-item-282-plan-zoomed.png`, the staged metropolis scenario's plan at its widest and three steps in.
+The plan's zoom jumps from step to step rather than easing as the map's does; say if it should ease.
