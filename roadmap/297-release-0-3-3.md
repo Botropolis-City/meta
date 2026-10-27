@@ -1,6 +1,6 @@
 # 297. Release 0.3.3
 
-**Open. Filed 2026-10-27 (r1153) at Aria's request. Nobody's call — Aria set what it holds and what it runs.**
+**Open, in progress since 2026-10-27 in the session "item 297". Filed 2026-10-27 (r1153) at Aria's request. Nobody's call — Aria set what it holds and what it runs.**
 
 Depends on: 280 (slice 3), 286, 290, 293 (slice 1), 212 (slice 21), 298
 
