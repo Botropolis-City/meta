@@ -54,6 +54,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [307](roadmap/307-uploading-media-caches-not-found-at-the-edge.md) | uploading the site's media caches "not found" at the edge for clips about to exist | — | nobody, a defect |
 | [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | — | nobody, a defect in the method |
+| [310](roadmap/310-a-second-soak-would-cancel-the-first-ones-box.md) | a second soak started beside the first would cancel the wrong box | — | nobody, a defect |
 
 ## Waiting on Aria
 
