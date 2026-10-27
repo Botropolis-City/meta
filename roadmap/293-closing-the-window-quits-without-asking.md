@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-26 in the session "item 293". Filed 2026-10-26 (r1124), from Aria's use of 0.3.2. Nobody's call — Aria ruled the default and the trays.**
 
 Depends on: 292
+Landed: slice 1 (`b8d2063`, r1168).
 
 Aria, 2026-10-26: *"we should be catching closing the window and popping up the quit menu. I use mod+shift+q on my i3, but I assume it's the same as clicking the x if I had a DE ... we should allow minimizing to tray on quit as a setting rather than showing the quit menu ... Right click exit on the taskbar item would give us the quit/close up popup. Clicking the x would follow the setting of either showing the popup if it's a real exit or just minimizing to taskbar"*.
 Asked, she ruled the default is to **ask**, and the tray must work on both Linux standards.
