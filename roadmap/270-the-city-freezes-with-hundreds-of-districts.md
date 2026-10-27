@@ -13,6 +13,7 @@ Landed: slice 8 (`25a1fe3`, r1134).
 Landed: slice 9 (`bf4fe1e`, r1135).
 Landed: slice 10 (`31591d3`, r1142).
 Landed: slice 11 (`6d3578d`, r1162).
+Landed: slice 12 (`0a0290a`, r1165).
 
 Aria, 2026-10-26: *"We have way too many districts/groups/sessions. Every single tmp directory and probably work tree dir and such got its own district with one session and groups were generated for all of it. The UI is frozen and unusable, but at least the CPU and memory didn't spike to 100."*
 Minutes later the city would not exit either.
