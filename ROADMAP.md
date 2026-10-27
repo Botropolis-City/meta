@@ -56,6 +56,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [301](roadmap/301-the-soak-runner-gives-up-on-one-ssh-timeout.md) | the soak runner gives up the whole run on one ssh timeout while copying to the box | — | nobody, a defect |
 | [302](roadmap/302-a-new-session-from-c-does-not-open-and-leaves-you-home.md) | a new session from `c` doesn't open, starts slowly, and exiting it lands you in your home folder | — | nobody, Aria said what she wants |
+| [303](roadmap/303-the-release-runner-fails-the-first-map-bar.md) | the release runner fails the 600-district first-map bar, set for another machine | — | nobody, Aria ruled |
 
 ## Waiting on Aria
 
