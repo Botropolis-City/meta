@@ -1,8 +1,11 @@
-"""usage: xin.py move X Y | wheel N
+"""usage: xin.py move X Y | wheel N | key NAME | resize WINDOW W H
 
 XTEST input through libX11 and libXtst, by ctypes: moves the real pointer
-to X,Y, or turns the real wheel N notches (in when N > 0, out when N < 0),
-so a focused window gets the input a hand would give it.
+to X,Y, turns the real wheel N notches (in when N > 0, out when N < 0), or
+presses and releases the key named by its X keysym (Escape, a, Return), so
+a focused window gets the input a hand would give it. resize moves WINDOW
+(an id, decimal or 0x hex) to 0,0 at W by H, for a display with no window
+manager to size it, such as a private Xvfb.
 """
 import ctypes
 import sys
@@ -29,6 +32,16 @@ def main(argv):
             t.XTestFakeButtonEvent(d, button, 0, 0)
             x.XFlush(d)
             time.sleep(0.15)
+    elif argv[1] == 'key' and len(argv) == 3:
+        x.XStringToKeysym.restype = ctypes.c_ulong
+        sym = x.XStringToKeysym(argv[2].encode())
+        if not sym:
+            sys.exit('no keysym %s' % argv[2])
+        code = x.XKeysymToKeycode(d, ctypes.c_ulong(sym))
+        t.XTestFakeKeyEvent(d, code, 1, 0)
+        t.XTestFakeKeyEvent(d, code, 0, 0)
+    elif argv[1] == 'resize' and len(argv) == 5:
+        x.XMoveResizeWindow(d, ctypes.c_ulong(int(argv[2], 0)), 0, 0, int(argv[3]), int(argv[4]))
     else:
         sys.exit(__doc__)
     x.XFlush(d)
