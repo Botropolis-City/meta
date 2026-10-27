@@ -14,13 +14,13 @@ Tests, against the fake transport: an scp that fails twice with a timeout and th
 
 ## Worse than a blip (performance manager, 2026-10-27)
 
-The reorder (server 3100616, another datacentre) failed the same way: the set-up's output stops at the end of its apt install, "Regenerating fonts cache... done.", none of its later steps (the \`/dev/dri\` report, the forced EDID, Xorg) print anything, and the box stops answering ssh for minutes; two boxes, about EUR 0.35.
+The reorder (server 3100616, another datacentre) failed the same way: the set-up's output stops at the end of its apt install, "Regenerating fonts cache... done.", none of its later steps (the `/dev/dri` report, the forced EDID, Xorg) print anything, and the box stops answering ssh for minutes; two boxes, about EUR 0.35.
 On 2026-10-26 an identical i5-12500 got through every step.
-\`soak/setup\` has not changed since; the runner has (item 245's slice 3: the detached run, the bucket, the self-booked cancellation), and both failing boxes were ordered with \`IPV4=1\`, where the 26th's was IPv6-only.
+`soak/setup` has not changed since; the runner has (item 245's slice 3: the detached run, the bucket, the self-booked cancellation), and both failing boxes were ordered with `IPV4=1`, where the 26th's was IPv6-only.
 Because the runner cancels a box the moment a step fails, nothing could be looked at.
 
 So this item now also:
 1. finds why the box goes silent after its apt step: what slice 3 runs between the set-up and the copy; whether the set-up's later steps (writing the EDID override through debugfs, starting Xorg) can wedge the rescue kernel or its network, for instance with an IPv4 address added; and anything else that differs from the 26th;
-2. gives the runner a way to keep a box on failure (\`--keep-on-failure\`, still bound by the booked cancellation) and to fetch the set-up's log and \`dmesg\` before cancelling, so the next failure can be seen;
+2. gives the runner a way to keep a box on failure (`--keep-on-failure`, still bound by the booked cancellation) and to fetch the set-up's log and `dmesg` before cancelling, so the next failure can be seen;
 3. keeps the retry this item began with.
 Aria, 2026-10-27, chose to release 0.3.3 without waiting, and to run its soak once this is fixed.
