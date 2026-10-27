@@ -78,6 +78,8 @@ SPYING_STUB = textwrap.dedent('''\
                 return True
         return False
     if matches('STUB_HANG'):
+        with open(os.path.join(spy, 'hung-%d' % os.getpid()), 'w') as f:
+            f.write(name)
         time.sleep(60)
     if name == 'ssh' and any('bucket.env' in a for a in args):
         with open(os.path.join(spy, 'ssh-stdin'), 'a') as f:
@@ -235,7 +237,7 @@ class Bench:
         self.out = os.path.join(self.top, 'out')
         for d in (self.spy, self.bin, os.path.join(self.home, '.ssh'), self.state):
             os.makedirs(d)
-        for name in ('terraform', 'ssh', 'scp', 'ip'):
+        for name in ('terraform', 'ssh', 'scp', 'ip', 'ping'):
             executable(os.path.join(self.bin, name), SPYING_STUB)
         executable(os.path.join(self.bin, 'secret-run'), SECRET_RUN)
         self.dedicated = os.path.join(self.home, '.ssh', 'botropolis-machines')
@@ -289,7 +291,8 @@ class Bench:
             return []
 
     def every_argv(self):
-        return [a for tool in os.listdir(self.spy) if tool not in ('sequence', 'ssh-stdin') and not tool.startswith('seq-')
+        return [a for tool in os.listdir(self.spy) if tool not in ('sequence', 'ssh-stdin')
+                and not tool.startswith(('seq-', 'hung-'))
                 for argv in self.calls(tool) for a in argv]
 
     def private_bodies(self):
@@ -314,6 +317,9 @@ class Bench:
                         text = f.read()
                     found += [os.path.join(d, name) for b in self.private_bodies() if b in text]
         return found
+
+    def hung(self):
+        return [int(name.split('-', 1)[1]) for name in os.listdir(self.spy) if name.startswith('hung-')]
 
     def uploaded_keys(self):
         return [r['form'].get('data', [''])[0] for r in self.hetzner.sent('POST', '/robot/key')]

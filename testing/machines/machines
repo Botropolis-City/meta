@@ -31,6 +31,17 @@ HCLOUD = os.environ.get('MACHINES_HCLOUD_URL', 'https://api.hetzner.cloud/v1')
 POLL = float(os.environ.get('MACHINES_POLL_SECONDS', '30'))
 FETCH_EVERY = float(os.environ.get('MACHINES_FETCH_SECONDS', '3600'))
 BACKOFF_CAP = 300
+ATTEMPTS = max(1, int(os.environ.get('MACHINES_SSH_ATTEMPTS', '5')))
+SSH_FAILED = 255
+STARTED_MARK = '/root/soak.started'
+STREAM = ("dmesg --follow --time-format iso & "
+          "while sleep 5; do echo \"heartbeat $(date -Is) loadavg $(cut -d' ' -f1-3 /proc/loadavg)"
+          " $(free -m | awk '/^Mem:/ {print \"used \" $3 \" MiB, available \" $7 \" MiB\"}')\"; done")
+DIAGNOSE = ('d=$(mktemp -d) && cd "$d" && '
+            'for f in /root/setup.log /home/soak/run/out/dri.txt /var/log/soak-xorg.out /var/log/Xorg.0.log '
+            '/home/soak/i3.log; do [ -e "$f" ] && cp "$f" .; done; '
+            'dmesg >dmesg.txt 2>&1; ip addr >ip-addr.txt 2>&1; free -m >free-m.txt 2>&1; '
+            'ps aux >ps-aux.txt 2>&1; uptime >uptime.txt 2>&1; tar -czf - .')
 IPV6_PROBE = '2a01:4f8::1'
 BERLIN = zoneinfo.ZoneInfo('Europe/Berlin')
 MARKET = '/order/server_market'
@@ -118,6 +129,9 @@ def parse(argv):
     p.add_argument('--max-hours', type=float, default=10.0,
                    help='soak: the ceiling, in hours from delivery; the runner cancels the box then, fetched or not, '
                         'and the box\'s own cancellation is booked for the day after')
+    p.add_argument('--keep-on-failure', action='store_true',
+                   help='run soak: when the set-up or the copy fails, leave the box up to be looked at, until its '
+                        'booked cancellation, instead of cancelling it')
     p.add_argument('--bucket-url', default='', help='run soak: the report bucket, https://HOST/BUCKET (item 266)')
     p.add_argument('--bucket-write-id-ref', default='', help='run soak: reference to the box\'s write-only key id')
     p.add_argument('--bucket-write-secret-ref', default='', help='run soak: reference to its secret')
@@ -243,16 +257,33 @@ def ssh_options(args):
             '-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=10']
 
 
-def ssh(args, ip, command):
-    return subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command]).returncode
+def patiently(what, attempt):
+    for n in range(1, ATTEMPTS + 1):
+        done = attempt()
+        if done.returncode != SSH_FAILED or n == ATTEMPTS:
+            return done
+        warn('could not reach the box to %s (ssh exit %d); trying again in %g s, attempt %d of %d'
+             % (what, SSH_FAILED, POLL, n + 1, ATTEMPTS))
+        time.sleep(POLL)
 
 
-def ssh_input(args, ip, command, text):
-    return subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command], input=text, text=True).returncode
+def ssh_run(args, ip, command, patient=False, **kwargs):
+    argv = ['ssh'] + ssh_options(args) + ['root@' + ip, command]
+    if not patient:
+        return subprocess.run(argv, **kwargs)
+    return patiently('run %s' % command.split()[0], lambda: subprocess.run(argv, **kwargs))
 
 
-def ssh_output(args, ip, command):
-    done = subprocess.run(['ssh'] + ssh_options(args) + ['root@' + ip, command], capture_output=True, text=True)
+def ssh(args, ip, command, patient=False):
+    return ssh_run(args, ip, command, patient).returncode
+
+
+def ssh_input(args, ip, command, text, patient=False):
+    return ssh_run(args, ip, command, patient, input=text, text=True).returncode
+
+
+def ssh_output(args, ip, command, patient=False):
+    done = ssh_run(args, ip, command, patient, capture_output=True, text=True)
     return done.stdout.strip() if done.returncode == 0 else ''
 
 
@@ -260,8 +291,11 @@ def remote(ip, path):
     return 'root@%s:%s' % ('[%s]' % ip if ':' in ip else ip, path)
 
 
-def scp(args, *paths):
-    return subprocess.run(['scp', '-r'] + ssh_options(args) + list(paths)).returncode
+def scp(args, *paths, patient=False):
+    argv = ['scp', '-r'] + ssh_options(args) + list(paths)
+    if not patient:
+        return subprocess.run(argv).returncode
+    return patiently('copy %s' % os.path.basename(paths[0].rstrip('/')), lambda: subprocess.run(argv)).returncode
 
 
 def forget(ip):
@@ -269,8 +303,47 @@ def forget(ip):
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def wait_for_ssh(args, ip):
-    deadline = time.monotonic() + float(os.environ.get('MACHINES_SSH_TIMEOUT', '1800'))
+class Stream:
+    """One ssh held open while the box is set up, so its kernel log and a heartbeat reach box.log on the laptop."""
+
+    def __init__(self, args, ip, path):
+        self.log = open(path, 'ab')
+        self.proc = subprocess.Popen(['ssh'] + ssh_options(args) + ['root@' + ip, STREAM],
+                                     stdin=subprocess.DEVNULL, stdout=self.log, stderr=subprocess.STDOUT)
+
+    def stop(self):
+        if self.proc.poll() is None:
+            self.proc.terminate()
+            try:
+                self.proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+                self.proc.wait()
+        self.log.close()
+
+
+def diagnose(args, ip, out):
+    where = os.path.join(out, 'diagnostics')
+    os.makedirs(where, exist_ok=True)
+    ping = subprocess.run(['ping', '-c', '3', '-W', '2', ip], capture_output=True, text=True)
+    with open(os.path.join(where, 'ping.txt'), 'w') as f:
+        f.write(ping.stdout + ping.stderr)
+    warn('the box %s ping' % ('answers' if ping.returncode == 0 else 'does NOT answer'))
+    done = ssh_run(args, ip, DIAGNOSE, True, capture_output=True)
+    try:
+        if done.returncode != 0 or not done.stdout:
+            raise tarfile.ReadError('ssh exit %d, %d bytes' % (done.returncode, len(done.stdout)))
+        with tarfile.open(fileobj=io.BytesIO(done.stdout), mode='r:gz') as tar:
+            tar.extractall(where, filter='data')
+    except (tarfile.TarError, OSError, EOFError) as e:
+        warn('could not collect the diagnostics from the box (%s); what the laptop saw is in %s and %s'
+             % (e, where, os.path.join(out, 'box.log')))
+        return
+    say('Collected the box\'s set-up log, dri.txt, Xorg and i3 logs, dmesg, ip addr, free and ps into %s' % where)
+
+
+def wait_for_ssh(args, ip, timeout=None):
+    deadline = time.monotonic() + (timeout or float(os.environ.get('MACHINES_SSH_TIMEOUT', '1800')))
     while ssh(args, ip, 'true') != 0:
         if time.monotonic() > deadline:
             raise Refused('%s never answered ssh' % ip, 1)
@@ -556,7 +629,7 @@ def run_soak(args):
     out = out_dir(args, 'soak')
     sessions, projects = count_history(args.history)
     report = None
-    interrupted = False
+    interrupted = kept = False
     rc = 1
     try:
         state = robot.apply(args)
@@ -578,50 +651,22 @@ def run_soak(args):
             f.write('report: %s/report.tar.gz in the bucket\n' % run_id)
         forget(ip)
         wait_for_ssh(args, ip)
-        with tempfile.TemporaryDirectory() as tmp:
-            edid = os.path.join(tmp, 'botropolis-1080p.bin')
-            with open(edid, 'wb') as f:
-                f.write(edid_1080p())
-            if scp(args, os.path.join(HERE, 'soak', 'setup'), os.path.join(HERE, 'soak', 'detached'),
-                   os.path.join(HERE, 's3.py'), edid, remote(ip, '/root/')) != 0:
-                raise Refused('could not copy the set-up to %s' % ip, 1)
-        setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin')
-        if setup != 0:
-            raise Refused('the set-up failed on %s (exit %d); the soak did not start' % (ip, setup), 1)
-        mesa = ssh_output(args, ip, "dpkg-query -W -f='${Version}' libgl1-mesa-dri") or 'unknown'
-        with open(os.path.join(out, 'machine.txt'), 'a') as f:
-            f.write("mesa: %s (Debian's, in the rescue system; not the version on Aria's laptop)\n" % mesa)
-        for src, dst in ((os.path.join(ROOT, 'performance'), REMOTE + '/performance'),
-                         (args.corpus, REMOTE + '/botropolis/demo'),
-                         (args.build, REMOTE + '/build'),
-                         (args.stager, REMOTE + '/botropolis-demo'),
-                         (args.history, '/home/soak/.claude')):
-            if scp(args, src, remote(ip, dst)) != 0:
-                raise Refused('could not copy %s to %s' % (src, ip), 1)
-        ssh(args, ip, 'chown -R soak: /home/soak')
-        key = 'BUCKET_URL=%s\nBUCKET_ID=%s\nBUCKET_SECRET=%s\n' % (
-            args.bucket_url, os.environ['BUCKET_WRITE_ID'], os.environ['BUCKET_WRITE_SECRET'])
-        if ssh_input(args, ip, 'umask 077 && cat >/root/bucket.env', key) != 0:
-            raise Refused('could not give the box its bucket key', 1)
-        report = Report(args, ip, out, Bucket(args.bucket_url, os.environ['BUCKET_READ_ID'],
-                                              os.environ['BUCKET_READ_SECRET']), run_id)
-        command = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
-                   'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE,
-                   '%s/performance/tools/perf-soak' % REMOTE, '--out', REPORT] \
-            + shlex.split(args.soak_flags) + [REMOTE + '/build']
-        detached = ['setsid', '-f', 'python3', '/root/detached', '--env', '/root/bucket.env', '--run-id', run_id,
-                    '--every', '%g' % FETCH_EVERY, '--out', REPORT, '--'] + command
-        if ssh(args, ip, 'rm -f %s && %s </dev/null >%s/detached.log 2>&1'
-               % (EXIT_FILE, shlex.join(detached), REPORT)) != 0:
-            raise Refused('could not start the soak on %s' % ip, 1)
-        say('The soak runs detached on the box and uploads its report every %d minutes; this run watches the '
-            'bucket and cancels the box when the soak ends.' % (FETCH_EVERY // 60))
+        stream = Stream(args, ip, os.path.join(out, 'box.log'))
+        try:
+            report = start_soak(args, ip, out, run_id)
+        except Exception:
+            stream.stop()
+            diagnose(args, ip, out)
+            kept = args.keep_on_failure
+            raise
+        stream.stop()
         soak = watch(args, report, ceiling)
         if soak is not None:
             rc = soak
             say('perf-soak exited %d' % rc)
     except KeyboardInterrupt:
         interrupted = True
+        kept = False
         raise
     finally:
         try:
@@ -634,12 +679,69 @@ def run_soak(args):
                     warn('could not fetch the soak report before cancelling the box: %s' % report.lost())
                     rc = rc or 1
         finally:
-            robot.destroy()
-            if os.path.exists(os.path.join(out, 'machine.txt')):
-                with open(os.path.join(out, 'machine.txt'), 'a') as f:
-                    f.write('cancelled: %s\n' % datetime.datetime.now().isoformat(timespec='seconds'))
+            if kept:
+                keep(args, robot, out)
+            else:
+                robot.destroy()
+                if os.path.exists(os.path.join(out, 'machine.txt')):
+                    with open(os.path.join(out, 'machine.txt'), 'a') as f:
+                        f.write('cancelled: %s\n' % datetime.datetime.now().isoformat(timespec='seconds'))
     say('Results: %s' % out)
     return rc
+
+
+def start_soak(args, ip, out, run_id):
+    with tempfile.TemporaryDirectory() as tmp:
+        edid = os.path.join(tmp, 'botropolis-1080p.bin')
+        with open(edid, 'wb') as f:
+            f.write(edid_1080p())
+        if scp(args, os.path.join(HERE, 'soak', 'setup'), os.path.join(HERE, 'soak', 'detached'),
+               os.path.join(HERE, 's3.py'), edid, remote(ip, '/root/'), patient=True) != 0:
+            raise Refused('could not copy the set-up to %s' % ip, 1)
+    setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin', patient=True)
+    if setup != 0:
+        raise Refused('the set-up failed on %s (exit %d); the soak did not start' % (ip, setup), 1)
+    wait_for_ssh(args, ip, float(os.environ.get('MACHINES_SSH_SETTLE', '300')))
+    mesa = ssh_output(args, ip, "dpkg-query -W -f='${Version}' libgl1-mesa-dri", patient=True) or 'unknown'
+    with open(os.path.join(out, 'machine.txt'), 'a') as f:
+        f.write("mesa: %s (Debian's, in the rescue system; not the version on Aria's laptop)\n" % mesa)
+    for src, dst in ((os.path.join(ROOT, 'performance'), REMOTE + '/performance'),
+                     (args.corpus, REMOTE + '/botropolis/demo'),
+                     (args.build, REMOTE + '/build'),
+                     (args.stager, REMOTE + '/botropolis-demo'),
+                     (args.history, '/home/soak/.claude')):
+        if scp(args, src, remote(ip, dst), patient=True) != 0:
+            raise Refused('could not copy %s to %s' % (src, ip), 1)
+    if ssh(args, ip, 'chown -R soak: /home/soak', patient=True) != 0:
+        raise Refused('could not give the soak user its files on %s' % ip, 1)
+    key = 'BUCKET_URL=%s\nBUCKET_ID=%s\nBUCKET_SECRET=%s\n' % (
+        args.bucket_url, os.environ['BUCKET_WRITE_ID'], os.environ['BUCKET_WRITE_SECRET'])
+    if ssh_input(args, ip, 'umask 077 && cat >/root/bucket.env', key, patient=True) != 0:
+        raise Refused('could not give the box its bucket key', 1)
+    report = Report(args, ip, out, Bucket(args.bucket_url, os.environ['BUCKET_READ_ID'],
+                                          os.environ['BUCKET_READ_SECRET']), run_id)
+    command = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
+               'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE,
+               '%s/performance/tools/perf-soak' % REMOTE, '--out', REPORT] \
+        + shlex.split(args.soak_flags) + [REMOTE + '/build']
+    detached = ['setsid', '-f', 'python3', '/root/detached', '--env', '/root/bucket.env', '--run-id', run_id,
+                '--every', '%g' % FETCH_EVERY, '--out', REPORT, '--'] + command
+    if ssh(args, ip, '{ mkdir %s 2>/dev/null || exit 0; } && rm -f %s && %s </dev/null >%s/detached.log 2>&1'
+           % (STARTED_MARK, EXIT_FILE, shlex.join(detached), REPORT), patient=True) != 0:
+        raise Refused('could not start the soak on %s' % ip, 1)
+    say('The soak runs detached on the box and uploads its report every %d minutes; this run watches the '
+        'bucket and cancels the box when the soak ends.' % (FETCH_EVERY // 60))
+    return report
+
+
+def keep(args, robot, out):
+    state = robot.load()
+    warn('KEPT ON FAILURE: the soak box, server %d, stays up for you to look at until its booked cancellation on %s, '
+         'up to about EUR %.2f more. Reach it with `ssh -i %s root@%s`; `make destroy MACHINE=soak` cancels it '
+         'sooner.' % (state['server_number'], state['booked'], robot.cost_until(state), private_key(args), state['ip']))
+    with open(os.path.join(out, 'machine.txt'), 'a') as f:
+        f.write('kept on failure: %s, until the booked cancellation on %s\n'
+                % (datetime.datetime.now().isoformat(timespec='seconds'), state['booked']))
 
 
 class Cloud:

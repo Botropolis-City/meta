@@ -24,3 +24,29 @@ So this item now also:
 2. gives the runner a way to keep a box on failure (`--keep-on-failure`, still bound by the booked cancellation) and to fetch the set-up's log and `dmesg` before cancelling, so the next failure can be seen;
 3. keeps the retry this item began with.
 Aria, 2026-10-27, chose to release 0.3.3 without waiting, and to run its soak once this is fixed.
+
+## What the two failures show (2026-10-27)
+
+The set-up did not go quiet after its apt step: it finished, and exited 0.
+Its later steps write to `dri.txt` and never to its output, so a silent console is what a good set-up looked like.
+The runner got past its check of the set-up's exit,
+and box 3100616's `machine.txt` has the Mesa version, which comes from a separate ssh made after the set-up,
+so X and i3 were up and one more ssh worked.
+The next connection, the copy of `performance/`, failed with "Connection to … port 22 timed out", and box 1's with "timed out during banner exchange".
+Both come from OpenSSH after the TCP connection is made, unlike "ssh: connect to host … Connection timed out" for a host that does not answer at all:
+the box's kernel still took the connection,
+and sshd never spoke.
+That points at a stall in the box's userspace after X and i3 started (memory, a process stuck in the kernel on i915, sshd unable to fork) more than at its network.
+Item 245's slice 3 changed nothing between the set-up and the copy: `run_soak` there is the 26th's, apart from the files copied before the set-up, and `soak/setup` is unchanged.
+What did change: `IPV4=1`, a different board and datacentre (FSN1-DC2 and DC13, not DC3; an ASUSTeK board with DP-1 forced), and perhaps the rescue kernel (6.12.67; the 26th's `dri.txt` died with its report).
+Nothing on the laptop can tell these apart,
+so the fix instruments, retries and keeps,
+and the next run names the cause.
+What it does is in [testing/machines/README.md](../testing/machines/README.md#when-the-box-goes-quiet).
+
+## Decided
+
+- **The diagnosis, the fix, the instruments and the test tree** (manager, 2026-10-27): approved.
+- **Keeping a failed box** (manager, 2026-10-27): opt-in, `KEEP_ON_FAILURE=1`, since a kept box bills until its booked date, up to a day. The manager passes it for the diagnostic run.
+- **The retry budget** (manager, 2026-10-27): five attempts over about two minutes, configurable with `MACHINES_SSH_ATTEMPTS`.
+- **An IPv6-only datapoint** (manager, 2026-10-27): not possible from the laptop today, which has no IPv6 route.

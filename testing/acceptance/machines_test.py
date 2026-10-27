@@ -774,6 +774,249 @@ class WhenRunningTheSoakAndRobotRefusesToRevokeTheBooking(Machines):
         self.assertIn('EUR', self.done.stderr.split('BOOKED CANCELLATION', 1)[-1])
 
 
+PERF_COPY = 'run/performance'
+SET_UP = 'bash /root/setup /root/botropolis'
+DIAGNOSTICS = ['/root/setup.log', 'dri.txt', '/var/log/soak-xorg.out', '/var/log/Xorg.0.log', '/home/soak/i3.log',
+               'dmesg', 'ip addr', 'free -m', 'ps aux']
+KEEP = ['--keep-on-failure']
+
+
+class SoakBox(Machines):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+
+    def ssh_at(self, word):
+        return self.positions(lambda e: e[0] == 'ssh' and word in e[-1])
+
+    def scp_at(self, word):
+        return self.positions(lambda e: e[0] == 'scp' and any(word in a for a in e[1:]))
+
+    def copies(self, word):
+        return [argv for argv in self.bench.calls('scp') if any(word in a for a in argv)]
+
+    def diagnostics(self):
+        return [c for c in self.ssh_commands() if 'setup.log' in c and 'dmesg' in c]
+
+    def diagnostics_at(self):
+        return self.positions(lambda e: e[0] == 'ssh' and 'setup.log' in e[-1] and 'dmesg' in e[-1])
+
+    def streams(self):
+        return [c for c in self.ssh_commands() if 'dmesg --follow' in c]
+
+    def box_log(self):
+        with open(os.path.join(self.bench.out, 'box.log')) as f:
+            return f.read()
+
+
+class WhenRunningTheSoakAndTheCopyTimesOutTwiceThenSucceeds(SoakBox):
+    stub_env = {'STUB_SEQ': 'scp:%s=255|255|0' % PERF_COPY}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_try_that_copy_three_times(self):
+        self.assertEqual(len(self.copies(PERF_COPY)), 3, self.bench.calls('scp'))
+
+    def test_it_should_start_the_soak_once(self):
+        self.assertEqual(len(self.launches()), 1, self.ssh_commands())
+
+
+class WhenRunningTheSoakAndTheCopyKeepsTimingOut(SoakBox):
+    stub_env = {'STUB_SEQ': 'scp:%s=255' % PERF_COPY}
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_try_that_copy_five_times(self):
+        self.assertEqual(len(self.copies(PERF_COPY)), 5, self.bench.calls('scp'))
+
+    def test_it_should_not_start_the_soak(self):
+        self.assertEqual(self.launches(), [])
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+    def test_it_should_ping_the_box(self):
+        self.assertTrue([argv for argv in self.bench.calls('ping') if '192.0.2.44' in argv], self.bench.calls('ping'))
+
+    def test_it_should_collect_every_diagnostic_from_the_box(self):
+        for item in DIAGNOSTICS:
+            with self.subTest(item=item):
+                self.assertTrue([c for c in self.diagnostics() if item in c], self.ssh_commands())
+
+    def test_it_should_collect_them_before_cancelling(self):
+        self.assertLess(self.diagnostics_at()[0], self.cancelled_at()[0], self.sequence())
+
+    def test_it_should_say_what_it_could_not_collect(self):
+        self.assertIn('could not collect the diagnostics', self.done.stderr)
+
+
+class WhenRunningTheSoakWithAnAttemptBudgetOfThree(SoakBox):
+    stub_env = {'STUB_SEQ': 'scp:%s=255' % PERF_COPY, 'MACHINES_SSH_ATTEMPTS': '3'}
+
+    def test_it_should_try_that_copy_three_times(self):
+        self.assertEqual(len(self.copies(PERF_COPY)), 3, self.bench.calls('scp'))
+
+
+class WhenRunningTheSoakAndARemoteCommandFailsWithItsOwnExitCode(SoakBox):
+    stub_env = {'STUB_SEQ': 'ssh:bucket.env=1'}
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_try_it_once(self):
+        self.assertEqual(len(self.ssh_at('bucket.env')), 1, self.ssh_commands())
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+
+class WhenRunningTheSoakAndTheSetUpDropsItsConnectionOnce(SoakBox):
+    stub_env = {'STUB_SEQ': 'ssh:%s=255|0' % SET_UP}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_run_the_set_up_again(self):
+        self.assertEqual(len(self.ssh_at(SET_UP)), 2, self.ssh_commands())
+
+
+class WhenRunningTheSoakAndTheDetachedStartDropsItsConnectionOnce(SoakBox):
+    stub_env = {'STUB_SEQ': 'ssh:setsid=255|0'}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_guard_every_start_so_the_soak_starts_at_most_once(self):
+        self.assertEqual([c for c in self.launches() if 'mkdir /root/soak.started' in c], self.launches())
+
+
+class WhenRunningTheSoakAndTheSetUpHasFinished(SoakBox):
+    def test_it_should_wait_for_ssh_to_answer_before_copying(self):
+        answered = [i for i in self.positions(lambda e: e[0] == 'ssh' and e[-1] == 'true')
+                    if i > self.ssh_at(SET_UP)[0]]
+        self.assertLess(answered[0], self.scp_at(PERF_COPY)[0], self.sequence())
+
+
+class WhenRunningTheSoakAndTheBoxSpeaksWhileItIsSetUp(SoakBox):
+    stub_env = {'STUB_SEQ': 'ssh:dmesg --follow=0:[ 1.0] i915 0000-00-02.0 forced DP-1'}
+
+    def test_it_should_stream_its_kernel_log_into_box_log(self):
+        self.assertIn('i915 0000-00-02.0 forced DP-1', self.box_log())
+
+    def test_it_should_stream_a_heartbeat_too(self):
+        self.assertTrue([c for c in self.streams() if 'heartbeat' in c and 'loadavg' in c], self.ssh_commands())
+
+    def test_it_should_start_the_stream_before_the_set_up(self):
+        self.assertLess(self.ssh_at('dmesg --follow')[0], self.ssh_at(SET_UP)[0], self.sequence())
+
+
+class WhenRunningTheSoakAndTheStreamNeverEnds(SoakBox):
+    stub_env = {'STUB_HANG': 'ssh:dmesg --follow'}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline and any(cls.alive(p) for p in cls.bench.hung()):
+            time.sleep(0.1)
+
+    @staticmethod
+    def alive(pid):
+        try:
+            os.kill(pid, 0)
+            return True
+        except ProcessLookupError:
+            return False
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_stop_the_stream_once_the_soak_has_started(self):
+        self.assertEqual([p for p in self.bench.hung() if self.alive(p)], [])
+
+
+class WhenRunningTheSoakAndItPassesWithItsStream(SoakBox):
+    def test_it_should_open_one_stream(self):
+        self.assertEqual(len(self.streams()), 1, self.ssh_commands())
+
+    def test_it_should_collect_no_diagnostics(self):
+        self.assertEqual(self.diagnostics_at(), [])
+
+
+class WhenRunningTheSoakToKeepOnFailureAndTheCopyFailsForGood(SoakBox):
+    argv = SOAK_RUN + KEEP
+    stub_env = {'STUB_SEQ': 'scp:%s=255' % PERF_COPY}
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_not_cancel_the_server(self):
+        self.assertEqual(self.cancelled_now(), [])
+
+    def test_it_should_leave_the_booked_cancellation_in_place(self):
+        self.assertEqual(self.cancellation_steps(), ['POST %s' % self.booked()[0]])
+
+    def test_it_should_say_the_booked_date(self):
+        self.assertIn(self.booked()[0], self.done.stderr.split('KEPT', 1)[-1])
+
+    def test_it_should_say_the_most_it_costs(self):
+        self.assertIn('EUR', self.done.stderr.split('KEPT', 1)[-1])
+
+    def test_it_should_say_how_to_reach_the_box(self):
+        self.assertIn('ssh -i %s root@192.0.2.44' % self.bench.dedicated, self.done.stderr)
+
+    def test_it_should_say_how_to_destroy_it(self):
+        self.assertIn('make destroy MACHINE=soak', self.done.stderr.split('KEPT', 1)[-1])
+
+    def test_it_should_record_that_it_was_kept(self):
+        self.assertIn('kept on failure', self.machine_txt())
+
+    def test_it_should_still_collect_the_diagnostics(self):
+        self.assertTrue(self.diagnostics_at(), self.sequence())
+
+
+class WhenRunningTheSoakToKeepOnFailureAndItPasses(SoakBox):
+    argv = SOAK_RUN + KEEP
+
+    def test_it_should_cancel_the_server(self):
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+
+class WhenRunningTheSoakToKeepOnFailureAndItIsInterrupted(WhenRunningTheSoakAndItIsInterrupted):
+    argv = SOAK_RUN + KEEP
+
+
+class WhenReadingTheSetUp(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with open(os.path.join(MACHINES, 'soak', 'setup')) as f:
+            cls.text = f.read()
+
+    def test_it_should_tee_everything_it_says_to_root_setup_log(self):
+        self.assertIn('tee -a /root/setup.log', self.text)
+
+    def test_it_should_say_each_step_after_apt(self):
+        for step in ('setup: forcing', 'setup: starting Xorg', 'setup: X is up', 'setup: i3 started'):
+            with self.subTest(step=step):
+                self.assertIn(step, self.text)
+
+    def test_it_should_wait_on_another_apt_rather_than_fail(self):
+        self.assertIn('DPkg::Lock::Timeout', self.text)
+
+
+class WhenMakeRunSoakIsAskedToKeepOnFailure(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.done = subprocess.run(['make', '--no-print-directory', '-n', '-C', MACHINES, 'run-soak', 'PERF_BUILD=/x',
+                                   'KEEP_ON_FAILURE=1'], capture_output=True, text=True, timeout=60)
+
+    def test_it_should_pass_keep_on_failure_to_the_runner(self):
+        self.assertIn('--keep-on-failure', self.done.stdout)
+
+
 class WhenPlanningWayland(Machines):
     argv = ['plan', 'wayland', '--desktop', 'kde'] + HCLOUD_REFS
 

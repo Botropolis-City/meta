@@ -17,6 +17,7 @@ make plan MACHINE=soak                   # choose the soak box, its price, and a
 make run-soak PERF_BUILD=dir             # order the planned box, set up, soak 8 hours, fetch the report, cancel
 make plan MACHINE=wayland DESKTOP=kde    # the price, and terraform plan
 make run-wayland DESKTOP=kde SCRIPT=file # make the VM, run SCRIPT in the session, fetch results, destroy
+make run-soak PERF_BUILD=dir KEEP_ON_FAILURE=1  # the same, but a box that fails before its soak stays up to be looked at
 make destroy MACHINE=soak                # cancel by hand, if a run could not
 ```
 
@@ -72,6 +73,17 @@ and starts Xorg with the `modesetting` driver on the iGPU, i3, `xset s off -dpms
 It writes what it found in `/dev/dri`, the Mesa version and the renderer to `dri.txt` in the results, and stops if there is no iGPU, since Hetzner may not leave it enabled.
 `machine.txt` names the rescue system's Mesa version, since it is Debian's and not the one on Aria's laptop.
 A failed set-up cancels the box like any other failure.
+
+### When the box goes quiet
+
+0.3.3's first two soak boxes stopped answering ssh right after a set-up that had succeeded, and each was cancelled before anything could be seen ([item 301](../../roadmap/301-the-soak-runner-gives-up-on-one-ssh-timeout.md)).
+So:
+
+- **Every ssh and scp to the box is patient.** A connection failure (exit 255) is tried again, five times, `MACHINES_POLL_SECONDS` apart (`MACHINES_SSH_ATTEMPTS` changes the count). A remote command's own failure is never retried. The set-up can be run twice, and the soak's start is guarded by `/root/soak.started`, so a retry cannot start it twice. After the set-up, the runner waits for ssh to answer before it copies.
+- **The set-up says each step** after apt, and keeps all it says in `/root/setup.log` on the box.
+- **`box.log` in the results** holds the box's kernel log and a heartbeat (load and memory) every five seconds, streamed over one ssh from just after delivery until the soak starts. If the box wedges, its last words are on the laptop, and the heartbeat says when it stopped.
+- **A failure before the soak starts collects diagnostics** before the box goes: a ping, then `setup.log`, `dri.txt`, the Xorg and i3 logs, `dmesg`, `ip addr`, `free` and `ps`, into `diagnostics/` in the results. Whatever could not be collected is said.
+- **`KEEP_ON_FAILURE=1`** leaves a box that failed before its soak started up for you to look at, until its booked cancellation, which can be up to a day. The runner says the date, the most it costs, how to reach it and how to cancel it sooner, and `machine.txt` records it. An interrupt and the ceiling still cancel.
 
 ### The soak depends on the box alone
 

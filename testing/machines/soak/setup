@@ -16,7 +16,10 @@ debugfs override, i3, no blanking, no DPMS and no locker. X runs on :0, and
 i3 and the soak run as the user soak.
 
 It reports what it finds in /dev/dri, the Mesa version and the renderer to
-${report}.
+${report}, says each step as it starts, and keeps everything it says in
+/root/setup.log, so a box that goes quiet can be read afterwards (item 301).
+It can be run again: it waits for another apt, and starts X and i3 only if
+they are not already running.
 
 Exit status: 0 ready, 3 no iGPU or no connector to force, 4 X did not come up.
 USAGE
@@ -27,6 +30,9 @@ case "${1:-}" in
 "") usage >&2; exit 2 ;;
 esac
 edid="$1"
+
+exec > >(tee -a /root/setup.log) 2>&1
+echo "setup: started at $(date -Is)"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -50,12 +56,14 @@ if ! compgen -G '/dev/dri/renderD*' >/dev/null; then
 	exit 3
 fi
 
-apt-get update -q
-apt-get install -y -q --no-install-recommends \
+echo "setup: installing Xorg, i3 and Mesa"
+apt-get -o DPkg::Lock::Timeout=300 update -q
+apt-get -o DPkg::Lock::Timeout=300 install -y -q --no-install-recommends \
 	xserver-xorg-core xinit x11-xserver-utils i3-wm fonts-dejavu-core mesa-utils \
 	libgl1-mesa-dri libgl1 libegl1 libx11-6 libxcursor1 libxi6 libxinerama1 libxrandr2 hicolor-icon-theme \
 	python3 pciutils
 echo "mesa: $(dpkg-query -W -f='${Version}' libgl1-mesa-dri)" >>"${report}"
+echo "setup: apt is done"
 
 connector=""
 card=""
@@ -71,6 +79,7 @@ for path in /sys/class/drm/card*-*; do
 done
 [[ -n "${connector}" ]] || { echo "no HDMI or DP connector to force on" | tee -a "${report}" >&2; exit 3; }
 
+echo "setup: forcing ${connector} (${card}) on with the EDID override"
 mountpoint -q /sys/kernel/debug || mount -t debugfs none /sys/kernel/debug
 override="/sys/kernel/debug/dri/${card#card}/${connector}"
 [[ -d "${override}" ]] || { echo "no ${override} to force ${connector} through" | tee -a "${report}" >&2; exit 3; }
@@ -100,13 +109,22 @@ exec --no-startup-id xset s off -dpms
 I3
 chown soak: /home/soak/.config/i3/config
 
-setsid Xorg :0 vt1 -nolisten tcp -noreset </dev/null >/var/log/soak-xorg.out 2>&1 &
+if DISPLAY=:0 xset q >/dev/null 2>&1; then
+	echo "setup: X is already running on :0"
+else
+	echo "setup: starting Xorg on :0"
+	setsid Xorg :0 vt1 -nolisten tcp -noreset </dev/null >/var/log/soak-xorg.out 2>&1 &
+fi
 
 for _ in $(seq 60); do
 	if DISPLAY=:0 xset q >/dev/null 2>&1; then
+		echo "setup: X is up on :0"
 		DISPLAY=:0 xhost +SI:localuser:soak >/dev/null
 		DISPLAY=:0 xset s off -dpms
-		runuser -u soak -- env DISPLAY=:0 HOME=/home/soak setsid i3 </dev/null >/home/soak/i3.log 2>&1 &
+		if ! pgrep -u soak -x i3 >/dev/null; then
+			runuser -u soak -- env DISPLAY=:0 HOME=/home/soak setsid i3 </dev/null >/home/soak/i3.log 2>&1 &
+		fi
+		echo "setup: i3 started"
 		{
 			echo "# X on :0"
 			DISPLAY=:0 xrandr --query
@@ -115,6 +133,7 @@ for _ in $(seq 60); do
 			grep -E 'modeset|glamor|iris' /var/log/Xorg.0.log 2>/dev/null | head -20 || true
 		} >>"${report}"
 		chown soak: "${report}"
+		echo "setup: done at $(date -Is)"
 		exit 0
 	fi
 	sleep 1
