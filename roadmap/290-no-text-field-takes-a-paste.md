@@ -1,6 +1,6 @@
 # 290. No text field in the city takes a paste
 
-**Open. Filed 2026-10-26 (r1124), from item 289's session. Nobody's call — a defect.**
+**Open, in progress since 2026-10-26 in the session "item 290". Filed 2026-10-26 (r1124), from item 289's session. Nobody's call — a defect.**
 
 Depends on: 289, 284
 

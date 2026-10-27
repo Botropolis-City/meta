@@ -1,6 +1,6 @@
 # 293. Closing the window quits the city without asking, and nothing offers the tray
 
-**Open. Filed 2026-10-26 (r1124), from Aria's use of 0.3.2. Nobody's call — Aria ruled the default and the trays.**
+**Open, in progress since 2026-10-26 in the session "item 293". Filed 2026-10-26 (r1124), from Aria's use of 0.3.2. Nobody's call — Aria ruled the default and the trays.**
 
 Depends on: 292
 
