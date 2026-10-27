@@ -1,6 +1,6 @@
 # 301. The soak runner gives up the whole run on one ssh timeout while copying to the box
 
-**Open, in progress since 2026-10-27 in the session "item 301". Filed 2026-10-27 (r1179), from 0.3.3's first soak. Nobody's call — a defect in the runner.**
+**Fixed 2026-10-27 (`b1284d8`, r1119 of meta). Filed 2026-10-27 (r1179), from 0.3.3's first soak. Nobody's call — a defect in the runner.**
 
 0.3.3's first soak box (auction server 3100496) came up at 08:11:41 and ran its set-up, an apt install of Xorg, i3 and Mesa; the next ssh, copying `performance/` to the box, timed out in the banner exchange about a minute later ("Connection timed out during banner exchange"), and the runner cancelled the box: nothing soaked, about EUR 0.18 spent, and a reorder.
 The set-up's own ssh had worked, so the stall was transient, perhaps sshd restarting during the package upgrade.
@@ -64,3 +64,20 @@ the retries stay.
 - **An IPv6-only datapoint** (manager, 2026-10-27): not possible from the laptop today, which has no IPv6 route.
 - **The second slice** (manager, 2026-10-27): right after the box answers ssh, close port 22 to the runner's own address and turn off password logins; one multiplexed connection for every ssh and scp after that; keep the retries. The runner learns its address from the box's own view of the connection (`SSH_CLIENT`), not from a web service. For IPv6 it opens the /64, since the laptop's temporary addresses rotate during an eight-hour run.
 - **Which firewall** (manager, 2026-10-27, from kept box 4): the rescue kernel, 6.12.67, has `ip_tables` but no `nf_tables`, so `nft` and the nft-backed `iptables` both fail there ("cache initialization failed: Invalid argument"). `iptables-legacy` worked: with the runner's address accepted and port 22 dropped for the rest, the bot's failed passwords stopped within 30 seconds and the runner's ssh carried on. So the lock-down uses `iptables-legacy` and `ip6tables-legacy` first, and nft only where they are missing.
+
+## Fixed
+
+The cause: an ssh brute-force bot found each box's fresh IPv4 address within minutes and filled sshd's unauthenticated slots,
+so the rescue system's sshd, at the default `MaxStartups` of 10:30:100, dropped the runner's new connections at random.
+The 26th's box was IPv6-only and never scanned.
+The set-up had never been the problem.
+
+The fix, in `testing/machines/` (three commits on meta's main):
+
+- `1aae2e0` (r1112 of meta): every ssh and scp to the box retries a connection failure five times (`MACHINES_SSH_ATTEMPTS`), never a remote command's own failure; the set-up can be run twice and the soak's start is guarded; the runner waits for ssh after the set-up. The set-up says each step and keeps `/root/setup.log`, `box.log` streams the box's kernel log and a heartbeat, a failure before the soak collects `diagnostics/`, and `KEEP_ON_FAILURE=1` keeps a failed box until its booked cancellation. The kept box is how the cause was found.
+- `f25bb31` (r1116 of meta): before anything else runs on the box, `soak/lockdown` opens port 22 to the runner's own address alone (or its /64), learned from the box's `SSH_CLIENT`, and turns off password logins; every later ssh and scp shares one multiplexed connection.
+- `b1284d8` (r1119 of meta): the lock-down uses `iptables-legacy`, since the rescue kernel has no `nf_tables`.
+
+The tests are in `testing/acceptance/machines_test.py`, against the fake transport and, for `soak/lockdown`, stubbed firewalls.
+Soak 5 (server 3101537) got past the lock-down and the copy on 2026-10-27, and its 8-hour soak has run detached since 11:47 MDT, uploading hourly.
+Four boxes went before it: two in the first failures, the diagnostic box, and kept box 4, which showed `nft` failing.
