@@ -61,6 +61,7 @@ The figures are the table's above, in its order of rows, from the tests' own log
 | r1176 `7691a05` | `21bbb9f..7691a05`: items 286, 212, 270, 280, 290, 293, 298 | 75 pass, 1 skip: every budget met | 0.47%, 0.79% | 1.56%, 1.86% | 55%, 28 MiB, read in 9 s | 0.10 CPU-s | 0.45%, 0.89%, 0.83% | 242 MiB | 3.0 |
 | r1178 `7c852c5`, 0.3.3 | `7691a05..7c852c5`: items 270 (slice 4, the 600-district city), 297 | 85 pass, 3 fail: the 600-district fit bar | | | | | | | 10.2, not quiet |
 | r1179 `77ae413`, 0.3.3 | `7c852c5..77ae413`: item 280's fix | 88 pass, 1 skip: every budget met | 0.54%, 0.79% | 1.59%, 1.69% | 53%, 28 MiB, read in 9 s | 0.11 CPU-s | 0.52%, 0.94%, 0.82% | 242 MiB | 2.5 |
+| r1192 `632efda` | `77ae413..632efda`: items 212, 280, 300, 302, 303, 304, 305, 306 | 88 pass, 1 skip: every budget met; 600 districts fitted at 14.25 ms | 0.54%, 0.73% | 1.60%, 1.83% | 54%, 27 MiB, read in 9 s | 0.09 CPU-s | 0.53%, 0.91%, 0.79% | 204 MiB | 0.6 |
 
 At r1000 the 2,000-session daemon read about 0.1 of a core higher, twice, and is recorded as the machine's load rather than filed: `botropolisd` links neither `pkg/city` nor `pkg/render`, the only code the range changed; its CPU ticks held at 2.16–2.39% in all four runs; and the test itself says this measure spans 2.3–2.6% on a quiet machine.
 It is still over its budget, which is [item 213](../../roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md).
