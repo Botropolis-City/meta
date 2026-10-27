@@ -47,7 +47,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [267](roadmap/267-the-website-s-version-is-typed-by-hand.md) | the site shows the latest release without a hand edit | — | nobody, Aria chose rebuilding on release |
 | [268](roadmap/268-a-first-sighting-shown-only-behind-a-panel-is-spent.md) | a first sighting shown only behind a covering panel is spent and never shows | — | nobody, a defect |
 | [269](roadmap/269-make-publishable-fails-in-a-worktree-once-main-moves.md) | `make publishable` fails in a worktree once github's main moves | — | nobody, a defect in a guard |
-| [270](roadmap/270-the-city-freezes-with-hundreds-of-districts.md) | the city freezes with hundreds of districts and groups of hundreds | — | nobody, a defect |
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [280](roadmap/280-city-hall-is-drawn-as-a-hospital.md) | City Hall gets a hall; the hospital becomes the clinic for what needs Aria and errors | — | nobody, Aria ruled; frames for her |
 | [293](roadmap/293-closing-the-window-quits-without-asking.md) | closing the window asks, or goes to the tray by setting, with a tray icon on both Linux standards | 292 | nobody, Aria ruled |
