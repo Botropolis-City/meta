@@ -25,7 +25,10 @@ Each phase's least-squares slope from 600 s stays the verdict, at most 1 MiB an 
 A pinned run has no clock step to explain, so nothing is subtracted, split out or excused.
 
 **Steps are named, not excused.**
-`soak.md` lists every step it finds: two samples 10 s apart differing by more than 8 MiB of `Private_Dirty` + GPU, or by more than four times the phase's residual standard deviation, whichever is larger.
+`soak.md` lists every step it finds: two samples 10 s apart differing by more than 8 MiB of `Private_Dirty` + GPU, or by more than four times the phase's noise, whichever is larger.
+The noise is 1.4826 times the median absolute deviation of the sample-to-sample differences, not the residual of the fitted slope:
+a residual includes the step itself, so a 49 MiB step would raise its own threshold to about 56 MiB and hide.
+A run whose samples barely move has a noise near 0, and the 8 MiB floor holds it.
 For each step it gives the time on the box's clock and in UTC, its size split into `Private_Dirty` and GPU, and the slopes either side.
 A step still counts toward its phase's slope, because memory taken in a step is memory taken.
 The table is what tells a reader whether an over-budget slope is a ramp or a step.
