@@ -17,7 +17,14 @@ Most of them were things a script can do, so each step is now in one of three ti
    A city that meets an older daemon says so and offers **Restart Daemon**.
 2. `botropolis doctor` checks the daemon, the hooks, a terminal, the claude CLI, the harnesses and the display; every line should pass.
 3. `systemctl --user enable --now botropolis-notify` if the notifier is not running yet: it runs `botropolis notify`.
-4. Make any session the steps create or demolish in a scratch folder, such as `~/workspaces/botropolis-validation/valley`, so nothing real is touched.
+4. Make a scratch folder and one session in it, so the steps that create or demolish a session touch nothing real; it does not exist until you make it:
+
+   ```sh
+   mkdir -p ~/workspaces/botropolis-validation/valley
+   cd ~/workspaces/botropolis-validation/valley && claude "say hello"
+   ```
+
+   Its district, *valley*, then appears on the map, and A2, A3 and A6 use it.
 
 ## Scripted
 
