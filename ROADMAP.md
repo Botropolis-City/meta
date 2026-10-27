@@ -53,6 +53,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [294](roadmap/294-a-building-is-drawn-small-the-frame-its-scaffold-comes-down.md) | a building is drawn small for one frame as its scaffold finishes coming down | — | nobody, a defect |
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 | [297](roadmap/297-release-0-3-3.md) | release 0.3.3, with soak, checklist and re-film | 280 (slice 3), 286, 290, 293 (slice 1), 212 (slice 21), 298 | nobody, Aria set it |
+| [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 
 ## Waiting on Aria
 
