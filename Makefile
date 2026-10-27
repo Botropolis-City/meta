@@ -59,7 +59,7 @@ perf-city ::
 perf-busy ::
 	@[ -n "${PERF_BUILD}" ] || { echo "set PERF_BUILD to a directory perf-pprof-build made"; exit 2; }
 	$(LOG) "Replaying a busy desk against ${PERF_BUILD} (performance/method.md, run 6)"
-	@flock /tmp/botropolis-land.lock performance/tools/perf-busy-city ${PERF_BUILD}
+	@flock /tmp/botropolis-land.lock performance/tools/perf-busy-city ${PERF_BUSY_FLAGS} ${PERF_BUILD}
 
 perf-soak ::
 	@[ -n "${PERF_BUILD}" ] || { echo "set PERF_BUILD to a directory holding botropolis and botropolisd"; exit 2; }
