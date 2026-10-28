@@ -19,6 +19,7 @@ make plan MACHINE=wayland DESKTOP=kde    # the price, and terraform plan
 make run-wayland DESKTOP=kde SCRIPT=file # make the VM, run SCRIPT in the session, fetch results, destroy
 make run-soak PERF_BUILD=dir KEEP_ON_FAILURE=1  # the same, but a box that fails before its soak stays up to be looked at
 make destroy MACHINE=soak                # cancel by hand, if a run could not
+make destroy MACHINE=soak SERVER=4242    # the same, naming the box when several are recorded
 ```
 
 Every target that spends says what it will cost first.
@@ -28,6 +29,13 @@ and the VM only after Terraform's own `yes`.
 The runner refuses a soak box that is not billed by the hour or has a setup fee, because either would cost far more than a run.
 
 Results land in `$XDG_STATE_HOME/botropolis-perf/`, with a `machine.txt` saying what ran where.
+
+Each soak order keeps its own record, `$XDG_STATE_HOME/botropolis-machines/soak-<listing>.json`, and a run cancels only the box in its own record, so two soaks can run side by side ([item 310](../../roadmap/310-a-second-soak-would-cancel-the-first-ones-box.md)).
+`apply` refuses to replace a record whose server Robot still lists, naming the box, and orders nothing.
+A `soak.json` left by a runner from before this is never written or moved, so the run that wrote it still cancels its own box,
+and `make destroy` finds it like any other record.
+With one record, `make destroy MACHINE=soak` cancels that box;
+with several, it cancels none and lists them, and `SERVER=N` names the one to cancel.
 Cancelling by hand is `make destroy`; if that fails too, it says so loudly, and the machine is cancelled in Robot or the Cloud console.
 
 ## Secrets

@@ -2,6 +2,7 @@ import base64
 import datetime
 import json
 import os
+import re
 import shutil
 import tempfile
 import textwrap
@@ -118,13 +119,14 @@ SECRET_RUN = textwrap.dedent('''\
 class Hetzner:
     """A stand-in for Robot and the Cloud API: it records every request and answers like them."""
 
-    def __init__(self, market=None, server_ip=None, key_known=True, earliest=None, revoke_refused=False, spy=None):
+    def __init__(self, market=None, server_ip=None, key_known=True, earliest=None, revoke_refused=False, spy=None,
+                 servers=()):
         self.requests = []
         self.spy = spy
         self.earliest = earliest or datetime.date.today().isoformat()
         self.revoke_refused = revoke_refused
-        self.booked = None
-        self.cancelled = False
+        self.transactions = {}
+        self.servers = {n: {'booked': None, 'cancelled': False} for n in servers}
         self.market = auction() if market is None else market
         self.server_ip = server_ip
         self.key_known = key_known
@@ -186,38 +188,53 @@ class Hetzner:
             if not self.key_known:
                 return 400, {'error': {'status': 400, 'code': 'INVALID_INPUT', 'message': 'invalid input',
                                        'missing': None, 'invalid': ['authorized_key']}}
-            return 201, {'transaction': {'id': TRANSACTION, 'status': 'in process', 'server_number': None, 'server_ip': None}}
-        if path == '/robot/order/server_market/transaction/' + TRANSACTION:
-            return 200, {'transaction': {'id': TRANSACTION, 'status': 'ready',
-                                         'server_number': SERVER_NUMBER, 'server_ip': self.server_ip}}
-        if path == '/robot/server/%d' % SERVER_NUMBER and method == 'GET':
-            return 200, {'server': {'server_number': SERVER_NUMBER, 'server_ip': self.server_ip, 'server_ipv6_net': IPV6_NET}}
-        if path == '/robot/server/%d/cancellation' % SERVER_NUMBER:
-            return self.cancellation(method, (form or {}).get('cancellation_date', [''])[0])
+            if (form or {}).get('test') == ['true']:
+                return 201, {'transaction': {'id': 'test', 'status': 'in process', 'server_number': None,
+                                             'server_ip': None}}
+            n = len(self.transactions)
+            transaction = TRANSACTION if n == 0 else '%s%d' % (TRANSACTION[:-1], n + 1)
+            self.transactions[transaction] = SERVER_NUMBER + n
+            self.servers[SERVER_NUMBER + n] = {'booked': None, 'cancelled': False}
+            self.market = [p for p in self.market if [str(p['id'])] != (form or {}).get('product_id')]
+            return 201, {'transaction': {'id': transaction, 'status': 'in process', 'server_number': None, 'server_ip': None}}
+        if path.startswith('/robot/order/server_market/transaction/'):
+            transaction = path.rsplit('/', 1)[1]
+            if transaction not in self.transactions:
+                return 404, {'error': {'status': 404, 'code': 'NOT_FOUND'}}
+            return 200, {'transaction': {'id': transaction, 'status': 'ready',
+                                         'server_number': self.transactions[transaction], 'server_ip': self.server_ip}}
+        server = re.match(r'/robot/server/(\d+)(/cancellation)?$', path)
+        if server and int(server.group(1)) in self.servers :
+            number = int(server.group(1))
+            if server.group(2):
+                return self.cancellation(number, method, (form or {}).get('cancellation_date', [''])[0])
+            if method == 'GET':
+                return 200, {'server': {'server_number': number, 'server_ip': self.server_ip, 'server_ipv6_net': IPV6_NET}}
         if path == '/cloud/server_types':
             return 200, {'server_types': [{'name': 'cx33', 'prices': [
                 {'location': 'nbg1', 'price_hourly': {'net': '0.0090000000', 'gross': '0.0107100000'},
                  'price_monthly': {'net': '5.4900000000', 'gross': '6.5331000000'}}]}]}
         return 404, {'error': {'status': 404, 'code': 'NOT_FOUND', 'path': path}}
 
-    def cancellation(self, method, date):
+    def cancellation(self, number, method, date):
+        server = self.servers[number]
         conflict = {'error': {'status': 409, 'code': 'CONFLICT', 'message': 'The server is already cancelled'}}
         if method == 'POST':
-            if self.booked or self.cancelled:
+            if server['booked'] or server['cancelled']:
                 return 409, conflict
             if date == 'now':
-                self.cancelled = True
+                server['cancelled'] = True
             else:
-                self.booked = date
+                server['booked'] = date
         if method == 'DELETE':
             if self.revoke_refused:
                 return 409, {'error': {'status': 409, 'code': 'CONFLICT', 'message': 'The cancellation cannot be revoked'}}
-            self.booked = None
+            server['booked'] = None
             return 200, {}
-        return 200, {'cancellation': {'server_number': SERVER_NUMBER, 'earliest_cancellation_date': self.earliest,
-                                      'cancelled': bool(self.booked or self.cancelled), 'reservation_possible': False,
-                                      'reservation': False,
-                                      'cancellation_date': self.booked or (self.earliest if self.cancelled else None)}}
+        return 200, {'cancellation': {'server_number': number, 'earliest_cancellation_date': self.earliest,
+                                      'cancelled': bool(server['booked'] or server['cancelled']),
+                                      'reservation_possible': False, 'reservation': False,
+                                      'cancellation_date': server['booked'] or (self.earliest if server['cancelled'] else None)}}
 
     def sent(self, method, path):
         return [r for r in self.requests if r['method'] == method and urllib.parse.urlparse(r['path']).path == path]

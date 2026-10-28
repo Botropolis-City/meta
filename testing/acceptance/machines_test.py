@@ -54,12 +54,17 @@ class Machines(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.bench = Bench(typed=cls.typed, dedicated_key=cls.dedicated_key, bucket=cls.bucket, **cls.hetzner)
+        cls.seed(cls.bench)
         if cls.plan_first:
             cls.planned = run_in_own_group([TOOL] + SOAK_PLAN, cls.bench.env(), 60)
             cls.after_plan(cls.bench.hetzner)
         cls.started = time.time()
         cls.done = run_in_own_group([TOOL] + cls.expand(cls.argv), cls.bench.env(**cls.stub_env), 60)
         cls.finished = time.time()
+
+    @classmethod
+    def seed(cls, bench):
+        pass
 
     @classmethod
     def after_plan(cls, hetzner):
@@ -1449,6 +1454,227 @@ class WhenCheckingTheGuestSetUp(unittest.TestCase):
                 done = subprocess.run(['shellcheck', os.path.join(MACHINES, 'soak', script)],
                                       capture_output=True, text=True)
                 self.assertEqual(done.returncode, 0, done.stdout)
+
+SECOND = 4243
+OLD = 4299
+SECOND_HOURLY = '0.2949'
+
+
+def cancellation_of(number):
+    return '/robot/server/%d/cancellation' % number
+
+
+def record_for(server, listing=CHOSEN, booked='2099-01-01'):
+    return {'transaction': 'B-%d' % server, 'hourly': CHOSEN_HOURLY, 'listing': listing, 'cpu': 'Intel Core i5-12500',
+            'datacenter': 'FSN1-DC4', 'server_number': server, 'ip': '2a01:4f8::%d' % server, 'booked': booked,
+            'earliest': booked}
+
+
+class SoakRecords(Machines):
+    records = {}
+
+    @classmethod
+    def seed(cls, bench):
+        d = os.path.join(bench.state, 'botropolis-machines')
+        os.makedirs(d, exist_ok=True)
+        for name, record in cls.records.items():
+            with open(os.path.join(d, name), 'w') as f:
+                json.dump(record, f)
+
+    def record_names(self):
+        d = os.path.join(self.bench.state, 'botropolis-machines')
+        return sorted(n for n in os.listdir(d) if n.startswith('soak') and n.endswith('.json') and n != 'soak-plan.json')
+
+    def read_record(self, name):
+        with open(os.path.join(self.bench.state, 'botropolis-machines', name)) as f:
+            return json.load(f)
+
+    def cancelled_now_of(self, number):
+        return [r for r in self.bench.hetzner.sent('POST', cancellation_of(number))
+                if r['form'].get('cancellation_date') == ['now']]
+
+
+class WhenTwoSoakRunsStartOneAfterTheOther(SoakRecords):
+    @classmethod
+    def setUpClass(cls):
+        cls.bench = Bench(typed=CHOSEN_HOURLY, bucket={'exit': None})
+        env = cls.bench.env(**GENTLE)
+        run_in_own_group([TOOL] + SOAK_PLAN, env, 60)
+        cls.first = cls.start(env)
+        cls.wait_for_watch(SERVER_NUMBER)
+        with open(cls.bench.tty, 'w') as f:
+            f.write(SECOND_HOURLY + '\n')
+        run_in_own_group([TOOL] + SOAK_PLAN, env, 60)
+        cls.second = cls.start(env)
+        cls.wait_for_watch(SECOND)
+        d = os.path.join(cls.bench.state, 'botropolis-machines')
+        cls.while_both = sorted(n for n in os.listdir(d) if n.startswith('soak') and n != 'soak-plan.json')
+        cls.bench.bucket.exit = '0'
+        cls.outputs = [cls.finish(p) for p in (cls.first, cls.second)]
+
+    @classmethod
+    def start(cls, env):
+        return subprocess.Popen([TOOL] + cls.expand(SOAK_RUN), env=env, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, text=True, start_new_session=True)
+
+    @classmethod
+    def wait_for_watch(cls, number):
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline and not cls.bench.bucket.sent('GET', '-%d/exit' % number):
+            time.sleep(0.1)
+
+    @classmethod
+    def finish(cls, proc):
+        try:
+            return proc.communicate(timeout=60)
+        finally:
+            os.killpg(proc.pid, signal.SIGKILL) if proc.poll() is None else None
+
+    def test_it_should_give_each_run_its_own_record(self):
+        self.assertEqual(len(self.while_both), 2, self.while_both)
+
+    def test_it_should_cancel_the_first_runs_server_once(self):
+        self.assertEqual(len(self.cancelled_now_of(SERVER_NUMBER)), 1, self.outputs)
+
+    def test_it_should_cancel_the_second_runs_server_once(self):
+        self.assertEqual(len(self.cancelled_now_of(SECOND)), 1, self.outputs)
+
+    def test_and_the_first_run_ends_it_should_say_it_cancelled_its_own_server(self):
+        self.assertIn('server %d, is cancelled' % SERVER_NUMBER, self.outputs[0][0])
+
+
+class WhenApplyingTheSoakOverALiveRecord(SoakRecords):
+    argv = ['apply', 'soak'] + ROBOT_REFS
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'servers': (SERVER_NUMBER,)}
+    records = {'soak-%d.json' % CHOSEN: record_for(SERVER_NUMBER)}
+
+    def test_it_should_refuse(self):
+        self.assertEqual(self.done.returncode, 3, self.done.stderr)
+
+    def test_it_should_name_the_live_server(self):
+        self.assertIn('server %d' % SERVER_NUMBER, self.done.stderr)
+
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
+
+    def test_it_should_leave_the_record_as_it_was(self):
+        self.assertEqual(self.read_record('soak-%d.json' % CHOSEN), record_for(SERVER_NUMBER))
+
+
+class WhenRunningTheSoakOverALiveRecord(SoakRecords):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'servers': (SERVER_NUMBER,)}
+    records = {'soak-%d.json' % CHOSEN: record_for(SERVER_NUMBER)}
+
+    def test_it_should_refuse(self):
+        self.assertEqual(self.done.returncode, 3, self.done.stderr)
+
+    def test_it_should_not_cancel_the_live_records_server(self):
+        self.assertEqual(self.bench.hetzner.sent('DELETE', cancellation_of(SERVER_NUMBER)) +
+                         self.cancelled_now_of(SERVER_NUMBER), [])
+
+
+class WhenApplyingTheSoakOverARecordStillOnOrder(SoakRecords):
+    argv = ['apply', 'soak'] + ROBOT_REFS
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    records = {'soak-%d.json' % CHOSEN: {'transaction': 'B-unfinished', 'hourly': CHOSEN_HOURLY, 'listing': CHOSEN}}
+
+    def test_it_should_refuse(self):
+        self.assertEqual(self.done.returncode, 3, self.done.stderr)
+
+    def test_it_should_send_no_real_order(self):
+        self.assertEqual(self.bench.hetzner.orders(test=False), [])
+
+
+class WhenApplyingTheSoakOverARecordWhoseServerIsGone(SoakRecords):
+    argv = ['apply', 'soak'] + ROBOT_REFS
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    records = {'soak-%d.json' % CHOSEN: record_for(OLD)}
+
+    def test_it_should_order(self):
+        self.assertEqual(len(self.bench.hetzner.orders(test=False)), 1, self.done.stderr)
+
+
+class WhenRunningTheSoakWithAnOldSoakJsonBeside(SoakRecords):
+    argv = SOAK_RUN
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'servers': (OLD,)}
+    records = {'soak.json': record_for(OLD, listing=3100999)}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_leave_the_old_soak_json_as_it_was(self):
+        self.assertEqual(self.read_record('soak.json'), record_for(OLD, listing=3100999))
+
+    def test_it_should_not_cancel_the_old_records_server(self):
+        self.assertEqual(self.bench.hetzner.sent('DELETE', cancellation_of(OLD)) + self.cancelled_now_of(OLD), [])
+
+    def test_it_should_cancel_its_own_server(self):
+        self.assertEqual(len(self.cancelled_now_of(SERVER_NUMBER)), 1)
+
+
+class WhenDestroyingTheSoakAndOnlyAnOldSoakJsonIsThere(SoakRecords):
+    argv = ['destroy', 'soak'] + ROBOT_REFS
+    hetzner = {'servers': (OLD,)}
+    records = {'soak.json': record_for(OLD)}
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_cancel_the_server_it_names(self):
+        self.assertEqual(len(self.cancelled_now_of(OLD)), 1)
+
+    def test_it_should_remove_the_old_soak_json(self):
+        self.assertEqual(self.record_names(), [])
+
+
+class TwoRecords(SoakRecords):
+    hetzner = {'servers': (SERVER_NUMBER, OLD)}
+    records = {'soak-%d.json' % CHOSEN: record_for(SERVER_NUMBER), 'soak.json': record_for(OLD, listing=3100999)}
+
+
+class WhenDestroyingTheSoakAndTwoRecordsAreThere(TwoRecords):
+    argv = ['destroy', 'soak'] + ROBOT_REFS
+
+    def test_it_should_refuse_with_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr)
+
+    def test_it_should_name_both_servers(self):
+        self.assertEqual([str(n) in self.done.stderr for n in (SERVER_NUMBER, OLD)], [True, True], self.done.stderr)
+
+    def test_it_should_cancel_nothing(self):
+        self.assertEqual(self.cancelled_now_of(SERVER_NUMBER) + self.cancelled_now_of(OLD), [])
+
+
+class WhenDestroyingTheSoakAndTwoRecordsAreThereAndAServerIsNamed(TwoRecords):
+    argv = ['destroy', 'soak', '--server', str(SERVER_NUMBER)] + ROBOT_REFS
+
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_cancel_only_that_server(self):
+        self.assertEqual((len(self.cancelled_now_of(SERVER_NUMBER)), len(self.cancelled_now_of(OLD))), (1, 0))
+
+    def test_it_should_leave_the_other_record(self):
+        self.assertEqual(self.record_names(), ['soak.json'])
+
+
+class WhenDestroyingTheSoakAndTheNamedServerHasNoRecord(TwoRecords):
+    argv = ['destroy', 'soak', '--server', '9999'] + ROBOT_REFS
+
+    def test_it_should_refuse_naming_it(self):
+        self.assertIn('9999', self.done.stderr)
+
+    def test_it_should_cancel_nothing(self):
+        self.assertEqual(self.cancelled_now_of(SERVER_NUMBER) + self.cancelled_now_of(OLD), [])
 
 
 if __name__ == '__main__':

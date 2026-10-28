@@ -57,7 +57,7 @@ run-wayland ::
 
 destroy ::
 	$(LOG) "Destroying the ${MACHINE} machine"
-	@./machines destroy ${MACHINE} ${REFS} ${OPTS}
+	@./machines destroy ${MACHINE} ${REFS} ${OPTS} $(if ${SERVER},--server ${SERVER})
 
 validate ::
 	$(LOG) "Caching the hcloud provider in ${PLUGINS} and validating cloud/ (needs the network, no account)"
