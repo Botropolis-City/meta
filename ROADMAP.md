@@ -55,6 +55,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [307](roadmap/307-uploading-media-caches-not-found-at-the-edge.md) | uploading the site's media caches "not found" at the edge for clips about to exist | — | nobody, a defect |
 | [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | 311 | nobody, a defect in the method |
 | [315](roadmap/315-opening-six-hundred-districts-costs-three-cpu-seconds.md) | opening the six-hundred-district city costs about three CPU-seconds, against a budget of one | — | nobody, the code is over its budget |
+| [317](roadmap/317-keep-on-failure-zero-keeps-the-box.md) | KEEP_ON_FAILURE=0 keeps the box | — | nobody, a defect |
 
 ## Waiting on Aria
 
