@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [265](roadmap/265-what-1-0-0-needs-is-not-written-down.md) | the bar a build must clear to be 1.0.0, drafted for Aria | — | Aria's, which criteria make the bar |
 | [267](roadmap/267-the-website-s-version-is-typed-by-hand.md) | the site shows the latest release without a hand edit | — | nobody, Aria chose rebuilding on release |
 | [268](roadmap/268-a-first-sighting-shown-only-behind-a-panel-is-spent.md) | a first sighting shown only behind a covering panel is spent and never shows | — | nobody, a defect |
-| [269](roadmap/269-make-publishable-fails-in-a-worktree-once-main-moves.md) | `make publishable` fails in a worktree once github's main moves | — | nobody, a defect in a guard |
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [294](roadmap/294-a-building-is-drawn-small-the-frame-its-scaffold-comes-down.md) | a building is drawn small for one frame as its scaffold finishes coming down | — | nobody, a defect |
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |

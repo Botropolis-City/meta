@@ -1,6 +1,6 @@
 # 269. `make publishable` fails in an item worktree once github's main moves past the shared checkout's
 
-**Open. Filed 2026-10-26 (r1096), from item 245's session. Nobody's call — a defect in a guard.**
+**Fixed 2026-10-28 by item 316 (`cbea0c1`, meta). Filed 2026-10-26 (r1096), from item 245's session. Nobody's call — a defect in a guard.**
 
 `tools/check-publishable` checks every ref GitHub advertises against main's history, at line 94:
 
@@ -22,3 +22,7 @@ Tests: in a worktree whose local `main` lags `github/main`, with `HEAD` rebased 
 Check botropolis's `tools/check-publishable` for the same line and fix both.
 
 A guard that fails on a clean tree teaches people to push past it, which item 245's session then did once; that is the cost of leaving it.
+
+## Closed
+
+Item 316, filed the same day without finding this one, fixed it: meta's `tools/check-publishable` now measures the remote's refs against `HEAD`, as botropolis's already did, so a worktree behind the main checkout passes and a stray tag still fails.
