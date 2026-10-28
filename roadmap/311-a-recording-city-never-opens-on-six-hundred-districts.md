@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-10-27 in the session "item 311". Filed 2026-10-27 (r1194), found by item 308's light-cycle test. Nobody's call — a defect.**
 
+Depends on: nothing
+Landed: slice 1 (`1259a1e`, r1197).
+
 `botropolis city --headless --record DIR --fps 1 --seconds 200 --script … --set light=live`, on its own daemon against the `bigHistory` fixture of `TestACityOfSixHundredDistricts` (270 days, 1,600 sessions, 600 projects), wrote no frame in 12 minutes and never printed *DRAWN the first frame*, while using about 586% CPU (61 CPU-minutes in 10 minutes).
 The same fixture without `--record` draws its first frame within seconds.
 
