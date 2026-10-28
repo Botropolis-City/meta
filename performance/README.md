@@ -28,6 +28,7 @@ Someone whose laptop stalls the first time will not open the app again, so expen
 | [reports/2026-10-24-ultra7-265u-igpu-cost-windows.md](reports/2026-10-24-ultra7-265u-igpu-cost-windows.md) | items 226 and 244: the settled daemon takes 15 s windows (worst 1.08% against 1.19%); the 2,000-session daemon keeps 30 s (15 s median 2.69% below the 30 s range) |
 | [reports/2026-10-25-ultra7-265u-igpu-item-212.md](reports/2026-10-25-ultra7-265u-igpu-item-212.md) | item 212 after slices 1–3, real display: `note` 16.5% → 7.3% of a core at full zoom, but the recording moved into `noteKeyed` and `noteBuilding`, and Draw per frame rose 15.0 → 17.0 ms |
 | [reports/2026-10-26-ultra7-265u-igpu-item-213.md](reports/2026-10-26-ultra7-265u-igpu-item-213.md) | item 213, five quiet pairs: the 2,000-session daemon at 1.65–1.79% of a core against 2%, from 2.54–2.98% before |
+| [reports/2026-10-27-i5-12500-igpu-soak-0.3.3.md](reports/2026-10-27-i5-12500-igpu-soak-0.3.3.md) | item 164, 0.3.3's first eight-hour soak, a reading and not a verdict: the city +0.61 and +0.08 MiB an hour either side of a 49 MiB nightfall step, the daemon −0.04; the hide failed, and the verdict's "drew no frames" is a bug |
 
 ## Tools
 
