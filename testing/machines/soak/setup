@@ -21,7 +21,11 @@ ${report}, says each step as it starts, and keeps everything it says in
 It can be run again: it waits for another apt, and starts X and i3 only if
 they are not already running.
 
-Exit status: 0 ready, 3 no iGPU or no connector to force, 4 X did not come up.
+It starts i3 through start-i3, beside it, which gives i3 a runtime directory
+soak owns and waits for it to answer (item 313).
+
+Exit status: 0 ready, 3 no iGPU or no connector to force, 4 X did not come up,
+5 i3 did not come up.
 USAGE
 }
 
@@ -121,15 +125,13 @@ for _ in $(seq 60); do
 		echo "setup: X is up on :0"
 		DISPLAY=:0 xhost +SI:localuser:soak >/dev/null
 		DISPLAY=:0 xset s off -dpms
-		if ! pgrep -u soak -x i3 >/dev/null; then
-			runuser -u soak -- env DISPLAY=:0 HOME=/home/soak setsid i3 </dev/null >/home/soak/i3.log 2>&1 &
-		fi
+		bash "$(dirname "$0")/start-i3" || { echo "i3 did not come up on :0" | tee -a "${report}" >&2; exit 5; }
 		echo "setup: i3 started"
 		{
 			echo "# X on :0"
 			DISPLAY=:0 xrandr --query
 			DISPLAY=:0 xset q | grep -A2 -E 'Screen Saver|DPMS'
-			runuser -u soak -- env DISPLAY=:0 glxinfo -B 2>&1 | grep -E 'renderer|version' || true
+			runuser -u soak -- env DISPLAY=:0 XDG_RUNTIME_DIR=/run/soak glxinfo -B 2>&1 | grep -E 'renderer|version' || true
 			grep -E 'modeset|glamor|iris' /var/log/Xorg.0.log 2>/dev/null | head -20 || true
 		} >>"${report}"
 		chown soak: "${report}"

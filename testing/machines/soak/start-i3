@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+runtime="${SOAK_RUNTIME_DIR:-/run/soak}"
+log="${I3_LOG:-/home/soak/i3.log}"
+wait_seconds="${I3_WAIT_SECONDS:-10}"
+
+usage() {
+	cat <<USAGE
+Usage: start-i3
+
+Starts i3 on :0 as the user soak, for the soak set-up (item 313), and exits 0
+only once i3 answers i3-msg -t get_version there.
+
+i3 runs with its own runtime directory, ${runtime}, 0700 and owned by soak,
+never root's /run/user/0, which soak cannot write: i3 cannot make its socket
+there, and dies. If i3 is already running it is not started again, only
+checked. If it exits, or does not answer within ${wait_seconds} s, this exits 1 and
+quotes the end of ${log}.
+
+Environment, for the tests: SOAK_RUNTIME_DIR, I3_LOG, I3_WAIT_SECONDS.
+USAGE
+}
+
+case "${1:-}" in
+-h | --help) usage; exit 0 ;;
+"") ;;
+*) usage >&2; exit 2 ;;
+esac
+
+install -d -m 0700 -o soak -g soak "${runtime}"
+as_soak=(runuser -u soak -- env DISPLAY=:0 HOME=/home/soak XDG_RUNTIME_DIR="${runtime}")
+
+pid=""
+if ! pgrep -u soak -x i3 >/dev/null; then
+	"${as_soak[@]}" setsid i3 </dev/null >"${log}" 2>&1 &
+	pid=$!
+fi
+
+answers() {
+	"${as_soak[@]}" i3-msg -t get_version >/dev/null 2>&1
+}
+
+give_up() {
+	echo "i3 did not come up on :0 ($1); the end of ${log}:" >&2
+	tail -n 20 "${log}" >&2 2>/dev/null || echo "(${log} is missing)" >&2
+	exit 1
+}
+
+now_us() {
+	echo "${EPOCHREALTIME/./}"
+}
+
+deadline=$(($(now_us) + wait_seconds * 1000000))
+until answers; do
+	if [[ -n "${pid}" ]] && ! kill -0 "${pid}" 2>/dev/null; then
+		wait "${pid}" && status=0 || status=$?
+		give_up "it exited with status ${status}"
+	fi
+	(($(now_us) < deadline)) || give_up "it did not answer i3-msg within ${wait_seconds} s"
+	sleep 0.2
+done
+echo "i3 started on :0 as soak, and answers i3-msg"

@@ -819,7 +819,8 @@ def start_soak(args, ip, out, run_id):
         edid = os.path.join(tmp, 'botropolis-1080p.bin')
         with open(edid, 'wb') as f:
             f.write(edid_1080p())
-        if scp(args, os.path.join(HERE, 'soak', 'setup'), os.path.join(HERE, 'soak', 'detached'),
+        if scp(args, os.path.join(HERE, 'soak', 'setup'), os.path.join(HERE, 'soak', 'start-i3'),
+               os.path.join(HERE, 'soak', 'detached'),
                os.path.join(HERE, 's3.py'), edid, remote(ip, '/root/'), patient=True) != 0:
             raise Refused('could not copy the set-up to %s' % ip, 1)
     setup = ssh(args, ip, 'bash /root/setup /root/botropolis-1080p.bin', patient=True)
@@ -838,7 +839,7 @@ def start_soak(args, ip, out, run_id):
             raise Refused('could not copy %s to %s' % (src, ip), 1)
     if ssh(args, ip, 'chown -R soak: /home/soak', patient=True) != 0:
         raise Refused('could not give the soak user its files on %s' % ip, 1)
-    as_soak = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak',
+    as_soak = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak', 'XDG_RUNTIME_DIR=/run/soak',
                'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE]
     preflight = ssh_run(args, ip, shlex.join(as_soak + ['%s/performance/tools/perf-soak' % REMOTE, '--preflight',
                                                          '--out', REMOTE + '/preflight', REMOTE + '/build']),

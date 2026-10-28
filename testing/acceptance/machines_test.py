@@ -1011,6 +1011,7 @@ class WhenRunningTheSoakToKeepOnFailureAndItIsInterrupted(WhenRunningTheSoakAndI
 
 
 PREFLIGHT = 'perf-soak --preflight'
+SOAK_RUNTIME = 'XDG_RUNTIME_DIR=/run/soak'
 
 
 class WhenRunningTheSoakItPreflightsTheBox(SoakBox):
@@ -1031,6 +1032,16 @@ class WhenRunningTheSoakItPreflightsTheBox(SoakBox):
 
     def test_it_should_record_that_the_pre_flight_passed(self):
         self.assertIn('pre-flight: passed', self.machine_txt())
+
+    def test_it_should_run_the_pre_flight_with_the_soak_users_runtime_directory(self):
+        self.assertIn(SOAK_RUNTIME, self.preflights()[0], self.ssh_commands())
+
+    def test_it_should_run_the_soak_with_the_soak_users_runtime_directory(self):
+        self.assertIn(SOAK_RUNTIME, self.launches()[0], self.ssh_commands())
+
+    def test_it_should_copy_start_i3_to_the_box_with_the_set_up(self):
+        self.assertTrue([argv for argv in self.copies('/soak/setup') if any(a.endswith('/soak/start-i3') for a in argv)],
+                        self.bench.calls('scp'))
 
 
 class WhenRunningTheSoakAndThePreFlightFails(SoakBox):
@@ -1303,6 +1314,146 @@ class WhenReadingTheSetUp(unittest.TestCase):
     def test_it_should_wait_on_another_apt_rather_than_fail(self):
         self.assertIn('DPkg::Lock::Timeout', self.text)
 
+    def test_it_should_exit_5_when_start_i3_fails(self):
+        self.assertTrue([line for line in self.text.splitlines() if 'start-i3' in line and 'exit 5' in line], self.text)
+
+    def test_it_should_start_i3_before_saying_i3_started(self):
+        self.assertLess(self.text.index('/start-i3"'), self.text.index('setup: i3 started'))
+
+    def test_it_should_run_nothing_as_soak_with_roots_runtime_directory(self):
+        for script in ('setup', 'start-i3'):
+            with open(os.path.join(MACHINES, 'soak', script)) as f:
+                lines = [line for line in f if 'runuser -u soak' in line and 'XDG_RUNTIME_DIR=' not in line]
+            with self.subTest(script=script):
+                self.assertEqual(lines, [])
+
+
+I3_ERROR = '[libi3] ERROR: mkdir(/run/user/0/i3) failed: Permission denied'
+I3_TOOLS = ('runuser', 'i3', 'i3-msg', 'pgrep', 'install')
+I3_STUBS = {
+    'runuser': '#!/usr/bin/env bash\necho "runuser $*" >>"$I3_SPY/calls"\n'
+               'while [[ $# -gt 0 && "$1" != -- ]]; do shift; done\nshift\nexec "$@"\n',
+    'install': '#!/usr/bin/env bash\necho "install $*" >>"$I3_SPY/calls"\nmkdir -p "${@: -1}"\n',
+    'pgrep': '#!/usr/bin/env bash\necho "pgrep $*" >>"$I3_SPY/calls"\n[[ "$FAKE_I3" == already ]]\n',
+    'i3': '#!/usr/bin/env bash\necho "i3 $*" >>"$I3_SPY/calls"\n'
+          'echo "${XDG_RUNTIME_DIR:-}" >"$I3_SPY/i3-runtime"\n'
+          'if [[ "$FAKE_I3" == dies ]]; then echo "%s" >&2; echo "Segmentation fault" >&2; exit 139; fi\n'
+          'touch "$I3_SPY/alive"\necho $$ >"$I3_SPY/i3-pid"\nexec sleep 30\n' % I3_ERROR,
+    'i3-msg': '#!/usr/bin/env bash\necho "i3-msg $* DISPLAY=${DISPLAY:-} USER_RUNTIME=${XDG_RUNTIME_DIR:-}" >>"$I3_SPY/calls"\n'
+              '[[ "$FAKE_I3" != silent && -e "$I3_SPY/alive" ]] || exit 1\necho \'{"human_readable": "4.22"}\'\n',
+}
+
+
+class StartingI3(unittest.TestCase):
+    fake = 'up'
+    wait = '10'
+
+    @classmethod
+    def setUpClass(cls):
+        cls.top = tempfile.mkdtemp()
+        cls.spy = os.path.join(cls.top, 'spy')
+        os.makedirs(cls.spy)
+        if cls.fake == 'already':
+            open(os.path.join(cls.spy, 'alive'), 'w').close()
+        cls.runtime = os.path.join(cls.top, 'run-soak')
+        cls.log = os.path.join(cls.top, 'i3.log')
+        bin = path_without(I3_TOOLS, os.path.join(cls.top, 'bin'), I3_STUBS)
+        env = dict(os.environ, PATH=bin, I3_SPY=cls.spy, FAKE_I3=cls.fake, XDG_RUNTIME_DIR='/run/user/0',
+                   SOAK_RUNTIME_DIR=cls.runtime, I3_LOG=cls.log, I3_WAIT_SECONDS=cls.wait)
+        started = time.time()
+        cls.done = subprocess.run(['bash', os.path.join(MACHINES, 'soak', 'start-i3')], env=env,
+                                  capture_output=True, text=True, timeout=60)
+        cls.took = time.time() - started
+        cls.said = cls.done.stdout + cls.done.stderr
+        cls.calls = cls.read('calls').splitlines()
+
+    @classmethod
+    def read(cls, name):
+        try:
+            with open(os.path.join(cls.spy, name)) as f:
+                return f.read()
+        except OSError:
+            return ''
+
+    @classmethod
+    def tearDownClass(cls):
+        pid = cls.read('i3-pid').strip()
+        if pid:
+            try:
+                os.kill(int(pid), signal.SIGTERM)
+            except (ProcessLookupError, ValueError):
+                pass
+        shutil.rmtree(cls.top, ignore_errors=True)
+
+    def used(self, tool):
+        return [c for c in self.calls if c.split()[0] == tool]
+
+
+class WhenStartingI3OnTheSoakBox(StartingI3):
+    def test_it_should_exit_zero(self):
+        self.assertEqual(self.done.returncode, 0, self.said)
+
+    def test_it_should_give_i3_the_soak_users_runtime_directory_not_roots(self):
+        self.assertEqual(self.read('i3-runtime').strip(), self.runtime)
+
+    def test_it_should_make_that_directory_0700_and_owned_by_soak(self):
+        self.assertIn('install -d -m 0700 -o soak -g soak %s' % self.runtime, self.calls)
+
+    def test_it_should_ask_i3_msg_for_its_version_as_soak_on_display_0(self):
+        self.assertTrue([c for c in self.used('i3-msg') if '-t get_version' in c and 'DISPLAY=:0' in c
+                         and 'USER_RUNTIME=%s' % self.runtime in c], self.calls)
+
+    def test_it_should_say_i3_started(self):
+        self.assertIn('i3 started', self.said)
+
+
+class WhenStartingI3AndItDiesAtOnce(StartingI3):
+    fake = 'dies'
+    wait = '20'
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_not_say_i3_started(self):
+        self.assertNotIn('i3 started', self.said)
+
+    def test_it_should_name_i3_log(self):
+        self.assertIn(self.log, self.said)
+
+    def test_it_should_quote_the_logs_last_line(self):
+        self.assertIn('Segmentation fault', self.said)
+
+    def test_it_should_give_up_before_the_wait_runs_out(self):
+        self.assertLess(self.took, 10)
+
+
+class WhenStartingI3AndItStaysUpButNeverAnswers(StartingI3):
+    fake = 'silent'
+    wait = '1'
+
+    def test_it_should_exit_nonzero(self):
+        self.assertNotEqual(self.done.returncode, 0)
+
+    def test_it_should_wait_before_giving_up(self):
+        self.assertGreaterEqual(self.took, 1)
+
+
+class WhenStartingI3AndItIsAlreadyRunning(StartingI3):
+    fake = 'already'
+
+    def test_it_should_not_start_a_second_i3(self):
+        self.assertEqual(self.used('i3'), [])
+
+    def test_it_should_still_check_that_it_answers(self):
+        self.assertTrue([c for c in self.used('i3-msg') if '-t get_version' in c], self.calls)
+
+
+class WhenReadingStartI3(unittest.TestCase):
+    def test_it_should_answer_help(self):
+        done = subprocess.run(['bash', os.path.join(MACHINES, 'soak', 'start-i3'), '--help'],
+                              capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+
 
 class WhenMakeRunSoakIsAskedToKeepOnFailure(unittest.TestCase):
     @classmethod
@@ -1465,7 +1616,7 @@ class WhenCheckingTheGuestSetUp(unittest.TestCase):
             loud_skip(self, 'shellcheck is not installed')
 
     def test_it_should_pass_shellcheck(self):
-        for script in ('setup', 'lockdown'):
+        for script in ('setup', 'lockdown', 'start-i3'):
             with self.subTest(script=script):
                 done = subprocess.run(['shellcheck', os.path.join(MACHINES, 'soak', script)],
                                       capture_output=True, text=True)

@@ -78,6 +78,9 @@ The auction delivers the box booted into Hetzner's rescue system, which is Debia
 it installs Xorg, i3, Mesa, botropolis's libraries and the X tools that hide the window (`xprop` and `xwininfo` from `x11-utils`, `xset` from `x11-xserver-utils`) with apt,
 forces a 1920x1080 display on with an EDID from `edid.py` through the DRM debugfs `edid_override`, since the kernel command line cannot change without a reboot,
 and starts Xorg with the `modesetting` driver on the iGPU, i3, `xset s off -dpms` and no locker.
+`soak/start-i3` starts i3 as the soak user with its own runtime directory, `/run/soak`, since root's `/run/user/0` is not writable by soak and i3 dies without one (item 313).
+The set-up says i3 started only once `i3-msg -t get_version` answers on `:0`, and otherwise exits 5 and quotes the end of `i3.log`.
+The pre-flight and the soak run with the same `XDG_RUNTIME_DIR`.
 It writes what it found in `/dev/dri`, the Mesa version and the renderer to `dri.txt` in the results, and stops if there is no iGPU, since Hetzner may not leave it enabled.
 `machine.txt` names the rescue system's Mesa version, since it is Debian's and not the one on Aria's laptop.
 A failed set-up cancels the box like any other failure.
