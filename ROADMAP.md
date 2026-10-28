@@ -56,6 +56,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | 311 | nobody, a defect in the method |
 | [311](roadmap/311-a-recording-city-never-opens-on-six-hundred-districts.md) | a recording city on six hundred districts never opens its map, and spends six cores waiting | — | nobody, a defect |
 | [313](roadmap/313-i3-dies-on-the-soak-box-at-start.md) | i3 dies on the soak box as it starts, and the set-up says it started | — | nobody, a defect |
+| [315](roadmap/315-opening-six-hundred-districts-costs-three-cpu-seconds.md) | opening the six-hundred-district city costs about three CPU-seconds, against a budget of one | — | nobody, the code is over its budget |
 
 ## Waiting on Aria
 
