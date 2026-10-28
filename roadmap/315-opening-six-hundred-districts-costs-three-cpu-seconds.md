@@ -32,6 +32,10 @@ The budget is the target: if it cannot be met, bring the evidence to Aria; do no
   It was the opening panel itself, paced to ten draws a second, about 1.2–1.7 CPU-s; slice 2 stops a headless city drawing a panel nobody sees (manager, 2026-10-28).
 - **Fewer llvmpipe threads for the headless child?** Not now: it tunes the renderer the bar is measured on and costs later frames' wall time (manager, 2026-10-28).
 - **Item 311's test** lands only once it passes, not red, so a red performance tier does not hide the next regression (roadmap manager, 2026-10-28).
+- **The opening's bar, once the evidence was in?** Aria, 2026-10-28: "2.5 CPU-s", headless, from start to first frame.
+  The 1 CPU-second estimate left out that a first frame bakes every look cold; the performance manager changes `performance/budgets.md`, and item 311's test holds 2.5.
+- **No cracks below a quarter zoom?** Aria, 2026-10-28: "Yes, take S4".
+  Below a quarter zoom a tile is under 4 pixels and a crack a speck; slice 4 strokes none there, on lots and district floors.
 
 ## Where it stands after slice 3
 
