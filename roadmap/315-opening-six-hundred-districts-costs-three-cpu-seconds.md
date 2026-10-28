@@ -32,3 +32,19 @@ The budget is the target: if it cannot be met, bring the evidence to Aria; do no
   It was the opening panel itself, paced to ten draws a second, about 1.2–1.7 CPU-s; slice 2 stops a headless city drawing a panel nobody sees (manager, 2026-10-28).
 - **Fewer llvmpipe threads for the headless child?** Not now: it tunes the renderer the bar is measured on and costs later frames' wall time (manager, 2026-10-28).
 - **Item 311's test** lands only once it passes, not red, so a red performance tier does not hide the next regression (roadmap manager, 2026-10-28).
+
+## Where it stands after slice 3
+
+Measured 2026-10-28 at r1204, in one locked run on the reference machine: the city's own CPU from start to its first frame on the 600-district fixture.
+
+| run | CPU-s |
+| --- | --- |
+| headless recording, which the bar measures | 1.63, 1.86, 2.09 (3.1–4.0 at r1197) |
+| windowed recording on the machine's own GPU, opening panel drawn | 1.47 |
+| headless, no cracks stroked where a tile is under 4 px | 1.46, 1.51 |
+
+No one part is left to remove: the first frame's draw in Go about 0.5, its draw calls into llvmpipe about 0.35 and llvmpipe's rasterising threads about 0.45, the collector 0.27, the atlas pages 0.23, the scene build 0.12.
+The budget's own reasoning put one fitted frame at 0.3–0.5; headless, it costs about 0.9–1.3.
+Leaving out the cracks where a tile is under 4 px saves 0.3–0.4 and changes 1.58% of the first frame's pixels, by at most 35 levels, as a speckle across the district floors.
+The evidence and these options went to Aria through the roadmap manager on 2026-10-28: that picture change, leaving the opening over the bar for now, or judging the bar on a real GPU, which is a change of definition and alone does not pass either.
+Item 311's test waits, unlanded, for whatever meets the bar.
