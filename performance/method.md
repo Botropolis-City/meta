@@ -57,6 +57,10 @@ Only the numbers go into a report here.
    `perf-busy-city BUILD_DIR`, or `make perf-busy PERF_BUILD=BUILD_DIR`, stages a demo scenario into a fresh scratch home and links every transcript, session record and `history.jsonl` under `~/.claude` into it **read only, by symlink**: nothing of `~/.claude` is copied, and the replay refuses to write through a link.
    A daemon of the build runs with `HOME` set to that home and every XDG directory inside the run's scratch tree, so it opens a statistics store as production does and nothing of the real state, config, cache or data is touched.
    Once the daemon's CPU has been idle for 20 s (at most 600 s), the city opens on the real display, and from 25 s two of the demo's own live sessions each write a user line every 200 ms, as the daemon-cost acceptance tests do.
+   A user line changes no building's look, so with `--replay-looks` the writers instead write lines that do (item 312): a tool call every 3 s, needs-you 10 s in every 30, or waiting on an idle record, and a compaction every 60 s, with writers 7 s apart in phase.
+   That is about 0.8 look changes a second per writer, and `busy.txt` says `replay=looks` or `replay=lines`, since runs of the two do not compare.
+   The replay writes only to transcripts that resolve inside the scratch home's `.claude`, so a symlinked project directory is not a target either.
+   It writes no usage, so context and cost stay where the scenario put them, and since a session record's status wins over its transcript it cannot make a session resting.
    It samples 480 s and, for a build made by `perf-pprof-build`, profiles the city's CPU for 300 s from 120 s.
    Where `i3-msg` and `xprop` exist, the city takes the focus for 20 s and gives it back, so the rest measures a visible, unfocused city; elsewhere that step is skipped, and the run's `busy.txt` says so, as it says whether the monitor was on, since a locked screen keeps the focus from every window.
    Runs before 2026-10-23 gave the daemon `--home` instead, and a daemon pointed at a home opens no statistics store (item 165), so their daemon figures are not production's.

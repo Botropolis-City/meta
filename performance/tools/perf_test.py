@@ -358,6 +358,156 @@ class WhenReplaying(unittest.TestCase):
             self.assertEqual(json.loads(f.read().splitlines()[-1])['sessionId'], 's1')
 
 
+TS = '2026-10-27T12:00:00Z'
+
+
+def looks(event, status='busy', ids=None):
+    return perf.look_lines(event, 's1', '/w/one', status, TS, {} if ids is None else ids)
+
+
+def blocks(line):
+    return line['message']['content']
+
+
+class WhenReplayingLooksAndPickingTheTargets(unittest.TestCase):
+    def setUp(self):
+        top = tempfile.TemporaryDirectory()
+        self.addCleanup(top.cleanup)
+        self.home = os.path.join(top.name, 'home')
+        claude = os.path.join(self.home, '.claude')
+        write(os.path.join(claude, 'sessions', '1.json'), '{"sessionId": "s1", "cwd": "/w/one", "status": "idle"}')
+        write(os.path.join(claude, 'projects', '-w-one', 's1.jsonl'), '{}\n')
+
+    def test_it_should_give_each_target_its_records_status(self):
+        self.assertEqual([t[3] for t in perf.replay_targets(self.home)], ['idle'])
+
+
+class WhenReplayingLooksAndSchedulingAWritersSecond(unittest.TestCase):
+    def setUp(self):
+        self.cycle = {c: perf.look_events(c) for c in range(120)}
+
+    def at(self, event):
+        return {c for c, events in self.cycle.items() if event in events}
+
+    def test_and_the_cycle_opens_it_should_bring_attention_in(self):
+        self.assertEqual(self.at('attention-in'), {0, 30, 60, 90})
+
+    def test_and_ten_seconds_have_passed_it_should_take_attention_out(self):
+        self.assertEqual(self.at('attention-out'), {10, 40, 70, 100})
+
+    def test_and_attention_is_in_it_should_start_no_tool_call(self):
+        self.assertEqual({c % 30 for c in self.at('tool-start')} & set(range(10)), set())
+
+    def test_and_attention_is_out_it_should_start_a_tool_call_every_3_s(self):
+        self.assertEqual({c % 30 for c in self.at('tool-start')}, {11, 14, 17, 20, 23, 26})
+
+    def test_and_a_tool_call_has_started_it_should_end_it_the_next_second(self):
+        self.assertEqual(self.at('tool-end'), {c + 1 for c in self.at('tool-start')})
+
+    def test_and_a_minute_has_passed_it_should_write_a_compact_boundary(self):
+        self.assertEqual(self.at('compact'), {0, 60})
+
+    def test_and_the_writer_is_offset_it_should_shift_the_whole_cycle_by_its_offset(self):
+        self.assertEqual([perf.look_events(c + 7) for c in range(60)],
+                         [perf.look_events(c) for c in range(7, 67)])
+
+
+class WhenReplayingLooksAndWritingAToolCallsStart(unittest.TestCase):
+    def setUp(self):
+        self.line = looks('tool-start')[0]
+
+    def test_it_should_be_an_assistant_tool_use_that_stops_for_the_tool(self):
+        self.assertEqual((self.line['type'], blocks(self.line)[0]['type'], self.line['message']['stop_reason']),
+                         ('assistant', 'tool_use', 'tool_use'))
+
+    def test_it_should_carry_no_usage(self):
+        self.assertNotIn('usage', self.line['message'])
+
+
+class WhenReplayingLooksAndWritingAToolCallsEnd(unittest.TestCase):
+    def test_it_should_be_a_user_tool_result_for_that_tool_uses_id(self):
+        ids = {}
+        start = looks('tool-start', ids=ids)[0]
+        end = looks('tool-end', ids=ids)[0]
+        self.assertEqual((end['type'], blocks(end)[0]['type'], blocks(end)[0]['tool_use_id']),
+                         ('user', 'tool_result', blocks(start)[0]['id']))
+
+
+class WhenReplayingLooksAndWritingACompactBoundary(unittest.TestCase):
+    def test_it_should_be_a_system_compact_boundary_line_with_compact_metadata(self):
+        line = looks('compact')[0]
+        self.assertEqual((line['type'], line['subtype'], 'compactMetadata' in line), ('system', 'compact_boundary', True))
+
+
+class WhenReplayingLooksAndABusyWritersAttentionComesIn(unittest.TestCase):
+    def setUp(self):
+        self.ids = {}
+        self.asked = looks('attention-in', 'busy', self.ids)
+
+    def test_it_should_ask_with_an_ask_user_question_left_pending(self):
+        self.assertEqual([(line['type'], blocks(line)[0]['name']) for line in self.asked],
+                         [('assistant', 'AskUserQuestion')])
+
+    def test_and_it_goes_out_it_should_answer_that_question_by_its_id(self):
+        answer = looks('attention-out', 'busy', self.ids)
+        self.assertEqual([blocks(line)[0].get('tool_use_id') for line in answer], [blocks(self.asked[0])[0]['id']])
+
+
+class WhenReplayingLooksAndAnIdleWritersAttentionComesIn(unittest.TestCase):
+    def setUp(self):
+        self.armed = looks('attention-in', 'idle')
+
+    def test_it_should_arm_a_schedule_wakeup_and_take_its_result_so_it_waits(self):
+        self.assertEqual([(line['type'], blocks(line)[0]['type'], blocks(line)[0].get('name')) for line in self.armed],
+                         [('assistant', 'tool_use', 'ScheduleWakeup'), ('user', 'tool_result', None)])
+
+    def test_and_it_goes_out_it_should_send_a_prompt_which_ends_the_wait(self):
+        prompt = looks('attention-out', 'idle')
+        self.assertEqual([(line['type'], isinstance(line['message']['content'], str)) for line in prompt],
+                         [('user', True)])
+
+
+class WhenReplayingLooksAndReplayingIntoAScratchHome(unittest.TestCase):
+    def setUp(self):
+        top = tempfile.TemporaryDirectory()
+        self.addCleanup(top.cleanup)
+        self.home = os.path.join(top.name, 'home')
+        claude = os.path.join(self.home, '.claude')
+        write(os.path.join(claude, 'sessions', '1.json'), '{"sessionId": "s1", "cwd": "/w/one", "status": "busy"}')
+        self.own = os.path.join(claude, 'projects', '-w-one', 's1.jsonl')
+        write(self.own, '{}\n')
+        self.outside = os.path.join(top.name, 'outside', 's2.jsonl')
+        write(self.outside, '{}\n')
+        write(os.path.join(claude, 'sessions', '2.json'), '{"sessionId": "s2", "cwd": "/w/two", "status": "busy"}')
+        os.symlink(os.path.dirname(self.outside), os.path.join(claude, 'projects', '-w-two'))
+
+    def replay(self, writers):
+        with open(os.devnull, 'w') as out:
+            perf.replay_looks(self.home, writers, 2, clock=lambda: 0.0, sleep=lambda s: None, out=out)
+
+    def test_it_should_append_the_scheduled_lines_to_its_own_transcript(self):
+        self.replay(1)
+        with open(self.own) as f:
+            self.assertEqual([json.loads(x).get('type') for x in f.read().splitlines()[1:]], ['system', 'assistant'])
+
+    def test_and_a_target_resolves_outside_the_home_it_should_refuse(self):
+        with self.assertRaises(PermissionError):
+            perf.check_inside(self.home, os.path.join(self.home, '.claude', 'projects', '-w-two', 's2.jsonl'))
+
+    def test_and_a_target_resolves_outside_the_home_it_should_write_nothing_there(self):
+        try:
+            self.replay(2)
+        except (PermissionError, SystemExit):
+            pass
+        with open(self.outside) as f:
+            self.assertEqual(f.read(), '{}\n')
+
+    def test_and_a_target_is_a_symlink_it_should_not_be_a_target(self):
+        os.remove(self.own)
+        os.symlink(self.outside, self.own)
+        self.assertEqual(perf.replay_targets(self.home), [])
+
+
 def sample(epoch, comm, pid, private_dirty_mib, gpu_mib):
     return {
         'ts': perf.datetime.datetime.fromtimestamp(epoch).isoformat(timespec='seconds'),

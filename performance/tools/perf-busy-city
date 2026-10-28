@@ -16,6 +16,7 @@ interval=1
 hide_after=0
 show_after=0
 keep_focus=0
+replay_looks=0
 sets=()
 out=""
 build=""
@@ -36,7 +37,8 @@ production daemon does (one given --home opens none, item 165) and nothing of
 the caller's state, config, cache or data is touched. Once its CPU has been
 idle for 20 s (at most PERF_BUSY_SETTLE s, default 600), the city
 opens on the real display, and from 25 s WRITERS of the demo's own live
-sessions each write a user line every 200 ms. The run is sampled with
+sessions each write a user line every 200 ms (or, with --replay-looks, lines
+that change their looks). The run is sampled with
 perf-city; the city's CPU is profiled when the build has a pprof endpoint.
 
   --writers N            sessions writing (default: ${writers})
@@ -49,6 +51,10 @@ perf-city; the city's CPU is profiled when the build has a pprof endpoint.
   --show-after N         show it again N s in, as perf-city does (default: never)
   --keep-focus           leave the city focused rather than handing the focus back,
                          so the run until the hide measures a city that draws
+  --replay-looks         have the writers write lines that change their buildings'
+                         looks instead of a user line every 200 ms: a tool call every
+                         3 s, needs-you 10 s in every 30 and a compaction every 60 s,
+                         from perf.py replay --looks (item 312)
   --set KEY=VALUE        pass a config key to the city for this run, as its own
                          --set does, e.g. light=night (item 308); repeatable
   --out DIR             run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
@@ -82,6 +88,7 @@ while [[ $# -gt 0 ]]; do
 	--hide-after) hide_after="$2"; shift 2 ;;
 	--show-after) show_after="$2"; shift 2 ;;
 	--keep-focus) keep_focus=1; shift ;;
+	--replay-looks) replay_looks=1; shift ;;
 	--set) sets+=(--set "$2"); shift 2 ;;
 	--out) out="$2"; shift 2 ;;
 	-h | --help) usage; exit 0 ;;
@@ -128,7 +135,13 @@ hold="$((seconds + 3600))s"
 "${work}/botropolis-demo" stage --corpus "${corpus}/corpus" --scenario "${corpus}/scenarios/${scenario}.yaml" --home "${home}" --hold "${hold}" >/dev/null ||
 	{ echo "could not stage ${scenario}" >&2; exit 1; }
 python3 -I "${here}/perf.py" busy-home "${HOME}/.claude" "${home}" || exit 1
-note "scenario=${scenario} writers=${writers} every_ms=200 seconds=${seconds}"
+if [[ "${replay_looks}" == 1 ]]; then
+	note "scenario=${scenario} writers=${writers} seconds=${seconds}"
+	note "replay=looks"
+else
+	note "scenario=${scenario} writers=${writers} every_ms=200 seconds=${seconds}"
+	note "replay=lines"
+fi
 note "demo_hold=${hold}"
 note "linked_transcripts=$(find "${home}/.claude/projects" -type l -name '*.jsonl' | wc -l) scratch_transcripts=$(find "${home}/.claude/projects" -type f -name '*.jsonl' | wc -l)"
 
@@ -225,7 +238,9 @@ fi
 
 replay_from="${PERF_BUSY_REPLAY_FROM:-25}"
 at "${replay_from}"
-python3 -I "${here}/perf.py" replay "${home}" "${writers}" "$((seconds - replay_from))" >"${out}/replay.txt" 2>&1 &
+replay=(replay)
+[[ "${replay_looks}" == 1 ]] && replay=(replay --looks)
+python3 -I "${here}/perf.py" "${replay[@]}" "${home}" "${writers}" "$((seconds - replay_from))" >"${out}/replay.txt" 2>&1 &
 pids+=($!)
 
 pprof=0

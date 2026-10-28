@@ -371,6 +371,20 @@ def busy_home(real_claude, home):
         os.symlink(history, link)
 
 
+def check_inside(home, path):
+    claude = os.path.realpath(os.path.join(home, '.claude'))
+    if os.path.islink(path) or os.path.commonpath([claude, os.path.realpath(path)]) != claude:
+        raise PermissionError('refusing to write outside the scratch home: %s' % path)
+
+
+def is_inside(home, path):
+    try:
+        check_inside(home, path)
+    except PermissionError:
+        return False
+    return True
+
+
 def replay_targets(home):
     claude = os.path.join(home, '.claude')
     targets = []
@@ -385,8 +399,8 @@ def replay_targets(home):
         projects = os.path.join(claude, 'projects')
         for project in sorted(os.listdir(projects)) if os.path.isdir(projects) else []:
             path = os.path.join(projects, project, '%s.jsonl' % sid)
-            if os.path.isfile(path) and not os.path.islink(path):
-                targets.append((sid, cwd, path))
+            if os.path.isfile(path) and is_inside(home, path):
+                targets.append((sid, cwd, path, r.get('status')))
                 break
     return targets
 
@@ -413,11 +427,100 @@ def replay(home, writers, seconds, every=0.2):
     i = 0
     while time.time() < end:
         now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
-        for sid, cwd, path in targets:
+        for sid, cwd, path, _ in targets:
             append_line(path, replay_line(sid, cwd, i, now))
         i += 1
         time.sleep(every)
     print('appended %d lines to each' % i, flush=True)
+
+
+LOOK_CYCLE_S = 30
+LOOK_ATTENTION_S = 10
+LOOK_TOOL_EVERY_S = 3
+LOOK_COMPACT_EVERY_S = 60
+LOOK_OFFSET_S = 7
+
+
+def look_events(c):
+    q = c % LOOK_CYCLE_S
+    events = []
+    if c % LOOK_COMPACT_EVERY_S == 0:
+        events.append('compact')
+    if q == 0:
+        events.append('attention-in')
+    elif q == LOOK_ATTENTION_S:
+        events.append('attention-out')
+    starts = range(LOOK_ATTENTION_S + 1, LOOK_CYCLE_S - LOOK_TOOL_EVERY_S, LOOK_TOOL_EVERY_S)
+    if q in starts:
+        events.append('tool-start')
+    elif q - 1 in starts:
+        events.append('tool-end')
+    return events
+
+
+def _line(kind, session_id, cwd, timestamp, **fields):
+    line = {'type': kind, 'sessionId': session_id, 'cwd': cwd, 'uuid': str(uuid.uuid4()),
+            'timestamp': timestamp, 'isSidechain': False}
+    line.update(fields)
+    return line
+
+
+def _tool_use(session_id, cwd, timestamp, name, tool_id, tool_input):
+    return _line('assistant', session_id, cwd, timestamp, message={
+        'id': 'msg_replay_%s' % uuid.uuid4().hex, 'role': 'assistant', 'stop_reason': 'tool_use',
+        'content': [{'type': 'tool_use', 'id': tool_id, 'name': name, 'input': tool_input}]})
+
+
+def _tool_result(session_id, cwd, timestamp, tool_id):
+    return _line('user', session_id, cwd, timestamp, message={
+        'role': 'user', 'content': [{'type': 'tool_result', 'tool_use_id': tool_id, 'content': 'replayed'}]})
+
+
+def look_lines(event, session_id, cwd, status, timestamp, ids):
+    new_id = 'toolu_replay_%s' % uuid.uuid4().hex
+    if event == 'tool-start':
+        ids['tool'] = new_id
+        return [_tool_use(session_id, cwd, timestamp, 'Bash', new_id, {'command': 'true'})]
+    if event == 'tool-end':
+        return [_tool_result(session_id, cwd, timestamp, ids.pop('tool'))] if 'tool' in ids else []
+    if event == 'compact':
+        return [_line('system', session_id, cwd, timestamp, subtype='compact_boundary', content='Conversation compacted',
+                      compactMetadata={'trigger': 'auto', 'preTokens': 150000})]
+    if event == 'attention-in' and status == 'idle':
+        return [_tool_use(session_id, cwd, timestamp, 'ScheduleWakeup', new_id, {'delaySeconds': 60}),
+                _tool_result(session_id, cwd, timestamp, new_id)]
+    if event == 'attention-in':
+        ids['ask'] = new_id
+        return [_tool_use(session_id, cwd, timestamp, 'AskUserQuestion', new_id, {'questions': []})]
+    if event == 'attention-out' and status == 'idle':
+        return [_line('user', session_id, cwd, timestamp, message={'role': 'user', 'content': 'replay: carry on'})]
+    if event == 'attention-out':
+        return [_tool_result(session_id, cwd, timestamp, ids.pop('ask'))] if 'ask' in ids else []
+    raise ValueError('no look event %r' % event)
+
+
+def replay_looks(home, writers, seconds, clock=time.time, sleep=time.sleep, out=sys.stdout):
+    targets = replay_targets(home)[:writers]
+    if len(targets) < writers:
+        sys.exit('only %d live transcripts of the scratch home itself to write to' % len(targets))
+    for _, _, path, _ in targets:
+        check_inside(home, path)
+    print('replaying looks into %d transcripts' % len(targets), file=out, flush=True)
+    ids = [{} for _ in targets]
+    written = 0
+    start = clock()
+    for t in range(int(seconds)):
+        delay = start + t - clock()
+        if delay > 0:
+            sleep(delay)
+        now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
+        for i, (sid, cwd, path, status) in enumerate(targets):
+            for event in look_events(t + LOOK_OFFSET_S * i):
+                for line in look_lines(event, sid, cwd, status, now, ids[i]):
+                    check_inside(home, path)
+                    append_line(path, line)
+                    written += 1
+    print('appended %d look lines across %d transcripts' % (written, len(targets)), file=out, flush=True)
 
 
 def slope_per_hour(xs, ys):
@@ -620,6 +723,10 @@ USAGE = """usage: perf.py i3-window-ids < tree.json
        perf.py window-size < xwininfo.txt        the window's WIDTHxHEIGHT, or nothing
        perf.py busy-home REAL_CLAUDE_DIR HOME   link every transcript, session record and history.jsonl into HOME/.claude, read only
        perf.py replay HOME WRITERS SECONDS      a user line every 200 ms into each of WRITERS of HOME's own live transcripts
+       perf.py replay --looks HOME WRITERS SECONDS
+                                                instead, lines that change each writer's look: a tool call every 3 s,
+                                                needs-you (or waiting, on an idle record) 10 s in every 30, and a
+                                                compaction every 60 s, writers 7 s apart in phase (item 312)
        perf.py phase-summary SAMPLES MARKS      a perf-fitzoom run's own + GPU MiB, settled at fit and at full zoom
        perf.py soak-verdict SAMPLES MARKS...    a perf-soak run's growth per process and phase;
                                                 exit 0 within budget, 1 over it, 2 not a measurement"""
@@ -636,6 +743,8 @@ if __name__ == '__main__':
         print(xwininfo_size(sys.stdin.read()) or '')
     elif cmd == ['busy-home'] and len(sys.argv) == 4:
         busy_home(sys.argv[2], sys.argv[3])
+    elif cmd == ['replay'] and len(sys.argv) == 6 and sys.argv[2] == '--looks':
+        replay_looks(sys.argv[3], int(sys.argv[4]), float(sys.argv[5]))
     elif cmd == ['replay'] and len(sys.argv) == 5:
         replay(sys.argv[2], int(sys.argv[3]), float(sys.argv[4]))
     else:

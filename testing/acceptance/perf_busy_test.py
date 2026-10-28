@@ -95,5 +95,28 @@ class WhenRunningOnADeskWithAShowAfterTheHide(unittest.TestCase):
         self.assertIn('shown_at_s=4', self.marks, self.done.stderr[-2000:])
 
 
+class WhenReplayingLooksOnTheBusyDesk(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.top = tempfile.mkdtemp()
+        desk = BusyDesk(cls.top)
+        out = os.path.join(cls.top, 'out')
+        env = desk.env(path_without(ABSENT, os.path.join(cls.top, 'bin')))
+        cls.done = run_in_own_group([TOOL, '--seconds', '4', '--replay-looks', '--profile-seconds', '0',
+                                     '--out', out, desk.build], env, 90)
+        cls.busy = WhenI3XpropAndXsetAreAbsent.read('busy.txt', out)
+        cls.replay = WhenI3XpropAndXsetAreAbsent.read('replay.txt', out)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.top, ignore_errors=True)
+
+    def test_it_should_record_replay_looks_in_the_run(self):
+        self.assertIn('replay=looks', self.busy.splitlines(), self.done.stderr[-2000:])
+
+    def test_it_should_say_it_replayed_looks(self):
+        self.assertIn('looks', self.replay)
+
+
 if __name__ == '__main__':
     unittest.main()

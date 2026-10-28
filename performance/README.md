@@ -40,7 +40,7 @@ All in [`tools/`](tools/), each with `--help`.
 | `perf-report` | first, last, min, max, mean, p50, p95 and slope per minute of a CSV, plus the Go heap from a gctrace log |
 | `perf-daemon-ab` | several daemon builds side by side against the same live `~/.claude`; `--cold` for a first launch |
 | `perf-city` | open the city, sample it and the daemon, optionally hide it part-way |
-| `perf-busy-city` | a city on a busy desk, made repeatable: the real history linked read-only into a scratch home, demo sessions writing every 200 ms |
+| `perf-busy-city` | a city on a busy desk, made repeatable: the real history linked read-only into a scratch home, demo sessions writing every 200 ms, or with `--replay-looks` lines that change their looks |
 | `perf-soak` | the 8-hour soak before each release: a busy desk, the city visible then hidden, and a verdict on growth per hour in each phase against the budget |
 | `perf-pprof-build` | build any revision with a pprof endpoint, without touching the checkout |
 
