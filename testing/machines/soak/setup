@@ -108,6 +108,7 @@ EndSection
 XORG
 
 cat >/home/soak/.config/i3/config <<'I3'
+# i3 config file (v4)
 font pango:DejaVu Sans Mono 10
 exec --no-startup-id xset s off -dpms
 I3

@@ -14,6 +14,7 @@ interval=2
 out=""
 headless=0
 extra=()
+window_wait="${PERF_CITY_WINDOW_WAIT:-30}"
 
 usage() {
 	cat <<USAGE
@@ -40,8 +41,11 @@ Open the city, sample it and the daemon for a while, and write a run directory.
   -h, --help          this
 
 The run directory holds:
-  env.txt       machine, versions, display, GPU, config, session counts, and
-                the city window's size when it opened and when the run ended
+  env.txt       machine, versions, display, GPU, config, session counts,
+                the city window's size when it opened and when the run ended,
+                and window_found_after_s; when no window is found within
+                PERF_CITY_WINDOW_WAIT s (default 30), city_running_at_window_timeout
+  windows.txt   only when no window was found: each i3 window's _NET_WM_PID and i3's tree
   samples.csv   perf-sample output for the city's process tree and botropolisd
   city.log      the city's stderr: GODEBUG=gctrace=1 and BOTROPOLIS_FRAMETIME=1 lines
   report.md     perf-report of the above
@@ -125,12 +129,31 @@ window_size() {
 
 if [[ "${headless}" == 0 ]]; then
 	(
-		for _ in $(seq 60); do
+		waited=0
+		running=yes
+		while ((waited < window_wait * 2)); do
 			size=$(window_size)
-			[[ -n "${size}" ]] && { echo "window_at_start=${size}" >>"${out}/env.txt"; exit 0; }
+			if [[ -n "${size}" ]]; then
+				echo "window_at_start=${size}" >>"${out}/env.txt"
+				echo "window_found_after_s=$((waited / 2)).$((waited % 2 * 5))" >>"${out}/env.txt"
+				exit 0
+			fi
+			kill -0 "${city}" 2>/dev/null || { running=no; break; }
 			sleep 0.5
+			waited=$((waited + 1))
 		done
-		echo "window_at_start=unknown (needs i3-msg, xprop and xwininfo, and the window within 30 s)" >>"${out}/env.txt"
+		echo "window_at_start=unknown (needs i3-msg, xprop and xwininfo, and the window within ${window_wait} s)" >>"${out}/env.txt"
+		echo "city_running_at_window_timeout=${running}" >>"${out}/env.txt"
+		{
+			echo "# windows when the city's was not found after $((waited / 2)) s; the city's pid was ${city}"
+			if command -v i3-msg >/dev/null; then
+				for id in $(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-window-ids); do
+					echo "${id} $(xprop -id "${id}" _NET_WM_PID 2>&1)"
+				done
+				echo "# i3's tree"
+				i3-msg -t get_tree 2>&1
+			fi
+		} >"${out}/windows.txt" 2>&1
 	) &
 	sizer=$!
 fi

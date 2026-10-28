@@ -24,6 +24,10 @@ DAEMON = textwrap.dedent('''\
 CITY = textwrap.dedent('''\
     #!/usr/bin/env bash
     [[ -n "${PERF_BUSY_TEST_SPY:-}" ]] && echo "${DISPLAY:-}" >"$PERF_BUSY_TEST_SPY/city-display"
+    if [[ ",${FAKE_DESK_BROKEN:-}," == *,city-exits,* ]]; then
+        echo "the stub city could not open a window" >&2
+        exit 1
+    fi
     [[ -n "${PERF_BUSY_TEST_SPY:-}" ]] && echo $$ >"$PERF_BUSY_TEST_SPY/city-pid"
     echo "FRAME 120 draw 1.0 ms" >&2
     sleep 600 &

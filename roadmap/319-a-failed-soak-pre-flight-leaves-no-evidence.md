@@ -14,3 +14,10 @@ The soak user's i3 config also lacks `# i3 config file (v4)`, so i3 converts it 
 4. Tests: a failed pre-flight's diagnostics hold its `env.txt` and logs; the i3 config's first line is the v4 header.
 
 The fourth 0.3.3 soak waits on this, so it cannot fail blind in the same place.
+
+## Decided
+
+- **The design and the test tree** (manager, 2026-10-28): approved.
+  The 30 s window wait stays, and `perf-city` records `window_found_after_s`, since a bound comes from a measurement, not a guess.
+  The pre-flight's failure also says whether the city was running and quotes the end of its log,
+  so the runner's own output carries the cause when the diagnostics cannot be collected.

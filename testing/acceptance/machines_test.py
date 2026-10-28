@@ -1,6 +1,8 @@
 import datetime
 import json
 import os
+import re
+import shlex
 import shutil
 import signal
 import subprocess
@@ -1065,6 +1067,16 @@ class WhenRunningTheSoakAndThePreFlightFails(SoakBox):
     def test_it_should_collect_the_diagnostics(self):
         self.assertTrue(self.diagnostics_at(), self.sequence())
 
+    def collects(self, path):
+        return re.search(r'(^|\s)%s(\s|;|$)' % re.escape(path), self.diagnostics()[0]) is not None
+
+    def test_it_should_collect_the_directory_the_pre_flight_wrote_to(self):
+        given = shlex.split([c for c in self.ssh_commands() if PREFLIGHT in c][0])
+        self.assertTrue(self.collects(given[given.index('--out') + 1]), self.diagnostics())
+
+    def test_it_should_collect_the_soaks_out_directory(self):
+        self.assertTrue(self.collects('/home/soak/run/out'), self.diagnostics())
+
     def test_it_should_cancel_the_server(self):
         self.assertEqual(len(self.cancelled_now()), 1)
 
@@ -1313,6 +1325,10 @@ class WhenReadingTheSetUp(unittest.TestCase):
 
     def test_it_should_wait_on_another_apt_rather_than_fail(self):
         self.assertIn('DPkg::Lock::Timeout', self.text)
+
+    def test_it_should_declare_the_i3_config_as_v4_on_its_first_line(self):
+        config = self.text.split("/home/soak/.config/i3/config <<'I3'\n", 1)[1]
+        self.assertEqual(config.splitlines()[0], '# i3 config file (v4)')
 
     def test_it_should_exit_5_when_start_i3_fails(self):
         self.assertTrue([line for line in self.text.splitlines() if 'start-i3' in line and 'exit 5' in line], self.text)

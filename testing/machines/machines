@@ -39,17 +39,26 @@ STARTED_MARK = '/root/soak.started'
 STREAM = ("dmesg --follow --time-format iso & "
           "while sleep 5; do echo \"heartbeat $(date -Is) loadavg $(cut -d' ' -f1-3 /proc/loadavg)"
           " $(free -m | awk '/^Mem:/ {print \"used \" $3 \" MiB, available \" $7 \" MiB\"}')\"; done")
-DIAGNOSE = ('d=$(mktemp -d) && cd "$d" && '
-            'for f in /root/setup.log /home/soak/run/out/dri.txt /var/log/soak-xorg.out /var/log/Xorg.0.log '
-            '/home/soak/i3.log; do [ -e "$f" ] && cp "$f" .; done; '
-            'dmesg >dmesg.txt 2>&1; ip addr >ip-addr.txt 2>&1; free -m >free-m.txt 2>&1; '
+
+
+def diagnose_command(files, dirs):
+    return ('d=$(mktemp -d) && cd "$d" && '
+            'for f in %s; do [ -e "$f" ] && cp "$f" .; done; ' % ' '.join(shlex.quote(f) for f in files)
+            + ''.join('[ -d %s ] && cp -r %s %s; ' % (shlex.quote(src), shlex.quote(src), shlex.quote(name))
+                      for name, src in dirs)
+            + 'dmesg >dmesg.txt 2>&1; ip addr >ip-addr.txt 2>&1; free -m >free-m.txt 2>&1; '
             'ps aux >ps-aux.txt 2>&1; uptime >uptime.txt 2>&1; tar -czf - .')
+
+
 IPV6_PROBE = '2a01:4f8::1'
 BERLIN = zoneinfo.ZoneInfo('Europe/Berlin')
 MARKET = '/order/server_market'
 DEDICATED_KEY = '~/.ssh/botropolis-machines'
 REMOTE = '/home/soak/run'
 REPORT = REMOTE + '/out'
+PREFLIGHT = REMOTE + '/preflight'
+DIAGNOSE = diagnose_command(['/root/setup.log', REPORT + '/dri.txt', '/var/log/soak-xorg.out', '/var/log/Xorg.0.log',
+                             '/home/soak/i3.log'], [('preflight', PREFLIGHT), ('out', REPORT)])
 EXIT_FILE = REPORT + '/perf-soak.exit'
 SECRETS = {
     'soak': [('ROBOT_USER', 'robot_user_ref', '--robot-user-ref'),
@@ -375,7 +384,8 @@ def diagnose(args, ip, out):
         warn('could not collect the diagnostics from the box (%s); what the laptop saw is in %s and %s'
              % (e, where, os.path.join(out, 'box.log')))
         return
-    say('Collected the box\'s set-up log, dri.txt, Xorg and i3 logs, dmesg, ip addr, free and ps into %s' % where)
+    say('Collected the box\'s set-up log, dri.txt, Xorg and i3 logs, the pre-flight\'s and the soak\'s output, dmesg, '
+        'ip addr, free and ps into %s' % where)
 
 
 def wait_for_ssh(args, ip, timeout=None):
@@ -842,7 +852,7 @@ def start_soak(args, ip, out, run_id):
     as_soak = ['runuser', '-u', 'soak', '--', 'env', 'DISPLAY=:0', 'HOME=/home/soak', 'XDG_RUNTIME_DIR=/run/soak',
                'BOTROPOLIS_DEMO=%s/botropolis-demo' % REMOTE]
     preflight = ssh_run(args, ip, shlex.join(as_soak + ['%s/performance/tools/perf-soak' % REMOTE, '--preflight',
-                                                         '--out', REMOTE + '/preflight', REMOTE + '/build']),
+                                                         '--out', PREFLIGHT, REMOTE + '/build']),
                         patient=True, capture_output=True, text=True)
     said = (preflight.stdout + preflight.stderr).strip()
     if preflight.returncode != 0:

@@ -12,7 +12,8 @@ from stubs import DESK, DESK_WINDOW, BusyDesk, executable, fake_desk, path_witho
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 TOOL = os.path.join(ROOT, 'performance', 'tools', 'perf-soak')
 SECONDS = 6
-SCALED = {'PERF_SOAK_SETTLE': '1', 'PERF_SOAK_MIN_PHASE': '1', 'PERF_SOAK_PREFLIGHT_SECONDS': str(SECONDS)}
+SCALED = {'PERF_SOAK_SETTLE': '1', 'PERF_SOAK_MIN_PHASE': '1', 'PERF_SOAK_PREFLIGHT_SECONDS': str(SECONDS),
+          'PERF_CITY_WINDOW_WAIT': '2'}
 
 
 def read(path):
@@ -57,6 +58,9 @@ class Soak(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(cls.top, ignore_errors=True)
+
+    def marks(self):
+        return read(os.path.join(self.out, 'run', 'env.txt'))
 
     def desk_calls(self):
         return [json.loads(line) for line in self.desk.spied('desk').splitlines()]
@@ -178,6 +182,9 @@ class WhenPreflightingOnADeskWithEveryTool(Preflight):
     def test_it_should_say_it_passed(self):
         self.assertIn('pre-flight passed', self.done.stdout + self.done.stderr)
 
+    def test_it_should_record_how_long_the_window_took_to_appear(self):
+        self.assertRegex(self.marks(), r'(?m)^window_found_after_s=[0-9.]+$')
+
 
 class WhenPreflightingAndTheWindowCannotBeFound(Preflight):
     broken = 'no-window'
@@ -187,6 +194,34 @@ class WhenPreflightingAndTheWindowCannotBeFound(Preflight):
 
     def test_it_should_say_the_window_was_not_found(self):
         self.assertIn("the city's window was not found", self.done.stderr)
+
+    def test_it_should_say_the_city_was_still_running(self):
+        self.assertIn('the city was still running', self.done.stderr)
+
+    def test_it_should_quote_the_end_of_the_citys_log(self):
+        self.assertIn('FRAME 120 draw 1.0 ms', self.done.stderr)
+
+    def test_it_should_record_that_the_city_was_running_at_the_timeout(self):
+        self.assertIn('city_running_at_window_timeout=yes', self.marks().splitlines())
+
+    def test_it_should_record_each_window_and_its_pid(self):
+        self.assertIn('%d _NET_WM_PID(CARDINAL) = 1' % DESK_WINDOW, read(os.path.join(self.out, 'run', 'windows.txt')))
+
+
+class WhenPreflightingAndTheCityExitsAtOnce(Preflight):
+    broken = 'city-exits'
+
+    def test_it_should_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+    def test_it_should_say_the_city_had_exited(self):
+        self.assertIn('the city had exited', self.done.stderr)
+
+    def test_it_should_quote_the_end_of_the_citys_log(self):
+        self.assertIn('the stub city could not open a window', self.done.stderr)
+
+    def test_it_should_record_that_the_city_was_not_running(self):
+        self.assertIn('city_running_at_window_timeout=no', self.marks().splitlines())
 
 
 class WhenPreflightingAndTheWindowDoesNotHide(Preflight):

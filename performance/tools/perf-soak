@@ -147,7 +147,16 @@ if [[ "${preflight}" == 1 ]]; then
 	wait "${busy}"
 	marks="${out}/run/env.txt"
 	failed() { echo "perf-soak: pre-flight failed on display '${display}': $1; see ${out}" >&2; exit 2; }
-	grep -qE '^window_at_start=[0-9]+x[0-9]+' "${marks}" 2>/dev/null || failed "the city's window was not found"
+	if ! grep -qE '^window_at_start=[0-9]+x[0-9]+' "${marks}" 2>/dev/null; then
+		case "$(sed -n 's/^city_running_at_window_timeout=//p' "${marks}" 2>/dev/null)" in
+		yes) why="the city was still running when the wait ended (each window's pid is in run/windows.txt)" ;;
+		no) why="the city had exited before its window appeared" ;;
+		*) why="whether the city was running is not recorded" ;;
+		esac
+		failed "the city's window was not found; ${why}; the end of run/city.log:
+$(tail -n 10 "${out}/run/city.log" 2>/dev/null || echo '(no city.log)')
+"
+	fi
 	grep -q '^hidden_at_s=' "${marks}" || failed "could not hide the window"
 	grep -q '^shown_at_s=' "${marks}" || failed "could not show the window again after hiding it"
 	echo "perf-soak: pre-flight passed on display '${display}': the desk's tools ran, and the city's window was found, hidden and shown again"
