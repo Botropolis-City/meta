@@ -45,3 +45,5 @@ Deviations, for Aria:
 - **There is no frame of the prompt after a close request.** The manager waived it, since it is the same panel Aria approved in item 292.
 - **Hiding to the tray and coming back was not driven end to end** in the real city. It is `ebiten.SetWindowVisible`, and a hidden window takes the unwatched path of items 197 and 214, but it is on Aria's list to try once on i3.
 - On i3bar, which offers no 32-bit visual, the icon keeps its square dark plate.
+
+Aria passed both frames on 2026-10-28, and asked that hiding to the tray and coming back be tried at the next release's check; it is A7 in the [validation checklist](validation-checklist.md).

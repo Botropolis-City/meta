@@ -67,6 +67,7 @@ Run them against the release build, in order; each says what to press and what t
 | A4 | in a session attached in your terminal, type `! sleep 20`, then look at the map | its building reads as working while the command runs, not needs-you |
 | A5 | waybar with the module in the README (`botropolis bar --watch`), while a session needs you | the module takes the `needs-you` class and your style for it, and its tooltip names the session |
 | A6 | `botropolis status --live` in a terminal; `enter` on a resting session; `x` then `x` again on one in the scratch folder | `enter` resumes it and attaches; the first `x` says "press x again within 3s to demolish <title>", and the second removes it |
+| A7 | set `on_close = tray` in settings, then close the city's window; click the tray icon, then *Open the city*; then the tray icon's *Quit…* | the window hides and the icon stays in the tray; *Open the city* brings the window back as it was; *Quit…* opens the quit panel (item 293) |
 
 S3, A3's second half, is scripted, but only through a stand-in for the window's focus; A3 is the check that the real window manager's focus reaches it.
 Likewise S9 stages the `shell` record; A4 is the check that a real `!` in Claude Code writes it.
