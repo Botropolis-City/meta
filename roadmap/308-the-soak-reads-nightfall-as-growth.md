@@ -2,7 +2,7 @@
 
 **Open, in progress since 2026-10-27 in the session "item 308". Filed 2026-10-27 (r1192), from 0.3.3's soak, the first to run. Nobody's call — the method is the performance manager's to specify, its build an item session's.**
 
-Depends on: nothing
+Depends on: 311
 Landed: slice 1 (`8003765`, r1193).
 
 0.3.3's soak (server 3101537, from 11:47 MDT) measured the city's memory and GPU flat for 122 minutes, +0.61 MiB an hour, and then 325 → 375 MiB in one 10-second sample at 21:00:05 UTC: Private_Dirty +16 MiB and GPU +32 MiB, flat again after (−3.0 MiB an hour).

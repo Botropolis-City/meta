@@ -53,8 +53,10 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [307](roadmap/307-uploading-media-caches-not-found-at-the-edge.md) | uploading the site's media caches "not found" at the edge for clips about to exist | — | nobody, a defect |
-| [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | — | nobody, a defect in the method |
+| [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | 311 | nobody, a defect in the method |
 | [310](roadmap/310-a-second-soak-would-cancel-the-first-ones-box.md) | a second soak started beside the first would cancel the wrong box | — | nobody, a defect |
+| [311](roadmap/311-a-recording-city-never-opens-on-six-hundred-districts.md) | a recording city on six hundred districts never opens its map, and spends six cores waiting | — | nobody, a defect |
+| [312](roadmap/312-a-busy-replay-that-changes-what-buildings-show.md) | the busy replay changes no building's look, so it cannot reproduce a working city's cache churn | — | nobody, the tools need it |
 
 ## Waiting on Aria
 
