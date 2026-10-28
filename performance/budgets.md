@@ -46,11 +46,14 @@ The first scan may take as long as it needs; it may not take the machine, and it
 | memory | ≤ 256 MiB `Private_Dirty` at any point, however large the history | same run |
 | a map | within 5 s of opening the city, with what is known so far and a percentage for the rest | by eye and the frame log |
 | any wait before the first frame | a loading bar showing real progress, never a blank or frozen window (Aria, 2026-10-19) | by eye |
-| the city's CPU before its first frame | ≤ 1 CPU-second of the city's own process from start to its first frame, on the 600-district fixture, a `--record` or `--screenshot` run included, within `firstMapLimit` | [item 311](../roadmap/311-a-recording-city-never-opens-on-six-hundred-districts.md)'s test, the city's `/proc` CPU ticks at start and at the first file |
+| the city's CPU before its first frame | ≤ 2.5 CPU-seconds of the city's own process from start to its first frame, on the 600-district fixture, headless, a `--record` or `--screenshot` run included, within `firstMapLimit` (Aria, 2026-10-28, item 315) | [item 311](../roadmap/311-a-recording-city-never-opens-on-six-hundred-districts.md)'s test, the city's `/proc` CPU ticks at start and at the first file |
 | interruption | quitting part-way loses nothing; the next launch resumes where it stopped | quit during `--cold`, relaunch, compare read totals |
 
-**The first frame's CPU is a target of what opening ought to cost** (2026-10-27, item 311), not of what anything measured: building the scene for 600 districts, about 2.5 times what Aria's history of about 250 projects costs to its first city, 0.11 CPU-seconds in `firstlaunch_test`, so about 0.3; drawing one fitted frame, under llvmpipe for a headless run, about 0.3–0.5; and waiting for the daemon's first read, which costs a paced loading bar and nothing more.
-Five CPU-seconds, a whole core for the five seconds of `firstMapLimit`, would pass a city that spins one core the whole time it waits; the deadlock item 311 found spent about 6.5 cores.
+**The first frame's CPU is 2.5 CPU-seconds** (Aria, 2026-10-28, item 315): it is a cost paid once, on a stress city whose map is already inside the 5-second bar, and 2.5 holds what opening costs now, 1.6–2.1 headless, while catching a slide back to the 3–4 it cost before item 315.
+It was 1 CPU-second from 2026-10-27, an estimate of what opening ought to cost (item 311): building the scene, about 0.3, one fitted frame under llvmpipe, priced at 0.3–0.5, and a paced wait.
+The frame was the part that was wrong: a first frame bakes every look cold, and item 315 measured it at about 1.2 CPU-seconds (Go about 0.5, GL calls 0.35, rasterising 0.45), so the opening came to 1.47 even windowed on this machine's GPU.
+Item 315 took it from 3–4 CPU-seconds to 1.6–2.1 first: a garbage collector spiralling against the city's 300 MiB limit, an opening panel drawn where nobody could see it, and a quadratic street search.
+A whole core for the five seconds of `firstMapLimit` would still pass a city that spins one core the whole time it waits, which is why the bar is not five.
 
 ## City
 
