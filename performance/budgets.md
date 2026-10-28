@@ -46,7 +46,11 @@ The first scan may take as long as it needs; it may not take the machine, and it
 | memory | ≤ 256 MiB `Private_Dirty` at any point, however large the history | same run |
 | a map | within 5 s of opening the city, with what is known so far and a percentage for the rest | by eye and the frame log |
 | any wait before the first frame | a loading bar showing real progress, never a blank or frozen window (Aria, 2026-10-19) | by eye |
+| the city's CPU before its first frame | ≤ 1 CPU-second of the city's own process from start to its first frame, on the 600-district fixture, a `--record` or `--screenshot` run included, within `firstMapLimit` | [item 311](../roadmap/311-a-recording-city-never-opens-on-six-hundred-districts.md)'s test, the city's `/proc` CPU ticks at start and at the first file |
 | interruption | quitting part-way loses nothing; the next launch resumes where it stopped | quit during `--cold`, relaunch, compare read totals |
+
+**The first frame's CPU is a target of what opening ought to cost** (2026-10-27, item 311), not of what anything measured: building the scene for 600 districts, about 2.5 times what Aria's history of about 250 projects costs to its first city, 0.11 CPU-seconds in `firstlaunch_test`, so about 0.3; drawing one fitted frame, under llvmpipe for a headless run, about 0.3–0.5; and waiting for the daemon's first read, which costs a paced loading bar and nothing more.
+Five CPU-seconds, a whole core for the five seconds of `firstMapLimit`, would pass a city that spins one core the whole time it waits; the deadlock item 311 found spent about 6.5 cores.
 
 ## City
 
