@@ -24,3 +24,26 @@ Raw data: `~/.local/state/botropolis-perf/item-318/{cycle-1,windowed-1}`.
 **Re-scoped** (manager, 2026-10-28): a measurement fix, off 0.3.4's path.
 The light-cycle check and the settled and growth budgets, read under llvmpipe, must count something llvmpipe cannot inflate — Ebitengine's image memory plus the Go heap, or run with `MALLOC_ARENA_MAX` if a `malloc_trim` control shows the arenas are only kept free memory.
 The method is the performance manager's to specify here; item 308's slice 2 lands with it.
+
+## The method (performance manager, 2026-10-28)
+
+The budgets count what the user's machine pays, the city's whole process (`Private_Dirty` + GPU), and that stays the rule; what changes is how a test under Xvfb reads it, because llvmpipe is not a renderer anyone draws the city with.
+
+**The `malloc_trim` control decides which of two methods the headless check uses.**
+Run the same cycle headless and, at each phase's end, call `malloc_trim(0)` in the city's process (a debug-build hook, or `gdb -batch -p PID -ex 'call (int)malloc_trim(0)'`), and read `Private_Dirty` before and after.
+
+1. **If the trim gives the growth back** (the second night within 4 MiB of the first after trimming), the arenas held freed memory, which is fragmentation and not use.
+   Then the headless check runs the city with `MALLOC_ARENA_MAX=2`, set by the test for the child process only, and keeps counting `Private_Dirty` of the whole process against the 4 MiB criterion, unchanged.
+   It still catches any real leak, native or Go, and the product's environment is untouched.
+2. **If the trim does not give it back**, the memory is llvmpipe's own and live, and the process's `Private_Dirty` under llvmpipe cannot judge the city.
+   Then the headless check counts what the city itself holds: Ebitengine's image memory (the debug log's image sizes, summed as RGBA) plus the Go heap's live bytes after a GC, each repeat within 4 MiB of the first.
+   That misses a native leak in the city's own GL calls, so the whole-process check moves to a real GPU (below).
+
+**The whole-process check on a real GPU, before each release, whichever method the headless check uses.**
+The cycle windowed on a real GPU counting `Private_Dirty` + GPU, each repeat within 4 MiB of the first, as the reference machine passed it at r1204 (333 / 339 / 339 / 340 / 340).
+The soak box draws on a real iGPU (Mesa on the i5-12500's UHD 770, not llvmpipe), so the check can run there as the soak's first phase, without Aria's screen; until it does, the reference machine's display with her leave.
+
+**The settled and growth budgets elsewhere under llvmpipe** follow the same rule: a `Private_Dirty` read under Xvfb is reported with the arena share named, and a verdict against 512 MiB or 1 MiB an hour is taken on a real GPU.
+`make test-performance`'s big city runs through `render.Drive` with no GL and is unaffected.
+
+**Done when:** the control's result is recorded here, the check uses the method it selects, it passes on this tree headless, and one real-GPU cycle passes; `performance/method.md` then says so, which the performance manager writes.
