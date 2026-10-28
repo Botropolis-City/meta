@@ -1,6 +1,6 @@
 # 319. A failed soak pre-flight leaves no evidence of why the city's window was not found
 
-**Open. Filed 2026-10-28 (r1204), from 0.3.3's third soak (server 3101917). Nobody's call — a defect.**
+**Open, in progress since 2026-10-28 in the session "item 319". Filed 2026-10-28 (r1204), from 0.3.3's third soak (server 3101917). Nobody's call — a defect.**
 
 The third soak's set-up passed (item 313's i3 fix held: *i3 started on :0 as soak, and answers i3-msg*), and its pre-flight then failed with *the city's window was not found; see /home/soak/run/preflight*.
 The runner's `diagnose` does not collect that directory — the pre-flight's `env.txt`, `perf-city.err` and the city's log — so whether the city never started, crashed, or took longer than `perf-city`'s 30 s to show its window on that iGPU cannot be told.
