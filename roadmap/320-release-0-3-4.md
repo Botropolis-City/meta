@@ -1,6 +1,6 @@
 # 320. Release 0.3.4
 
-**Open. Filed 2026-10-28 (r1204) at Aria's request. Nobody's call — Aria set what it waits for and what it runs.**
+**Open, in progress since 2026-10-28 in the session "release 0.3.4". Filed 2026-10-28 (r1204) at Aria's request. Nobody's call — Aria set what it waits for and what it runs.**
 
 Depends on: 319
 
