@@ -2,14 +2,14 @@
 
 **Open. Filed 2026-10-28 (r1204) at Aria's request. Nobody's call — Aria set what it waits for and what it runs.**
 
-Depends on: 318, 319
+Depends on: 319
 
 Aria, 2026-10-28: *"let's plan and work towards 0.3.4 so we can release it asap. Sound like we just need 318, 319, a soak, a refilm, and then my checklist after that."*
 
 ## What it holds
 
-Everything on `main` once item 318 (each nightfall keeps its lights) has landed: the tray (293), `c` attaching in the session's folder (302), the `light` setting (308, slice 1), the clinic's night windows (280), the truck at road speed (304), a recording city that opens on a big history (311), the opening's cost (315), and item 212's slices to that point.
-Items 212 and 315 land what is in flight by the time 318 lands; whatever is not landed then waits for 0.3.5.
+Everything on `main` once item 315 has landed its last slice (item 318 turned out to be llvmpipe's growth, not the city's, so the release no longer waits on it): the tray (293), `c` attaching in the session's folder (302), the `light` setting (308, slice 1), the clinic's night windows (280), the truck at road speed (304), a recording city that opens on a big history (311), the opening's cost (315), and item 212's slices to that point.
+Item 212 lands what is in flight by then; whatever is not landed then waits for 0.3.5.
 
 ## What it runs
 

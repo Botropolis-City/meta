@@ -12,3 +12,15 @@ In use the light switches twice a day, so this is about 40 MiB a day for as long
 
 Release, or reuse, night's images at daybreak so a second night costs what the first did.
 The test is item 308's slice 2, `testing/acceptance/lightcycle_test.go` (held in item 308's worktree): night → day → night → day, each repeat within 4 MiB of the first; it lands with this fix, red first, unchanged.
+
+## Diagnosis, 2026-10-28
+
+The city does not leak at nightfall; the growth is llvmpipe's.
+Item 308's cycle at r1204, unchanged, run both ways: headless under Xvfb and llvmpipe 466 / 503 / 500 / 547 / 571 MiB (+44 at the second night, +71 at the second day), and windowed on the reference machine's Intel GPU 333 / 339 / 339 / 340 / 340 (+1, +1, both subtests pass).
+Ebitengine's own image memory steps once at the first nightfall (the two lights images, kept by day) and stays flat through the second night and day; a heap diff of the warm-up day against the second day is −0.8 MB.
+Headless, the extra `Private_Dirty` is native: about 124 MiB in glibc malloc arenas belonging to llvmpipe's rasterizer threads, plus `[heap]` 14 → 29 MiB at the second daybreak.
+Raw data: `~/.local/state/botropolis-perf/item-318/{cycle-1,windowed-1}`.
+
+**Re-scoped** (manager, 2026-10-28): a measurement fix, off 0.3.4's path.
+The light-cycle check and the settled and growth budgets, read under llvmpipe, must count something llvmpipe cannot inflate — Ebitengine's image memory plus the Go heap, or run with `MALLOC_ARENA_MAX` if a `malloc_trim` control shows the arenas are only kept free memory.
+The method is the performance manager's to specify here; item 308's slice 2 lands with it.
