@@ -629,7 +629,8 @@ def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE
     hiding = marks.get('hide') != 'none'
     if hiding and 'hidden_at_s' not in marks:
         reasons.append('the window was never hidden, so there is no hidden phase')
-    if int(marks.get('frames_at_hide' if hiding else 'frames_at_end') or 0) <= 0:
+    frames = 'frames_at_hide' if hiding and 'hide_failed_at_s' not in marks else 'frames_at_end'
+    if int(marks.get(frames) or 0) <= 0:
         reasons.append('the visible phase drew no frames')
     if 'monitor is on' not in marks.get('monitor_at_end', '').lower():
         reasons.append('the monitor was not on at the end (%s), so the visible phase may not have drawn'

@@ -750,6 +750,22 @@ class WhenRunningTheSoakAndItNeverFinishesBeforeTheCeiling(Machines):
         self.assertEqual(len(self.cancelled_now()), 1)
 
 
+class WhenRunningTheSoakAndTheCeilingPassedBeforeTheFirstLookAtAnEndedSoak(Machines):
+    argv = SOAK_RUN + ['--max-hours', '0.00001']
+    typed = CHOSEN_HOURLY
+    plan_first = True
+    hetzner = {'server_ip': '192.0.2.44'}
+
+    def test_it_should_exit_with_the_soaks_code(self):
+        self.assertEqual(self.done.returncode, 0, self.done.stderr)
+
+    def test_it_should_fetch_the_report_from_the_bucket(self):
+        self.assertEqual(self.results_report(), 'verdict from the bucket\n')
+
+    def test_it_should_cancel_the_server_once(self):
+        self.assertEqual(len(self.cancelled_now()), 1)
+
+
 class WhenRunningTheSoakAndRobotsEarliestCancellationIsLaterThanWanted(Machines):
     argv = SOAK_RUN
     typed = CHOSEN_HOURLY

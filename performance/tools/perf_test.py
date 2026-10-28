@@ -650,6 +650,17 @@ class WhenJudgingASoak(unittest.TestCase):
         del marks['hidden_at_s']
         self.assertEqual(perf.judge_soak(soak_rows(), marks)['verdict'], 'not a measurement')
 
+    def failed_hide(self, frames_at_end):
+        marks = dict(SOAK_MARKS, hide_failed_at_s='14400', frames_at_end=frames_at_end)
+        del marks['hidden_at_s'], marks['frames_at_hide']
+        return perf.judge_soak(soak_rows(), marks)['reasons']
+
+    def test_and_the_hide_failed_and_the_city_drew_frames_it_should_not_say_the_visible_phase_drew_none(self):
+        self.assertNotIn('the visible phase drew no frames', self.failed_hide('863640'))
+
+    def test_and_the_hide_failed_and_the_city_drew_no_frames_it_should_say_the_visible_phase_drew_none(self):
+        self.assertIn('the visible phase drew no frames', self.failed_hide('0'))
+
     def test_and_a_phase_holds_under_30_minutes_it_should_say_it_is_not_a_measurement(self):
         rows = soak_rows(hide_at=14400, end=15600)
         self.assertEqual(perf.judge_soak(rows, SOAK_MARKS)['verdict'], 'not a measurement')

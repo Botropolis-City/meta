@@ -32,6 +32,7 @@ HCLOUD = os.environ.get('MACHINES_HCLOUD_URL', 'https://api.hetzner.cloud/v1')
 POLL = float(os.environ.get('MACHINES_POLL_SECONDS', '30'))
 FETCH_EVERY = float(os.environ.get('MACHINES_FETCH_SECONDS', '3600'))
 BACKOFF_CAP = 300
+SLEEP_GAP = 60
 ATTEMPTS = max(1, int(os.environ.get('MACHINES_SSH_ATTEMPTS', '5')))
 SSH_FAILED = 255
 STARTED_MARK = '/root/soak.started'
@@ -680,31 +681,65 @@ class Report:
                 'is in %s' % (clock(self.last), self.run_id, self.out))
 
 
-def watch(args, report, ceiling):
-    next_fetch = time.time() + FETCH_EVERY
+class SystemClock:
+    def time(self):
+        return time.time()
+
+    def monotonic(self):
+        return time.monotonic()
+
+    def sleep(self, seconds):
+        time.sleep(seconds)
+
+
+def sleep_gap(wall_moved, steady_moved):
+    gap = wall_moved - steady_moved
+    if gap <= SLEEP_GAP:
+        return None
+    minutes = int(gap // 60)
+    return '%d h %d min' % (minutes // 60, minutes % 60)
+
+
+def watch(args, report, ceiling, wall=None):
+    wall = wall or SystemClock()
+    next_fetch = wall.time() + FETCH_EVERY
     reachable = True
+    then = (wall.time(), wall.monotonic())
     while True:
-        if time.time() >= ceiling:
-            warn('the run reached its ceiling of %g hours at %s with the soak still running' % (args.max_hours, clock(ceiling)))
-            return None
+        now = (wall.time(), wall.monotonic())
+        gap = sleep_gap(now[0] - then[0], now[1] - then[1])
+        if gap:
+            warn('this runner slept for %s, from %s to %s (its clock jumped while it was suspended); '
+                 'it reads the bucket before anything else' % (gap, clock(then[0]), clock(now[0])))
+        then = now
+        past = now[0] >= ceiling
         try:
             answer = report.bucket.get(report.run_id + '/exit')
+            if answer is not None and answer.strip().lstrip(b'-').isdigit():
+                say('the soak ended, exit %d, as the bucket says at %s' % (int(answer), clock(now[0])))
+                return int(answer)
             if not reachable:
                 say('the bucket answers again; the soak is still running')
             reachable = True
-            if answer is not None and answer.strip().lstrip(b'-').isdigit():
-                return int(answer)
         except BucketError as e:
+            if past:
+                warn('the run reached its ceiling of %g hours at %s and could not read the bucket (%s), so it could '
+                     'not tell whether the soak ended' % (args.max_hours, clock(ceiling), e))
+                return None
             if reachable:
                 warn('could not read the bucket (%s); the box carries on and uploads on its own' % e)
             reachable = False
-        if time.time() >= next_fetch:
+        if past:
+            warn('the run reached its ceiling of %g hours at %s with the soak still running'
+                 % (args.max_hours, clock(ceiling)))
+            return None
+        if now[0] >= next_fetch:
             if report.fetch():
                 say('fetched the report so far, at %s' % clock(report.last))
             else:
                 warn('could not fetch the report so far; trying again at the next fetch or the end')
-            next_fetch = time.time() + FETCH_EVERY
-        time.sleep(POLL)
+            next_fetch = wall.time() + FETCH_EVERY
+        wall.sleep(POLL)
 
 
 def run_soak(args):
