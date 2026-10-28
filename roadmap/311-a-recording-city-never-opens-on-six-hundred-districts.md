@@ -16,3 +16,9 @@ The six cores spent while unopened are unexplained, and may be a second defect.
 3. A test on the stress fixture: a `--record` run writes its first frame within the bar.
 
 Item 308's slice 2, the light-cycle check, waits on this.
+
+## Answered while building
+
+- **The cause** (item 311, 2026-10-27): not the daemon's read, which finished in 10 s, but a deadlock in the recording clock — a capture's first tick ran before any snapshot, painted nothing, and every later update waited on that paint; the unopened opening panel then drew uncapped on llvmpipe.
+- **Pace the opening everywhere?** Only headless and capture runs; a window has vsync, and pacing the sweep Aria sees would change it (manager, 2026-10-27).
+- **The bar for a recording's first frame?** `firstMapLimit`, unloosened, from city start to the first file; reporting on CI as the stress city does, items 303, 305 and 306 (manager, 2026-10-27).
