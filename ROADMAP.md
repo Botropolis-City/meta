@@ -54,7 +54,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | 311, 318 | nobody, a defect in the method |
 | [317](roadmap/317-keep-on-failure-zero-keeps-the-box.md) | KEEP_ON_FAILURE=0 keeps the box | — | nobody, a defect |
 | [318](roadmap/318-each-nightfall-keeps-its-lights.md) | each nightfall keeps its lights: the city retains about 40 MiB per night, outside the Go heap | — | nobody, a defect |
-| [319](roadmap/319-a-failed-soak-pre-flight-leaves-no-evidence.md) | a failed soak pre-flight leaves no evidence of why the city's window was not found | — | nobody, a defect |
 | [320](roadmap/320-release-0-3-4.md) | release 0.3.4 | 319 | nobody, Aria set what it runs |
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
 
