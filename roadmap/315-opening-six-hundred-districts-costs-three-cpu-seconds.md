@@ -1,11 +1,12 @@
 # 315. Opening the six-hundred-district city costs about three CPU-seconds, against a budget of one
 
-**Open, in progress since 2026-10-28 in the session "item 315". Filed 2026-10-28 (r1197), from item 311's CPU bar. Nobody's call — the budget is set (`performance/budgets.md`, `df54c13`); the code is over it.**
+**Fixed 2026-10-28 (`9b5e96f`, r1206). Filed 2026-10-28 (r1197), from item 311's CPU bar.**
 
 Depends on: nothing
 Landed: slice 1 (`035a9dd`, r1202).
 Landed: slice 2 (`55ef60e`, r1203).
 Landed: slice 3 (`241f12d`, r1204).
+Landed: slice 4 (`9b5e96f`, r1206).
 
 The performance manager set the city's own CPU from start to its first frame on the 600-district fixture at no more than 1 CPU-second, `--record` included.
 After item 311's fix (`1259a1e`, r1197) a recording city spends 2.7–3.3 CPU-s, and a plain headless city 2.55, so it is the opening's cost, not recording's.
@@ -52,3 +53,17 @@ The budget's own reasoning put one fitted frame at 0.3–0.5; headless, it costs
 Leaving out the cracks where a tile is under 4 px saves 0.3–0.4 and changes 1.58% of the first frame's pixels, by at most 35 levels, as a speckle across the district floors.
 The evidence and these options went to Aria through the roadmap manager on 2026-10-28: that picture change, leaving the opening over the bar for now, or judging the bar on a real GPU, which is a change of definition and alone does not pass either.
 Item 311's test waits, unlanded, for whatever meets the bar.
+
+## Closed
+
+Four slices, and item 311's test at Aria's bar:
+
+1. A grown mesh buffer leaves no old one held: the first frames hold 86–91 MiB of live heap, from 381, and the collector no longer spirals at the 300 MiB limit, which is unchanged (`035a9dd`, r1202).
+2. A headless city draws no opening panel nobody sees (`55ef60e`, r1203).
+3. A street walk takes its cheapest step off a heap, the same roads at a fraction of the cost (`241f12d`, r1204).
+4. Below a quarter zoom no crack is stroked (`9b5e96f`, r1206).
+
+`TestARecordingCityOfSixHundredDistrictsOpening` holds the opening to 2.5 CPU-seconds headless (`9f2c5d0`, r1207); under the lock it read 2.35 against it, and scratch runs of the same build 1.46–1.67, so its margin is thinner than those suggest.
+`TestACityOfSixHundredDistrictsFrames` holds the heap at 150 MiB on each of the first three frames; the fitted frame read 14.0 ms against 16.
+**Deviation, flagged for Aria:** the bar the item set, 1 CPU-second, was not met; she moved it to 2.5 on the evidence above.
+**A frame to judge:** S4's first frame of the 600-district city was sent to her on 2026-10-28, with the frame before it and where they differ.

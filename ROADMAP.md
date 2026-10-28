@@ -52,7 +52,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [307](roadmap/307-uploading-media-caches-not-found-at-the-edge.md) | uploading the site's media caches "not found" at the edge for clips about to exist | — | nobody, a defect |
 | [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | 311, 318 | nobody, a defect in the method |
-| [315](roadmap/315-opening-six-hundred-districts-costs-three-cpu-seconds.md) | opening the six-hundred-district city costs about three CPU-seconds, against a budget of one | — | nobody, the code is over its budget |
 | [317](roadmap/317-keep-on-failure-zero-keeps-the-box.md) | KEEP_ON_FAILURE=0 keeps the box | — | nobody, a defect |
 | [318](roadmap/318-each-nightfall-keeps-its-lights.md) | each nightfall keeps its lights: the city retains about 40 MiB per night, outside the Go heap | — | nobody, a defect |
 | [319](roadmap/319-a-failed-soak-pre-flight-leaves-no-evidence.md) | a failed soak pre-flight leaves no evidence of why the city's window was not found | — | nobody, a defect |
