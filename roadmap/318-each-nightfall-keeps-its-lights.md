@@ -29,13 +29,13 @@ The method is the performance manager's to specify here; item 308's slice 2 land
 
 The budgets count what the user's machine pays, the city's whole process (`Private_Dirty` + GPU), and that stays the rule; what changes is how a test under Xvfb reads it, because llvmpipe is not a renderer anyone draws the city with.
 
-**The `malloc_trim` control decides which of two methods the headless check uses.**
-Run the same cycle headless and, at each phase's end, call `malloc_trim(0)` in the city's process (a debug-build hook, or `gdb -batch -p PID -ex 'call (int)malloc_trim(0)'`), and read `Private_Dirty` before and after.
+**A run with `MALLOC_ARENA_MAX=2` decides which of two methods the headless check uses** (corrected by the item session, with the performance manager's agreement, 2026-10-28).
+A `malloc_trim` control says whether the arenas hold freed memory, but not whether fewer arenas stop the growth, so the deciding run is the one the first method would use: the same cycle headless, with `MALLOC_ARENA_MAX=2` on the city alone.
 
-1. **If the trim gives the growth back** (the second night within 4 MiB of the first after trimming), the arenas held freed memory, which is fragmentation and not use.
+1. **If that run passes** (each repeat within 4 MiB of the first), the arenas held freed memory, which is fragmentation and not use.
    Then the headless check runs the city with `MALLOC_ARENA_MAX=2`, set by the test for the child process only, and keeps counting `Private_Dirty` of the whole process against the 4 MiB criterion, unchanged.
    It still catches any real leak, native or Go, and the product's environment is untouched.
-2. **If the trim does not give it back**, the memory is llvmpipe's own and live, and the process's `Private_Dirty` under llvmpipe cannot judge the city.
+2. **If it does not**, the process's `Private_Dirty` under llvmpipe cannot judge the city, whether the memory is llvmpipe's own or freed memory glibc keeps.
    Then the headless check counts what the city itself holds: Ebitengine's image memory (the debug log's image sizes, summed as RGBA) plus the Go heap's live bytes after a GC, each repeat within 4 MiB of the first.
    That misses a native leak in the city's own GL calls, so the whole-process check moves to a real GPU (below).
 
@@ -45,5 +45,21 @@ The soak box draws on a real iGPU (Mesa on the i5-12500's UHD 770, not llvmpipe)
 
 **The settled and growth budgets elsewhere under llvmpipe** follow the same rule: a `Private_Dirty` read under Xvfb is reported with the arena share named, and a verdict against 512 MiB or 1 MiB an hour is taken on a real GPU.
 `make test-performance`'s big city runs through `render.Drive` with no GL and is unaffected.
+
+## The controls (item session, 2026-10-28)
+
+Item 308's cycle at r1204, unchanged but for each run's one setting, headless under Xvfb and llvmpipe, settled `Private_Dirty` in MiB over each phase's last 30 s (warm-up day / first night / first day / second night / second day):
+
+| run | settled | second night, second day against the first |
+| --- | --- | --- |
+| as it stands | 466 / 503 / 500 / 547 / 571 | +44, +71: red |
+| `malloc_trim(0)` every 10 s | 468 / 487 / 488 / 473 / 475 | −14, −13: passes |
+| `MALLOC_ARENA_MAX=2` on the city | 466 / 508 / 506 / 542 / 547 | +34, +41: red |
+| windowed, the reference machine's Intel GPU | 333 / 339 / 339 / 340 / 340 | +1, +1: passes |
+
+Trimming gives the growth back, so the arenas held freed memory and not live use; but with two arenas the same freed memory piles up in glibc's main heap instead (`[heap]` 68 → 100 → 143 MiB over the two nights), so `MALLOC_ARENA_MAX=2` does not make `Private_Dirty` under llvmpipe a fair reading.
+**The second method applies.**
+The trim was continuous rather than taken at each phase's end, so its row is the growth while trimmed, read against the first row.
+Raw data: `~/.local/state/botropolis-perf/item-318/{cycle-1,trim-1,arena2-1,windowed-1}`.
 
 **Done when:** the control's result is recorded here, the check uses the method it selects, it passes on this tree headless, and one real-GPU cycle passes; `performance/method.md` then says so, which the performance manager writes.
