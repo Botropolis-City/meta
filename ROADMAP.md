@@ -59,6 +59,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [322](roadmap/322-perf-city-refuses-while-any-windowed-city-runs.md) | perf-city refuses while any windowed city runs, so another session's test fails every perf tool test | — | nobody, a defect in a guard |
 | [323](roadmap/323-the-hero-loops-sea-ends-inside-the-frame.md) | the hero loop's sea ends inside the frame: a black wedge in the top-right corner | — | nobody, a defect |
 | [324](roadmap/324-status-says-statistics-are-off-right-after-a-restart.md) | right after the daemon restarts, `botropolis status` says statistics are off because the database is locked | — | nobody, a small defect |
+| [325](roadmap/325-the-soak-cannot-read-the-boxs-monitor-state.md) | the soak cannot read the box's monitor state, so a run that met every budget is stamped "not a measurement" | — | nobody, a defect in the tool |
 
 ## Waiting on Aria
 
