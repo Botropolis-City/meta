@@ -3,6 +3,7 @@
 **Open, in progress since 2026-10-28 in the session "release 0.3.4". Filed 2026-10-28 (r1204) at Aria's request. Nobody's call — Aria set what it waits for and what it runs.**
 
 Depends on: 319
+Landed: slice 1 (`d7ee4b6`, r1209).
 
 Aria, 2026-10-28: *"let's plan and work towards 0.3.4 so we can release it asap. Sound like we just need 318, 319, a soak, a refilm, and then my checklist after that."*
 
