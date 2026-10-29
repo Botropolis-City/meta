@@ -14,7 +14,7 @@ Tests in `perf_test.py` on staged samples; the method and `budgets.md` say the c
 
 ## The method (performance manager, 2026-10-28)
 
-**What the phase counts:** the whole process, `Private_Dirty` + DRM-resident from the city's `fdinfo`, the reading `perf.py` already takes as `gpu_kib` for the budgets, so the cycle and the growth verdict count the same thing; item 318's real-GPU measure, unchanged.
+**What the phase counts:** the whole process, `Private_Dirty` + the GPU memory `perf.py` already reads as `gpu_kib` for the budgets (`drm-total-*` from the city's `fdinfo`, summed over each distinct driver and client), and a run whose GPU reading is 0 is refused, so the cycle and the growth verdict count the same thing; item 318's real-GPU measure, unchanged.
 
 **How it runs:** before the pinned phases, the same city and desk, with `--set light=live` and the scene's clock scrubbed as item 308's check scrubs it (`]`), warm-up day then night → day → night → day, 180 s a phase, sampled every 10 s as the soak samples, judged on each phase's last 30 s, which must hold a slope under 0.1 MiB/s or the phase is reported as unsettled.
 Then the city is restarted with the soak's pinned light, so the cycle's images and arenas cannot carry into the growth phases.
