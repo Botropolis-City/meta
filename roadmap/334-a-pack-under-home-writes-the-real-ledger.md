@@ -1,6 +1,6 @@
 # 334. Packing a session under `--home` writes the real daemon's ledger
 
-**Open. Filed 2026-11-03 (r1234), found by item 333's session. Nobody's call — a defect.**
+**Open, in progress since 2026-11-03 in the session "item 334". Filed 2026-11-03 (r1234), found by item 333's session. Nobody's call — a defect.**
 
 A city started with `--home` (a staged home, as the demo and the tests use) sends a pack to the default socket's daemon, which keeps the real ledger, so packing a staged session marks a real one, or a ghost, in the user's own depot.
 `--home` was meant to write nothing of the user's (item 333's details say so for the walk, and the sweep refuses there), and a single pack slipped past that.
