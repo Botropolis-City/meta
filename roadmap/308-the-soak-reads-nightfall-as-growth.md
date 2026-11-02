@@ -1,9 +1,10 @@
 # 308. The soak reads nightfall as growth, because the box's clock decides when the city lights up
 
-**Open, in progress since 2026-10-27 in the session "item 308". Filed 2026-10-27 (r1192), from 0.3.3's soak, the first to run. Nobody's call — the method is the performance manager's to specify, its build an item session's.**
+**Done 2026-11-02 (`ef2458e`, r1217). Filed 2026-10-27 (r1192), from 0.3.3's soak, the first to run. Nobody's call — the method is the performance manager's to specify, its build an item session's.**
 
 Depends on: 311, 318
 Landed: slice 1 (`8003765`, r1193).
+Landed: slice 2 (`ef2458e`, r1217).
 
 0.3.3's soak (server 3101537, from 11:47 MDT) measured the city's memory and GPU flat for 122 minutes, +0.61 MiB an hour, and then 325 → 375 MiB in one 10-second sample at 21:00:05 UTC: Private_Dirty +16 MiB and GPU +32 MiB, flat again after (−3.0 MiB an hour).
 21:00 is `NightFrom` (`pkg/city/scene.go`) on the box's clock, which the city reads in UTC: the windows lit and the lights were drawn.
@@ -50,7 +51,26 @@ The light is the config key `light = live | night | day`, set for one run with `
 `perf-soak --light night|day|live` passes it through `perf-busy-city --set`; `live` sets nothing, so a build from before the key can still be soaked.
 
 1. **Slice 1, landed:** the key, the hostile config set to night, an acceptance test that shoots the city at noon pinned to night against day and at midnight live, and the perf tools' `--light` and step table.
-2. **Slice 2, owed:** the light-cycle check.
-   A `--record` city on the 600-district fixture wrote no frame in 10 minutes while using about six cores, where the headless city opens in about 4 s.
-   A recording opens only on a read history (item 202), so it waits on the daemon's paced first read.
-   The in-process driver never runs Ebitengine's loop, so it may not measure the GPU half of the switch.
+2. **Slice 2, landed with item 318:** the light-cycle check, `testing/acceptance/lightcycle_test.go`.
+   It first found item 311: a `--record` city on the 600-district fixture wrote no frame, while using about six cores.
+   The paced first read suspected here was not the cause; a recording whose first tick beat its first snapshot deadlocked (item 311).
+   It then found the growth item 318 traced to llvmpipe, not the city.
+
+## Closed (item session, 2026-11-02)
+
+Slice 1 (`8003765`, r1193; meta `43eb653`) pins the light: the config key `light`, and `perf-soak --light night` by default, with `soak.md` naming the light and listing every step.
+Slice 2 landed with item 318 (`78f5f7c`, r1216, and `ef2458e`, r1217): the light-cycle check, in 180 s phases judged on their last 30 s.
+Under llvmpipe it counts the city's images and its live Go heap, each repeat within 4 MiB, and `TestLightCycleOnARealGPU` keeps the whole-process reading on a real GPU.
+
+Against **Done when**:
+
+- 0.3.4's soak ran with `--light night`, found no steps, and met every growth budget ([report](../performance/reports/2026-10-29-i5-12500-igpu-soak-0.3.4.md)).
+- The light-cycle check passes headless.
+- `performance/method.md` step 8 covers the pinned light and the step table.
+
+**Deviations, for Aria:**
+
+- The light-cycle check counts the city's images and heap under llvmpipe, not whole-process `Private_Dirty`, as item 318's method records.
+- Its 40 s phases became 180 s, because the shorter phases had not settled.
+- Method step 8 does not yet describe the light-cycle check; the performance manager is adding it.
+- The real-GPU variant has not yet completed a run (item 318).
