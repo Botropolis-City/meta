@@ -1,6 +1,6 @@
 # 332. The landing queue's tests run under no make target, so nothing runs them
 
-**Open. Filed 2026-11-03 (r1233), noticed by item 330. Nobody's call — a guard not invoked.**
+**Open, in progress since 2026-11-03 in the session "item 332". Filed 2026-11-03 (r1233), noticed by item 330. Nobody's call — a guard not invoked.**
 
 `botropolis/tools/land-queue` has tests (item 295's, and item 326's `inherit_linux_test.go`), and no `make` target runs them: `make test` covers the packages and the acceptance tree, not `tools/`.
 A test nobody runs cannot fail, which is the rule the docs guard was built on.
