@@ -3,6 +3,7 @@
 **Open, in progress since 2026-11-03 in the session "release 0.3.5". Filed 2026-11-02 (r1209) at Aria's request. Nobody's call — Aria chose what it holds.**
 
 Depends on: 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321 (slice 1), 318, 308, 317, 322
+Landed: slice 1 (`e23414d`, r1227).
 
 Aria, 2026-11-02: *"Quality patch, go with your list."*
 
