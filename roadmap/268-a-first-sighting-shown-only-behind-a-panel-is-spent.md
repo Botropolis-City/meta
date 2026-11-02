@@ -1,6 +1,6 @@
 # 268. A first sighting shown only behind a covering panel is spent, so it never shows
 
-**Open. Filed 2026-10-26 (r1093), from item 264's session. Nobody's call — a defect.**
+**Open, in progress since 2026-11-02 in the session "item 268". Filed 2026-10-26 (r1093), from item 264's session. Nobody's call — a defect.**
 
 The city captions a kind of thing the first time it comes into view, once (`pkg/render/explain.go`, `queueSightings`; `explainCaptions` calls `scene.Sight`).
 It calls `scene.Sight` whatever covers the map, so a sighting that happens while a notice, the board, the close-up, the settings, the breakdown, the timeline or the view key covers the city is drawn under the dim and marked seen.

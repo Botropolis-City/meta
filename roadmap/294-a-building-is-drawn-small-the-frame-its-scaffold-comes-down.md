@@ -1,6 +1,6 @@
 # 294. A building is drawn small for one frame as its scaffold finishes coming down
 
-**Open. Filed 2026-10-26 (r1130), from item 212's session. Nobody's call — a defect.**
+**Open, in progress since 2026-11-02 in the session "item 294". Filed 2026-10-26 (r1130), from item 212's session. Nobody's call — a defect.**
 
 Found by item 212's whole-frame walk, and there before its work: on the frame a scaffold finishes coming down, one building is drawn smaller (26×48 px) than on the next frame, or than a frame drawn afresh at the same tick (50×66 px).
 Nothing is held from an earlier frame on that frame, so it is not item 212's reuse.

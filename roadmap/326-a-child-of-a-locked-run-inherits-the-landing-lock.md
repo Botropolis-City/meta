@@ -1,6 +1,6 @@
 # 326. A daemon started under the landing lock inherits the lock's descriptor, and holds it after the run dies
 
-**Open. Filed 2026-11-02 (r1209), found by item 318. Nobody's call — a defect in the lock.**
+**Open, in progress since 2026-11-02 in the session "item 326". Filed 2026-11-02 (r1209), found by item 318. Nobody's call — a defect in the lock.**
 
 A `make test-acceptance-locked` run of item 318's real-GPU cycle timed out on 2026-10-28, and its test daemon (`botropolisd` on a `/tmp` home) outlived it, reparented to `systemd --user`, with the open descriptor of `/tmp/botropolis-land.lock` it had inherited from `land-queue`.
 It held the lock for four days: item 212's landing waited from 2026-10-29 until Aria killed the daemon by hand, since neither session may kill a pid it did not start.

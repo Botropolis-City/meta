@@ -1,6 +1,6 @@
 # 259. A long boat straddling a raised deck is drawn all in front of it or all behind it
 
-**Open. Filed 2026-10-26 (r1068), found by item 252's session from its frames. Nobody's call — a defect.**
+**Open, in progress since 2026-11-02 in the session "item 259". Filed 2026-10-26 (r1068), found by item 252's session from its frames. Nobody's call — a defect.**
 
 Depends on: 252
 
