@@ -3,6 +3,7 @@
 **Open, in progress since 2026-11-02 in the session "item 259". Filed 2026-10-26 (r1068), found by item 252's session from its frames. Nobody's call — a defect.**
 
 Depends on: 252
+Landed: slice 1 (`b53568e`, r1213).
 
 [Item 252](252-the-second-bridge-is-too-low-for-the-liner.md) raised the second bridge's deck over the river so the liner clears it; its frames show the liner, longer than the deck is wide, straddling it: at 61% weekly usage its bow below the deck on the near side and its funnels behind it on the far side, drawn right.
 At other readings it is drawn wrong: at 55%, mostly on the near side, a pier draws over its hull; at 64%, mostly on the far side, its stern draws over the deck's far edge.
