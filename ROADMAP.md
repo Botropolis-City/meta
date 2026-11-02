@@ -50,7 +50,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | 311, 318 | nobody, a defect in the method |
-| [318](roadmap/318-each-nightfall-keeps-its-lights.md) | each nightfall keeps its lights: the city retains about 40 MiB per night, outside the Go heap | — | nobody, a defect |
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
 | [323](roadmap/323-the-hero-loops-sea-ends-inside-the-frame.md) | the hero loop's sea ends inside the frame: a black wedge in the top-right corner | — | nobody, a defect |
 | [326](roadmap/326-a-child-of-a-locked-run-inherits-the-landing-lock.md) | a daemon started under the landing lock inherits the lock's descriptor, and holds it after the run dies | — | nobody, a defect in the lock |

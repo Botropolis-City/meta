@@ -1,6 +1,6 @@
 # 318. Each nightfall keeps its lights: the city retains about 40 MiB per night, outside the Go heap
 
-**Open, in progress since 2026-10-28 in the session "item 318". Filed 2026-10-28 (r1204), from item 308's light-cycle check, measured by its session and the performance manager. Nobody's call — a defect against the growth budget.**
+**Fixed 2026-11-02 (`ef2458e`, r1217). Filed 2026-10-28 (r1204), from item 308's light-cycle check, measured by its session and the performance manager. Nobody's call — a defect against the growth budget.**
 
 On the 600-district fixture at r1197, with 180 s settled phases, a city held at day stays flat (454 → 453 MiB over 15 minutes), but one cycled by the clock goes day 445–448 → night 490 → day 485–488 → night 522–536 → day 531–541 MiB of `Private_Dirty`, in two runs.
 Each nightfall adds 40–46 MiB and the following day gives back 3–5; only about 9 MB of each night is Go heap (`inuse_space` +7.2 MB), so about 31 MiB is outside it — most likely night's textures, the lit windows and the lights layer, made at nightfall and never released at daybreak.
@@ -71,3 +71,14 @@ So the check compares the live heap minus the records' slack, their capacity les
 Not a 48 MiB bound, and not night 3 against night 2.
 
 **Done when:** the control's result is recorded here, the check uses the method it selects, it passes on this tree headless, and one real-GPU cycle passes; `performance/method.md` then says so, which the performance manager writes.
+
+## Closed (item session, 2026-11-02)
+
+Fixed as a measurement, not in the city, which made nothing new per night.
+`78f5f7c` (r1216) and `ef2458e` (r1217): `testing/acceptance/lightcycle_test.go`, item 308's slice 2, reads a memory log only a devtools build writes (`pkg/memlog`), the city's images and its live Go heap less the records' slack, each repeat within 4 MiB of the first of its light, and fails by name if a half of the record breaks its rule.
+Before landing it ran red without the log, refusing a cycle that logged nothing, and passed with it: images 69 / 87 / 87 / 87 / 87 MiB, heap less slack 140 / 145 / 146 / 147 / 146.
+The rule's guard was mutated red in `TestRecordRule`, its grace frame and its window each.
+The cycle's daemon and city now die with the test, after a timed-out cycle's daemon held the landing lock for four days (the lock's own fault is item 326).
+
+**For Aria:** the real-GPU cycle that passed is the windowed run at r1204 (333 / 339 / 339 / 340 / 340 MiB), the same cycle the new `TestLightCycleOnARealGPU` runs; that test itself has not yet completed, because its one run met a monitor DPMS had turned off.
+It runs on the soak box with item 321, or on your screen when the roadmap manager books it with you.
