@@ -49,6 +49,8 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
 | [326](roadmap/326-a-child-of-a-locked-run-inherits-the-landing-lock.md) | a daemon started under the landing lock inherits the lock's descriptor, and holds it after the run dies | — | nobody, a defect in the lock |
 | [327](roadmap/327-release-0-3-5.md) | release 0.3.5, a quality patch | 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321 (slice 1), 318, 308, 317, 322 | nobody, Aria chose what it holds |
+| [328](roadmap/328-the-second-night-holds-eight-mib-more-heap.md) | the second night holds 6–8 MiB more heap than the first, on every quiet run since the light-cycle check landed | — | nobody for the diagnosis; Aria for the target |
+| [329](roadmap/329-the-light-cycle-check-reports-on-a-runner.md) | the light-cycle check gates on a GitHub runner, where every other stress check reports | — | nobody, Aria's rule applies |
 
 ## Waiting on Aria
 
