@@ -1,6 +1,6 @@
 # 307. Uploading the site's media caches "not found" at the edge for clips about to exist
 
-**Open, in progress since 2026-11-02 in the session "item 307". Filed 2026-10-27 (r1192), from 0.3.3's website release. Nobody's call — a defect.**
+**Fixed 2026-11-02 (`4ecab51`, r48 of botropolis.city). Filed 2026-10-27 (r1192), from 0.3.3's website release. Nobody's call — a defect.**
 
 Landed: slice 1 (`4ecab51`, r48).
 
@@ -12,3 +12,16 @@ The manager purged the host's cache through the API, once Aria gave the deploy t
 1. Check what exists in the bucket itself (R2's API, through the token), never through the cached host.
 2. After an upload, purge the uploaded URLs (or the host) through Cloudflare's API with the deploy token, by reference through `secret-run`, never on a command line.
 3. Tests: the existence check never requests the public host; an upload ends with a purge of exactly what it uploaded; a purge that fails fails the upload, saying why.
+
+## Closed
+
+Fixed in botropolis.city `4ecab51`.
+`tools/upload-media.sh` now lists the bucket through Cloudflare's API (`/accounts/…/r2/buckets/…/objects`, paged), never through `media.botropolis.city`.
+It uploads what is missing and then purges exactly those URLs through `/zones/…/purge_cache`, in batches of 30.
+A failed listing, upload or purge fails the run, and the API's error is printed.
+The token reaches curl on stdin, never on its command line.
+`tools/upload-media.test.ts` shows all three of the fix's tests against fake `curl` and `npx`, with no call to Cloudflare.
+
+**For Aria:** when `CLOUDFLARE_ACCOUNT_ID` and `MEDIA_ZONE_ID` are unset, the script looks both IDs up with the deploy token (`GET /accounts`, `GET /zones?name=botropolis.city`).
+If the token cannot read those, set the two variables, for example in `.env`.
+The listing endpoint and its `result_info.cursor` paging have not been run against the real API: that happens at 0.3.5's upload (item 327).
