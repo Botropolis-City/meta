@@ -52,7 +52,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [307](roadmap/307-uploading-media-caches-not-found-at-the-edge.md) | uploading the site's media caches "not found" at the edge for clips about to exist | — | nobody, a defect |
 | [308](roadmap/308-the-soak-reads-nightfall-as-growth.md) | the soak reads nightfall as growth, because the box's clock decides when the city lights up | 311, 318 | nobody, a defect in the method |
-| [317](roadmap/317-keep-on-failure-zero-keeps-the-box.md) | KEEP_ON_FAILURE=0 keeps the box | — | nobody, a defect |
 | [318](roadmap/318-each-nightfall-keeps-its-lights.md) | each nightfall keeps its lights: the city retains about 40 MiB per night, outside the Go heap | — | nobody, a defect |
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
 | [322](roadmap/322-perf-city-refuses-while-any-windowed-city-runs.md) | perf-city refuses while any windowed city runs, so another session's test fails every perf tool test | — | nobody, a defect in a guard |
