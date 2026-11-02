@@ -51,7 +51,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [327](roadmap/327-release-0-3-5.md) | release 0.3.5, a quality patch | 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321 (slice 1), 318, 308, 317, 322, 331 | nobody, Aria chose what it holds |
 | [328](roadmap/328-the-second-night-holds-eight-mib-more-heap.md) | the second night holds 6–8 MiB more heap than the first, on every quiet run since the light-cycle check landed | — | nobody for the diagnosis; Aria for the target |
 | [330](roadmap/330-the-fitted-frame-reads-high-after-its-neighbours.md) | the stress city's fitted frame reads over its bar in the full suite and under it alone, so a neighbour weighs on it | — | nobody, a defect in the suite's order |
-| [331](roadmap/331-a-session-blocked-on-a-permission-prompt-reads-as-working.md) | a background session blocked on a permission prompt reads as working, not needs-you | — | nobody, a defect |
 
 ## Waiting on Aria
 
