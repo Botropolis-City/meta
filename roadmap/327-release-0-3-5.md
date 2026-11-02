@@ -25,3 +25,4 @@ Left for later, on purpose: 257, 261, 204, 245, the parked 238 and 277, and the 
 ## Answered while building
 
 - **Item 326 defers to 0.3.6** (manager, 2026-11-03, under Aria's overnight leave): every other item had landed and 326, the landing lock's descriptor, was waiting on a permission prompt in its own window; it is tooling nobody using Botropolis sees, so the candidate was cut without it rather than lose the night.
+- **Aria, 2026-11-03:** ship with the light-cycle check red on the reference machine (*"Ship with that check red"*), item 328 to fix the second-night step; the re-film passes (*"Pass, publish with 0.3.5"*). The candidate `652b892` (r1228) carries item 329 on `e23414d`; the package, S1–S10, CI and the dry run were green on it, and item 330 was filed from the fitted frame's one-off spike.
