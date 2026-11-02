@@ -85,6 +85,7 @@ Each is either bot-crossing's setting rather than a feature, or a cost the footp
 | [DESIGN.md](botropolis/DESIGN.md) | what exists, and the rules the work is held to |
 
 Items are numbered in one series, 1–68.
+| [333](roadmap/333-tidying-part-1.md) | a vision item; details private | — | Nobody's |
 Section 8's bugs 1–34 and the art batch's 35–68 continue the same numbering; phases 19 and 20 have their own small series, cited as "phase 20 item 3".
 There are two bug 18s — road tiles, and rovers parking — both fixed, both left renumbered as written, because a dated record that gets tidied stops being a record.
 Nothing cites either by number.
