@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-11-03 in the session "item 330". Filed 2026-11-03 (r1228), from 0.3.5's release gate. Nobody's call — a defect in the suite's order.**
 
+Landed: slice 1 (`d29223b`, r1233).
+
 Twice the full `make test-performance` has read the 600-district city's fitted frame over its 16 ms bar — r1201 16.03, r1228 16.45 — while the subtest alone, run six times quiet at the same commit, read 14.2–14.5 ms every time (performance manager, 2026-11-03).
 So something earlier in the suite occasionally leaves the machine, the disk cache or the GPU warm or busy enough to cost a millisecond or two, and a release gate can fail on a neighbour.
 
