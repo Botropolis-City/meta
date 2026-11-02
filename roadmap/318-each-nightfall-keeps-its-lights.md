@@ -62,4 +62,12 @@ Trimming gives the growth back, so the arenas held freed memory and not live use
 The trim was continuous rather than taken at each phase's end, so its row is the growth while trimmed, read against the first row.
 Raw data: `~/.local/state/botropolis-perf/item-318/{cycle-1,trim-1,arena2-1,windowed-1}`.
 
+## The heap is read without the records' slack (performance manager, 2026-11-02)
+
+The images settle at the first night and hold, but the live Go heap, judged whole, failed the 4 MiB bound in two runs of three with no growth behind it: 154 / 160 / 161 / 168 / 165 MiB in one, 153 / 160 / 160 / 162 / 161 / 160 / 160 over three nights in another, so it does not ratchet.
+The swing is the record's two halves, which swap each frame and are cut back only once a buffer holds over four times the most it used in the last eight frames (`recordsize.go`, item 212); they use about 9.5 MiB by day and by night and hold about 17 MiB each, and the rule would let each hold about 41.
+So the check compares the live heap minus the records' slack, their capacity less their use in both halves, each repeat within 4 MiB of the first of its light: that removes only what the rule permits.
+**And the subtraction cannot hide a broken shrink:** each half's capacity must stay within the rule, at most four times its largest use over the last eight frames, with one frame's grace after a swap; a half outside it fails the check, which names it.
+Not a 48 MiB bound, and not night 3 against night 2.
+
 **Done when:** the control's result is recorded here, the check uses the method it selects, it passes on this tree headless, and one real-GPU cycle passes; `performance/method.md` then says so, which the performance manager writes.
