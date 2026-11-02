@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-11-02 in the session "item 307". Filed 2026-10-27 (r1192), from 0.3.3's website release. Nobody's call — a defect.**
 
+Landed: slice 1 (`4ecab51`, r48).
+
 Publishing 0.3.3's re-film, `tools/upload-media.sh` checked whether each clip already existed with a request through `media.botropolis.city`, and the site's tests asked for them too, before the upload; Cloudflare's edge cached the 404s for four hours, so 28 of 30 new clips read as missing there after they were uploaded.
 The manager purged the host's cache through the API, once Aria gave the deploy token *Zone → Cache Purge* on 2026-10-27.
 
