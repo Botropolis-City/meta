@@ -1,6 +1,6 @@
 # 320. Release 0.3.4
 
-**Open, in progress since 2026-10-28 in the session "release 0.3.4". Filed 2026-10-28 (r1204) at Aria's request. Nobody's call — Aria set what it waits for and what it runs.**
+**Done 2026-10-29 (`d7ee4b6`, r1209; tagged v0.3.4). Filed 2026-10-28 (r1204) at Aria's request. Nobody's call — Aria set what it waits for and what it runs.**
 
 Depends on: 319
 Landed: slice 1 (`d7ee4b6`, r1209).
@@ -32,3 +32,11 @@ Item 212 lands what is in flight by then; whatever is not landed then waits for 
 - **The soak** was ordered on 2026-10-29 at 00:56: server 3102814, the candidate build pinned to night.
 - **The checklist on the candidate package** (2026-10-29, botropolis 0.3.4-1 installed): L1 and L2 pass (release session: 51 agent records, 13 CLI records and 327 sessions matched in one pass, every live one agreeing; a stopped valley session left `claude agents` and the daemon within 1.5 s and stayed off after a restart). Aria ran A1–A7, each **pass**, A7 being the tray round trip. Noted for an item: once, right after the daemon's restart, `botropolis status` printed *statistics are off: database is locked (SQLITE_BUSY)* on stderr while doctor said statistics ok.
 - **The soak** (server 3102814, 2026-10-29, pinned to night, 8 hours): every budget met — city +0.39 MiB an hour visible and +0.17 hidden, daemon −0.03 and +0.01; stamped *not a measurement* only because the box's monitor state reads unknown (item 325). Aria, 2026-10-29: *"Release"*.
+
+## Released
+
+0.3.4 was tagged `v0.3.4` at `d7ee4b6` (r1209) by release run 40953774928 on 2026-10-29, every job green, after a passing dry run; APT, RPM and the Homebrew taps published with it.
+The site's media went up the same day (`botropolis.city` 25cf612's successor, the 0.3.4 import, with the media host's cache purged after the upload), and the site deployed showing v0.3.4.
+The AUR packages, `botropolis` `89401be` and `botropolis-bin` `3922515`, were pushed by Aria herself on 2026-11-02, since the permission check refused the push to the release session and to the manager as publishing.
+Everything the item asked for ran on the one candidate build: the soak (every budget met, item 325 for its stamp), the re-film (Aria: pass), S1–S10, L1–L2, A1–A7 (all pass) and the performance gate.
+Found on the way and filed: items 321–326.
