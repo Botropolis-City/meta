@@ -1,6 +1,6 @@
 # 328. The second night holds 6–8 MiB more heap than the first, on every quiet run since the light-cycle check landed
 
-**Open. Filed 2026-11-03 (r1227), from 0.3.5's release gate. Nobody's call for the diagnosis; Aria's for the target, if the check should judge later nights.**
+**Open, in progress since 2026-11-03 in the session "item 328". Filed 2026-11-03 (r1227), from 0.3.5's release gate. Nobody's call for the diagnosis; Aria's for the target, if the check should judge later nights.**
 
 `TestLightCycleGivesItsMemoryBack` (item 318, 600 districts, night → day → night → day, heap less the records' slack) fails its second night on every quiet run since it landed: r1217 +6 MiB, r1227 +8 and +7, against 4; the second day passes (+3 to +4) and Ebitengine's images stay flat at 87 MiB.
 It also fails on GitHub's runner (+8.0, the 0.3.5 dry run), so it is the city, not a machine.
