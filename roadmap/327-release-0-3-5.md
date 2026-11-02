@@ -4,6 +4,7 @@
 
 Depends on: 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321 (slice 1), 318, 308, 317, 322, 331
 Landed: slice 1 (`e23414d`, r1227).
+Landed: slice 2 (`48f0cd9`, r1230).
 
 Aria, 2026-11-02: *"Quality patch, go with your list."*
 
@@ -28,3 +29,4 @@ Left for later, on purpose: 257, 261, 204, 245, the parked 238 and 277, and the 
 - **Aria, 2026-11-03:** ship with the light-cycle check red on the reference machine (*"Ship with that check red"*), item 328 to fix the second-night step; the re-film passes (*"Pass, publish with 0.3.5"*). The candidate `652b892` (r1228) carries item 329 on `e23414d`; the package, S1–S10, CI and the dry run were green on it, and item 330 was filed from the fitted frame's one-off spike.
 - **Aria, 2026-11-03, later:** item 255's frames pass (*"Clips look good. Pass!"*); and the soak runs after the release, not before (*"We can soak post-release"*), since the day's only auction box cost twice the usual.
 - **Aria, 2026-11-03, on the checklist:** A1–A7 all pass on 0.3.5-1 (`652b892`), L2 passes, and L1 found item 331 (a session blocked on a permission prompt reads as working). Her ruling: *"Let's hold to fix it, but we shouldn't need to re-run the manual checks. Just automated ones."* So 331 lands as the freeze's exception, the candidate is re-cut, and only the automated checks (the gate, S1–S10, L1–L2, CI, the dry run) run again; A1–A7 and the re-film stand.
+- **The final gate** (performance manager, 2026-11-03): `make test-performance` at `48f0cd9`, quiet, every budget met but the light-cycle check Aria ruled to ship with (second night +8 MiB against 4, images flat): fitted 14.75 ms, opening 1.92 CPU-s, settled daemon 0.54–0.82%; raw in `~/.local/state/botropolis-perf/test-performance-r1230-48f0cd9-release-0.3.5-20261102-110258/`.
