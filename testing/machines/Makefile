@@ -13,11 +13,15 @@ DESKTOP ?= gnome
 BOTROPOLIS ?= ../../botropolis
 SOAK_SESSIONS ?= 200
 SOAK_PROJECTS ?= 150
+ifneq ($(filter-out 0 1,$(strip ${KEEP_ON_FAILURE}))$(word 2,${KEEP_ON_FAILURE}),)
+$(error KEEP_ON_FAILURE is "${KEEP_ON_FAILURE}": use KEEP_ON_FAILURE=1 to keep a box that fails, or KEEP_ON_FAILURE=0 (or leave it unset) to cancel it)
+endif
+
 PLUGINS := $${XDG_CACHE_HOME:-$$HOME/.cache}/botropolis-machines/plugins
 
 REFS := --robot-user-ref "${ROBOT_USER_REF}" --robot-password-ref "${ROBOT_PASSWORD_REF}" --hcloud-token-ref "${HCLOUD_TOKEN_REF}"
 BUCKET := --bucket-url "${BUCKET_URL}" --bucket-write-id-ref "${BUCKET_WRITE_ID_REF}" --bucket-write-secret-ref "${BUCKET_WRITE_SECRET_REF}" --bucket-read-id-ref "${BUCKET_READ_ID_REF}" --bucket-read-secret-ref "${BUCKET_READ_SECRET_REF}"
-OPTS := --desktop ${DESKTOP} $(if ${IPV4},--ipv4) $(if ${MAX_HOURS},--max-hours ${MAX_HOURS}) $(if ${KEEP_ON_FAILURE},--keep-on-failure)
+OPTS := --desktop ${DESKTOP} $(if ${IPV4},--ipv4) $(if ${MAX_HOURS},--max-hours ${MAX_HOURS}) $(if $(filter 1,${KEEP_ON_FAILURE}),--keep-on-failure)
 
 targets ::
 	@awk -F'::?[[:space:]]*' '/^[a-zA-Z0-9][^$#\/\t=]*::?([^=]|$$)/ { \

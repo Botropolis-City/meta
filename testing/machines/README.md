@@ -106,7 +106,7 @@ So:
 - **The set-up says each step** after apt, and keeps all it says in `/root/setup.log` on the box.
 - **`box.log` in the results** holds the box's kernel log and a heartbeat (load and memory) every five seconds, streamed over one ssh from just after delivery until the soak starts. If the box wedges, its last words are on the laptop, and the heartbeat says when it stopped.
 - **A failure before the soak starts collects diagnostics** before the box goes: a ping, then `setup.log`, `dri.txt`, the Xorg and i3 logs, `dmesg`, `ip addr`, `free` and `ps`, into `diagnostics/` in the results. Whatever could not be collected is said.
-- **`KEEP_ON_FAILURE=1`** leaves a box that failed before its soak started up for you to look at, until its booked cancellation, which can be up to a day. The runner says the date, the most it costs, how to reach it and how to cancel it sooner, and `machine.txt` records it. An interrupt and the ceiling still cancel.
+- **`KEEP_ON_FAILURE=1`** leaves a box that failed before its soak started up for you to look at, until its booked cancellation, which can be up to a day. The runner says the date, the most it costs, how to reach it and how to cancel it sooner, and `machine.txt` records it. An interrupt and the ceiling still cancel. `KEEP_ON_FAILURE=0`, or leaving it unset, cancels a box that fails; any other value is refused before anything runs ([item 317](../../roadmap/317-keep-on-failure-zero-keeps-the-box.md)).
 
 ### The soak depends on the box alone
 
