@@ -47,7 +47,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
-| [326](roadmap/326-a-child-of-a-locked-run-inherits-the-landing-lock.md) | a daemon started under the landing lock inherits the lock's descriptor, and holds it after the run dies | — | nobody, a defect in the lock |
 | [328](roadmap/328-the-second-night-holds-eight-mib-more-heap.md) | the second night holds 6–8 MiB more heap than the first, on every quiet run since the light-cycle check landed | — | nobody for the diagnosis; Aria for the target |
 | [330](roadmap/330-the-fitted-frame-reads-high-after-its-neighbours.md) | the stress city's fitted frame reads over its bar in the full suite and under it alone, so a neighbour weighs on it | — | nobody, a defect in the suite's order |
 
