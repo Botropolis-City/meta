@@ -68,7 +68,9 @@ DESK_TOOL = textwrap.dedent('''\
             f.write(v)
     if name in broken:
         sys.exit(1)
-    if name == 'xset':
+    if name == 'xset' and 'no-dpms' in broken:
+        print('DPMS (Energy Star):\\n  Standby: 600    Suspend: 600    Off: 600\\n  DPMS is Disabled')
+    elif name == 'xset':
         print('  Monitor is On')
     elif name == 'xprop' and '-id' in args:
         print('_NET_WM_PID(CARDINAL) = %s' % ('1' if 'no-window' in broken else read('city-pid')))

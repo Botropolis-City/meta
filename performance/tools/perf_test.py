@@ -567,7 +567,7 @@ def soak_rows(city_visible=0.0, city_hidden=0.0, daemon_visible=0.0, daemon_hidd
     return rows
 
 
-SOAK_MARKS = {'hidden_at_s': '14400', 'frames_at_hide': '51000', 'daemon_pid': '20',
+SOAK_MARKS = {'hidden_at_s': '14400', 'frames_at_hide': '431760', 'daemon_pid': '20',
               'monitor_at_end': 'Monitor is On'}
 
 
@@ -656,10 +656,10 @@ class WhenJudgingASoak(unittest.TestCase):
         return perf.judge_soak(soak_rows(), marks)['reasons']
 
     def test_and_the_hide_failed_and_the_city_drew_frames_it_should_not_say_the_visible_phase_drew_none(self):
-        self.assertNotIn('the visible phase drew no frames', self.failed_hide('863640'))
+        self.assertFalse(any('drew too few frames' in r for r in self.failed_hide('863640')))
 
     def test_and_the_hide_failed_and_the_city_drew_no_frames_it_should_say_the_visible_phase_drew_none(self):
-        self.assertIn('the visible phase drew no frames', self.failed_hide('0'))
+        self.assertTrue(any('drew too few frames' in r for r in self.failed_hide('0')))
 
     def test_and_a_phase_holds_under_30_minutes_it_should_say_it_is_not_a_measurement(self):
         rows = soak_rows(hide_at=14400, end=15600)
@@ -763,7 +763,7 @@ class WhenAskingPerfSoakForHelp(unittest.TestCase):
 
 
 class WhenJudgingASoakWithTheHideTurnedOff(unittest.TestCase):
-    MARKS = {'hide': 'none', 'frames_at_end': '90000', 'daemon_pid': '20', 'monitor_at_end': 'Monitor is On'}
+    MARKS = {'hide': 'none', 'frames_at_end': '864000', 'daemon_pid': '20', 'monitor_at_end': 'Monitor is On'}
 
     def judge(self, marks=None, **growth):
         return perf.judge_soak(soak_rows(hide_at=99999, **growth), dict(self.MARKS, **(marks or {})))
@@ -779,6 +779,58 @@ class WhenJudgingASoakWithTheHideTurnedOff(unittest.TestCase):
 
     def test_and_no_frames_were_drawn_by_the_end_it_should_say_it_is_not_a_measurement(self):
         self.assertEqual(self.judge({'frames_at_end': '0'})['verdict'], 'not a measurement')
+
+
+VIRTUAL = 'none (virtual: forced EDID, no DPMS)'
+
+
+class WhenJudgingWhetherTheVisiblePhaseDrew(unittest.TestCase):
+    def judge(self, **marks):
+        return perf.judge_soak(soak_rows(), dict(SOAK_MARKS, **marks))
+
+    def test_and_the_frames_reach_the_cap_and_the_display_is_virtual_it_should_pass(self):
+        self.assertEqual(self.judge(monitor_at_start=VIRTUAL, monitor_at_end=VIRTUAL)['verdict'], 'pass')
+
+    def test_and_the_frames_reach_the_cap_and_the_monitor_is_unknown_it_should_pass(self):
+        self.assertEqual(self.judge(monitor_at_start='unknown', monitor_at_end='unknown')['verdict'], 'pass')
+
+    def test_and_the_frames_reach_the_cap_and_the_monitor_is_unknown_it_should_note_the_desk_could_not_be_queried(self):
+        self.assertTrue(any('could not be queried' in n for n in self.judge(monitor_at_end='unknown')['notes']))
+
+    def test_and_the_frames_reach_the_cap_and_the_display_is_virtual_it_should_add_no_note(self):
+        self.assertEqual(self.judge(monitor_at_start=VIRTUAL, monitor_at_end=VIRTUAL)['notes'], [])
+
+    def test_and_the_frames_reach_the_cap_but_the_monitor_was_off_at_the_start_it_should_say_it_is_not_a_measurement(self):
+        self.assertEqual(self.judge(monitor_at_start='Monitor is Off')['verdict'], 'not a measurement')
+
+    def test_and_the_frames_are_just_under_90_percent_of_the_cap_it_should_say_it_is_not_a_measurement(self):
+        self.assertEqual(self.judge(frames_at_hide='388799')['verdict'], 'not a measurement')
+
+    def test_and_the_frames_are_exactly_90_percent_of_the_cap_it_should_pass(self):
+        self.assertEqual(self.judge(frames_at_hide='388800')['verdict'], 'pass')
+
+    def test_and_the_frames_are_well_under_the_cap_it_should_give_the_count(self):
+        self.assertIn('the visible phase drew too few frames: 51000 in 14400 s, under 90% of 30 fps',
+                      self.judge(frames_at_hide='51000')['reasons'])
+
+    def test_and_the_hide_failed_it_should_hold_the_frames_at_the_end_against_the_whole_run(self):
+        marks = dict(SOAK_MARKS, hide_failed_at_s='14400', frames_at_end='431760')
+        del marks['hidden_at_s'], marks['frames_at_hide']
+        self.assertTrue(any('drew too few frames: 431760 in 28800 s' in r
+                            for r in perf.judge_soak(soak_rows(), marks)['reasons']))
+
+
+class WhenReportingWhichGuardApplied(unittest.TestCase):
+    def setUp(self):
+        marks = dict(SOAK_MARKS, monitor_at_start='unknown', monitor_at_end='unknown')
+        self.report = perf.soak_report(perf.judge_soak(soak_rows(), marks), marks)
+
+    def test_it_should_say_the_visible_phase_was_judged_by_its_frames_against_the_cap(self):
+        self.assertIn('Drew: 431760 frames in 14400 s, 100% of the 30 fps cap (at least 90% needed); '
+                      'the monitor read unknown at the start and unknown at the end.', self.report)
+
+    def test_and_the_monitor_could_not_be_queried_it_should_note_it(self):
+        self.assertIn('- note: the monitor could not be queried', self.report)
 
 
 if __name__ == '__main__':

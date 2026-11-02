@@ -120,3 +120,41 @@ class WhenReplayingLooksOnTheBusyDesk(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class MonitorOnTheDesk(unittest.TestCase):
+    broken = ''
+    expected = ''
+
+    @classmethod
+    def setUpClass(cls):
+        cls.top = tempfile.mkdtemp()
+        desk = BusyDesk(cls.top)
+        out = os.path.join(cls.top, 'out')
+        env = desk.env(path_without(set(DESK), os.path.join(cls.top, 'bin'), fake_desk()), FAKE_DESK_BROKEN=cls.broken)
+        cls.done = run_in_own_group([TOOL, '--seconds', '4', '--keep-focus', '--profile-seconds', '0',
+                                     '--out', out, desk.build], env, 90)
+        cls.busy = WhenI3XpropAndXsetAreAbsent.read('busy.txt', out).splitlines()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.top, ignore_errors=True)
+
+
+class WhenTheDeskHasNoDPMS(MonitorOnTheDesk):
+    broken = 'no-dpms'
+
+    def test_it_should_record_the_monitor_as_a_virtual_display_with_no_dpms(self):
+        self.assertIn('monitor_at_start=none (virtual: forced EDID, no DPMS)', self.busy, self.done.stderr[-2000:])
+
+
+class WhenTheMonitorQueryFails(MonitorOnTheDesk):
+    broken = 'xset'
+
+    def test_it_should_record_the_monitor_as_unknown(self):
+        self.assertIn('monitor_at_start=unknown', self.busy, self.done.stderr[-2000:])
+
+
+class WhenTheMonitorIsOn(MonitorOnTheDesk):
+    def test_it_should_record_that_the_monitor_is_on(self):
+        self.assertIn('monitor_at_start=Monitor is On', self.busy, self.done.stderr[-2000:])

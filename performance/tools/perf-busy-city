@@ -195,8 +195,20 @@ else
 	say "focus hand-back skipped: it needs i3-msg and xprop; the window keeps whatever focus the desktop gives it"
 	note "focus_handback=skipped (no i3-msg or xprop)"
 fi
+monitor_state() {
+	local q
+	if ! q=$(xset q 2>/dev/null); then
+		echo unknown
+	elif grep -io 'monitor is [a-z]*' <<<"${q}"; then
+		:
+	elif grep -qiE 'DPMS is Disabled|does not have the DPMS' <<<"${q}"; then
+		echo 'none (virtual: forced EDID, no DPMS)'
+	else
+		echo unknown
+	fi
+}
 if command -v xset >/dev/null; then
-	note "monitor_at_start=$(xset q 2>/dev/null | grep -io 'monitor is [a-z]*' || echo unknown)"
+	note "monitor_at_start=$(monitor_state)"
 else
 	say "monitor check skipped: it needs xset"
 	note "monitor=unchecked (no xset)"
@@ -262,7 +274,7 @@ else
 fi
 
 wait "${city_run}"
-command -v xset >/dev/null && note "monitor_at_end=$(xset q 2>/dev/null | grep -io 'monitor is [a-z]*' || echo unknown)"
+command -v xset >/dev/null && note "monitor_at_end=$(monitor_state)"
 note "load_at_end=$(cut -d' ' -f1-3 /proc/loadavg)"
 for p in "${pids[@]:1}"; do wait "${p}" 2>/dev/null || true; done
 echo "${out}"

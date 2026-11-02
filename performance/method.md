@@ -75,7 +75,7 @@ Only the numbers go into a report here.
    It is run 6 for eight hours: the busy desk replayed throughout, the city kept focused and drawing for the first half and hidden in the scratchpad for the second, sampled every 10 s, with the demo's stand-ins held for an hour past the end.
    Its verdict, `soak.md`, gives the least-squares slope of `Private_Dirty` + GPU per hour for the city and for the run's own daemon, **in each phase apart**: from 600 s to the hide, and from 600 s after the hide to the end.
    One slope over the whole run would be wrong, because hiding frees memory by design and the drop would cancel a leak.
-   Each slope must be at most 1 MiB an hour, and the script exits 0 within budget, 1 over it, and 2 when the run is not a measurement: the window was never hidden, the visible half drew no frames, the monitor was not on at the end, or a phase holds under 30 minutes.
+   Each slope must be at most 1 MiB an hour, and the script exits 0 within budget, 1 over it, and 2 when the run is not a measurement: the window was never hidden, the visible half drew under 90% of the city's 30 fps cap, the monitor read Off at either end or went unchecked, or a phase holds under 30 minutes.
    **The light is pinned for the whole run** (item 308): `perf-soak --light night`, the default, sets the city's `light` key before its first frame, so the clock on the box never changes what is drawn.
    Without it, 0.3.3's soak read nightfall as growth: 49 MiB, 32 of it GPU, in one sample at 21:00 on the box, flat on both sides, and +21 MiB an hour for its phase.
    Night is the default because it draws everything day does and the lit windows and the lights besides.
@@ -87,7 +87,9 @@ Only the numbers go into a report here.
    For each step it gives the phase, the second, the box's clock and UTC, the change in `Private_Dirty` and in GPU, and the slopes before and after, or says "No steps".
    A step still counts in its phase's slope, and the verdict does not change: a step is memory taken.
    **Run it overnight, never while someone works at the machine** (Aria, 2026-10-25), since a focused window for four hours is not compatible with using the desk.
-   A blanked or locked screen stops the visible half drawing, and the verdict refuses a run whose monitor was not on at the end.
+   A blanked or locked screen stops the visible half drawing, so the verdict asks the frame count directly: the frames by the hide must reach 90% of the phase's seconds at 30 fps, whatever the monitor reads (item 325).
+   A display with no DPMS, such as a box's virtual one, records its monitor as `none (virtual: forced EDID, no DPMS)`, a desk whose query failed records `unknown` and `soak.md` notes it, and a monitor reading Off at either end still refuses the run.
+   `soak.md`'s `Drew:` line says which guard applied.
    `--display` opens the city on another X display, such as a virtual machine's, whose GPU memory is that driver's and not this machine's; `--no-hide` makes the whole run one visible phase, for a display with no i3 to hide the window on.
    It does not take the landing lock, which would hold off every landing for the night: a memory slope barely moves with load, so it records the load at the start and end and how many commits landed on botropolis's `github/main` during the run instead.
 

@@ -37,8 +37,10 @@ daemon, in each phase apart:
 
 Hiding frees memory by design, so a slope over the whole run would hide a leak.
 Each slope must be at most 1 MiB an hour. A run is not a measurement when the
-window was to be hidden and was not, the visible phase drew no frames, the
-monitor was not on at the end, or a phase holds under 30 minutes of samples.
+window was to be hidden and was not, the visible phase drew under 90% of the
+city's 30 fps cap, the monitor read Off at either end or went unchecked, or a
+phase holds under 30 minutes of samples. A display with no DPMS, such as a
+box's virtual one, reads "none" and is judged by its frames alone.
 
 Run it overnight, never while someone works at the machine. A blanked or
 locked screen stops the visible phase drawing, and the verdict refuses it.

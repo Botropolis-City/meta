@@ -622,6 +622,10 @@ def soak_steps(rows, phases, daemon_pid):
     return steps
 
 
+SOAK_FRAME_CAP = 30
+SOAK_FRAME_SHARE = 0.9
+
+
 def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE_S, min_phase_s=SOAK_MIN_PHASE_S):
     reasons = []
     end_s = max((float(r['elapsed_s']) for r in rows), default=0)
@@ -629,12 +633,25 @@ def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE
     hiding = marks.get('hide') != 'none'
     if hiding and 'hidden_at_s' not in marks:
         reasons.append('the window was never hidden, so there is no hidden phase')
-    frames = 'frames_at_hide' if hiding and 'hide_failed_at_s' not in marks else 'frames_at_end'
-    if int(marks.get(frames) or 0) <= 0:
-        reasons.append('the visible phase drew no frames')
-    if 'monitor is on' not in marks.get('monitor_at_end', '').lower():
-        reasons.append('the monitor was not on at the end (%s), so the visible phase may not have drawn'
-                       % (marks.get('monitor_at_end') or 'unchecked'))
+    by_hide = hiding and 'hide_failed_at_s' not in marks
+    frames = int(marks.get('frames_at_hide' if by_hide else 'frames_at_end') or 0)
+    drew_s = float(marks.get('hidden_at_s') or 0) if by_hide else end_s
+    share = frames / (drew_s * SOAK_FRAME_CAP) if drew_s > 0 else 0.0
+    if share < SOAK_FRAME_SHARE:
+        reasons.append('the visible phase drew too few frames: %d in %.0f s, under %.0f%% of %d fps'
+                       % (frames, drew_s, SOAK_FRAME_SHARE * 100, SOAK_FRAME_CAP))
+    start, end = marks.get('monitor_at_start', 'unchecked'), marks.get('monitor_at_end', 'unchecked')
+    for when, reading in (('start', start), ('end', end)):
+        if 'monitor is off' in reading.lower():
+            reasons.append('the monitor was off at the %s, so the visible phase may not have drawn' % when)
+    if 'monitor_at_end' not in marks:
+        reasons.append('the monitor went unchecked, so the run had no desk to query')
+    notes = []
+    if 'unknown' in (start, end):
+        notes.append('the monitor could not be queried, so the frame count alone says the visible phase drew')
+    guard = ('%d frames in %.0f s, %.0f%% of the %d fps cap (at least %.0f%% needed); '
+             'the monitor read %s at the start and %s at the end.'
+             % (frames, drew_s, share * 100, SOAK_FRAME_CAP, SOAK_FRAME_SHARE * 100, start, end))
     if not marks.get('daemon_pid'):
         reasons.append("the scratch daemon's pid was not recorded")
     judged = []
@@ -655,7 +672,7 @@ def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE
         verdict = 'fail'
     else:
         verdict = 'pass'
-    return {'verdict': verdict, 'reasons': reasons, 'phases': judged, 'budget_mib_h': budget_mib_h,
+    return {'verdict': verdict, 'reasons': reasons, 'notes': notes, 'guard': guard, 'phases': judged, 'budget_mib_h': budget_mib_h,
             'steps': soak_steps(rows, phases, marks.get('daemon_pid'))}
 
 
@@ -670,9 +687,12 @@ def soak_report(result, marks):
              'Budget: growth of at most %.1f MiB an hour of `Private_Dirty` + GPU, per process and phase '
              '(performance/budgets.md).' % result['budget_mib_h'], '',
              'Light: %s' % (marks.get('light') or 'live, following the clock'), '']
+    lines += ['Drew: %s' % result['guard'], '']
     for reason in result['reasons']:
         lines.append('- not a measurement: %s' % reason)
-    if result['reasons']:
+    for note in result['notes']:
+        lines.append('- note: %s' % note)
+    if result['reasons'] or result['notes']:
         lines.append('')
     lines += ['| process | phase | seconds | samples | MiB/hour | over |', '| --- | --- | --- | --- | --- | --- |']
     for p in result['phases']:
