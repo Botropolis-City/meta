@@ -1,6 +1,6 @@
 # 321. The soak box runs the light cycle as its first phase, on its real GPU
 
-**Open. Filed 2026-10-28 (r1207), proposed by the performance manager from item 318's diagnosis. Nobody's call — a method addition, after 0.3.4.**
+**Open, in progress since 2026-11-02 in the session "item 321". Filed 2026-10-28 (r1207), proposed by the performance manager from item 318's diagnosis. Nobody's call — a method addition, after 0.3.4.**
 
 Depends on: 318
 
