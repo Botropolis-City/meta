@@ -1,6 +1,6 @@
 # 255. A road's vehicle should say what kind of traffic it is, and no message should ride a group's line
 
-**Open. Filed 2026-10-26 (r1056) at Aria's request, from item 105's frames. Nobody's call — Aria decided the mapping.**
+**Open, in progress since 2026-11-02 in the session "item 255". Filed 2026-10-26 (r1056) at Aria's request, from item 105's frames. Nobody's call — Aria decided the mapping.**
 
 Depends on: nothing
 
