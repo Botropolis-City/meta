@@ -53,7 +53,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [318](roadmap/318-each-nightfall-keeps-its-lights.md) | each nightfall keeps its lights: the city retains about 40 MiB per night, outside the Go heap | — | nobody, a defect |
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
 | [323](roadmap/323-the-hero-loops-sea-ends-inside-the-frame.md) | the hero loop's sea ends inside the frame: a black wedge in the top-right corner | — | nobody, a defect |
-| [324](roadmap/324-status-says-statistics-are-off-right-after-a-restart.md) | right after the daemon restarts, `botropolis status` says statistics are off because the database is locked | — | nobody, a small defect |
 | [326](roadmap/326-a-child-of-a-locked-run-inherits-the-landing-lock.md) | a daemon started under the landing lock inherits the lock's descriptor, and holds it after the run dies | — | nobody, a defect in the lock |
 | [327](roadmap/327-release-0-3-5.md) | release 0.3.5, a quality patch | 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321, 318, 308, 317, 322, 326 | nobody, Aria chose what it holds |
 
