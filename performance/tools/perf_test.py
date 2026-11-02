@@ -833,5 +833,112 @@ class WhenReportingWhichGuardApplied(unittest.TestCase):
         self.assertIn('- note: the monitor could not be queried', self.report)
 
 
+CYCLE_LEVELS = (470, 500, 480, 500, 480)
+CYCLE_MARKS = {'press_%d_s' % (i * 180): 'taken %d bracketright' % n for i, n in enumerate((2, 10, 12, 12, 12))}
+
+
+def cycle_rows(levels=CYCLE_LEVELS, gpu=40.0, climb_phase=None, every=10, phase=180):
+    rows = []
+    for t in range(0, phase * len(levels), every):
+        i = t // phase
+        mib = levels[i] + (0.2 * (t - i * phase) if i == climb_phase else 0)
+        rows.append(soak_row(t, 'botropolis', 10, mib - gpu, gpu))
+        rows.append(soak_row(t, 'botropolisd', 20, 30))
+    return rows
+
+
+class WhenFindingTheFocusedI3Window(unittest.TestCase):
+    TREE = {'nodes': [{'nodes': [{'window': 7, 'focused': False}, {'window': 9, 'focused': True}]}],
+            'floating_nodes': []}
+
+    def test_it_should_give_the_focused_windows_id(self):
+        self.assertEqual(perf.i3_focused_window(self.TREE), 9)
+
+    def test_and_no_window_is_focused_it_should_give_none(self):
+        self.assertIsNone(perf.i3_focused_window({'nodes': [{'window': 7, 'focused': False}]}))
+
+
+class WhenCountingTheCyclesPresses(unittest.TestCase):
+    def test_it_should_scrub_to_ten_first_and_then_twelve_hours_a_phase(self):
+        for hour, first in ((3, 7), (10, 0), (15, 19), (23, 11)):
+            with self.subTest('when the box reads %02d:00, it should press %d times first' % (hour, first)):
+                self.assertEqual(perf.cycle_presses(hour), [first, 12, 12, 12, 12])
+
+
+class WhenJudgingALightCycle(unittest.TestCase):
+    def judge(self, marks=None, **kwargs):
+        return perf.judge_cycle(cycle_rows(**kwargs), dict(CYCLE_MARKS, **(marks or {})))
+
+    def test_and_every_repeat_is_within_4_mib_of_the_first_it_should_pass(self):
+        self.assertEqual(self.judge()['verdict'], 'pass')
+
+    def test_and_the_second_night_holds_6_mib_more_it_should_be_over(self):
+        self.assertEqual(self.judge(levels=(470, 500, 480, 506, 480))['verdict'], 'over')
+
+    def test_and_the_second_day_holds_6_mib_more_it_should_be_over(self):
+        self.assertEqual(self.judge(levels=(470, 500, 480, 500, 486))['verdict'], 'over')
+
+    def test_and_a_phases_last_30_s_climbs_it_should_not_be_a_measurement(self):
+        self.assertEqual(self.judge(climb_phase=3)['verdict'], 'not a measurement')
+
+    def test_and_a_phases_last_30_s_climbs_it_should_name_the_unsettled_phase(self):
+        self.assertIn('the second night had not settled', ' '.join(self.judge(climb_phase=3)['reasons']))
+
+    def test_and_the_gpu_reads_0_it_should_not_be_a_measurement(self):
+        self.assertEqual(self.judge(gpu=0.0)['verdict'], 'not a measurement')
+
+    def test_and_the_gpu_reads_0_it_should_say_it_was_not_a_real_gpu(self):
+        self.assertIn('not a real GPU', ' '.join(self.judge(gpu=0.0)['reasons']))
+
+    def test_and_a_press_was_not_taken_it_should_not_be_a_measurement(self):
+        self.assertEqual(self.judge({'press_540_s': 'missed (the city was not focused)'})['verdict'], 'not a measurement')
+
+    def test_and_a_press_was_not_taken_it_should_name_the_phase(self):
+        reasons = ' '.join(self.judge({'press_540_s': 'missed (the city was not focused)'})['reasons'])
+        self.assertIn('the second night: the clock was not scrubbed: missed (the city was not focused)', reasons)
+
+    def test_and_a_press_went_unrecorded_it_should_not_be_a_measurement(self):
+        marks = dict(CYCLE_MARKS)
+        del marks['press_360_s']
+        self.assertEqual(perf.judge_cycle(cycle_rows(), marks)['verdict'], 'not a measurement')
+
+
+class WhenReportingALightCycle(unittest.TestCase):
+    def setUp(self):
+        cycle = perf.judge_cycle(cycle_rows(levels=(470, 500, 480, 506, 480)), CYCLE_MARKS)
+        result = perf.with_cycle(perf.judge_soak(soak_rows(), SOAK_MARKS), cycle)
+        self.result = result
+        self.report = perf.soak_report(result, SOAK_MARKS)
+
+    def test_it_should_write_a_row_for_each_phase_with_its_light_and_change(self):
+        self.assertIn('| second night | night | 506.0 | +6.0 | yes |', self.report)
+
+    def test_it_should_give_the_cycle_its_own_line_in_the_verdict(self):
+        self.assertIn('Light cycle: over: the second night +6.0 MiB and the second day +0.0 MiB against the first of '
+                      'each light, at most 4 MiB.', self.report)
+
+    def test_and_the_growth_passes_but_the_cycle_is_over_it_should_fail_the_soak(self):
+        self.assertEqual(self.result['verdict'], 'fail')
+
+
+class WhenACycleCannotBeJudged(unittest.TestCase):
+    def setUp(self):
+        cycle = perf.judge_cycle(cycle_rows(gpu=0.0), CYCLE_MARKS)
+        self.result = perf.with_cycle(perf.judge_soak(soak_rows(city_visible=5.0), SOAK_MARKS), cycle)
+
+    def test_it_should_make_the_soak_not_a_measurement_even_when_its_growth_is_over(self):
+        self.assertEqual(self.result['verdict'], 'not a measurement')
+
+    def test_it_should_give_the_cycles_reason(self):
+        self.assertTrue(any(r.startswith('light cycle: ') for r in self.result['reasons']), self.result['reasons'])
+
+
+class WhenReportingASoakWithNoCycle(unittest.TestCase):
+    def test_it_should_say_the_cycle_did_not_run_and_why(self):
+        marks = dict(SOAK_MARKS, cycle='none (--no-cycle)')
+        report = perf.soak_report(perf.with_cycle(perf.judge_soak(soak_rows(), marks), None), marks)
+        self.assertIn('Light cycle: not run, none (--no-cycle).', report)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -17,6 +17,7 @@ display="${DISPLAY:-}"
 out=""
 build=""
 preflight=0
+cycle=1
 
 usage() {
 	cat <<USAGE
@@ -25,7 +26,18 @@ Usage: performance/tools/perf-soak [options] BUILD_DIR
 The 8-hour soak a release does not ship without (performance/budgets.md, growth;
 item 164). BUILD_DIR holds botropolis and botropolisd.
 
-It runs perf-busy-city for the whole soak: a scratch daemon on the real history,
+First it runs the light cycle (item 321): a city of the same build on the
+same desk, --set light=live, its clock scrubbed with ] through XTEST (the city
+focused first) to day, night, day, night and day, 180 s a phase. Each phase is
+read as the mean of the city's Private_Dirty + GPU over its last 30 s, which
+must climb under 0.1 MiB/s. The second night and the second day must each hold
+at most 4 MiB more than the first. Over that, the soak fails as growth over
+budget does. A phase unsettled, a press missed or a GPU reading of 0 (so not
+a real GPU) makes the run not a measurement. Then that city closes, and the
+soak opens a fresh one in its pinned light, so nothing of the cycle carries
+into the growth phases.
+
+Then it runs perf-busy-city for the whole soak: a scratch daemon on the real history,
 linked read only, and WRITERS demo sessions writing a line every 200 ms
 throughout. The city stays focused and drawing until --hide-after, then sits
 in i3's scratchpad until the end. Then it judges the growth of Private_Dirty +
@@ -60,9 +72,14 @@ locked screen stops the visible phase drawing, and the verdict refuses it.
                      Night draws everything day does and the lit windows too.
                      live follows the clock and sets nothing, for a build from
                      before the key
+  --no-cycle         skip the light cycle, for a build without the light key;
+                     soak.md says it did not run
   --out DIR          run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
   --preflight        do not soak: check the desk, then open the city for a minute,
-                     find its window, hide it and show it again (item 309).
+                     find its window, hide it and show it again (item 309),
+                     and check glxinfo -B names a renderer that is not
+                     llvmpipe or softpipe, since a cycle read through either
+                     is a false red (items 318, 321).
                      Exit 0 when all of that worked, 2 naming what did not
   -h, --help         this
 
@@ -76,8 +93,8 @@ It does not take the landing lock, so landings can run beside it; soak.md
 records the load at the start and the end and how many commits landed on
 botropolis's github main during the run.
 
-The run directory holds perf-busy-city's files, soak.txt, and soak.md, the
-verdict. soak.md names the light and lists every step it finds: two samples
+The run directory holds perf-busy-city's files, the cycle's in cycle/,
+soak.txt, and soak.md, the verdict, with its Light cycle line and table. soak.md names the light and lists every step it finds: two samples
 differing by more than 8 MiB, or four times the phase's sample-to-sample noise,
 with its time on the box's clock and in UTC, its size split into Private_Dirty
 and GPU, and the slopes either side. A step still counts in its phase's slope. Exit status: 0 within budget, 1 over it, 2 not a measurement.
@@ -85,7 +102,8 @@ and GPU, and the slopes either side. A step still counts in its phase's slope. E
 For tests: PERF_SOAK_REPO is the botropolis checkout whose landings are
 counted (default: ${repo}/botropolis), and PERF_SOAK_SETTLE and
 PERF_SOAK_MIN_PHASE scale the 600 s settle and the 1800 s phase floor, and
-PERF_SOAK_PREFLIGHT_SECONDS the pre-flight's minute.
+PERF_SOAK_PREFLIGHT_SECONDS the pre-flight's minute, and PERF_SOAK_CYCLE_PHASE
+and PERF_SOAK_CYCLE_SETTLED the cycle's 180 s phase and its 30 s settled window.
 USAGE
 }
 
@@ -100,6 +118,7 @@ while [[ $# -gt 0 ]]; do
 	--light) light="$2"; shift 2 ;;
 	--out) out="$2"; shift 2 ;;
 	--preflight) preflight=1; shift ;;
+	--no-cycle) cycle=0; shift ;;
 	-h | --help) usage; exit 0 ;;
 	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
 	*) build="$1"; shift ;;
@@ -161,7 +180,12 @@ $(tail -n 10 "${out}/run/city.log" 2>/dev/null || echo '(no city.log)')
 	fi
 	grep -q '^hidden_at_s=' "${marks}" || failed "could not hide the window"
 	grep -q '^shown_at_s=' "${marks}" || failed "could not show the window again after hiding it"
-	echo "perf-soak: pre-flight passed on display '${display}': the desk's tools ran, and the city's window was found, hidden and shown again"
+	renderer=$(sed -n 's/^gl_renderer=//p' "${marks}")
+	[[ -n "${renderer}" ]] || failed "glxinfo -B named no OpenGL renderer, so whether the city draws on the GPU is unknown"
+	case "${renderer,,}" in
+	*llvmpipe* | *softpipe*) failed "the city draws through ${renderer%% *}, not the GPU (${renderer}), so a light cycle read here is not the city's" ;;
+	esac
+	echo "perf-soak: pre-flight passed on display '${display}': the desk's tools ran, the city's window was found, hidden and shown again, and it draws with ${renderer}"
 	exit 0
 fi
 [[ "${hide}" == 1 ]] && desk_check
@@ -174,6 +198,20 @@ note "light=${light}"
 [[ "${hide}" == 1 ]] && note "hide=after ${hide_after} s" || note "hide=none"
 
 started=$(date --iso-8601=seconds)
+cycle_args=()
+if [[ "${cycle}" == 1 ]]; then
+	phase="${PERF_SOAK_CYCLE_PHASE:-180}"
+	read -r -a counts <<<"$(python3 -I "${here}/perf.py" cycle-presses "$(date +%H)")"
+	press_args=()
+	for i in "${!counts[@]}"; do press_args+=(--press "$((i * phase)):bracketright:${counts[i]}"); done
+	"${here}/perf-busy-city" --seconds "$((phase * ${#counts[@]}))" --keep-focus --interval "${interval}" \
+		--writers "${writers}" --profile-seconds 0 --set light=live "${press_args[@]}" --out "${out}/cycle" "${build}" >/dev/null &
+	busy=$!
+	wait "${busy}"
+	cycle_args=(--cycle "${out}/cycle/run/samples.csv" "${out}/cycle/run/env.txt" "${out}/cycle/busy.txt")
+else
+	note "cycle=none (--no-cycle)"
+fi
 "${here}/perf-busy-city" --seconds "${seconds}" --hide-after "${hide_after}" --keep-focus \
 	--interval "${interval}" --writers "${writers}" --profile-seconds 0 "${sets[@]}" --out "${out}" "${build}" >/dev/null &
 busy=$!
@@ -189,7 +227,7 @@ fi
 grep -q '^hide_failed_at_s=' "${out}/run/env.txt" 2>/dev/null &&
 	echo "# could not hide the window at ${hide_after}s (needs i3 and xprop); there is no hidden phase" >&2
 
-python3 -I "${here}/perf.py" soak-verdict "${out}/run/samples.csv" "${out}/run/env.txt" "${out}/busy.txt" "${out}/soak.txt" >"${out}/soak.md"
+python3 -I "${here}/perf.py" soak-verdict "${out}/run/samples.csv" "${out}/run/env.txt" "${out}/busy.txt" "${out}/soak.txt" "${cycle_args[@]}" >"${out}/soak.md"
 status=$?
 cat "${out}/soak.md"
 echo "${out}/soak.md" >&2

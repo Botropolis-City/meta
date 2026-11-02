@@ -13,7 +13,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 TOOL = os.path.join(ROOT, 'performance', 'tools', 'perf-soak')
 SECONDS = 6
 SCALED = {'PERF_SOAK_SETTLE': '1', 'PERF_SOAK_MIN_PHASE': '1', 'PERF_SOAK_PREFLIGHT_SECONDS': str(SECONDS),
-          'PERF_CITY_WINDOW_WAIT': '2'}
+          'PERF_CITY_WINDOW_WAIT': '2', 'PERF_SOAK_CYCLE_PHASE': '2', 'PERF_SOAK_CYCLE_SETTLED': '1'}
+CYCLE_PRESSES = {'press_%d_s' % (2 * i) for i in range(5)}
 
 
 def read(path):
@@ -100,6 +101,45 @@ class WhenSoakingAStubBuildOnADesk(Soak):
     def test_it_should_leave_the_callers_state_config_cache_and_data_untouched(self):
         self.assertEqual(self.after, self.before)
 
+    def test_it_should_run_the_light_cycle_first_in_live_light(self):
+        self.assertIn('light=live', self.desk.spied('city-args').splitlines()[0])
+
+    def test_it_should_run_the_pinned_phases_after_it_in_a_fresh_city(self):
+        self.assertIn('light=night', self.desk.spied('city-args').splitlines()[-1])
+
+    def test_it_should_press_the_scrub_key_at_each_phases_start(self):
+        marks = read(os.path.join(self.out, 'cycle', 'busy.txt'))
+        self.assertEqual({line.split('=')[0] for line in marks.splitlines() if line.startswith('press_')}, CYCLE_PRESSES, marks)
+
+    def test_it_should_focus_the_city_before_pressing(self):
+        self.assertIn('[id=%d] focus' % DESK_WINDOW, self.i3_commands())
+
+    def test_it_should_press_it_through_xtest(self):
+        self.assertIn('key bracketright', self.desk.spied('xin').splitlines())
+
+    def test_it_should_give_the_cycle_its_line_in_the_verdict(self):
+        self.assertIn('Light cycle: not a measurement:', self.soak)
+
+
+class WhenSoakingAndTheCityIsNotFocusedForAPress(Soak):
+    broken = 'no-focus'
+
+    def test_it_should_say_the_clock_was_not_scrubbed(self):
+        self.assertIn('the clock was not scrubbed: missed (the city was not focused)', self.soak)
+
+    def test_it_should_press_nothing(self):
+        self.assertEqual(self.desk.spied('xin'), '')
+
+
+class WhenSoakingWithTheCycleTurnedOff(Soak):
+    flags = ['--no-cycle']
+
+    def test_it_should_say_the_cycle_did_not_run(self):
+        self.assertIn('Light cycle: not run, none (--no-cycle).', self.soak)
+
+    def test_it_should_open_one_city(self):
+        self.assertEqual(len(self.desk.spied('city-args').splitlines()), 1)
+
 
 class WhenSoakingAndTheWindowCannotBeHidden(Soak):
     broken = 'no-hide'
@@ -184,6 +224,29 @@ class WhenPreflightingOnADeskWithEveryTool(Preflight):
 
     def test_it_should_record_how_long_the_window_took_to_appear(self):
         self.assertRegex(self.marks(), r'(?m)^window_found_after_s=[0-9.]+$')
+
+    def test_it_should_name_the_renderer_it_drew_with(self):
+        self.assertIn('Mesa Intel(R) UHD Graphics 770', self.done.stdout)
+
+
+class WhenPreflightingAndTheRendererIsLlvmpipe(Preflight):
+    broken = 'llvmpipe'
+
+    def test_it_should_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+    def test_it_should_say_the_city_would_draw_through_llvmpipe(self):
+        self.assertIn('draws through llvmpipe', self.done.stderr)
+
+
+class WhenPreflightingAndNoRendererIsRecorded(Preflight):
+    broken = 'no-renderer'
+
+    def test_it_should_exit_two(self):
+        self.assertEqual(self.done.returncode, 2, self.done.stderr[-2000:])
+
+    def test_it_should_say_glxinfo_named_no_renderer(self):
+        self.assertIn('glxinfo -B named no OpenGL renderer', self.done.stderr)
 
 
 class WhenPreflightingAndTheWindowCannotBeFound(Preflight):

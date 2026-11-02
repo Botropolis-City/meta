@@ -25,6 +25,7 @@ DAEMON = textwrap.dedent('''\
 CITY = textwrap.dedent('''\
     #!/usr/bin/env bash
     [[ -n "${PERF_BUSY_TEST_SPY:-}" ]] && echo "${DISPLAY:-}" >"$PERF_BUSY_TEST_SPY/city-display"
+    [[ -n "${PERF_BUSY_TEST_SPY:-}" ]] && echo "$*" >>"$PERF_BUSY_TEST_SPY/city-args"
     if [[ ",${FAKE_DESK_BROKEN:-}," == *,city-exits,* ]]; then
         echo "the stub city could not open a window" >&2
         exit 1
@@ -79,7 +80,8 @@ DESK_TOOL = textwrap.dedent('''\
         print('  Width: 1920\\n  Height: 1080\\n  Map State: %s'
               % ('IsUnMapped' if read('window') == 'hidden' else 'IsViewable'))
     elif name == 'i3-msg' and args[:2] == ['-t', 'get_tree']:
-        print(json.dumps({'nodes': [{'window': WINDOW, 'nodes': []}] if read('city-pid') else []}))
+        print(json.dumps({'nodes': [{'window': WINDOW, 'focused': 'no-focus' not in broken, 'nodes': []}]
+                          if read('city-pid') else []}))
     elif name == 'i3-msg' and args[:2] == ['-t', 'get_version']:
         print(json.dumps({'human_readable': '4.24'}))
     elif name == 'i3-msg':
@@ -93,10 +95,26 @@ DESK_TOOL = textwrap.dedent('''\
         print(json.dumps([{'success': ok}], separators=(',', ':')))
     ''').replace('WINDOW', str(DESK_WINDOW))
 
+GLXINFO = textwrap.dedent('''\
+    #!/usr/bin/env bash
+    case ",${FAKE_DESK_BROKEN:-}," in
+    *,no-renderer,*) exit 1 ;;
+    *,llvmpipe,*) echo "OpenGL renderer string: llvmpipe (LLVM 19.1.7, 256 bits)" ;;
+    *) echo "OpenGL renderer string: Mesa Intel(R) UHD Graphics 770 (ADL-S GT1)" ;;
+    esac
+    ''')
+
+XIN = textwrap.dedent('''\
+    #!/usr/bin/env bash
+    echo "$*" >>"$PERF_BUSY_TEST_SPY/xin"
+    ''')
+
 
 def fake_desk(without=()):
-    """xprop, xwininfo, i3-msg and xset that find, hide and show the stub city's window, less any named."""
-    return {name: DESK_TOOL for name in DESK if name not in without}
+    """xprop, xwininfo, i3-msg and xset that find, hide and show the stub city's window, less any named, and a glxinfo."""
+    tools = {name: DESK_TOOL for name in DESK if name not in without}
+    tools['glxinfo'] = GLXINFO
+    return tools
 
 
 def executable(path, text):
@@ -161,6 +179,8 @@ class BusyDesk:
         executable(os.path.join(self.build, 'botropolis'), CITY)
         self.stager = os.path.join(top, 'botropolis-demo')
         executable(self.stager, STAGER)
+        self.xin = os.path.join(top, 'xin')
+        executable(self.xin, XIN)
         self.home = os.path.join(top, 'home')
         os.makedirs(os.path.join(self.home, '.claude', 'projects', '-p'))
         os.makedirs(os.path.join(self.home, '.claude', 'sessions'))
@@ -200,6 +220,8 @@ class BusyDesk:
                     PERF_BUSY_SETTLE='0',
                     PERF_BUSY_REPLAY_FROM='1',
                     PERF_BUSY_PPROF_WAIT='1',
+                    PERF_BUSY_XIN=self.xin,
+                    PERF_BUSY_PRESS_GAP='0',
                     **extra)
 
     def spied(self, name):

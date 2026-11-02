@@ -342,6 +342,16 @@ def i3_window_ids(tree):
     return ids
 
 
+def i3_focused_window(tree):
+    if tree.get('focused') and tree.get('window'):
+        return tree['window']
+    for node in tree.get('nodes', []) + tree.get('floating_nodes', []):
+        found = i3_focused_window(node)
+        if found:
+            return found
+    return None
+
+
 def busy_home(real_claude, home):
     claude = os.path.join(home, '.claude')
     projects = os.path.join(real_claude, 'projects')
@@ -676,6 +686,99 @@ def judge_soak(rows, marks, budget_mib_h=SOAK_BUDGET_MIB_H, settle_s=SOAK_SETTLE
             'steps': soak_steps(rows, phases, marks.get('daemon_pid'))}
 
 
+CYCLE_PHASE_S = 180
+CYCLE_SETTLED_S = 30
+CYCLE_MARGIN_MIB = 4.0
+CYCLE_SETTLED_MIB_S = 0.1
+CYCLE_PHASES = (('warm-up day', 'day'), ('first night', 'night'), ('first day', 'day'),
+                ('second night', 'night'), ('second day', 'day'))
+CYCLE_REPEATS = (('night', 1, 3), ('day', 2, 4))
+
+
+def cycle_presses(hour):
+    return [(10 - hour) % 24] + [12] * (len(CYCLE_PHASES) - 1)
+
+
+def judge_cycle(rows, marks, phase_s=CYCLE_PHASE_S, settled_s=CYCLE_SETTLED_S):
+    reasons = []
+    parts = soak_parts(rows, 'city', None)
+    phases = []
+    gpu_missing = None
+    for i, (name, light) in enumerate(CYCLE_PHASES):
+        start, end = i * phase_s + phase_s - settled_s, (i + 1) * phase_s
+        inside = [p for p in parts if start <= p[0] < end]
+        press = marks.get('press_%d_s' % (i * phase_s))
+        if press is None:
+            reasons.append('the %s: the clock was not scrubbed: no press was recorded' % name)
+        elif not press.startswith('taken'):
+            reasons.append('the %s: the clock was not scrubbed: %s' % (name, press))
+        if not inside:
+            reasons.append('the %s holds no samples in its last %d s' % (name, settled_s))
+            phases.append({'name': name, 'light': light, 'mib': None, 'settled': False})
+            continue
+        totals = [pd + gpu for _, _, pd, gpu in inside]
+        per_minute = slope_per_minute([p[0] for p in inside], totals)
+        slope = 0.0 if per_minute is None else per_minute / 60
+        settled = abs(slope) < CYCLE_SETTLED_MIB_S
+        if not settled:
+            reasons.append('the %s had not settled: %.2f MiB/s over its last %d s, %.1f allowed'
+                           % (name, slope, settled_s, CYCLE_SETTLED_MIB_S))
+        if gpu_missing is None and sum(p[3] for p in inside) <= 0:
+            gpu_missing = name
+        phases.append({'name': name, 'light': light, 'mib': sum(totals) / len(totals), 'settled': settled,
+                       'slope_mib_s': slope})
+    if gpu_missing is not None:
+        reasons.append('the city held no GPU memory in the %s, so this is not a real GPU' % gpu_missing)
+    changes = {}
+    for light, first, second in CYCLE_REPEATS:
+        if phases[first]['mib'] is not None:
+            phases[first]['change'] = 0.0
+        if phases[first]['mib'] is not None and phases[second]['mib'] is not None:
+            changes[light] = phases[second]['mib'] - phases[first]['mib']
+            phases[second]['change'] = changes[light]
+    if reasons:
+        verdict = 'not a measurement'
+    elif any(c > CYCLE_MARGIN_MIB for c in changes.values()):
+        verdict = 'over'
+    else:
+        verdict = 'pass'
+    return {'verdict': verdict, 'reasons': reasons, 'phases': phases, 'changes': changes,
+            'phase_s': phase_s, 'settled_s': settled_s}
+
+
+def with_cycle(result, cycle):
+    result = dict(result, cycle=cycle, reasons=list(result['reasons']))
+    if cycle is None:
+        return result
+    if cycle['verdict'] == 'not a measurement':
+        result['reasons'] += ['light cycle: %s' % r for r in cycle['reasons']]
+        result['verdict'] = 'not a measurement'
+    elif cycle['verdict'] == 'over' and result['verdict'] == 'pass':
+        result['verdict'] = 'fail'
+    return result
+
+
+def cycle_lines(cycle, marks):
+    if cycle is None:
+        return ['Light cycle: not run, %s.' % marks.get('cycle', 'not recorded'), '']
+    if cycle['verdict'] == 'not a measurement':
+        line = 'Light cycle: not a measurement: %s.' % '; '.join(cycle['reasons'])
+    else:
+        line = ('Light cycle: %s: the second night %+.1f MiB and the second day %+.1f MiB against the first of '
+                'each light, at most %.0f MiB.' % (cycle['verdict'], cycle['changes']['night'],
+                                                  cycle['changes']['day'], CYCLE_MARGIN_MIB))
+    lines = [line, '', '## Light cycle', '',
+             'The city first goes day, night, day, night, day by its scrubbed clock, `--set light=live`, %d s a phase, '
+             'each read as the mean of `Private_Dirty` + GPU over its last %d s (item 321).'
+             % (cycle['phase_s'], cycle['settled_s']), '',
+             '| phase | light | MiB | change from the first of its light | settled |', '| --- | --- | --- | --- | --- |']
+    for p in cycle['phases']:
+        mib = '-' if p['mib'] is None else '%.1f' % p['mib']
+        change = '%+.1f' % p['change'] if 'change' in p else '-'
+        lines.append('| %s | %s | %s | %s | %s |' % (p['name'], p['light'], mib, change, 'yes' if p['settled'] else 'no'))
+    return lines + ['']
+
+
 SOAK_EXIT = {'pass': 0, 'fail': 1, 'not a measurement': 2}
 
 SOAK_NOTES = ('display', 'hide', 'hidden_at_s', 'hide_failed_at_s', 'frames_at_hide', 'frames_at_end', 'daemon_pid',
@@ -688,6 +791,8 @@ def soak_report(result, marks):
              '(performance/budgets.md).' % result['budget_mib_h'], '',
              'Light: %s' % (marks.get('light') or 'live, following the clock'), '']
     lines += ['Drew: %s' % result['guard'], '']
+    if 'cycle' in result:
+        lines += cycle_lines(result['cycle'], marks)
     for reason in result['reasons']:
         lines.append('- not a measurement: %s' % reason)
     for note in result['notes']:
@@ -724,7 +829,7 @@ def soak_step_lines(steps):
     return lines
 
 
-def print_soak_verdict(samples_path, *marks_paths):
+def read_run(samples_path, marks_paths):
     try:
         with open(samples_path) as f:
             rows = list(csv.DictReader(f))
@@ -733,9 +838,21 @@ def print_soak_verdict(samples_path, *marks_paths):
     marks = {}
     for path in marks_paths:
         marks.update(read_marks(read(path) or ''))
+    return rows, marks
+
+
+def print_soak_verdict(samples_path, *marks_paths, cycle=None):
+    rows, marks = read_run(samples_path, marks_paths)
     result = judge_soak(rows, marks,
                         settle_s=int(os.environ.get('PERF_SOAK_SETTLE', SOAK_SETTLE_S)),
                         min_phase_s=int(os.environ.get('PERF_SOAK_MIN_PHASE', SOAK_MIN_PHASE_S)))
+    judged = None
+    if cycle:
+        cycle_rows, cycle_marks = read_run(cycle[0], cycle[1:])
+        judged = judge_cycle(cycle_rows, cycle_marks,
+                             phase_s=int(os.environ.get('PERF_SOAK_CYCLE_PHASE', CYCLE_PHASE_S)),
+                             settled_s=int(os.environ.get('PERF_SOAK_CYCLE_SETTLED', CYCLE_SETTLED_S)))
+    result = with_cycle(result, judged)
     sys.stdout.write(soak_report(result, marks))
     return SOAK_EXIT[result['verdict']]
 
@@ -749,17 +866,28 @@ USAGE = """usage: perf.py i3-window-ids < tree.json
                                                 needs-you (or waiting, on an idle record) 10 s in every 30, and a
                                                 compaction every 60 s, writers 7 s apart in phase (item 312)
        perf.py phase-summary SAMPLES MARKS      a perf-fitzoom run's own + GPU MiB, settled at fit and at full zoom
-       perf.py soak-verdict SAMPLES MARKS...    a perf-soak run's growth per process and phase;
-                                                exit 0 within budget, 1 over it, 2 not a measurement"""
+       perf.py soak-verdict SAMPLES MARKS... [--cycle SAMPLES MARKS...]
+                                                a perf-soak run's growth per process and phase, and its light
+                                                cycle (item 321); exit 0 within budget, 1 over it, 2 not a measurement
+       perf.py i3-focused-window < tree.json    the focused window's id, or nothing
+       perf.py cycle-presses HOUR               the light cycle's presses of ] per phase from the clock's HOUR"""
 
 if __name__ == '__main__':
     cmd = sys.argv[1:2]
     if cmd == ['i3-window-ids']:
         print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))
+    elif cmd == ['i3-focused-window']:
+        print(i3_focused_window(json.load(sys.stdin)) or '')
+    elif cmd == ['cycle-presses'] and len(sys.argv) == 3:
+        print(' '.join(str(n) for n in cycle_presses(int(sys.argv[2], 10))))
     elif cmd == ['phase-summary'] and len(sys.argv) == 4:
         print_phases(sys.argv[2], sys.argv[3])
     elif cmd == ['soak-verdict'] and len(sys.argv) >= 4:
-        sys.exit(print_soak_verdict(sys.argv[2], *sys.argv[3:]))
+        args = sys.argv[2:]
+        cycle = None
+        if '--cycle' in args:
+            cycle, args = args[args.index('--cycle') + 1:], args[:args.index('--cycle')]
+        sys.exit(print_soak_verdict(args[0], *args[1:], cycle=cycle))
     elif cmd == ['window-size']:
         print(xwininfo_size(sys.stdin.read()) or '')
     elif cmd == ['busy-home'] and len(sys.argv) == 4:

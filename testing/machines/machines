@@ -31,6 +31,21 @@ ROBOT = os.environ.get('MACHINES_ROBOT_URL', 'https://robot-ws.your-server.de')
 HCLOUD = os.environ.get('MACHINES_HCLOUD_URL', 'https://api.hetzner.cloud/v1')
 POLL = float(os.environ.get('MACHINES_POLL_SECONDS', '30'))
 FETCH_EVERY = float(os.environ.get('MACHINES_FETCH_SECONDS', '3600'))
+SOAK_SECONDS = 28800
+SOAK_SETTLE_S = 600
+CYCLE_S = 5 * 180 + 600
+CEILING_MARGIN_H = 2.0
+
+
+def soak_hours(soak_flags):
+    flags = shlex.split(soak_flags)
+    seconds = int(flags[flags.index('--seconds') + 1]) if '--seconds' in flags else SOAK_SECONDS
+    cycle = 0 if '--no-cycle' in flags else CYCLE_S
+    return (cycle + seconds + SOAK_SETTLE_S) / 3600
+
+
+def ceiling_hours(max_hours, soak_flags):
+    return soak_hours(soak_flags) + CEILING_MARGIN_H if max_hours is None else max_hours
 BACKOFF_CAP = 300
 SLEEP_GAP = 60
 ATTEMPTS = max(1, int(os.environ.get('MACHINES_SSH_ATTEMPTS', '5')))
@@ -142,9 +157,11 @@ def parse(argv):
     p.add_argument('--corpus', help="run soak: botropolis's demo directory")
     p.add_argument('--history', help='run soak: a synthetic ~/.claude (botropolis-demo synth-home, item 248)')
     p.add_argument('--soak-flags', default='', help='run soak: extra perf-soak flags')
-    p.add_argument('--max-hours', type=float, default=10.0,
+    p.add_argument('--max-hours', type=float, default=None,
                    help='soak: the ceiling, in hours from delivery; the runner cancels the box then, fetched or not, '
-                        'and the box\'s own cancellation is booked for the day after')
+                        'and the box\'s own cancellation is booked for the day after (default: the light cycle, '
+                        'the daemon\'s settle and the soak, from --soak-flags, and %g hours for the set-up; '
+                        '10.6 hours for the 8-hour soak)' % CEILING_MARGIN_H)
     p.add_argument('--keep-on-failure', action='store_true',
                    help='run soak: when the set-up or the copy fails, leave the box up to be looked at, until its '
                         'booked cancellation, instead of cancelling it')
@@ -155,7 +172,9 @@ def parse(argv):
     p.add_argument('--bucket-read-secret-ref', default='', help='run soak: reference to its secret')
     p.add_argument('--script', help='run wayland: the test to run in the desktop session')
     p.add_argument('--out', help='run: where results land')
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    args.max_hours = ceiling_hours(args.max_hours, args.soak_flags)
+    return args
 
 
 def ipv6_route():
@@ -761,6 +780,9 @@ def run_soak(args):
     ip = None
     rc = 1
     try:
+        if args.max_hours < soak_hours(args.soak_flags):
+            warn('the ceiling of %g hours is shorter than the light cycle and the soak, %.1f hours, so the box '
+                 'will be cancelled before the soak ends' % (args.max_hours, soak_hours(args.soak_flags)))
         state = robot.apply(args)
         ip = state['ip']
         run_id = 'soak-%s-%d' % (datetime.datetime.now().strftime('%Y%m%d-%H%M%S'), state['server_number'])

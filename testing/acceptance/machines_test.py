@@ -35,7 +35,10 @@ BUCKET_REFS = ['--bucket-url', '{bucket}',
 BERLIN = zoneinfo.ZoneInfo('Europe/Berlin')
 
 
-def booking_for(t, hours=10):
+DEFAULT_CEILING_H = (28800 + 600 + 5 * 180 + 600) / 3600 + 2
+
+
+def booking_for(t, hours=DEFAULT_CEILING_H):
     return (datetime.datetime.fromtimestamp(t + hours * 3600, BERLIN).date() + datetime.timedelta(days=1)).isoformat()
 
 
@@ -748,6 +751,9 @@ class WhenRunningTheSoakAndItNeverFinishesBeforeTheCeiling(Machines):
     def test_it_should_say_the_ceiling_was_reached(self):
         self.assertIn('ceiling', self.done.stderr)
 
+    def test_it_should_warn_the_ceiling_is_shorter_than_the_cycle_and_the_soak(self):
+        self.assertIn('shorter than the light cycle and the soak', self.done.stderr)
+
     def test_it_should_cancel_the_server(self):
         self.assertEqual(len(self.cancelled_now()), 1)
 
@@ -1310,6 +1316,10 @@ class WhenReadingTheSetUp(unittest.TestCase):
     def setUpClass(cls):
         with open(os.path.join(MACHINES, 'soak', 'setup')) as f:
             cls.text = f.read()
+
+    def test_it_should_install_libxtst6_for_the_cycles_key_presses(self):
+        apt = [c.split() for c in self.text.replace('\\\n', ' ').splitlines() if 'x11-xserver-utils' in c.split()]
+        self.assertIn('libxtst6', apt[0], apt)
 
     def test_it_should_install_x11_utils_on_the_same_apt_line_as_x11_xserver_utils(self):
         apt = [c.split() for c in self.text.replace('\\\n', ' ').splitlines() if 'x11-xserver-utils' in c.split()]

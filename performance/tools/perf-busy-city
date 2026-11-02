@@ -18,6 +18,7 @@ show_after=0
 keep_focus=0
 replay_looks=0
 sets=()
+presses=()
 out=""
 build=""
 
@@ -57,6 +58,12 @@ perf-city; the city's CPU is profiled when the build has a pprof endpoint.
                          from perf.py replay --looks (item 312)
   --set KEY=VALUE        pass a config key to the city for this run, as its own
                          --set does, e.g. light=night (item 308); repeatable
+  --press AT:KEY:N       at AT s, focus the city's window and press KEY (an X keysym,
+                         such as bracketright) N times through XTEST, lib/xin.py;
+                         busy.txt records press_AT_s=taken N KEY, or missed and why:
+                         the window not found, not focused, or a press that failed.
+                         Without i3-msg and xprop the keys go to whatever has the
+                         focus, and the line says so (item 321); repeatable
   --out DIR             run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
   -h, --help             this
 
@@ -73,7 +80,8 @@ Run it under the landing lock, one build after another.
 For tests: BOTROPOLIS_DEMO names a demo stager to use instead of building one,
 PERF_BUSY_SETTLE=0 skips the settle, PERF_BUSY_REPLAY_FROM moves the replay's
 start (default 25 s), and PERF_BUSY_PPROF_WAIT is how many 0.2 s tries the
-pprof check takes (default 50).
+pprof check takes (default 50), PERF_BUSY_XIN replaces lib/xin.py and
+PERF_BUSY_PRESS_GAP is the seconds between presses (default 0.2).
 USAGE
 }
 
@@ -90,6 +98,7 @@ while [[ $# -gt 0 ]]; do
 	--keep-focus) keep_focus=1; shift ;;
 	--replay-looks) replay_looks=1; shift ;;
 	--set) sets+=(--set "$2"); shift 2 ;;
+	--press) presses+=("$2"); shift 2 ;;
 	--out) out="$2"; shift 2 ;;
 	-h | --help) usage; exit 0 ;;
 	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
@@ -229,15 +238,51 @@ done
 start=$(date +%s)
 at() { while (($(date +%s) - start < $1)); do sleep 0.2; done; }
 
-if [[ "${handback}" == 1 ]]; then
-	window=""
+city_window() {
+	local id
 	for _ in $(seq 300); do
 		for id in $(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-window-ids); do
-			[[ "$(xprop -id "${id}" _NET_WM_PID 2>/dev/null)" == *"= ${city}" ]] && window="${id}"
+			[[ "$(xprop -id "${id}" _NET_WM_PID 2>/dev/null)" == *"= ${city}" ]] && { echo "${id}"; return; }
 		done
-		[[ -n "${window}" ]] && break
 		sleep 0.1
 	done
+}
+
+if [[ -n "${PERF_BUSY_XIN:-}" ]]; then
+	xin=("${PERF_BUSY_XIN}")
+else
+	xin=(python3 -I "${here}/lib/xin.py")
+fi
+press() {
+	local key=$1 n=$2 window how="" k
+	if command -v i3-msg >/dev/null && command -v xprop >/dev/null; then
+		window=$(city_window)
+		[[ -n "${window}" ]] || { echo "missed (the city's window was not found)"; return; }
+		i3-msg "[id=${window}] focus" >/dev/null
+		[[ "$(i3-msg -t get_tree | python3 -I "${here}/perf.py" i3-focused-window)" == "${window}" ]] ||
+			{ echo "missed (the city was not focused)"; return; }
+	else
+		how=" (focus unchecked: no i3-msg or xprop)"
+	fi
+	for ((k = 1; k <= n; k++)); do
+		"${xin[@]}" key "${key}" >/dev/null 2>&1 || { echo "missed (press ${k} of ${n} failed)"; return; }
+		sleep "${PERF_BUSY_PRESS_GAP:-0.2}"
+	done
+	echo "taken ${n} ${key}${how}"
+}
+if ((${#presses[@]})); then
+	(
+		for p in "${presses[@]}"; do
+			IFS=: read -r p_at p_key p_n <<<"${p}"
+			at "${p_at}"
+			note "press_${p_at}_s=$(press "${p_key}" "${p_n}")"
+		done
+	) &
+	pids+=($!)
+fi
+
+if [[ "${handback}" == 1 ]]; then
+	window=$(city_window)
 	if [[ -n "${window}" ]]; then
 		i3-msg "[id=${window}] focus" >/dev/null
 		at 20

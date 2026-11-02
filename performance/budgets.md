@@ -63,7 +63,7 @@ A whole core for the five seconds of `firstMapLimit` would still pass a city tha
 | memory, start-up peak | ≤ 1 GB `Private_Dirty` + GPU at any moment | `perf-city` at 1 s through the first 10 s | ~2.2 GB | 8–11 GB |
 | CPU, visible and drawing | ≤ 10% of one core mean, ≤ 10 ms of CPU a frame | `perf-city` with frames drawn, `BOTROPOLIS_FRAMETIME` | 21.6 ms | 41 ms |
 | hidden or unfocused | ≤ 1% of one core, and own memory ≤ 256 MiB within 30 s of hiding | `perf-city --hide-after` | — | 0.4%, 4 GB kept |
-| growth | ≤ 1 MiB an hour of `Private_Dirty` + GPU | an 8-hour soak with sessions working, before each release: `perf-soak`, per phase, visible and hidden | not measured | not measured |
+| growth | ≤ 1 MiB an hour of `Private_Dirty` + GPU, and each repeat of a light within 4 MiB of the first | an 8-hour soak with sessions working, before each release: `perf-soak`, per phase, visible and hidden, after its light cycle on the box's GPU ([item 321](../roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md)) | not measured | not measured |
 
 ## Background helpers
 
