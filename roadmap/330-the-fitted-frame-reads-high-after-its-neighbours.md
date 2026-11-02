@@ -9,3 +9,9 @@ So something earlier in the suite occasionally leaves the machine, the disk cach
 
 The stress city's frame tests run first in the suite, or in their own process after a settle, so nothing of the suite's own runs ahead of them; and the suite records what ran before a stress reading, so a spike can be traced.
 A test that the order holds.
+
+## Answered while building
+
+- **The cause** (item 330, 2026-11-03): not the suite's order but the core the tick lands on: the same 131 M instructions take 14.9 ms on a P-core, 21.3 on an E-core, 38.6 on an LP-core; every reading over 15.9 ms started busy or queued behind a landing.
+- **Pinning** (performance manager, 2026-11-03): the stress measures run on the fastest cores by sysfs max frequency, bars unchanged, since the 16 ms bar was set from runs that landed there; "on a fast core" goes into budgets.md and method.md.
+- **An E-core bar?** Aria, 2026-11-03: *"Report it ungated"* — the E-core reading and instructions per frame are logged beside the gated one, no second bar.
