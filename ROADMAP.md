@@ -50,7 +50,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
 | [323](roadmap/323-the-hero-loops-sea-ends-inside-the-frame.md) | the hero loop's sea ends inside the frame: a black wedge in the top-right corner | — | nobody, a defect |
 | [326](roadmap/326-a-child-of-a-locked-run-inherits-the-landing-lock.md) | a daemon started under the landing lock inherits the lock's descriptor, and holds it after the run dies | — | nobody, a defect in the lock |
-| [327](roadmap/327-release-0-3-5.md) | release 0.3.5, a quality patch | 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321, 318, 308, 317, 322, 326 | nobody, Aria chose what it holds |
+| [327](roadmap/327-release-0-3-5.md) | release 0.3.5, a quality patch | 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321 (slice 1), 318, 308, 317, 322, 326 | nobody, Aria chose what it holds |
 
 ## Waiting on Aria
 
