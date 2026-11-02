@@ -86,6 +86,10 @@ Only the numbers go into a report here.
    The noise is 1.4826 times the median absolute deviation of the sample-to-sample differences, not the residual of the fitted slope, since a residual includes the step and would let it hide.
    For each step it gives the phase, the second, the box's clock and UTC, the change in `Private_Dirty` and in GPU, and the slopes before and after, or says "No steps".
    A step still counts in its phase's slope, and the verdict does not change: a step is memory taken.
+   **A soak pinned to one light cannot see the switch between them, so the switch has its own check** (items 308 and 318), in the performance tier:
+   night → day → night → day on the 600-district fixture, 180 s a phase judged on its settled last 30 s, each repeat within 4 MiB of the first of its light.
+   Headless, `TestLightCycleGivesItsMemoryBack` counts what the city itself holds, Ebitengine's image memory and the live Go heap after a GC less the slack the record buffers' shrink rule permits (each buffer's capacity also held to that rule), through `BOTROPOLIS_MEMORY_LOG`; it does not count `Private_Dirty`, because llvmpipe's rasterizer arenas grow it at every switch on any build.
+   On a real GPU, `TestLightCycleOnARealGPU` (`BOTROPOLIS_REAL_GPU=1`, windowed) counts the whole process, `Private_Dirty` plus the `drm-total` GPU memory the budgets read, before each release, until the soak box runs it as its first phase ([item 321](../roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md)).
    **Run it overnight, never while someone works at the machine** (Aria, 2026-10-25), since a focused window for four hours is not compatible with using the desk.
    A blanked or locked screen stops the visible half drawing, so the verdict asks the frame count directly: the frames by the hide must reach 90% of the phase's seconds at 30 fps, whatever the monitor reads (item 325).
    A display with no DPMS, such as a box's virtual one, records its monitor as `none (virtual: forced EDID, no DPMS)`, a desk whose query failed records `unknown` and `soak.md` notes it, and a monitor reading Off at either end still refuses the run.
