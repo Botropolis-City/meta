@@ -95,7 +95,7 @@ class WhenSoakingAStubBuildOnADesk(Soak):
         self.assertIn('landings_during: unchecked', self.soak)
 
     def test_it_should_name_the_display_it_ran_on(self):
-        self.assertIn('display: %s' % os.environ.get('DISPLAY', ''), self.soak)
+        self.assertIn('display: %s' % self.desk.display, self.soak)
 
     def test_it_should_leave_the_callers_state_config_cache_and_data_untouched(self):
         self.assertEqual(self.after, self.before)

@@ -73,8 +73,18 @@ done
 
 [[ -x "${bin}" ]] || { echo "no botropolis binary at '${bin}'; pass --bin" >&2; exit 1; }
 pgrep -x botropolisd >/dev/null || { echo "botropolisd is not running; start it first (systemctl --user start botropolisd)" >&2; exit 1; }
-if pgrep -a -x botropolis | grep ' city' | grep -qv -- '--headless'; then
-	echo "a city window is already open; close it first so the run measures one window" >&2
+city_on_this_display() {
+	local pid args shown
+	for pid in $(pgrep -x botropolis); do
+		args=$(tr '\0' ' ' <"/proc/${pid}/cmdline" 2>/dev/null) || continue
+		[[ " ${args}" == *" city "* && "${args}" != *--headless* ]] || continue
+		shown=$(tr '\0' '\n' <"/proc/${pid}/environ" 2>/dev/null) || return 0
+		[[ "$(sed -n 's/^DISPLAY=//p' <<<"${shown}")" == "${DISPLAY:-}" ]] && return 0
+	done
+	return 1
+}
+if city_on_this_display; then
+	echo "a city window is already open on display '${DISPLAY:-}'; close it first so the run measures one window" >&2
 	exit 1
 fi
 

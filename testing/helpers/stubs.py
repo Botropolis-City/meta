@@ -1,5 +1,6 @@
 import hashlib
 import os
+import shutil
 import signal
 import subprocess
 import textwrap
@@ -173,10 +174,22 @@ class BusyDesk:
         self.watched = list(self.real.values()) + [os.path.join(self.home, d) for d in ('.local', '.config', '.cache', '.claude')]
         self.spy = os.path.join(top, 'spy')
         os.makedirs(self.spy)
+        self.display = ':perf-test-%s' % os.path.basename(top)
+
+    def open_city(self, display):
+        """A windowed stub city on the given display, outside this desk's spy; close it with close_city."""
+        named = os.path.join(self.top, 'open-city-%s' % display.replace(':', ''), 'botropolis')
+        os.makedirs(os.path.dirname(named))
+        os.symlink(shutil.which('bash'), named)
+        env = {k: v for k, v in os.environ.items() if k != 'PERF_BUSY_TEST_SPY'}
+        env['DISPLAY'] = display
+        return subprocess.Popen([named, '-c', 'sleep 600; :', 'city'], env=env,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
 
     def env(self, path, **extra):
         return dict(os.environ,
                     PATH=path,
+                    DISPLAY=self.display,
                     HOME=self.home,
                     XDG_STATE_HOME=self.real['state'],
                     XDG_CONFIG_HOME=self.real['config'],
@@ -195,3 +208,11 @@ class BusyDesk:
                 return f.read()
         except OSError:
             return ''
+
+
+def close_city(proc):
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    proc.wait()
