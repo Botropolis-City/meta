@@ -1,6 +1,6 @@
 # 331. A background session blocked on a permission prompt reads as working, not needs-you
 
-**Open. Filed 2026-11-03 (r1228), from 0.3.5's L1 check against Aria's live daemon. Nobody's call — a defect; whether it gates 0.3.5 was Aria's.**
+**Open, in progress since 2026-11-03 in the session "item 331". Filed 2026-11-03 (r1228), from 0.3.5's L1 check against Aria's live daemon. Nobody's call — a defect; whether it gates 0.3.5 was Aria's.**
 
 L1 (the live-state check, 14 live sessions in one pass) found one disagreement: a background session whose Claude Code record says *waiting*, `waitingFor: "permission prompt"`, last updated 8 hours before, whose transcript ends in a `tool_use` with no result, and which `claude agents` calls *blocked*, read as **working** in Botropolis.
 A permission prompt is the clearest case of needing you, and the city said the opposite for eight hours.
