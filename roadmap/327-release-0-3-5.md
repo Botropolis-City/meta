@@ -1,8 +1,8 @@
 # 327. Release 0.3.5
 
-**Open. Filed 2026-11-02 (r1209) at Aria's request. Nobody's call — Aria chose what it holds.**
+**Open, in progress since 2026-11-03 in the session "release 0.3.5". Filed 2026-11-02 (r1209) at Aria's request. Nobody's call — Aria chose what it holds.**
 
-Depends on: 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321 (slice 1), 318, 308, 317, 322, 326
+Depends on: 323, 294, 268, 259, 255, 324, 212 (slice 27), 307, 325, 321 (slice 1), 318, 308, 317, 322
 
 Aria, 2026-11-02: *"Quality patch, go with your list."*
 
@@ -20,3 +20,7 @@ Left for later, on purpose: 257, 261, 204, 245, the parked 238 and 277, and the 
 ## What it runs
 
 [RELEASING.md](../botropolis/RELEASING.md) in full, as 0.3.4 did (item 320): one candidate, a landing freeze from it to the tag, the night soak with its verdict, the re-film, S1–S10, L1–L2, A1–A7, the dry run, then the release, the AUR pushes (Aria's, unless the permission rule changes) and the site.
+
+## Answered while building
+
+- **Item 326 defers to 0.3.6** (manager, 2026-11-03, under Aria's overnight leave): every other item had landed and 326, the landing lock's descriptor, was waiting on a permission prompt in its own window; it is tooling nobody using Botropolis sees, so the candidate was cut without it rather than lose the night.
