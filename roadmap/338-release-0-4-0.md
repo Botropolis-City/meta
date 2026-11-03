@@ -16,3 +16,9 @@ Nothing else waits to be in it.
 
 [RELEASING.md](../botropolis/RELEASING.md) in full, as 0.3.5 did (item 327): one candidate, a landing freeze from it to the tag, the soak with its cycle phase (item 321's real-box proof, which also closes item 321), the re-film, S1–S10, L1–L2, A1–A7, the dry run, the release, the AUR packages and the site.
 Manual checks stand across a re-cut; automated ones re-run.
+
+## Answered while building
+
+- **The gate** (performance manager, 2026-11-03): `make test-performance` at `cad2504`, pinned and settled, everything met but `TestARescanAtTwoThousandSessions`, 16.6 ms against 16, which fails the same way at the previous main `3acddcf` (alternating runs 16.5 / 15.8 / 16.6 / 16.6): a drift since 0.3.4, item 340, not 0.4.0's code.
+- **Aria, 2026-11-03:** the re-film passes (*"Pass, publish with 0.4.0"*); and *"Ship; soak now"* — 0.4.0 ships with the rescan check red, item 340 for 0.4.1, and the soak is ordered on the candidate.
+- **Step 2** (release session): the package from CI 41660165080 with `SHA256SUMS` verified, S1–S10 pass, dry run 41663902297 green.
