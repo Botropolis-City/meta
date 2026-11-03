@@ -48,7 +48,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [321](roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md) | the soak box runs the light cycle as its first phase, on its real GPU | 318 | nobody, after 0.3.4 |
 | [328](roadmap/328-the-second-night-holds-eight-mib-more-heap.md) | the second night holds 6–8 MiB more heap than the first, on every quiet run since the light-cycle check landed | — | nobody for the diagnosis; Aria for the target |
-| [330](roadmap/330-the-fitted-frame-reads-high-after-its-neighbours.md) | the stress city's fitted frame reads over its bar in the full suite and under it alone, so a neighbour weighs on it | — | nobody, a defect in the suite's order |
 
 ## Waiting on Aria
 
