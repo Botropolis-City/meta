@@ -75,6 +75,7 @@ Likewise S9 stages the `shell` record; A4 is the check that a real `!` in Claude
 ## Steps L1–L2, A1–A7 and the walk against the 0.4.0 candidate, 2026-11-03
 
 A1–A7 and the tidy-up walk pass (Aria), L1 passes, L2 fails on `botropolis rm` against Claude Code 2.1.310 (item 341); the record is on [item 338](338-release-0-4-0.md).
+On the re-cut, `8c908ea`, L1 and L2 both pass; the manual checks stand across the re-cut (Aria).
 
 ## Steps L1–L2 and A1–A7 against the 0.3.4 candidate, 2026-10-29
 
