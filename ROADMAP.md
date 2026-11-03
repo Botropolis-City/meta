@@ -87,6 +87,7 @@ Items are numbered in one series, 1–68.
 | [338](roadmap/338-release-0-4-0.md) | release 0.4.0 | 333 | nobody, Aria named it |
 | [339](roadmap/339-the-stress-measures-follow-the-clock.md) | the stress city's measures follow the wall clock, so a night run does 3.5% more work than a day run | — | nobody, after 0.4.0 |
 | [340](roadmap/340-a-rescan-of-two-thousand-sessions-costs-over-16-ms.md) | a rescan of two thousand sessions costs over its 16 ms of a core, climbing since 0.3.4 | — | nobody, over its budget |
+| [341](roadmap/341-rm-gives-up-when-the-cli-has-no-job-for-the-session.md) | `botropolis rm` gives up when Claude Code has no job for the session, so a stopped session cannot be demolished | — | nobody, a defect |
 Section 8's bugs 1–34 and the art batch's 35–68 continue the same numbering; phases 19 and 20 have their own small series, cited as "phase 20 item 3".
 There are two bug 18s — road tiles, and rovers parking — both fixed, both left renumbered as written, because a dated record that gets tidied stops being a record.
 Nothing cites either by number.
