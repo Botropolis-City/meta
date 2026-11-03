@@ -70,7 +70,8 @@ Only the numbers go into a report here.
    A daemon of the build runs on a copy of the state directory with a stub `claude`, and the city runs through `perf-city`, focused, at fit for 100 s, then 40 wheel notches in through XTEST (`lib/xin.py`), then settled at full zoom to 220 s, with CPU profiles at 30–90 and 150–210 s.
    It holds the landing lock throughout, and once it holds it waits for a quiet machine itself (item 330's `tools/settle`): load under 3 over 1 minute and under 4 over 5, reporting how long it waited and at what load.
    A quiet check made before queueing for the lock is not enough, since a landing can run between the check and the reading, as it did in r1222 and r1228.
-   Each stress reading logs its instructions, the cores it ran on and the load beside its time, so a slow reading can be told from a slow core.
+   Each stress reading runs on the fastest cores by sysfs maximum frequency and is judged there, "on a fast core" (Aria, 2026-11-03); the same reading on the next-fastest cores is logged beside it, held to no bar.
+   Each logs its instructions a tick, the cores it ended on and the load beside its time, so a slow reading can be told from a slow core.
    `perf.py phase-summary OUT_DIR/run/samples.csv OUT_DIR/marks.txt` gives own plus GPU settled at fit (30–90 s) and at full zoom (150–215 s); on r964's own run it gives 442 and 566 MiB.
 
 8. **The soak:** `perf-soak BUILD_DIR`, or `make perf-soak PERF_BUILD=BUILD_DIR`, the growth budget's run, before each release (item 164).

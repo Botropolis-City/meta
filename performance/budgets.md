@@ -65,6 +65,10 @@ A whole core for the five seconds of `firstMapLimit` would still pass a city tha
 | hidden or unfocused | ≤ 1% of one core, and own memory ≤ 256 MiB within 30 s of hiding | `perf-city --hide-after` | — | 0.4%, 4 GB kept |
 | growth | ≤ 1 MiB an hour of `Private_Dirty` + GPU, and each repeat of a light within 4 MiB of the first | an 8-hour soak with sessions working, before each release: `perf-soak`, per phase, visible and hidden, after its light cycle on the box's GPU ([item 321](../roadmap/321-the-soak-runs-the-light-cycle-on-its-real-gpu.md)) | not measured | not measured |
 
+**The stress city's frame bars are read on a fast core** (Aria, 2026-11-03, item 330): on the 600-district fixture, ≤ 16 ms of CPU a frame fitted and ≤ 10 ms zoomed in and panning (item 270), each reading pinned to the cores with the highest sysfs maximum frequency.
+The same tick is the same work on any core, about 131 M instructions fitted, but took 14.9 ms on a P-core and 21.3 on an E-core, so a reading left to the scheduler measured where it landed as much as what it did.
+The bars were set from P-core readings, and pinning measures what they were set against; the same measure on the next-fastest cores is logged beside it and held to no bar, with the instructions a tick, so a regression shows in the count first.
+
 ## Background helpers
 
 The usage probe, summaries, and anything else that runs Claude Code on the app's behalf.
