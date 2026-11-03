@@ -83,7 +83,6 @@ Each is either bot-crossing's setting rather than a feature, or a cost the footp
 | [DESIGN.md](botropolis/DESIGN.md) | what exists, and the rules the work is held to |
 
 Items are numbered in one series, 1–68.
-| [333](roadmap/333-tidying-part-1.md) | a vision item; details private | — | Nobody's |
 | [335](roadmap/335-the-greedy-batcher-splits-on-which-draw-leads.md) | the frame's batcher is greedy, so the draw-command count depends on which source happens to lead | — | nobody, after 0.4.0 |
 | [338](roadmap/338-release-0-4-0.md) | release 0.4.0 | 333 | nobody, Aria named it |
 | [339](roadmap/339-the-stress-measures-follow-the-clock.md) | the stress city's measures follow the wall clock, so a night run does 3.5% more work than a day run | — | nobody, after 0.4.0 |

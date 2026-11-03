@@ -1,6 +1,6 @@
 # 333. Tidying, part 1
 
-**Open, in progress since 2026-11-03 in the session "item 333 a". Filed 2026-11-02 (r1229), a vision item: its details are private. Nobody's call.**
+**Done 2026-11-03 (`45a4373`, r1254). Filed 2026-11-02 (r1229), a vision item: its details are private.**
 
 Depends on: nothing
 Landed: slice 1 (`648dad0`, r1242).
