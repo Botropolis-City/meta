@@ -1,6 +1,6 @@
 # 338. Release 0.4.0
 
-**Open. Filed 2026-11-03 (r1246) at Aria's request. Nobody's call — Aria named the version and what it holds.**
+**Open, in progress since 2026-11-03 in the session "release 0.4.0". Filed 2026-11-03 (r1246) at Aria's request. Nobody's call — Aria named the version and what it holds.**
 
 Depends on: 333
 
