@@ -72,6 +72,7 @@ Only the numbers go into a report here.
    A quiet check made before queueing for the lock is not enough, since a landing can run between the check and the reading, as it did in r1222 and r1228.
    Each stress reading runs on the fastest cores by sysfs maximum frequency and is judged there, "on a fast core" (Aria, 2026-11-03); the same reading on the next-fastest cores is logged beside it, held to no bar.
    Each logs its instructions a tick, the cores it ended on and the load beside its time, so a slow reading can be told from a slow core.
+   The stress city's frames run first in the tier (r1240), so no earlier test's work is still settling when they are read.
    `perf.py phase-summary OUT_DIR/run/samples.csv OUT_DIR/marks.txt` gives own plus GPU settled at fit (30–90 s) and at full zoom (150–215 s); on r964's own run it gives 442 and 566 MiB.
 
 8. **The soak:** `perf-soak BUILD_DIR`, or `make perf-soak PERF_BUILD=BUILD_DIR`, the growth budget's run, before each release (item 164).
