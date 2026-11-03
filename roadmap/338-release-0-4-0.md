@@ -3,6 +3,7 @@
 **Open, in progress since 2026-11-03 in the session "release 0.4.0". Filed 2026-11-03 (r1246) at Aria's request. Nobody's call — Aria named the version and what it holds.**
 
 Depends on: 333
+Landed: slice 1 (`cad2504`, r1256).
 
 Aria, 2026-11-02, through the design agent: *"I want this released asap as 0.4.0"*; and 2026-11-03, here: *"0.4.0 = 333 plus whatever has landed"*.
 
