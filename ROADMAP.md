@@ -86,6 +86,7 @@ Each is either bot-crossing's setting rather than a feature, or a cost the footp
 Items are numbered in one series, 1–68.
 | [333](roadmap/333-tidying-part-1.md) | a vision item; details private | — | Nobody's |
 | [335](roadmap/335-the-greedy-batcher-splits-on-which-draw-leads.md) | the frame's batcher is greedy, so the draw-command count depends on which source happens to lead | — | nobody, after 0.4.0 |
+| [338](roadmap/338-release-0-4-0.md) | release 0.4.0 | 333 | nobody, Aria named it |
 Section 8's bugs 1–34 and the art batch's 35–68 continue the same numbering; phases 19 and 20 have their own small series, cited as "phase 20 item 3".
 There are two bug 18s — road tiles, and rovers parking — both fixed, both left renumbered as written, because a dated record that gets tidied stops being a record.
 Nothing cites either by number.
