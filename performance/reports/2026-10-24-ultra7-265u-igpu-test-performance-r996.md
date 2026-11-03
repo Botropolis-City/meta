@@ -69,6 +69,7 @@ The figures are the table's above, in its order of rows, from the tests' own log
 | r1230 `48f0cd9`, **0.3.5's release gate** | `d7ee4b6..48f0cd9`: items 212, 255, 259, 268, 315, 318, 321, 323, 324, 331 and 0.3.5's version | 96 pass, 4 fail, 2 skip: every budget met but item 318's light cycle, heap less the records' slack 95 → 103 MiB at the second night (+8 against 4), red at r1217 when it landed and on every quiet run since; Aria shipped with it red (2026-11-03), item 328 to fix; fitted 14.75 ms, the opening 1.92 CPU-s against 2.5 | 0.54%, 0.82% | 1.57%, 1.78% | — | — | — | 202 MiB | quiet |
 | r1233 `d29223b` | `48f0cd9..d29223b`: items 326 (the lock), 330 (quiet inside the lock; instructions and cores per stress reading) | 100 pass, 2 skip: every budget met, **the light cycle included** (heap less the records' slack 95 → 96 at the second night, 96 → 95 by day), with no change to drawing since r1230, where it was +8; fitted 14.71 ms at 130.5 M instructions a tick, the opening 1.73 CPU-s; settled after 13m44s inside the lock | 0.54%, 0.75% | 1.58%, 1.83% | — | — | 0.46% | — | 2.15 |
 | r1245 `3acddcf` | `d29223b..3acddcf`: items 330 (the fast-core pin), 333 (slices 1–2), 334, 336, 337 | 101 pass, 2 skip: every budget met, the first run with every gated stress reading on the fastest cores (0–3) and the next-fastest (4–11) reported: fitted 14.97 ms (20.77 on the next-fastest), zoomed 5.46 (7.46), panning 5.40 (7.74); **the fitted tick's instructions rose to 135.1 M from 130.5 M at r1233**, a lead and not a miss; the light cycle passes again (96 → 95 at the second night); the opening 1.68 CPU-s | 0.25% | — | — | — | — | — | 1.25 |
+| r1256 `cad2504`, 0.4.0's gate | `3acddcf..cad2504`: items 212, 328, 333 (slices 4–6), 338 | **1 fail**: a rescan at 2,000 sessions took 16.63 ms of a core against its bar of 16 (16.59, 16.63, 16.63, 16.80, 21.20); every other budget met, by day: fitted 13.53 ms (19.80 on the next-fastest), zoomed 4.68 (5.94), panning 4.42 (6.23), heap 86–88 MiB | — | — | — | — | — | — | 1.72 |
 
 At r1000 the 2,000-session daemon read about 0.1 of a core higher, twice, and is recorded as the machine's load rather than filed: `botropolisd` links neither `pkg/city` nor `pkg/render`, the only code the range changed; its CPU ticks held at 2.16–2.39% in all four runs; and the test itself says this measure spans 2.3–2.6% on a quiet machine.
 It is still over its budget, which is [item 213](../../roadmap/213-the-2000-session-daemon-is-over-its-cpu-budget.md).
@@ -85,6 +86,13 @@ Five quiet runs at the same commit failed it too, at 16.05, 16.80, 16.47, 17.72 
 The slice as measured before main gained r1166–r1176, `c616baf`, passed it three times in three in the same sitting, and [item 280](../../roadmap/280-city-hall-is-drawn-as-a-hospital.md)'s session found the cause in that range: the clinic's count walks every building a frame.
 With its fix, r1179 (`77ae413`) passed: five quiet runs fitted at 15.27, 15.88, 15.93, 15.69 and 15.24 ms, and the whole suite met every budget, with the 600-district city at 15.54 ms, so its margin at fit is as little as 0.07 ms.
 The same night, a creep in the 2,000-session daemon's memory was settled as noise: five quiet runs at r1176 read 54–60 MiB and five at r1130 54–59, with the Go heap at 26 MB in every one.
+
+**0.4.0's gate missed the rescan budget** at r1256 (`cad2504`), and the code in its range is not why.
+`TestARescanAtTwoThousandSessions` held its median under 16 ms at every run until then, but rose release by release: 14.6 ms at r1209, about 15.0 at r1230 and r1233, 15.7 at r1245, 16.6 at r1256.
+No daemon code changed between r1245 and r1256.
+Run alone in one sitting, alternating r1256, r1245, r1256, r1245, it read medians of 16.46, 15.76, 16.60 and 16.60 ms, so r1245 failed too: each run's five rescans fall at about 15.7 or about 16.6 ms, two levels some 0.9 ms apart, at either revision.
+So the rescan sits on its bar, and which level a run lands on decides it; its cost is counted instructions plus kernel time, and which of the two moved since r1209 is not split by the test.
+Raw: `~/.local/state/botropolis-perf/test-performance-r1256-cad2504-release-0.4.0-20261103-080606/` and `rescan-aba-r1256-r1245-20261103-084244/`.
 
 ## What it does not show
 
