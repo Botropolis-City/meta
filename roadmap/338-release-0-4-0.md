@@ -4,6 +4,7 @@
 
 Depends on: 333, 341
 Landed: slice 1 (`cad2504`, r1256).
+Landed: slice 2 (`8c908ea`, r1259).
 
 Aria, 2026-11-02, through the design agent: *"I want this released asap as 0.4.0"*; and 2026-11-03, here: *"0.4.0 = 333 plus whatever has landed"*.
 
