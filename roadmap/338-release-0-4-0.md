@@ -2,7 +2,7 @@
 
 **Open, in progress since 2026-11-03 in the session "release 0.4.0". Filed 2026-11-03 (r1246) at Aria's request. Nobody's call — Aria named the version and what it holds.**
 
-Depends on: 333
+Depends on: 333, 341
 Landed: slice 1 (`cad2504`, r1256).
 
 Aria, 2026-11-02, through the design agent: *"I want this released asap as 0.4.0"*; and 2026-11-03, here: *"0.4.0 = 333 plus whatever has landed"*.
@@ -22,3 +22,4 @@ Manual checks stand across a re-cut; automated ones re-run.
 - **The gate** (performance manager, 2026-11-03): `make test-performance` at `cad2504`, pinned and settled, everything met but `TestARescanAtTwoThousandSessions`, 16.6 ms against 16, which fails the same way at the previous main `3acddcf` (alternating runs 16.5 / 15.8 / 16.6 / 16.6): a drift since 0.3.4, item 340, not 0.4.0's code.
 - **Aria, 2026-11-03:** the re-film passes (*"Pass, publish with 0.4.0"*); and *"Ship; soak now"* — 0.4.0 ships with the rescan check red, item 340 for 0.4.1, and the soak is ordered on the candidate.
 - **Step 2** (release session): the package from CI 41660165080 with `SHA256SUMS` verified, S1–S10 pass, dry run 41663902297 green.
+- **The checklist on the candidate package** (2026-11-03, 0.4.0-1 from `cad2504` installed): Aria ran A1–A7 and the tidy-up walk, all **pass**; L1 passes (58 agent records, 15 CLI records, 375 sessions, every live one agreeing); **L2 fails**: Claude Code 2.1.310 drops a stopped job outright and `botropolis rm` then gives up (item 341). Aria: *"Fix, re-cut, automated re-run"* — 341 lands as the freeze's exception, the candidate is re-cut, the automated checks re-run, the manual ones stand; the soak already running on `cad2504` counts, the fix being outside the city.

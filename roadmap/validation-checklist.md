@@ -72,6 +72,10 @@ Run them against the release build, in order; each says what to press and what t
 S3, A3's second half, is scripted, but only through a stand-in for the window's focus; A3 is the check that the real window manager's focus reaches it.
 Likewise S9 stages the `shell` record; A4 is the check that a real `!` in Claude Code writes it.
 
+## Steps L1–L2, A1–A7 and the walk against the 0.4.0 candidate, 2026-11-03
+
+A1–A7 and the tidy-up walk pass (Aria), L1 passes, L2 fails on `botropolis rm` against Claude Code 2.1.310 (item 341); the record is on [item 338](338-release-0-4-0.md).
+
 ## Steps L1–L2 and A1–A7 against the 0.3.4 candidate, 2026-10-29
 
 All pass, on `botropolis 0.3.4-1` from `d7ee4b6`, Aria running A1–A7 and the release session L1 and L2; the record is on [item 320](320-release-0-3-4.md).
