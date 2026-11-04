@@ -26,3 +26,25 @@ A cycle that fails makes the run "over" as a growth slope over 1 MiB an hour doe
 **What must be true of the box first:** the pre-flight (items 309, 319) checks that the city draws on the GPU, not llvmpipe: `GL_RENDERER` from the city's log, or `glxinfo -B` as the soak user on `:0`, must not name llvmpipe or softpipe, or the pre-flight fails, since a cycle read through llvmpipe is the false red item 318 found.
 
 **Done when:** a soak on a real box writes the "Light cycle" table and line, a staged run in `perf_test.py` covers pass, over and unsettled, and `performance/method.md` step 8 says the cycle is the soak's first phase, which the performance manager writes.
+
+## The 0.4.0 soak's cycle (item session, 2026-11-04)
+
+The first real-box run, server 3105798 (i5-12500, Mesa on the UHD 770), from 2026-11-03 09:51.
+The laptop rebooted at about 18:11 and its runner died, so the soak's end and `soak.md` were not fetched; the cycle's samples were already on the laptop, complete, in `~/.local/state/botropolis-perf/soak-20261103-094734/cycle/`.
+Judged from them by `perf.py soak-verdict --cycle`:
+
+| phase | light | MiB | change from the first of its light | settled |
+| --- | --- | --- | --- | --- |
+| warm-up day | day | 218.9 | - | yes |
+| first night | night | 219.7 | +0.0 | yes |
+| first day | day | 220.0 | +0.0 | yes |
+| second night | night | 219.8 | +0.2 | yes |
+| second day | day | 220.3 | +0.3 | yes |
+
+Every press was taken with the city focused, and the renderer was the GPU's, not llvmpipe.
+So the cycle reads a pass on the whole process, `Private_Dirty` + GPU.
+**That the light switched is unproven:** GPU memory holds at about 73 MiB with no step at either nightfall, where item 318's real-GPU run stepped about 6 MiB at the first, so a city that ignored `]` would read the same.
+The growth verdict is not a measurement only because the run's end never reached the laptop.
+
+**The proof is slice 2** (manager, 2026-11-04): a frame on the box's private display at each phase, harness only, since 0.4.0 is frozen.
+The city logging its light change can be its own item later, if the frames are not enough.
