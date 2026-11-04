@@ -1,6 +1,6 @@
 # 321. The soak box runs the light cycle as its first phase, on its real GPU
 
-**Open, in progress since 2026-11-02 in the session "item 321". Filed 2026-10-28 (r1207), proposed by the performance manager from item 318's diagnosis. Nobody's call — a method addition, after 0.3.4.**
+**Done 2026-11-04 (`ee76bc7`, r1311 of meta). Filed 2026-10-28 (r1207), proposed by the performance manager from item 318's diagnosis. Nobody's call — a method addition, after 0.3.4.**
 
 Depends on: 318
 Landed: slice 1 (`2adcd23`, r1220).
@@ -47,6 +47,10 @@ So the cycle reads a pass on the whole process, `Private_Dirty` + GPU.
 **That the light switched is unproven:** GPU memory holds at about 73 MiB with no step at either nightfall, where item 318's real-GPU run stepped about 6 MiB at the first, so a city that ignored `]` would read the same.
 The growth verdict is not a measurement only because the run's end never reached the laptop.
 
+**The whole run, fetched** (manager, 2026-11-04): the box finished its soak on its own, and its report came from the bucket into the same directory.
+`soak.md` says "pass", `perf-soak` exited 0, every slope within budget, and the light cycle reads as above; the report is [2026-11-03-i5-12500-igpu-soak-0.4.0.md](../performance/reports/2026-11-03-i5-12500-igpu-soak-0.4.0.md).
+The laptop's reboot at about 18:11 MST ended the runner, so nothing cancelled the box early; Aria cancelled it at about 03:20 MST on 2026-11-04, after about 17.5 hours at EUR 0.1827, about EUR 3.20.
+
 **The proof is slice 2** (manager, 2026-11-04): a frame on the box's private display at each phase, harness only, since 0.4.0 is frozen.
 The city logging its light change can be its own item later, if the frames are not enough.
 
@@ -56,3 +60,15 @@ The city logging its light change can be its own item later, if the frames are n
 - **The frames are report-only until a box gives a number** (manager, 2026-11-04): each frame's mean luminance and each night's ratio to the day before go in `busy.txt` and the Light cycle table, and the verdict says "light switch: unproven, no bound yet" rather than fail the cycle.
   A missing or refused frame is still not a measurement.
   75% stays in the code as the documented candidate, not as the gate; the bound is set from the first box run's data and goes to Aria, since a limit is hers.
+
+## Closed (item session, 2026-11-04)
+
+Done: the soak's first phase is the light cycle on the box's real GPU, and 0.4.0's soak ran it to a pass.
+`2adcd23` (r1220 of meta) added the cycle, its verdict in `soak.md`, the pre-flight's refusal of llvmpipe and softpipe, `libxtst6` on the box, and a run ceiling counting the cycle; `ee76bc7` (r1311 of meta) added a frame per phase and the gate in `lib/xin.py`.
+`perf_test.py` covers pass, over, unsettled, a missed press, no GPU and the frames, on staged samples; `perf_soak_test.py` runs it on the stub desk.
+The gate, the 4 MiB bound and the missing-frame check were each mutated red.
+
+For Aria:
+
+- **The light switch is still unproven.** 0.4.0's run took no frames, and its GPU memory showed no step at nightfall; the next soak is the first with frames, and the bound on night against day is hers to set from its numbers, with 0.75 as the candidate.
+- **`performance/method.md` step 8** still has the windowed real-GPU cycle running "until the soak box runs it as its first phase"; it now does, and the performance manager writes that change.
