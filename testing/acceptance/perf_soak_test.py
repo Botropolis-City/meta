@@ -120,6 +120,21 @@ class WhenSoakingAStubBuildOnADesk(Soak):
     def test_it_should_give_the_cycle_its_line_in_the_verdict(self):
         self.assertIn('Light cycle: not a measurement:', self.soak)
 
+    def test_it_should_take_a_frame_near_the_end_of_each_phase_into_cycle_frames(self):
+        frames = [line.split()[1] for line in self.desk.spied('xin').splitlines() if line.startswith('frame ')]
+        self.assertEqual(frames, [os.path.join(self.out, 'cycle', 'frames', 'phase-%d.png' % i) for i in range(5)])
+
+    def test_it_should_record_each_frames_luminance(self):
+        marks = read(os.path.join(self.out, 'cycle', 'busy.txt'))
+        self.assertEqual(len([l for l in marks.splitlines() if l.startswith('frame_') and l.endswith(' luma 40.0')]), 5, marks)
+
+    def test_it_should_record_each_nights_ratio_to_the_day_before(self):
+        self.assertIn('night_day_luma=first night 1.00, second night 1.00',
+                      read(os.path.join(self.out, 'cycle', 'busy.txt')).splitlines())
+
+    def test_and_the_stub_frames_are_equally_bright_it_should_call_the_switch_unproven(self):
+        self.assertIn('Light switch: unproven, no bound yet:', self.soak)
+
 
 class WhenSoakingAndTheCityIsNotFocusedForAPress(Soak):
     broken = 'no-focus'
@@ -128,7 +143,7 @@ class WhenSoakingAndTheCityIsNotFocusedForAPress(Soak):
         self.assertIn('the clock was not scrubbed: missed (the city was not focused)', self.soak)
 
     def test_it_should_press_nothing(self):
-        self.assertEqual(self.desk.spied('xin'), '')
+        self.assertEqual([line for line in self.desk.spied('xin').splitlines() if line.startswith('key ')], [])
 
 
 class WhenSoakingWithTheCycleTurnedOff(Soak):

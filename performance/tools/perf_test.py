@@ -834,7 +834,16 @@ class WhenReportingWhichGuardApplied(unittest.TestCase):
 
 
 CYCLE_LEVELS = (470, 500, 480, 500, 480)
-CYCLE_MARKS = {'press_%d_s' % (i * 180): 'taken %d bracketright' % n for i, n in enumerate((2, 10, 12, 12, 12))}
+CYCLE_LUMAS = (120.0, 40.0, 120.0, 40.0, 120.0)
+
+
+def cycle_marks(lumas=CYCLE_LUMAS):
+    marks = {'press_%d_s' % (i * 180): 'taken %d bracketright' % n for i, n in enumerate((2, 10, 12, 12, 12))}
+    marks.update({'frame_%d_s' % (i * 180 + 175): 'phase-%d luma %.1f' % (i, luma) for i, luma in enumerate(lumas)})
+    return marks
+
+
+CYCLE_MARKS = cycle_marks()
 
 
 def cycle_rows(levels=CYCLE_LEVELS, gpu=40.0, climb_phase=None, every=10, phase=180):
@@ -911,7 +920,7 @@ class WhenReportingALightCycle(unittest.TestCase):
         self.report = perf.soak_report(result, SOAK_MARKS)
 
     def test_it_should_write_a_row_for_each_phase_with_its_light_and_change(self):
-        self.assertIn('| second night | night | 506.0 | +6.0 | yes |', self.report)
+        self.assertIn('| second night | night | 506.0 | +6.0 | yes | 40.0 |', self.report)
 
     def test_it_should_give_the_cycle_its_own_line_in_the_verdict(self):
         self.assertIn('Light cycle: over: the second night +6.0 MiB and the second day +0.0 MiB against the first of '
@@ -919,6 +928,56 @@ class WhenReportingALightCycle(unittest.TestCase):
 
     def test_and_the_growth_passes_but_the_cycle_is_over_it_should_fail_the_soak(self):
         self.assertEqual(self.result['verdict'], 'fail')
+
+
+class WhenJudgingTheCyclesFrames(unittest.TestCase):
+    def judge(self, marks):
+        return perf.judge_cycle(cycle_rows(), marks)
+
+    def test_it_should_give_each_nights_luminance_against_the_day_before(self):
+        self.assertEqual(self.judge(CYCLE_MARKS)['switch']['ratios'], {'first night': 40 / 120, 'second night': 40 / 120})
+
+    def test_it_should_call_the_switch_unproven_with_no_bound_yet(self):
+        self.assertEqual(self.judge(CYCLE_MARKS)['switch']['verdict'], 'unproven, no bound yet')
+
+    def test_and_a_night_is_as_bright_as_its_day_it_should_still_call_it_unproven(self):
+        self.assertEqual(self.judge(cycle_marks((120.0, 120.0, 120.0, 40.0, 120.0)))['switch']['verdict'],
+                         'unproven, no bound yet')
+
+    def test_and_a_night_is_as_bright_as_its_day_it_should_not_change_the_cycles_verdict(self):
+        self.assertEqual(self.judge(cycle_marks((120.0, 120.0, 120.0, 40.0, 120.0)))['verdict'], 'pass')
+
+    def test_it_should_keep_the_candidate_bound_documented(self):
+        self.assertEqual(perf.CYCLE_SWITCH_CANDIDATE, 0.75)
+
+    def test_and_a_frame_is_missing_it_should_not_be_a_measurement(self):
+        marks = dict(CYCLE_MARKS)
+        del marks['frame_895_s']
+        self.assertEqual(self.judge(marks)['verdict'], 'not a measurement')
+
+    def test_and_a_frame_is_missing_it_should_name_the_phase(self):
+        marks = dict(CYCLE_MARKS)
+        del marks['frame_895_s']
+        self.assertIn('the second day: no frame was recorded', ' '.join(self.judge(marks)['reasons']))
+
+    def test_and_a_frame_was_refused_it_should_say_why(self):
+        marks = dict(CYCLE_MARKS, frame_355_s='missed (xin.py refuses display :0)')
+        self.assertIn('the first night: no frame: missed (xin.py refuses display :0)', ' '.join(self.judge(marks)['reasons']))
+
+
+class WhenReportingTheCyclesFrames(unittest.TestCase):
+    def setUp(self):
+        result = perf.with_cycle(perf.judge_soak(soak_rows(), SOAK_MARKS), perf.judge_cycle(cycle_rows(), CYCLE_MARKS))
+        self.report = perf.soak_report(result, SOAK_MARKS)
+
+    def test_it_should_give_the_switch_its_own_line(self):
+        self.assertIn('Light switch: unproven, no bound yet: each night\'s luminance against the day before, 0.33 at '
+                      'the first night and 0.33 at the second; the candidate bound is at most 0.75 (item 321).', self.report)
+
+
+class WhenGivingTheNightsLuminanceRatios(unittest.TestCase):
+    def test_it_should_write_one_line_for_busy_txt(self):
+        self.assertEqual(perf.cycle_ratio_line(CYCLE_MARKS, 180), 'night_day_luma=first night 0.33, second night 0.33')
 
 
 class WhenACycleCannotBeJudged(unittest.TestCase):

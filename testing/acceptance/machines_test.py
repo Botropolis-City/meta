@@ -1317,6 +1317,9 @@ class WhenReadingTheSetUp(unittest.TestCase):
         with open(os.path.join(MACHINES, 'soak', 'setup')) as f:
             cls.text = f.read()
 
+    def test_it_should_mark_the_box_as_the_soak_box_for_xins_gate(self):
+        self.assertRegex(self.text, r'(?m)^touch /etc/botropolis-soak-box$')
+
     def test_it_should_install_libxtst6_for_the_cycles_key_presses(self):
         apt = [c.split() for c in self.text.replace('\\\n', ' ').splitlines() if 'x11-xserver-utils' in c.split()]
         self.assertIn('libxtst6', apt[0], apt)

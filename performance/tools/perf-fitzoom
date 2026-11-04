@@ -144,7 +144,7 @@ echo "window ${id} city ${cpid} start ${s0}" >"${out}/marks.txt"
 at() { while (($(date +%s) - s0 < $1)); do sleep 0.2; done; }
 focus() {
 	i3-msg "[id=${id}] focus" >/dev/null
-	python3 -I "${here}/lib/xin.py" move "${cx}" "${cy}"
+	python3 -I "${here}/lib/xin.py" --asked-screen move "${cx}" "${cy}"
 }
 mark() { echo "$1 $(date +%s) $(wc -l <"${out}/run/city.log")" >>"${out}/marks.txt"; }
 
@@ -164,7 +164,7 @@ done
 at 100
 mark zoom_in
 focus
-python3 -I "${here}/lib/xin.py" wheel 40
+python3 -I "${here}/lib/xin.py" --asked-screen wheel 40
 at 120
 mark full
 for s in $(seq 130 10 220); do

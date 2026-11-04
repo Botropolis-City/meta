@@ -68,6 +68,7 @@ apt-get -o DPkg::Lock::Timeout=300 install -y -q --no-install-recommends \
 	python3 pciutils
 echo "mesa: $(dpkg-query -W -f='${Version}' libgl1-mesa-dri)" >>"${report}"
 echo "setup: apt is done"
+touch /etc/botropolis-soak-box
 
 connector=""
 card=""

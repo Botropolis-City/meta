@@ -33,7 +33,12 @@ read as the mean of the city's Private_Dirty + GPU over its last 30 s, which
 must climb under 0.1 MiB/s. The second night and the second day must each hold
 at most 4 MiB more than the first. Over that, the soak fails as growth over
 budget does. A phase unsettled, a press missed or a GPU reading of 0 (so not
-a real GPU) makes the run not a measurement. Then that city closes, and the
+a real GPU) makes the run not a measurement. Near each phase's end it writes
+the display to cycle/frames/ and records its mean luminance, so each night can
+be held against the day before: report-only, "unproven, no bound yet", until a
+box run gives the bound, whose candidate is a night at most 75% of its day.
+A missing or refused frame makes the run not a measurement. The key presses
+and frames go through lib/xin.py, which refuses :0 except on the soak box. Then that city closes, and the
 soak opens a fresh one in its pinned light, so nothing of the cycle carries
 into the growth phases.
 
@@ -203,11 +208,14 @@ if [[ "${cycle}" == 1 ]]; then
 	phase="${PERF_SOAK_CYCLE_PHASE:-180}"
 	read -r -a counts <<<"$(python3 -I "${here}/perf.py" cycle-presses "$(date +%H)")"
 	press_args=()
-	for i in "${!counts[@]}"; do press_args+=(--press "$((i * phase)):bracketright:${counts[i]}"); done
+	for i in "${!counts[@]}"; do
+		press_args+=(--press "$((i * phase)):bracketright:${counts[i]}" --frame "$((i * phase + phase * 35 / 36)):phase-${i}")
+	done
 	"${here}/perf-busy-city" --seconds "$((phase * ${#counts[@]}))" --keep-focus --interval "${interval}" \
 		--writers "${writers}" --profile-seconds 0 --set light=live "${press_args[@]}" --out "${out}/cycle" "${build}" >/dev/null &
 	busy=$!
 	wait "${busy}"
+	python3 -I "${here}/perf.py" cycle-ratios "${out}/cycle/busy.txt" "${phase}" >>"${out}/cycle/busy.txt"
 	cycle_args=(--cycle "${out}/cycle/run/samples.csv" "${out}/cycle/run/env.txt" "${out}/cycle/busy.txt")
 else
 	note "cycle=none (--no-cycle)"

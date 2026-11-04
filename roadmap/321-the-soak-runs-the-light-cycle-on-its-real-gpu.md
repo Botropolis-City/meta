@@ -48,3 +48,10 @@ The growth verdict is not a measurement only because the run's end never reached
 
 **The proof is slice 2** (manager, 2026-11-04): a frame on the box's private display at each phase, harness only, since 0.4.0 is frozen.
 The city logging its light change can be its own item later, if the frames are not enough.
+
+## Decided
+
+- **Slice 2's design and test tree** (manager, 2026-11-04): approved, including the gate in `lib/xin.py` that refuses an empty display, `:0` or `:0.0` on any machine without the soak box's marker, which also closes slice 1's hazard of pressing keys on whatever screen `perf-soak` was given.
+- **The frames are report-only until a box gives a number** (manager, 2026-11-04): each frame's mean luminance and each night's ratio to the day before go in `busy.txt` and the Light cycle table, and the verdict says "light switch: unproven, no bound yet" rather than fail the cycle.
+  A missing or refused frame is still not a measurement.
+  75% stays in the code as the documented candidate, not as the gate; the bound is set from the first box run's data and goes to Aria, since a limit is hers.

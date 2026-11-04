@@ -19,6 +19,7 @@ keep_focus=0
 replay_looks=0
 sets=()
 presses=()
+frames=()
 out=""
 build=""
 
@@ -64,6 +65,10 @@ perf-city; the city's CPU is profiled when the build has a pprof endpoint.
                          the window not found, not focused, or a press that failed.
                          Without i3-msg and xprop the keys go to whatever has the
                          focus, and the line says so (item 321); repeatable
+  --frame AT:NAME        at AT s, write the display to frames/NAME.png through
+                         lib/xin.py; busy.txt records frame_AT_s=NAME luma L, its
+                         mean luminance, or missed and why (item 321); repeatable.
+                         xin.py refuses a display that may be someone's screen
   --out DIR             run directory (default: a new one under \$XDG_STATE_HOME/botropolis-perf)
   -h, --help             this
 
@@ -99,6 +104,7 @@ while [[ $# -gt 0 ]]; do
 	--replay-looks) replay_looks=1; shift ;;
 	--set) sets+=(--set "$2"); shift 2 ;;
 	--press) presses+=("$2"); shift 2 ;;
+	--frame) frames+=("$2"); shift 2 ;;
 	--out) out="$2"; shift 2 ;;
 	-h | --help) usage; exit 0 ;;
 	-*) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
@@ -270,6 +276,25 @@ press() {
 	done
 	echo "taken ${n} ${key}${how}"
 }
+snap() {
+	local name=$1 said
+	mkdir -p "${out}/frames"
+	if said=$("${xin[@]}" frame "${out}/frames/${name}.png" 2>"${out}/frames/${name}.err"); then
+		echo "${name} ${said}"
+	else
+		echo "missed ($(head -n 1 "${out}/frames/${name}.err"))"
+	fi
+}
+if ((${#frames[@]})); then
+	(
+		for f in "${frames[@]}"; do
+			IFS=: read -r f_at f_name <<<"${f}"
+			at "${f_at}"
+			note "frame_${f_at}_s=$(snap "${f_name}")"
+		done
+	) &
+	pids+=($!)
+fi
 if ((${#presses[@]})); then
 	(
 		for p in "${presses[@]}"; do

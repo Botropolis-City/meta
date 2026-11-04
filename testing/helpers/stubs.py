@@ -107,6 +107,10 @@ GLXINFO = textwrap.dedent('''\
 XIN = textwrap.dedent('''\
     #!/usr/bin/env bash
     echo "$*" >>"$PERF_BUSY_TEST_SPY/xin"
+    if [[ "$1" == frame ]]; then
+        : >"$2"
+        echo "luma 40.0"
+    fi
     ''')
 
 

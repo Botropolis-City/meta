@@ -693,6 +693,41 @@ CYCLE_SETTLED_MIB_S = 0.1
 CYCLE_PHASES = (('warm-up day', 'day'), ('first night', 'night'), ('first day', 'day'),
                 ('second night', 'night'), ('second day', 'day'))
 CYCLE_REPEATS = (('night', 1, 3), ('day', 2, 4))
+CYCLE_SWITCH_CANDIDATE = 0.75
+CYCLE_NIGHTS = (1, 3)
+
+
+def cycle_frames(marks, phase_s):
+    frames = {}
+    for key, value in marks.items():
+        if key.startswith('frame_') and key.endswith('_s'):
+            frames[int(float(key[len('frame_'):-len('_s')])) // phase_s] = value
+    return frames
+
+
+def frame_luma(value):
+    parts = (value or '').split()
+    if len(parts) == 3 and parts[1] == 'luma':
+        try:
+            return float(parts[2])
+        except ValueError:
+            return None
+    return None
+
+
+def cycle_ratios(marks, phase_s):
+    lumas = {i: frame_luma(v) for i, v in cycle_frames(marks, phase_s).items()}
+    ratios = {}
+    for night in CYCLE_NIGHTS:
+        if lumas.get(night) is not None and lumas.get(night - 1):
+            ratios[CYCLE_PHASES[night][0]] = lumas[night] / lumas[night - 1]
+    return ratios
+
+
+def cycle_ratio_line(marks, phase_s):
+    ratios = cycle_ratios(marks, phase_s)
+    return 'night_day_luma=%s' % ', '.join('%s %.2f' % (name, ratios[name]) for name in sorted(
+        ratios, key=lambda n: [p[0] for p in CYCLE_PHASES].index(n))) if ratios else 'night_day_luma=none'
 
 
 def cycle_presses(hour):
@@ -704,6 +739,7 @@ def judge_cycle(rows, marks, phase_s=CYCLE_PHASE_S, settled_s=CYCLE_SETTLED_S):
     parts = soak_parts(rows, 'city', None)
     phases = []
     gpu_missing = None
+    frames = cycle_frames(marks, phase_s)
     for i, (name, light) in enumerate(CYCLE_PHASES):
         start, end = i * phase_s + phase_s - settled_s, (i + 1) * phase_s
         inside = [p for p in parts if start <= p[0] < end]
@@ -712,9 +748,14 @@ def judge_cycle(rows, marks, phase_s=CYCLE_PHASE_S, settled_s=CYCLE_SETTLED_S):
             reasons.append('the %s: the clock was not scrubbed: no press was recorded' % name)
         elif not press.startswith('taken'):
             reasons.append('the %s: the clock was not scrubbed: %s' % (name, press))
+        luma = frame_luma(frames.get(i))
+        if i not in frames:
+            reasons.append('the %s: no frame was recorded' % name)
+        elif luma is None:
+            reasons.append('the %s: no frame: %s' % (name, frames[i]))
         if not inside:
             reasons.append('the %s holds no samples in its last %d s' % (name, settled_s))
-            phases.append({'name': name, 'light': light, 'mib': None, 'settled': False})
+            phases.append({'name': name, 'light': light, 'mib': None, 'settled': False, 'luma': luma})
             continue
         totals = [pd + gpu for _, _, pd, gpu in inside]
         per_minute = slope_per_minute([p[0] for p in inside], totals)
@@ -726,7 +767,7 @@ def judge_cycle(rows, marks, phase_s=CYCLE_PHASE_S, settled_s=CYCLE_SETTLED_S):
         if gpu_missing is None and sum(p[3] for p in inside) <= 0:
             gpu_missing = name
         phases.append({'name': name, 'light': light, 'mib': sum(totals) / len(totals), 'settled': settled,
-                       'slope_mib_s': slope})
+                       'slope_mib_s': slope, 'luma': luma})
     if gpu_missing is not None:
         reasons.append('the city held no GPU memory in the %s, so this is not a real GPU' % gpu_missing)
     changes = {}
@@ -743,7 +784,8 @@ def judge_cycle(rows, marks, phase_s=CYCLE_PHASE_S, settled_s=CYCLE_SETTLED_S):
     else:
         verdict = 'pass'
     return {'verdict': verdict, 'reasons': reasons, 'phases': phases, 'changes': changes,
-            'phase_s': phase_s, 'settled_s': settled_s}
+            'phase_s': phase_s, 'settled_s': settled_s,
+            'switch': {'verdict': 'unproven, no bound yet', 'ratios': cycle_ratios(marks, phase_s)}}
 
 
 def with_cycle(result, cycle):
@@ -767,15 +809,24 @@ def cycle_lines(cycle, marks):
         line = ('Light cycle: %s: the second night %+.1f MiB and the second day %+.1f MiB against the first of '
                 'each light, at most %.0f MiB.' % (cycle['verdict'], cycle['changes']['night'],
                                                   cycle['changes']['day'], CYCLE_MARGIN_MIB))
-    lines = [line, '', '## Light cycle', '',
+    ratios = cycle['switch']['ratios']
+    seen = ' and '.join('%.2f at the %s' % (ratios[CYCLE_PHASES[n][0]], CYCLE_PHASES[n][0] if k == 0 else
+                                            CYCLE_PHASES[n][0].split()[0])
+                        for k, n in enumerate(n for n in CYCLE_NIGHTS if CYCLE_PHASES[n][0] in ratios))
+    switch = ('Light switch: %s: each night\'s luminance against the day before, %s; the candidate bound is at most '
+              '%.2f (item 321).' % (cycle['switch']['verdict'], seen or 'no frames to compare', CYCLE_SWITCH_CANDIDATE))
+    lines = [line, '', switch, '', '## Light cycle', '',
              'The city first goes day, night, day, night, day by its scrubbed clock, `--set light=live`, %d s a phase, '
              'each read as the mean of `Private_Dirty` + GPU over its last %d s (item 321).'
              % (cycle['phase_s'], cycle['settled_s']), '',
-             '| phase | light | MiB | change from the first of its light | settled |', '| --- | --- | --- | --- | --- |']
+             '| phase | light | MiB | change from the first of its light | settled | luminance |',
+             '| --- | --- | --- | --- | --- | --- |']
     for p in cycle['phases']:
         mib = '-' if p['mib'] is None else '%.1f' % p['mib']
         change = '%+.1f' % p['change'] if 'change' in p else '-'
-        lines.append('| %s | %s | %s | %s | %s |' % (p['name'], p['light'], mib, change, 'yes' if p['settled'] else 'no'))
+        luma = '-' if p.get('luma') is None else '%.1f' % p['luma']
+        lines.append('| %s | %s | %s | %s | %s | %s |' % (p['name'], p['light'], mib, change,
+                                                         'yes' if p['settled'] else 'no', luma))
     return lines + ['']
 
 
@@ -870,6 +921,7 @@ USAGE = """usage: perf.py i3-window-ids < tree.json
                                                 a perf-soak run's growth per process and phase, and its light
                                                 cycle (item 321); exit 0 within budget, 1 over it, 2 not a measurement
        perf.py i3-focused-window < tree.json    the focused window's id, or nothing
+       perf.py cycle-ratios BUSY_TXT PHASE_S     each night's frame luminance against the day before's
        perf.py cycle-presses HOUR               the light cycle's presses of ] per phase from the clock's HOUR"""
 
 if __name__ == '__main__':
@@ -878,6 +930,8 @@ if __name__ == '__main__':
         print('\n'.join(str(w) for w in i3_window_ids(json.load(sys.stdin))))
     elif cmd == ['i3-focused-window']:
         print(i3_focused_window(json.load(sys.stdin)) or '')
+    elif cmd == ['cycle-ratios'] and len(sys.argv) == 4:
+        print(cycle_ratio_line(read_marks(read(sys.argv[2]) or ''), int(sys.argv[3])))
     elif cmd == ['cycle-presses'] and len(sys.argv) == 3:
         print(' '.join(str(n) for n in cycle_presses(int(sys.argv[2], 10))))
     elif cmd == ['phase-summary'] and len(sys.argv) == 4:
