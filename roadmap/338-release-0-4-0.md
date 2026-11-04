@@ -1,6 +1,6 @@
 # 338. Release 0.4.0
 
-**Open, in progress since 2026-11-03 in the session "release 0.4.0". Filed 2026-11-03 (r1246) at Aria's request. Nobody's call — Aria named the version and what it holds.**
+**Done 2026-11-03 (`8c908ea`, r1259). Filed 2026-11-03 (r1246) at Aria's request. Nobody's call — Aria named the version and what it holds.**
 
 Depends on: 333, 341
 Landed: slice 1 (`cad2504`, r1256).
@@ -32,3 +32,9 @@ the Homebrew tap's macOS 26 build was cancelled with no steps run (no runner wit
 The AUR packages are updated and committed locally (`botropolis` and `botropolis-bin`, "Update to 0.4.0"), the site media imported from the 0.4.0 film (52 images, 32 clips, no stand-ins);
 the pushes and the media upload wait on 1Password after the machine rebooted at about 18:11 on 2026-11-03, which also ended the release, soak and item sessions.
 - **The soak** was interrupted by that reboot: the cycle phase completed and reads pass on the heap, but the run's end is missing and the light switch is unproven; item 321 carries the record and a frame-per-phase slice.
+
+## Closed
+
+v0.4.0 is tagged at `8c908ea` (r1259) by run 41712826205, with its packages, the Homebrew tap (after a rerun of the cancelled macOS 26 job), both AUR packages (pushed 2026-11-04) and the site's media (deploy 41811876154).
+Two deviations from the plan, both ruled by Aria: the performance gate's rescan check was red (item 340), and the soak's 10 h verdict is missing because the machine rebooted during it; item 321 carries the soak's record and its proof of the light switch.
+The manual checks ran once, on the `cad2504` package, and stood across the re-cut (Aria, 2026-11-03).

@@ -84,7 +84,6 @@ Each is either bot-crossing's setting rather than a feature, or a cost the footp
 
 Items are numbered in one series, 1–68.
 | [335](roadmap/335-the-greedy-batcher-splits-on-which-draw-leads.md) | the frame's batcher is greedy, so the draw-command count depends on which source happens to lead | — | nobody, after 0.4.0 |
-| [338](roadmap/338-release-0-4-0.md) | release 0.4.0 | 333, 341 | nobody, Aria named it |
 | [339](roadmap/339-the-stress-measures-follow-the-clock.md) | the stress city's measures follow the wall clock, so a night run does 3.5% more work than a day run | — | nobody, after 0.4.0 |
 | [340](roadmap/340-a-rescan-of-two-thousand-sessions-costs-over-16-ms.md) | a rescan of two thousand sessions costs over its 16 ms of a core, climbing since 0.3.4 | — | nobody, over its budget |
 | [342](roadmap/342-the-release-session-runs-the-live-half-of-a2-a4-and-a6.md) | the release session runs A2, A4 and A6 headless, as live checks L3–L5 | — | nobody's |
