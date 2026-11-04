@@ -27,3 +27,8 @@ Manual checks stand across a re-cut; automated ones re-run.
 - **L1–L2 on the re-cut** (2026-11-03, 0.4.0-1 from `8c908ea` installed): L1 passes (377 sessions, every live one agreeing; the 1 blocked→waiting and 5 transcript-less jobs are by design);
 L2 passes: a stopped session left the daemon and `claude agents --all` within 0.75 s of `botropolis rm` and stayed off across a daemon restart, and item 341's own case prints "Claude Code had already dropped it; forgetting it" and exits 0.
 Released on that.
+- **Released** (2026-11-03): run 41712826205 tagged `v0.4.0` at `8c908ea` and published 18 assets at 21:01 UTC;
+the Homebrew tap's macOS 26 build was cancelled with no steps run (no runner within 15 min), so `publish-tap` was skipped, and the failed jobs were re-run on 2026-11-04.
+The AUR packages are updated and committed locally (`botropolis` and `botropolis-bin`, "Update to 0.4.0"), the site media imported from the 0.4.0 film (52 images, 32 clips, no stand-ins);
+the pushes and the media upload wait on 1Password after the machine rebooted at about 18:11 on 2026-11-03, which also ended the release, soak and item sessions.
+- **The soak** was interrupted by that reboot: the cycle phase completed and reads pass on the heap, but the run's end is missing and the light switch is unproven; item 321 carries the record and a frame-per-phase slice.
