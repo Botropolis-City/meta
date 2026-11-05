@@ -1,0 +1,51 @@
+# 348. A group's sessions do not sit together, and its line does not connect them directly
+
+**Open. Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Aria's call — which of the three forms below, on frames.**
+
+Aria, on a group whose three sessions in one district showed badges and no line: *"We should make group lines draw between sessions in the same district and they should not go to districts themselves just directly from session to session. Also, buildings in the same group should try to group into neighborhoods (like sit together) If we nail that, maybe we will only need it between buildings in different disricts. or we can circle them with a line like a neighborhood instead of floating on top and then connect neighborhoods."*
+
+## Where it stands
+
+- **No line inside a district.** `Line.Leads` in `pkg/city/lines.go` keeps a line only if its stations are in more than one district, so a group in one district has badges and nothing else.
+- **A line's stops are stations, not buildings.** `City.station` puts each one at the average of the group's buildings in that district, nudged sideways per line, so it usually floats beside them, on nothing.
+  It stands at a district's centre only for a district where the group has no session and the coordinator's subagents worked.
+- **Group members sit wherever they landed.** `Layout.Slots` gives each session a sticky slot in its district's grid, in the order they arrived (`pkg/city/layout.go`), and nothing looks at groups.
+  A group's buildings are scattered among the others.
+- **The lines float over the city by ruling.** Aria dropped item 179 on 2026-10-20, after drawing the line on the ground was built and judged on frames.
+  A neighbourhood's outline is a new shape, so that does not settle it, but anything on the ground should be judged knowing it was tried.
+
+## What it wants
+
+**First, neighbourhoods.** A group's buildings in a district try to sit in adjacent lots.
+Everything else reads differently once this exists, so it comes first.
+
+**Then one of three forms, picked on frames of the same city:**
+
+1. **Session to session everywhere.** The line runs building to building, in a district and between districts, with no stations.
+2. **Only between districts.** Sitting together is what says "group" inside a district, and the line runs directly between buildings only across districts.
+3. **Neighbourhoods and links.** An outline circles each neighbourhood, and one link joins neighbourhoods across districts.
+
+The recommendation is the third.
+A group with 16 sessions in two districts would need at least 15 segments under the first form, over buildings that already carry a team's dashed lines to their lead (item 343 puts a whole team in one group, so those overlap exactly).
+The third draws two outlines and one link for the same group, and it does not depend on the order of the sessions.
+
+## What has to be decided while building it
+
+- **Do buildings move?** A session keeping its lot is deliberate: `design/city-and-rendering.md` and `Layout.Slots` both rely on it, and a building that jumps is hard to find again.
+  Grouping a session after it has a lot means moving it, or only new sessions sit together.
+  The recommendation is that a change you made by hand moves the building, drawn as a move, and a guess by the detector does not.
+- **What stations carry.** A station is more than a dot: it shows whose move each site is, its card says "station 2 of 4", it holds what a site waits on (item 90), and a pull request opened outside the group is a stop of its own.
+  The chosen form has to keep these somewhere, or say which are dropped.
+- **A stop with no session.** A district only the coordinator's subagents worked in has no building to connect to.
+  This ask says lines do not go to districts, so it goes, or becomes something else.
+- **One session on the map.** Item 344 shows the group; a neighbourhood of one is an outline around one building, or nothing.
+- **Cost.** The lines are a cached layer of their own (`design/what-it-costs.md`); building-to-building lines move with the buildings' lifts and the budgets in `performance/` apply.
+- **The City Plan.** It draws lines too (`pkg/city/cityplan.go`), and whichever form wins has to mean something there.
+
+## Slices
+
+1. Neighbourhoods: slots that keep a group adjacent, on the rule above for moving, with tests that a group's buildings are neighbours and that an unrelated session keeps its lot.
+2. Frames of all three forms on one staged city and on a large one, for Aria.
+3. The form she picks, and everything the old stations did moved or retired.
+
+Every one of them needs a frame for Aria, since this is how the map looks.

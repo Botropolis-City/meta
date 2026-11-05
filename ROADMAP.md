@@ -51,9 +51,11 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [345](roadmap/345-c-with-nothing-under-it-refuses-instead-of-asking-where.md) | `c` with nothing under the pointer asks which directory | — | nobody's |
 | [346](roadmap/346-a-session-pausing-mid-work-flips-to-needs-you.md) | a session pausing for a second or two mid-work stays showing active | — | nobody's |
 | [347](roadmap/347-a-pointed-at-tower-does-not-light-its-beams-and-beams-reach-the-depot.md) | pointing at a water tower lights its lines; a choice of lines to buildings only or packed sessions too | — | Aria's: the default |
+| [348](roadmap/348-a-group-s-sessions-do-not-sit-together-or-connect-directly.md) | a group's buildings sit together as neighbourhoods, connected directly rather than by stations | — | Aria's: which form, on frames |
 
 ## Waiting on Aria
 
+- **How a group is drawn**, [item 348](roadmap/348-a-group-s-sessions-do-not-sit-together-or-connect-directly.md): session to session, between districts only, or outlined neighbourhoods with links; judged on frames once slice 1 lands.
 - **Whether a tower's lines reach packed sessions by default**, [item 347](roadmap/347-a-pointed-at-tower-does-not-light-its-beams-and-beams-reach-the-depot.md): buildings only is the recommendation.
 - **What 1.0.0 needs**, [item 265](roadmap/265-what-1-0-0-needs-is-not-written-down.md): nine drafted criteria to keep, change or drop.
 - **The validation checklist's six steps left to her**, A1–A6 in [`validation-checklist.md`](roadmap/validation-checklist.md): attach in a real terminal, `c` in a real district, a real notification and the away list, `!` in a real session, the waybar module, and `status --live`. Each says the keys to press and what she should see; everything else on it is scripted or run by an agent (item 246). They run against each release build.
