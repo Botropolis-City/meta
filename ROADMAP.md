@@ -49,9 +49,12 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [343](roadmap/343-a-teammate-is-not-always-in-its-lead-s-group.md) | a teammate is always in its lead's group and moves with it | — | nobody's |
 | [344](roadmap/344-a-group-with-one-session-on-the-map-is-hidden.md) | a group with one session on the map is shown, not hidden | — | nobody's |
 | [345](roadmap/345-c-with-nothing-under-it-refuses-instead-of-asking-where.md) | `c` with nothing under the pointer asks which directory | — | nobody's |
+| [346](roadmap/346-a-session-pausing-mid-work-flips-to-needs-you.md) | a session pausing for a second or two mid-work stays showing active | — | nobody's |
+| [347](roadmap/347-a-pointed-at-tower-does-not-light-its-beams-and-beams-reach-the-depot.md) | pointing at a water tower lights its lines; a choice of lines to buildings only or packed sessions too | — | Aria's: the default |
 
 ## Waiting on Aria
 
+- **Whether a tower's lines reach packed sessions by default**, [item 347](roadmap/347-a-pointed-at-tower-does-not-light-its-beams-and-beams-reach-the-depot.md): buildings only is the recommendation.
 - **What 1.0.0 needs**, [item 265](roadmap/265-what-1-0-0-needs-is-not-written-down.md): nine drafted criteria to keep, change or drop.
 - **The validation checklist's six steps left to her**, A1–A6 in [`validation-checklist.md`](roadmap/validation-checklist.md): attach in a real terminal, `c` in a real district, a real notification and the away list, `!` in a real session, the waybar module, and `status --live`. Each says the keys to press and what she should see; everything else on it is scripted or run by an agent (item 246). They run against each release build.
 
