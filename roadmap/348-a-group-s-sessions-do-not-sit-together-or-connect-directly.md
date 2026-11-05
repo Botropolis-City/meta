@@ -19,6 +19,15 @@ Aria, on a group whose three sessions in one district showed badges and no line:
 **First, neighbourhoods.** A group's buildings in a district try to sit in adjacent lots.
 Everything else reads differently once this exists, so it comes first.
 
+**A neighbourhood is recognisable by itself.**
+Aria: *"It'd be like how you can recognize chinatown in almost any big city in the us"*.
+The point taken from that is recognition, not that style: you know where you are from the place's own character, before reading a sign or following a line.
+So the test of a neighbourhood is whether you can spot a group on the map with no line and no badge.
+Sitting together is the start of it, and the rest is something the group's buildings share, such as a gate or marker at its edge, a shared ground or street treatment, or a common trim.
+It has to stay out of what already means something: a building's height, lights and tones carry its state, and [the colour rule](../botropolis/rules/why-the-category-colours-are-legal.md) limits what a new colour may be.
+Any new art follows [the art sources rule](../botropolis/design/art-sources.md).
+If this works, the second and third forms below need much less drawing.
+
 **Then one of three forms, picked on frames of the same city:**
 
 1. **Session to session everywhere.** The line runs building to building, in a district and between districts, with no stations.
@@ -45,7 +54,8 @@ The third draws two outlines and one link for the same group, and it does not de
 ## Slices
 
 1. Neighbourhoods: slots that keep a group adjacent, on the rule above for moving, with tests that a group's buildings are neighbours and that an unrelated session keeps its lot.
-2. Frames of all three forms on one staged city and on a large one, for Aria.
-3. The form she picks, and everything the old stations did moved or retired.
+2. What makes one recognisable, tried on frames with no lines drawn.
+3. Frames of all three forms on one staged city and on a large one, for Aria.
+4. The form she picks, and everything the old stations did moved or retired.
 
 Every one of them needs a frame for Aria, since this is how the map looks.
