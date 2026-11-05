@@ -38,11 +38,16 @@ The recommendation is the third.
 A group with 16 sessions in two districts would need at least 15 segments under the first form, over buildings that already carry a team's dashed lines to their lead (item 343 puts a whole team in one group, so those overlap exactly).
 The third draws two outlines and one link for the same group, and it does not depend on the order of the sessions.
 
+## Decided
+
+**A building moves when Aria changes it, and the move is drawn** (Aria, 2026-11-05): *"buildings should move if I make a change to them. And the move should be a visible animation so I don't lose track of things."*
+So moving a session into a group, or out of one, carries its building to its new lot where she can watch it go.
+A session keeping its lot stays the rule otherwise, since `Layout.Slots` and `design/city-and-rendering.md` rely on it: a guess by the detector does not move a building.
+Packing already drives its crate to the depot (`pkg/city/haul.go`), which is the precedent to start from, and under reduced motion a building fades in where it lands, as packing does.
+With item 343, moving a lead moves its team, so several buildings move at once and each has to stay trackable.
+
 ## What has to be decided while building it
 
-- **Do buildings move?** A session keeping its lot is deliberate: `design/city-and-rendering.md` and `Layout.Slots` both rely on it, and a building that jumps is hard to find again.
-  Grouping a session after it has a lot means moving it, or only new sessions sit together.
-  The recommendation is that a change you made by hand moves the building, drawn as a move, and a guess by the detector does not.
 - **What stations carry.** A station is more than a dot: it shows whose move each site is, its card says "station 2 of 4", it holds what a site waits on (item 90), and a pull request opened outside the group is a stop of its own.
   The chosen form has to keep these somewhere, or say which are dropped.
 - **A stop with no session.** A district only the coordinator's subagents worked in has no building to connect to.
@@ -53,7 +58,7 @@ The third draws two outlines and one link for the same group, and it does not de
 
 ## Slices
 
-1. Neighbourhoods: slots that keep a group adjacent, on the rule above for moving, with tests that a group's buildings are neighbours and that an unrelated session keeps its lot.
+1. Neighbourhoods: slots that keep a group adjacent, with the drawn move decided above, and tests that a group's buildings are neighbours, that a move by hand animates, that a detector's guess moves nothing, and that an unrelated session keeps its lot.
 2. What makes one recognisable, tried on frames with no lines drawn.
 3. Frames of all three forms on one staged city and on a large one, for Aria.
 4. The form she picks, and everything the old stations did moved or retired.
