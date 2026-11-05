@@ -48,6 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [343](roadmap/343-a-teammate-is-not-always-in-its-lead-s-group.md) | a teammate is always in its lead's group and moves with it | — | nobody's |
 | [344](roadmap/344-a-group-with-one-session-on-the-map-is-hidden.md) | a group with one session on the map is shown, not hidden | — | nobody's |
+| [345](roadmap/345-c-with-nothing-under-it-refuses-instead-of-asking-where.md) | `c` with nothing under the pointer asks which directory | — | nobody's |
 
 ## Waiting on Aria
 
