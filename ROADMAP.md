@@ -51,7 +51,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [354](roadmap/354-release-0-5-0.md) | release 0.5.0: items 340, 348, 350–353 and 359, with the one soak after it | 340, 348, 349, 350, 351, 352, 353, 359 | nobody, Aria named the version |
 | [350](roadmap/350-controls-part-1.md) | a vision item; details private | — | nobody's |
 | [351](roadmap/351-controls-part-2.md) | a vision item; details private | 350 | nobody's |
-| [352](roadmap/352-controls-part-3.md) | a vision item; details private | — | nobody's |
 | [353](roadmap/353-controls-part-4.md) | a vision item; details private | 351 (slice 2) | nobody's |
 | [355](roadmap/355-the-landing-queue-s-slow-waiter-test-times-out-on-macos-intel.md) | the landing queue's slow-waiter test times out on the Intel macOS runner | — | nobody, a flaky test |
 | [357](roadmap/357-make-land-s-own-tests-miss-the-wait-under-load.md) | `make land`'s own acceptance tests miss the wait under load | — | nobody, a flaky test |
