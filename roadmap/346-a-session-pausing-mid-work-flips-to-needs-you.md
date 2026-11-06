@@ -1,6 +1,6 @@
 # 346. A session that pauses for a second or two mid-work flips to needing you
 
-**Open, in progress since 2026-11-06 in the session "item 346". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
+**Fixed 2026-11-06 (`a683ae31`, r1275). Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
 Depends on: nothing
 Landed: slice 1 (`a683ae31`, r1275).
@@ -57,3 +57,22 @@ In `pkg/commands`, a pause inside the hold should send no notification.
 - **The reproduction** (roadmap manager, 2026-11-06): the first red test — a Stop then a PreToolUse within a second, asserting no `NeedsYou` was ever shown — is the reproduction the item asked for; no separate acceptance test.
 - **What the held session shows** (roadmap manager, 2026-11-06): its last state, tool and subject, so the bench does not flicker; it follows from "shows working for a hold".
 - Lands as one slice, with the changelog entry and a line in `design/session-lifecycle.md`.
+
+## Fixed
+
+The daemon holds a session going from working to needing you for `daemon.IdleHold`, three seconds, on the release clock.
+It keeps showing the session as it last showed, tool and subject too,
+and shows it needing you, logs the `needs-you` event and notifies only when the hold passes with nothing new.
+Working again cancels the hold.
+A permission prompt, a question, a `waiting` record, a `needs-input` turn, a session ending and a session that was not working all show at once.
+The hold is decided only where state changes, in `Rescan`, `Apply` and the hold's own timer, so `Snapshot` stays a pure read,
+and the map, `status`, `bar`, `notify` and the event log all see the same view.
+
+Tests: `pkg/daemon/hold_test.go` covers the item's five cases, a record turning idle on a rescan, a permission prompt arriving inside a hold, and a session that was never working.
+The case of working again inside the hold also asserts that no update a subscriber received ever showed needing you, and that no `needs-you` event was logged; it was the reproduction, red before the fix.
+`pkg/commands`' `TestNotifyInsideTheHold` drives `Notify` from a real daemon's updates and sends nothing inside the hold and one notification after it.
+The tests that had sent a Stop and read needs-you at once now advance the fake clock past the hold.
+The fake clock moved from `pkg/daemon`'s tests to `testing/helpers`, and the daemon exports `ReleaseClock` and `SetReleaseClock`, so `pkg/commands` can move a daemon's time too.
+
+No deviation from what the item asked.
+No frame: nothing on the map changes beyond a pause no longer showing.
