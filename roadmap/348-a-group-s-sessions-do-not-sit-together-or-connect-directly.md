@@ -1,6 +1,6 @@
 # 348. A group's sessions do not sit together, and its line does not connect them directly
 
-**Open, in progress since 2026-11-06 in the session "item 348". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Aria's call — which of the three forms below, on frames.**
+**Done 2026-11-06 (`93cbf78b`, r1297). Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Aria's call — which of the three forms below, on frames.**
 
 Depends on: nothing
 Landed: slice 1 (`a980c7a2`, r1291).
@@ -96,3 +96,23 @@ Every one of them needs a frame for Aria, since this is how the map looks.
   Off the map, with Aria's acceptance: whose move each site is (each building's tone and the district sign still say it), a pull request opened outside the group (kept in the dive and the stand-up), the site office and the line's label (the coordinator's card and every member's badge keep them), and a district only the coordinator's subagents worked in (kept in the dive and the stand-up).
   Kept: a building's place in the line, as "site 2 of 4"; a waiting site's link drawn unlit, its "waits on…" on the cards of the buildings there; a guessed site's link dashed; hovering a link or an outline shows the line's card; a dragged building dropped on a link or a group's building joins that group; a hovered car's districts keep their links lit; the City Plan's lines run badge to badge without dots; a group in one district draws no line in `districts`.
 - **Slice 4, as built** (item 348's session, 2026-11-06): `group_line_form` beside `group_lines`, `districts` by default; no stations drawn; a link under the pointer answers as its site's station did, so the card, a drop on it and a hovered car's lit districts carry over; a form change re-shapes the lines at once, the lines' cache key naming the form; "site 2 of 3" in place of "station 2 of 3".
+
+## Closed
+
+Done in four slices, landed together as r1287 to r1297 (`70af5a42` to `93cbf78b`).
+
+- **Neighbourhoods** (slice 1): a session with no lot takes the free one nearest its group's, and a loose newcomer takes one that borders no group while the grid has one.
+  A move by hand, into a group, out of one or a take-out, carries the building across: it fades out at its old lot, a truck carries its crate as packing does, and it fades in at the new one, a convoy for a team.
+  A guess moves nothing, and the layout records the group each lot was chosen beside, so a moved building sits still afterwards.
+  Tests: `TestNeighbourhoods`, `TestMoves`, `TestMoved`, `TestTakenOut`, `TestLoaderGroupMoved`, `TestLoaderGroupLeft`.
+- **The mark** (slice 2): a raised kerb in the lines' ink round each neighbourhood of two or more, on the ground, partly hidden by the buildings in front ("On the ground").
+  The paving and the gate were dropped on frames. Tests: `TestNeighbourhoodBlocks`, `TestNeighbourhoodEdges`, `TestKerbWall`, `TestKerbsKey`.
+- **The forms** (slices 3 and 4): `group_line_form`, `districts` by default, `neighbourhoods` and `sessions`, in the settings panel beside group lines and in botropolis-config(5); stations are no longer drawn, and what they carried is where the list above says.
+  Tests: `TestLineForms`, `TestLinkHover`, `TestLineFormSetting`, `TestGroupLineFormKey`, `TestGroupLineFormSettingsRow`, and "when the line form changes" in `TestKeepingTheGroupLines`.
+
+Frames, not committed, sent to the roadmap manager for Aria: the default form on the large staged city plain, with API focused, with API under item 359's real hover, and the settings row.
+
+Deviations, flagged:
+- A link under the pointer answers with the existing station hit, pointing at its site, rather than a new kind of hit, so the card, the drop and the car-lit districts carried over unchanged.
+- The large city was staged in code, not from the metropolis scenario, because the command line could not carry the trial settings.
+- At the fitted view, item 359's dim under a group hover reads modestly; a close-up frame shows it working. Strengthening it is item 359's.
