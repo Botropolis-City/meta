@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-11-06 in the session "item 343". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
+Depends on: nothing
+Landed: slice 1 (`bcd1cec`, r1262).
+
 Aria, on seeing a lead session and one of its teammates in different groups: *"subsessions should always show up in the same group and should move with their parent."*
 
 "Subsession" here means a **teammate**: a member of an agent team, a full session with its own building, tied to its lead by the camp's dashed line ([`camps.go`](../botropolis/pkg/city/camps.go)).
