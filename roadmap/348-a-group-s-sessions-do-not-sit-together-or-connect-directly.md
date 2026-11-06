@@ -64,3 +64,10 @@ With item 343, moving a lead moves its team, so several buildings move at once a
 4. The form she picks, and everything the old stations did moved or retired.
 
 Every one of them needs a frame for Aria, since this is how the map looks.
+
+## Answered while building
+
+- **Slice 1's test tree** (roadmap manager, 2026-11-06): approved as sent — `Layout.Slots` places an arrival on the free lot nearest its group, re-slots a session only when its group was changed by hand and records the group each lot was chosen for, so a rebuild moves nothing; `group.Result.Moved` and `Session.GroupMoved` carry "by hand" from the detector; the move is a third haul kind, `HaulMove`, at the truck's speed with the building riding the truck, staggered as a convoy, and a 300 ms fade-in under reduced motion.
+  The building riding the truck is a drawing choice, so it comes to Aria on a frame.
+- **A re-flow of the grid does not re-pack neighbourhoods** (roadmap manager, 2026-11-06, from Decided above): when a district's grid widens, every building shifts as it does today and the recorded lots stay, since nobody changed those sessions; whether a neighbourhood should re-pack is judged on slice 3's large-city frames.
+- **A take-out is a change by hand** (roadmap manager, 2026-11-06, from Decided above): a session taken out of a group leaves its neighbourhood, and if the detector then holds it in another group it moves beside that one, once, at Aria's action; a later change of the guess moves nothing.
