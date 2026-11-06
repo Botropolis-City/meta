@@ -32,3 +32,5 @@ A frame for Aria: the pointer on a grouped building, on the large city item 348 
 - **The selected building's roads still win** (roadmap manager, 2026-11-06): pointing at the selected building while its roads are shown keeps showing them, as today.
 - **The recede reads at the fitted view** (Aria, 2026-11-06, on item 348's focused frames: *"Yes, dim more"*): under a group focus, and under this item's hover, the buildings outside the lit set dimmed too little to see at the fitted zoom.
   This item takes it as its second slice, since it owns the highlight now: a stronger recede, with a frame of each highlight — a tower, a building, a group under the pointer, a focus — for Aria.
+- **Slice 2's test tree** (roadmap manager, 2026-11-06): approved — the one dim every dimmed thing shares, in `pkg/render/search.go`, scaled RGB and alpha alike, so it only turned sprites 35% opaque with a blue cast and read as pale, not dimmed; it becomes darker, with no hue of its own, the numbers Aria's on frames.
+  It stays one tint, so the finder's filter and a hovered car's faded streets deepen with it, and the frames show a filter before and after too.
