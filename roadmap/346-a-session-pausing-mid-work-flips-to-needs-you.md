@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-11-06 in the session "item 346". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
+Depends on: nothing
+Landed: slice 1 (`a683ae31`, r1275).
+
 Aria: *"we need a debounce for idle. If a session is running and stops for a second or two and continues, it should stay showing active not idle"*.
 
 ## Where it stands
