@@ -2,7 +2,7 @@
 
 **Open. Filed 2026-11-06 (r1266) at Aria's request. Nobody's call — Aria named what it holds; she confirms the number when the candidate is cut.**
 
-Depends on: 340, 348, 349, 350, 351, 352, 353
+Depends on: 340, 348, 349, 350, 351, 352, 353, 359
 
 The second half of the split recorded on [item 349](349-release-0-4-1.md): Aria, 2026-11-06, *"Do the split, but let's not soak until after 0.5.0"*.
 
@@ -10,6 +10,7 @@ The second half of the split recorded on [item 349](349-release-0-4-1.md): Aria,
 
 - Item 348, neighbourhoods and the form of a group's line, judged on frames.
 - The controls redesign, items 350 to 353, *Controls, parts 1 to 4*, which Aria asked for in the next release through the design agent.
+- Item 359, a grouped building lighting its whole group under the pointer (Aria, 2026-11-06).
 - Item 340, the rescan drift that 0.4.0 and 0.4.1 shipped red; it wants a quiet machine, so it runs once the item sessions thin out.
 
 Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a breaking change, and whether the controls redesign is one is hers to confirm at the cut, so the number is written here as she said it.

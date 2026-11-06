@@ -48,7 +48,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
 | [348](roadmap/348-a-group-s-sessions-do-not-sit-together-or-connect-directly.md) | a group's buildings sit together as neighbourhoods, connected directly rather than by stations | — | nobody's through slice 3; Aria picks the form on its frames |
 | [349](roadmap/349-release-0-4-1.md) | release 0.4.1: items 343–347, run through RELEASING.md with the soak waived | 343, 344, 345, 346, 347 | nobody, Aria named the version |
-| [354](roadmap/354-release-0-5-0.md) | release 0.5.0: items 340, 348 and 350–353, with the one soak after it | 340, 348, 349, 350, 351, 352, 353 | nobody, Aria named the version |
+| [354](roadmap/354-release-0-5-0.md) | release 0.5.0: items 340, 348, 350–353 and 359, with the one soak after it | 340, 348, 349, 350, 351, 352, 353, 359 | nobody, Aria named the version |
 | [350](roadmap/350-controls-part-1.md) | a vision item; details private | — | nobody's |
 | [351](roadmap/351-controls-part-2.md) | a vision item; details private | 350 | nobody's |
 | [352](roadmap/352-controls-part-3.md) | a vision item; details private | — | nobody's |
@@ -56,6 +56,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [355](roadmap/355-the-landing-queue-s-slow-waiter-test-times-out-on-macos-intel.md) | the landing queue's slow-waiter test times out on the Intel macOS runner | — | nobody, a flaky test |
 | [357](roadmap/357-make-land-s-own-tests-miss-the-wait-under-load.md) | `make land`'s own acceptance tests miss the wait under load | — | nobody, a flaky test |
 | [358](roadmap/358-the-performance-gate-records-nothing-of-the-machine-s-power-state.md) | the performance gate records nothing of the machine's power state | — | nobody, a gap in the method |
+| [359](roadmap/359-pointing-at-a-grouped-building-lights-only-that-building.md) | pointing at a grouped building lights its whole group, in every lens, on hover only | — | nobody's, Aria said what it should do |
 
 ## Waiting on Aria
 
