@@ -1,6 +1,6 @@
 # 346. A session that pauses for a second or two mid-work flips to needing you
 
-**Open. Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
+**Open, in progress since 2026-11-06 in the session "item 346". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
 Aria: *"we need a debounce for idle. If a session is running and stops for a second or two and continues, it should stay showing active not idle"*.
 
