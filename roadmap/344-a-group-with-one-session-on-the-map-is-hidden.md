@@ -37,3 +37,9 @@ A group with **none** on the map stays off, since the board counts what the map 
 - **The walk.** `walkGroups` will offer one-session groups as cards.
 - **Lines.** A group in one district already draws a badge and no line, which should cover one session; check it in a frame.
 - **A solo team is a different thing.** Item 14 removed a one-member team named after its own session, and that stays.
+
+## Answered while building
+
+- **The test tree** (roadmap manager, 2026-11-06): approved as sent, two slices — the city keeps every group with one or more sessions on the map and drops only those with none, the clear-`Group` path going with it; the picker and its name check follow through `scene.Groups()`; a resting session alone in its group is never swept, as every grouped session already is not.
+- **The walk** (roadmap manager, 2026-11-06): keeps its two-member bar for a group's card, which item 333 set and 0.4.0 shipped.
+  A group of one is shown on the board, in the picker and on its card, and the walk does not ask about it; Aria's words are about hiding, and the walk skipping it hides nothing.

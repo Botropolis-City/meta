@@ -47,3 +47,10 @@ With a fake clock, in `pkg/daemon`:
 - when it ends, it should rest at once.
 
 In `pkg/commands`, a pause inside the hold should send no notification.
+
+## Answered while building
+
+- **The test tree** (roadmap manager, 2026-11-06): approved as sent — the hold in `pkg/daemon` on a fake `releaseClock`, covering the item's five cases plus a record turning idle on a rescan, a session that was never working needing you at once, and `notify` sending nothing inside the hold and one notification after it.
+- **The reproduction** (roadmap manager, 2026-11-06): the first red test — a Stop then a PreToolUse within a second, asserting no `NeedsYou` was ever shown — is the reproduction the item asked for; no separate acceptance test.
+- **What the held session shows** (roadmap manager, 2026-11-06): its last state, tool and subject, so the bench does not flicker; it follows from "shows working for a hold".
+- Lands as one slice, with the changelog entry and a line in `design/session-lifecycle.md`.
