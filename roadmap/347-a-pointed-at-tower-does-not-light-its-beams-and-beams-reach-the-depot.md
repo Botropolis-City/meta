@@ -1,6 +1,6 @@
 # 347. Pointing at a water tower does not light its lines, and those lines run to the depot too
 
-**Open. Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — Aria chose the default on 2026-11-06.**
+**Open, in progress since 2026-11-06 in the session "item 347". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — Aria chose the default on 2026-11-06.**
 
 Aria: *"highlighting a water tower in the servers view should also highlight its lines to the agents. We also need a way to show only connections to buildings or also to packed sessions"*.
 
