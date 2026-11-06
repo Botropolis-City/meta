@@ -54,3 +54,5 @@ Aria, 2026-11-06, before going to bed, to the roadmap manager:
   L1 passes: 393 sessions, 57 jobs, 10 live records, every live one agreeing (busy→working, a handed-back turn→needs-you, one blocked→waiting as at 0.4.0, an unprompted session→empty); the 7 jobs not shown have no transcript, by design.
   L2 passes: a stopped throwaway session in the scratch folder left `claude agents --all` and the daemon by the first check after `botropolis rm`, and stayed off across a restart of the side daemon.
   Its transcript remains, as designed, so her own 0.4.0 daemon may show it resting in *valley*.
+- **No shipping into a red check** (Aria, 2026-11-06, in the morning): *"The machine is quiet. I don't want things to go down hill, so re-run or investigate or whatever we need"*.
+  The fitted 600-district check is rerun on the quiet machine at the candidate and at v0.4.0; if the candidate passes, it ships; if it stays red, the machine or the code is investigated before it does.
