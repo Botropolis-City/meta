@@ -1,6 +1,6 @@
 # 347. Pointing at a water tower does not light its lines, and those lines run to the depot too
 
-**Open. Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call on the first part; Aria's call on the second part's default.**
+**Open. Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — Aria chose the default on 2026-11-06.**
 
 Aria: *"highlighting a water tower in the servers view should also highlight its lines to the agents. We also need a way to show only connections to buildings or also to packed sessions"*.
 
@@ -24,8 +24,9 @@ A way to choose: lines to buildings only, or to packed sessions as well.
 It is one setting in the Servers lens, and it should be reachable from the lens panel, so it is not hidden in the settings.
 The counts the panel shows should say which they cover.
 
-**Aria's call: the default.**
-The recommendation is buildings only, since packing a session is saying it is finished with, and a tower's lines are most useful for what is still on the map.
+**The default is buildings only** (Aria, 2026-11-06, to the roadmap manager), since packing a session is saying it is finished with,
+and a tower's lines are most useful for what is still on the map.
+The switch in the lens panel shows the lines to the depot's crates too.
 
 ## Tests
 
