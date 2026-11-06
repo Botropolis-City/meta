@@ -70,7 +70,11 @@ publishable :: docs-check
 	$(LOG) "Checking nothing unpublishable is in the repository"
 	@tools/check-publishable
 
-AGENT = claude --agent $(1) -n "$(2)" $(if ${REMOTE},--remote-control)
+AGENT_MODEL = ${MODEL_$(subst -,_,$(1))}
+AGENT = claude --agent $(1) -n "$(2)" $(if $(AGENT_MODEL),--model $(AGENT_MODEL)) $(if ${REMOTE},--remote-control)
+
+item-model ::
+	@$(if ${ITEM_MODEL},echo --model ${ITEM_MODEL},true)
 
 roadmap-manager ::
 	$(LOG) "Starting the roadmap manager (docs/roles.md)"

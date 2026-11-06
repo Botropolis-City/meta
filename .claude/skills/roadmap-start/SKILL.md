@@ -86,7 +86,7 @@ If the rebase stops on line 3 of the item, another session claimed it first: `gi
 
 ```sh
 cd <repository>
-claude --bg --add-dir ~/workspaces/github/botropolis-city -w item-NNN -n "item NNN" "<the kickoff prompt>"
+claude --bg --add-dir ~/workspaces/github/botropolis-city $(make -s -C ~/workspaces/github/botropolis-city item-model) -w item-NNN -n "item NNN" "<the kickoff prompt>"
 ```
 
 Keep `--add-dir` before the other flags: it takes a list of directories, so placed last it swallows the prompt as one more, and the session starts at an empty prompt with nothing to do.
@@ -94,6 +94,8 @@ Keep `--add-dir` before the other flags: it takes a list of directories, so plac
 - `-w item-NNN` makes the worktree `<repository>/.claude/worktrees/item-NNN` on the branch `worktree-item-NNN`, from `main`.
 - `-n "item NNN"` is the name the claim records; `claude agents`, the city and the status line all show it.
 - `--add-dir` gives the session the roadmap, the roadmap skills and, for a vision item, `vision/`.
+- `make item-model` prints `--model <name>` when this machine's git-ignored `.env` sets `ITEM_MODEL`, and nothing otherwise, so the session takes the person's own default.
+  Aria's sets `ITEM_MODEL=opus` (2026-11-06): an item session on Fable stopped at the Fable limit on a prompt nobody was there to answer.
 - The session runs in Aria's default permission mode; nothing here changes it.
 
 It prints `backgrounded · <id> · item NNN`.

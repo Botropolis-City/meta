@@ -37,6 +37,7 @@ What it knows lives in files, so a fresh session started from its make target pi
 
 - every role in the table above has `.claude/agents/<role>.md` with that name and a description, and every agent file is in the table;
 - no agent file pins a model, so each person's own plan chooses it;
+  a person who wants a role on a model of their own sets `MODEL_<role>` in the git-ignored `.env`, with the role's hyphens as underscores, such as `MODEL_roadmap_manager=fable`, and its make target passes it on;
 - no agent file uses project memory, which would commit what an agent remembers to this public repository;
 - every skill an agent file names exists, in `.claude/skills/` or in `vision/`'s own skills, and one that only `vision/` could hold is reported as unchecked when `vision/` is not here;
 - the table is never empty, since every other check passes on nothing.
