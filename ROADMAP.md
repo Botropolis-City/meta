@@ -51,7 +51,8 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [346](roadmap/346-a-session-pausing-mid-work-flips-to-needs-you.md) | a session pausing for a second or two mid-work stays showing active | — | nobody's |
 | [347](roadmap/347-a-pointed-at-tower-does-not-light-its-beams-and-beams-reach-the-depot.md) | pointing at a water tower lights its lines; a choice of lines to buildings only or packed sessions too | — | nobody's, Aria chose buildings only |
 | [348](roadmap/348-a-group-s-sessions-do-not-sit-together-or-connect-directly.md) | a group's buildings sit together as neighbourhoods, connected directly rather than by stations | — | nobody's through slice 3; Aria picks the form on its frames |
-| [349](roadmap/349-release-0-4-1.md) | the next release, 0.4.1 or 0.5.0: items 340, 343–348 and 350–353, run through RELEASING.md | 340, 343, 344, 345, 346, 347, 348, 350, 351, 352, 353 | nobody, Aria named the version |
+| [349](roadmap/349-release-0-4-1.md) | release 0.4.1: items 343–347, run through RELEASING.md with the soak waived | 343, 344, 345, 346, 347 | nobody, Aria named the version |
+| [354](roadmap/354-release-0-5-0.md) | release 0.5.0: items 340, 348 and 350–353, with the one soak after it | 340, 348, 349, 350, 351, 352, 353 | nobody, Aria named the version |
 | [350](roadmap/350-controls-part-1.md) | a vision item; details private | — | nobody's |
 | [351](roadmap/351-controls-part-2.md) | a vision item; details private | 350 | nobody's |
 | [352](roadmap/352-controls-part-3.md) | a vision item; details private | — | nobody's |
