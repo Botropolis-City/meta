@@ -24,3 +24,9 @@ Only the lit set changes, so the kept ground's key ([item 347](347-a-pointed-at-
 
 In `pkg/city`: when the pointer is on a grouped building → every building of its group is lit, and one outside it is not; in Servers, its towers are lit too, and another group member's towers are not unless it calls them; when the pointer is on a building in no group → only it and its towers, as today; when the pointer is on nothing and a grouped building is selected → only it and its towers, as today.
 A frame for Aria: the pointer on a grouped building, on the large city item 348 stages.
+
+## Answered while building
+
+- **The test tree** (roadmap manager, 2026-11-06): approved — the `hit.Building` branch lights a grouped building's whole group and the towers it calls, and a new field narrows `HasBeam` to the pointed-at building's own lines, so a tower it calls does not also light its lines to other members; the selection-only path is untouched; `TestTheGroundKey` gains a fixed move from a grouped building to an ungrouped one, and its random walk's city gets a group.
+- **A group of one is treated as no group** (roadmap manager, 2026-11-06, from "the same as today" above): it lights its building and its towers, and nothing when it calls none, so a lone building never fades the whole city.
+- **The selected building's roads still win** (roadmap manager, 2026-11-06): pointing at the selected building while its roads are shown keeps showing them, as today.
