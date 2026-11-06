@@ -1,6 +1,6 @@
 # 359. Pointing at a grouped building lights only that building, not its group
 
-**Open. Filed 2026-11-06 (r1276) at Aria's request. Nobody's call — she has said what it should do.**
+**Open, in progress since 2026-11-06 in the session "item 359". Filed 2026-11-06 (r1276) at Aria's request. Nobody's call — she has said what it should do.**
 
 Aria, on item 348's frames of a group focused: *"I do think that a whole group should stay visible not just a single sesssion if the session is part of a group"*, and, asked where, *"Everywhere, on hover only"*.
 
