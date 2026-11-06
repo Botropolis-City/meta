@@ -1,6 +1,6 @@
 # 212. Every frame records every drawable again, only to find most of them unchanged
 
-**Open, in progress since 2026-10-25 in the session "item 212". Filed 2026-10-23 (r953), from item 161. Nobody's call — the budget is set (a visible city ≤ 10% of a core).**
+**Open. Filed 2026-10-23 (r953), from item 161. Nobody's call — the budget is set (a visible city ≤ 10% of a core).**
 
 Depends on: nothing
 Landed: slice 1 (`2289a5b`, r1033).
