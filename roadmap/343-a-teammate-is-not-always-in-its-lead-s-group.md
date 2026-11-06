@@ -85,3 +85,4 @@ Moving the team to no group leaves it in none, together.
 **Also fixed on the way, for item 347.**
 Main's unit gate went red after item 347: the kept ground did not redraw a session's server lines when the pointer moved from one session to another.
 The roadmap manager asked this session to fix it, and the fix landed as `74a038cb` (r1270).
+- **A team taken out of a group is a group of its own** (Aria, 2026-11-06, to the roadmap manager): *"That's right"* — taken out leaves the team in its own group, as a team alone always was; a move to no group leaves it in none, together.

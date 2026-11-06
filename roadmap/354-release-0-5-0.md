@@ -18,3 +18,7 @@ Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a
 
 [RELEASING.md](../botropolis/RELEASING.md) in full, as 0.4.0 did (item 338): one candidate, a landing freeze from it to the tag, the re-film, S1–S10, L1–L2, A1–A7, the dry run, the release, the AUR packages and the site.
 **The soak runs after this release** (Aria, 2026-11-06), once, on the released build, and stands for 0.4.1 too, whose soak she waived; its record and verdict go here, and a verdict over budget is a new item against 0.5.1.
+
+## Answered while building
+
+- **Item 340 starts once 0.4.1 is tagged** (Aria, 2026-11-06): it wants a quieter machine than tonight's, and it compares the rescan's profile at r1209 with now, so both are measured under the same load.

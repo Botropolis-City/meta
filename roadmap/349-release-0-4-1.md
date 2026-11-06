@@ -26,3 +26,12 @@ Manual checks stand across a re-cut; automated ones re-run.
 
 The performance gate's rescan check (`TestARescanAtTwoThousandSessions`, item 340) was red at 0.4.0 and Aria shipped on it (*"Ship; soak now"*, 2026-11-03); nothing in this release touches the rescan, so it ships the same way and item 340 lands in 0.5.0.
 If anything else in the gate is red, that is new and stops the release.
+
+## Answered before it ran
+
+Aria, 2026-11-06, before going to bed, to the roadmap manager:
+
+- **A1–A7 are waived as well as the soak**: *"Waive A1–A7 too, tag overnight"*.
+  The release tags and publishes on the automated checks alone; anything that needs 1Password on her screen — the AUR pushes, the site's media — waits for her in the morning.
+- **The landing freeze is lifted for 0.5.0 work** (*"Lift it for 0.5.0 work"*): items 348, 350 and 352 land on main after the candidate is cut, the tag still targets the candidate commit, and a re-cut, if one is needed, is made from that commit rather than from main.
+- **The rescan check ships red** (*"Ship, 340 in 0.5.0"*), as 0.4.0 did; anything else red in the performance gate stops the release.
