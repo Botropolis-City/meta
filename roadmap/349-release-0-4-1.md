@@ -2,12 +2,15 @@
 
 **Open. Filed 2026-11-06 (r1260) at Aria's request. Nobody's call — Aria named the version and what it holds.**
 
-Depends on: 340, 343, 344, 345, 346, 347, 348
+Depends on: 340, 343, 344, 345, 346, 347, 348, 350, 351, 352, 353
 
 Aria, 2026-11-06, to the roadmap manager, on the six items she filed from dogfooding 0.4.0 on her laptop: *"let's do them as new versions"*,
 and, offered 0.4.1 for the five fixes with 0.4.2 for item 348 after its frame rounds, she chose one version: *"One version, 0.4.1"*.
 
 ## What it holds
+
+Also the controls redesign, items 350 to 353, *Controls, parts 1 to 4* (Aria, 2026-11-06, through the design agent): *"I'd like this all to land in the next release whether it's 0.4.1 or 0.5.0."*
+So the number is open until the release is cut: 0.4.1 under the pre-1.0 rule if nothing breaks, 0.5.0 if she judges it does.
 
 Items 343, 344, 345, 346, 347 and 348, filed 2026-11-05 from her own sessions,
 and item 340, the rescan drift that 0.4.0 shipped red and [item 338](338-release-0-4-0.md) named for 0.4.1.
