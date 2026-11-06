@@ -55,6 +55,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [353](roadmap/353-controls-part-4.md) | a vision item; details private | 351 (slice 2) | nobody's |
 | [355](roadmap/355-the-landing-queue-s-slow-waiter-test-times-out-on-macos-intel.md) | the landing queue's slow-waiter test times out on the Intel macOS runner | — | nobody, a flaky test |
 | [357](roadmap/357-make-land-s-own-tests-miss-the-wait-under-load.md) | `make land`'s own acceptance tests miss the wait under load | — | nobody, a flaky test |
+| [358](roadmap/358-the-performance-gate-records-nothing-of-the-machine-s-power-state.md) | the performance gate records nothing of the machine's power state | — | nobody, a gap in the method |
 
 ## Waiting on Aria
 
