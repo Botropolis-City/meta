@@ -1,6 +1,6 @@
 # 345. `c` with nothing under the pointer refuses instead of asking where
 
-**Open. Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
+**Open, in progress since 2026-11-06 in the session "item 345". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
 Aria: *"a c on the map with no hover should ask me in which directory to create a new session"*.
 
