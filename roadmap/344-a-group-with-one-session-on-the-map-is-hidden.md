@@ -2,6 +2,10 @@
 
 **Open, in progress since 2026-11-06 in the session "item 344". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
+Depends on: nothing
+Landed: slice 1 (`e85936f`, r1263).
+Landed: slice 2 (`5d2325d`, r1264).
+
 Aria: *"Also add a roadmap item not to hide groups of 1."*
 
 ## What happened
