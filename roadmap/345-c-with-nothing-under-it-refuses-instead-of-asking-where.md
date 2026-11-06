@@ -28,3 +28,8 @@ The README's key line and the in-city key reference say what `c` does and should
 - The same for hovering the depot.
 - In `pkg/render/newsession_test.go`, when `c` is pressed with nothing under the pointer, it should open New session with the directory field focused and empty.
 - The selected and hovered cases stay as they are, so a session still starts with no question.
+
+## Answered while building
+
+- **The test tree** (roadmap manager, 2026-11-06): approved as sent — `scene_test.go`'s refusal case becomes "it should ask where", a depot case beside it, and `newsession_test.go` checks that `c` over nothing opens New session on an empty, focused directory field and starts nothing, while a selected building still starts at once.
+- **The kind's name** (roadmap manager, 2026-11-06): `ActionAskWhere`, string `"ask where"`, with an `actionText` line like every other kind; it follows `ActionMoveToGroup`'s shape, an action that asks `act` to open a panel, and the item decides nothing else about it.
