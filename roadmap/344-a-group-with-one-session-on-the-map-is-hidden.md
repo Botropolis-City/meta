@@ -1,10 +1,11 @@
 # 344. A group with one session on the map is hidden
 
-**Open, in progress since 2026-11-06 in the session "item 344". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
+**Fixed 2026-11-06 (`e85936f`, r1263). Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
 Depends on: nothing
 Landed: slice 1 (`e85936f`, r1263).
 Landed: slice 2 (`5d2325d`, r1264).
+Landed: slice 3 (`abf1567`, r1267).
 
 Aria: *"Also add a roadmap item not to hide groups of 1."*
 
@@ -49,3 +50,11 @@ A group with **none** on the map stays off, since the board counts what the map 
   A group of one is shown on the board, in the picker and on its card, and the walk does not ask about it; Aria's words are about hiding, and the walk skipping it hides nothing.
 - **The frames pass** (Aria, 2026-11-06, to the roadmap manager): the badge on the one building, no line, and the board's "driftwood · 1 session" row — *"Pass"*.
   Noticed on the board frame, not from this item: the row's move column names an off-map member, since the move is computed over every member; left as is.
+
+## Closed
+
+`groupsOnMap` keeps every group with a session on the map and drops only those with none (`e85936f`, r1263); the path that cleared a dropped group's member went with it as dead code.
+The picker and its name check followed through `scene.Groups()`, and `walkGroups` skips a group with one session on the map, so it is shown everywhere and asked about nowhere (`5d2325d`, r1264).
+`pkg/city/tidy_test.go` pins the group shown with one member, the badge, the card, no line, the quiet sweep leaving a session alone in its group, and a group with none on the map staying off; `pkg/render/move_test.go` and `walk_test.go` pin the picker and the walk.
+The frames are [`r1264-item-344-badge.png`](../botropolis/docs/screenshots/r1264-item-344-badge.png) and [`r1264-item-344-board.png`](../botropolis/docs/screenshots/r1264-item-344-board.png) (`abf1567`, r1267), passed by Aria.
+Nothing deviates from what the item asked; the walk's two-member bar is item 333's, kept as answered above.
