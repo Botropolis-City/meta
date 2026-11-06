@@ -33,3 +33,10 @@ The switch in the lens panel shows the lines to the depot's crates too.
 - In `pkg/city`: when a tower is pointed at, its beams should be in the highlight and the others should not.
 - When the setting is off, there should be no beam to a crate in the depot, and when it is on, there should be.
 - A frame of Servers with a tower pointed at, for Aria to judge.
+
+## Answered while building
+
+- **The test tree** (roadmap manager, 2026-11-06): approved as sent, two slices — part 1 in `pkg/city` and `pkg/render`, with the beam look a pure function tested without a GPU; part 2 the setting, the scene, the lens panel, the changelog and the docs.
+- **The key** (roadmap manager, 2026-11-06): `tower_lines`, `buildings` (default) or `all`, after `group_lines`; set through `--set` with no flag of its own, as item 149 wants, with a row in the settings panel and in botropolis-config(5).
+- **A pointed-at building lights its own beams too** (roadmap manager, 2026-11-06): pointing at a building already lights the towers it calls, so the lines between them light for the same reason a tower's do; a district hover or a group focus lights no beam.
+- **The lens panel's words** (roadmap manager, 2026-11-06): "12 lines from 3 towers to 8 sessions on the map" or "… and 90 crates", with a switch line under it, "show lines to the depot too" / "lines to buildings only"; provisional until Aria sees the frame, which is why the frame comes after slice 2.

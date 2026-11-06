@@ -46,3 +46,10 @@ Packing a lead does not pack its teammates, and this item does not change that; 
 
 `pkg/group/detect_test.go` has "it is a teammate in the same agent team", which pins a team as evidence and should become a guarantee.
 New cases, in `detect_test.go` and `pkg/commands/move_test.go`: a team above `MaxMembers`, a lead and teammate in `notRelated`, a moved lead with resting teammates, a moved teammate, a teammate taken out, and a team whose lead is packed.
+
+## Answered while building
+
+- **The test tree and design** (roadmap manager, 2026-11-06): approved — `Member.Lead` resolved in `pkg/state` as `placeCamps` does; a teammate sits out detection and a `followLeads` pass puts it in its lead's group at tier Sure with a `SignalTeam`; a team's move is the latest recorded on any of its sessions and is applied to the lead, so the hand-written teammate moves keep working; a not-related pair inside a team is ignored and one between a teammate and an outsider counts for the lead, since a teammate's take-out acts on the team; `Scene.ForTeam` lifts a move, take-out or join on a teammate to the lead so the picker, drag and dive all go through it.
+- **A lead recorded nowhere** (roadmap manager, 2026-11-06, from the item's own rules): when the lead is not among the members and no move or stored group names it, its teammates are in **no group, together** — not grouped by detection as today, which could split the team — and a hand move on any of them moves the whole team.
+  The worker had proposed letting them group as today; the item's second rule settles it the other way.
+- **A resting teammate's card offers move and take out** (roadmap manager, 2026-11-06): the move acts on the team, and the item's report is that the resting ones could not be moved.
