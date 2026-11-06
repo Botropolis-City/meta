@@ -56,3 +56,5 @@ Aria, 2026-11-06, before going to bed, to the roadmap manager:
   Its transcript remains, as designed, so her own 0.4.0 daemon may show it resting in *valley*.
 - **No shipping into a red check** (Aria, 2026-11-06, in the morning): *"The machine is quiet. I don't want things to go down hill, so re-run or investigate or whatever we need"*.
   The fitted 600-district check is rerun on the quiet machine at the candidate and at v0.4.0; if the candidate passes, it ships; if it stays red, the machine or the code is investigated before it does.
+- **The re-film passes** (Aria, 2026-11-06, on a contact sheet of its 52 stills at `f70cb32d`): *"Pass, publish with 0.4.1"*; 51 shots, 80 files, imported into the site with the release.
+- **CI at `f70cb32d`** went green on its second attempt (run 42265186145): the first failed only on the Intel macOS runner, in item 355's land-queue test and in `pkg/daemon`'s `TestRequestRescan`, seen failing there for the first time; dry run 42269229104 green.
