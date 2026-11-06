@@ -56,6 +56,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [351](roadmap/351-controls-part-2.md) | a vision item; details private | 350 | nobody's |
 | [352](roadmap/352-controls-part-3.md) | a vision item; details private | — | nobody's |
 | [353](roadmap/353-controls-part-4.md) | a vision item; details private | 351 (slice 2) | nobody's |
+| [355](roadmap/355-the-landing-queue-s-slow-waiter-test-times-out-on-macos-intel.md) | the landing queue's slow-waiter test times out on the Intel macOS runner | — | nobody, a flaky test |
 
 ## Waiting on Aria
 
