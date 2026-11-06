@@ -40,3 +40,6 @@ Aria, 2026-11-06, before going to bed, to the roadmap manager:
 - **The candidate's performance gate is red on a new check** (release session, 2026-11-06): `c7beff07` meets every budget but two — the rescan, which ships red by Aria's ruling, and `TestACityOfSixHundredDistrictsFrames` fitted, at 24.9 ms of CPU a frame against 16 and 127.9 M instructions a tick, which 0.4.0 met.
   The release stops on it: the test is rerun at the candidate and at v0.4.0 on a quiet machine, comparing instructions a tick, and if it is real, the commit that costs it is fixed on main and the candidate re-cut as `c7beff07` plus that fix alone.
   So the 0.5.0 work lands only after 0.4.1 is tagged, though the freeze was lifted for it.
+- **It is the machine, not the code** (release session, 2026-11-06): the fitted 600-district frame does 127.9 M instructions a tick at the candidate and 127.8 M at v0.4.0, and v0.4.0 fails the same check on this machine tonight (21.9 ms against 16); the candidate's settled rerun took 18.4 ms.
+  Zoomed and panned cost 1.3% more instructions at the candidate and pass at both.
+  The release waits for Aria's ruling, since hers was that anything red besides the rescan stops it; a changelog commit moving item 352's slice 1 line into [0.4.1], whose code is in the candidate, is ready and unpushed.
