@@ -1,6 +1,6 @@
 # 348. A group's sessions do not sit together, and its line does not connect them directly
 
-**Open. Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Aria's call — which of the three forms below, on frames.**
+**Open, in progress since 2026-11-06 in the session "item 348". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Aria's call — which of the three forms below, on frames.**
 
 Aria, on a group whose three sessions in one district showed badges and no line: *"We should make group lines draw between sessions in the same district and they should not go to districts themselves just directly from session to session. Also, buildings in the same group should try to group into neighborhoods (like sit together) If we nail that, maybe we will only need it between buildings in different disricts. or we can circle them with a line like a neighborhood instead of floating on top and then connect neighborhoods."*
 
