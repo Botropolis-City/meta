@@ -1,6 +1,6 @@
 # 349. Release 0.4.1
 
-**Open. Filed 2026-11-06 (r1260) at Aria's request. Nobody's call — Aria named the version and what it holds.**
+**Open, in progress since 2026-11-06 in the session "item 349". Filed 2026-11-06 (r1260) at Aria's request. Nobody's call — Aria named the version and what it holds.**
 
 Depends on: 343, 344, 345, 346, 347
 
