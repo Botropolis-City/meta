@@ -4,6 +4,7 @@
 
 Depends on: nothing
 Landed: slice 1 (`bcd1cec`, r1262).
+Landed: slice 2 (`c2ffbfd`, r1265).
 
 Aria, on seeing a lead session and one of its teammates in different groups: *"subsessions should always show up in the same group and should move with their parent."*
 
