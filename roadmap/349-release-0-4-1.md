@@ -43,3 +43,14 @@ Aria, 2026-11-06, before going to bed, to the roadmap manager:
 - **It is the machine, not the code** (release session, 2026-11-06): the fitted 600-district frame does 127.9 M instructions a tick at the candidate and 127.8 M at v0.4.0, and v0.4.0 fails the same check on this machine tonight (21.9 ms against 16); the candidate's settled rerun took 18.4 ms.
   Zoomed and panned cost 1.3% more instructions at the candidate and pass at both.
   The release waits for Aria's ruling, since hers was that anything red besides the rescan stops it; a changelog commit moving item 352's slice 1 line into [0.4.1], whose code is in the candidate, is ready and unpushed.
+
+## The checks
+
+- **The performance gate** (release session, 2026-11-06): `make test-performance` at `c7beff07`; everything met but `TestARescanAtTwoThousandSessions` (red as ruled, item 340) and the fitted 600-district frame in `TestACityOfSixHundredDistrictsFrames`, 24.9 ms of CPU against 16, then 18.4 ms on a settled rerun.
+  v0.4.0's own build, run back to back, fails it too, at 21.9 ms: 127.8 M instructions a tick there against 127.9 M at the candidate, so the work is unchanged and the machine is slower per instruction than on 2026-11-03.
+  It stops the release under Aria's rule; hers to rule in the morning.
+- **Step 2** (release session): the packages from CI 42238116877, amd64 and arm64, with `SHA256SUMS` verified and the binaries reporting 0.4.1; S1–S10 pass in the candidate's `make land` gate; dry run 42247222190 green at `c7beff07`.
+- **L1–L2, side by side** (2026-11-06, the manager's ruling, so that no sudo was used and her daemon was left alone): the candidate's `botropolisd` from the CI tarball ran as a second daemon on its own socket, config copy and `XDG_STATE_HOME`, `XDG_CACHE_HOME` and `XDG_RUNTIME_DIR`, reading the real `~/.claude`, with the candidate's CLI pointed at it.
+  L1 passes: 393 sessions, 57 jobs, 10 live records, every live one agreeing (busy→working, a handed-back turn→needs-you, one blocked→waiting as at 0.4.0, an unprompted session→empty); the 7 jobs not shown have no transcript, by design.
+  L2 passes: a stopped throwaway session in the scratch folder left `claude agents --all` and the daemon by the first check after `botropolis rm`, and stayed off across a restart of the side daemon.
+  Its transcript remains, as designed, so her own 0.4.0 daemon may show it resting in *valley*.
