@@ -1,10 +1,11 @@
 # 343. A teammate is not always in its lead's group, and does not move with it
 
-**Open, in progress since 2026-11-06 in the session "item 343". Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
+**Fixed 2026-11-06 (`2f8cfe33`, r1269). Filed 2026-11-05 (r1260), from Aria dogfooding 0.4.0 on her own sessions, at her request. Nobody's call — she has said what it should do.**
 
 Depends on: nothing
 Landed: slice 1 (`bcd1cec`, r1262).
 Landed: slice 2 (`c2ffbfd`, r1265).
+Landed: slice 3 (`2f8cfe33`, r1269).
 
 Aria, on seeing a lead session and one of its teammates in different groups: *"subsessions should always show up in the same group and should move with their parent."*
 
@@ -58,3 +59,29 @@ New cases, in `detect_test.go` and `pkg/commands/move_test.go`: a team above `Ma
   The worker had proposed letting them group as today; the item's second rule settles it the other way.
 - **A resting teammate's card offers move and take out** (roadmap manager, 2026-11-06): the move acts on the team, and the item's report is that the resting ones could not be moved.
 - **A team is still a group of its own** (item 343's session, slice 1, 2026-11-06): a team whose lead is in no stored group and was not moved to none forms a detected group of its own, as a team always has; so taking a lead out of a group leaves its team in a group of their own, not in none, and "in no group together" is what a move to none gives.
+
+## Fixed
+
+Three slices, each landed with its tests.
+
+- **Slice 1, `bcd1cec` (r1262), `pkg/group`.**
+  A teammate, a member whose `Lead` names its team's lead, sits out detection, and a pass after the moves and the started-from joins puts it in its lead's group, sure, with the new `team` signal.
+  Neither a team too common to be evidence, a pair marked not related, nor a move of one session can split a team any more.
+  A team's move is the latest recorded on any of its sessions, applied to the lead, so the 15 hand-written teammate moves keep working.
+  `pkg/group/teams_test.go` holds every case the item named: above `MaxMembers`, a not-related lead and teammate, a moved lead with a resting teammate, a moved teammate, a teammate taken out, a resting lead, a lead not among the members, and a closed group.
+- **Slice 2, `c2ffbfd` (r1265), `pkg/state`.**
+  The loader names each teammate's lead as the camps do, from the roster and else the team's first-started session with no agent, and the grouping signature includes it.
+  A loader test puts a teammate that shares nothing with its lead in the lead's group.
+- **Slice 3, `2f8cfe33` (r1269), the card.**
+  A move, a move to group or a take-out on a teammate acts on its lead, through one function that the card, the picker, a drop on a line and the dive all go through.
+  A session in a team offers both actions even when resting, and its card says they act on the team.
+  Closing a group packs the teammates with the rest, and `pkg/commands/move_test.go` checks that a moved lead takes every teammate along, a resting one included.
+
+**Not what the item said, flagged for Aria.**
+A team whose lead is in no group, and was not moved to none, forms a group of its own, as a team always has.
+So taking a team out of a group leaves it in a group of its own, not in none.
+Moving the team to no group leaves it in none, together.
+
+**Also fixed on the way, for item 347.**
+Main's unit gate went red after item 347: the kept ground did not redraw a session's server lines when the pointer moved from one session to another.
+The roadmap manager asked this session to fix it, and the fix landed as `74a038cb` (r1270).

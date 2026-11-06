@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
-| [343](roadmap/343-a-teammate-is-not-always-in-its-lead-s-group.md) | a teammate is always in its lead's group and moves with it | — | nobody's |
 | [346](roadmap/346-a-session-pausing-mid-work-flips-to-needs-you.md) | a session pausing for a second or two mid-work stays showing active | — | nobody's |
 | [347](roadmap/347-a-pointed-at-tower-does-not-light-its-beams-and-beams-reach-the-depot.md) | pointing at a water tower lights its lines; a choice of lines to buildings only or packed sessions too | — | nobody's, Aria chose buildings only |
 | [348](roadmap/348-a-group-s-sessions-do-not-sit-together-or-connect-directly.md) | a group's buildings sit together as neighbourhoods, connected directly rather than by stations | — | nobody's through slice 3; Aria picks the form on its frames |
