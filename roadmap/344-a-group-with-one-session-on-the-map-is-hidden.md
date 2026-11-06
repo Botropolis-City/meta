@@ -47,3 +47,5 @@ A group with **none** on the map stays off, since the board counts what the map 
 - **The test tree** (roadmap manager, 2026-11-06): approved as sent, two slices — the city keeps every group with one or more sessions on the map and drops only those with none, the clear-`Group` path going with it; the picker and its name check follow through `scene.Groups()`; a resting session alone in its group is never swept, as every grouped session already is not.
 - **The walk** (roadmap manager, 2026-11-06): keeps its two-member bar for a group's card, which item 333 set and 0.4.0 shipped.
   A group of one is shown on the board, in the picker and on its card, and the walk does not ask about it; Aria's words are about hiding, and the walk skipping it hides nothing.
+- **The frames pass** (Aria, 2026-11-06, to the roadmap manager): the badge on the one building, no line, and the board's "driftwood · 1 session" row — *"Pass"*.
+  Noticed on the board frame, not from this item: the row's move column names an off-map member, since the move is computed over every member; left as is.
