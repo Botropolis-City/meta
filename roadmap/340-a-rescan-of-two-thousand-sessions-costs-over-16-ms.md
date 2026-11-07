@@ -1,6 +1,6 @@
 # 340. A rescan of two thousand sessions costs over its 16 ms of a core, climbing since 0.3.4
 
-**Open, in progress since 2026-11-07 in the session "item 340". Filed 2026-11-03 (r1256), from 0.4.0's release gate. Nobody's call — the budget is set; the daemon is over it.**
+**Fixed 2026-11-07 (`0c2e7fae`, r1319). Filed 2026-11-03 (r1256), from 0.4.0's release gate. Nobody's call — the budget is set; the daemon was over it.**
 
 Depends on: nothing
 Landed: slice 1 (`d4a9daf6`, r1318).
@@ -21,3 +21,13 @@ Name what the rescan does more of than at r1209 (a CPU profile of the rescan at 
   Raw runs in `~/.local/state/botropolis-perf/item-340-rescan-ab-20261107/`.
 - **Two slices, approved** (roadmap manager, 2026-11-07): slice 1 takes `groupViews` back (one presized index shared with `titleOf`, suggestions compared field by field once per detection, one description per member), to about 29.0 M, ~15.2 ms, which meets the bar without margin; slice 2 reads the temporary-directory roots once per pass in `pkg/state/districts.go` instead of once per session, to about 21.5 M, ~11.5 ms, 28% under it.
   Guards: a characterisation of the suggestion order, an allocation bound per group member, an allocation bound for assigning 2,000 settled sessions, and the perf-tier rescan test itself, red today.
+
+## Closed
+
+What the rescan did more of than at r1209 is `groupViews`, which doubled with item 333's slice 1; slice 1 (`d4a9daf6`, r1318) takes it back to about its r1209 cost (4.1 M, measured on the prototype, against 4.7).
+Slice 2 (`0c2e7fae`, r1319) is the margin: `AssignDistricts` built and cleaned its temporary roots, and read `TMPDIR`, once for every session, 7.5 M instructions a rescan that had been there since before 0.3.4; it now reads them once a pass.
+A rescan at 2,000 sessions retires 22.3 M instructions, against 33.2 M before and 28.2 M at v0.3.4.
+`TestARescanAtTwoThousandSessions`, five settled runs of `make test-performance` at r1319, reads medians of 12.20, 12.26, 12.12, 12.09 and 12.18 ms of a core against its 16, which did not move.
+Each ran at platform profile `balanced`, governor `powersave`, PL1 and PL2 57 W, turbo on, with item 351 paused and `settle` holding the first until load was 2.00 over a minute and 3.94 over five; the profile was `performance` the day before and something reset it, which is item 358's to say.
+Guards: the suggestion order is characterised, a group member costs at most three allocations, and assigning 2,000 settled sessions at most 16, where it was 2,001.
+The changelog says so under [Unreleased] (`6cc27516`).
