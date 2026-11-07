@@ -22,3 +22,10 @@ Check them with `make check-demo-corpus`.
 - **Film them now, from 0.5.0** (Aria, 2026-11-07: *"Get the website fully up to date"*). The usual rule waits for a release to film, but this is filmed now for the website, which describes 0.5.0.
   So the shots are filmed from the `v0.5.0` binaries with the new scenarios, and only the shots that are new or changed, never a full re-film, and never from a build of `main` that holds unreleased work.
   They then go to [item 360](360-the-website-still-describes-the-city-of-0-3-0.md), which imports them into the site. The upload needs Aria's 1Password.
+- **Shots for the website's Groups section** (Aria, 2026-11-07: *"I think we need an updated set of screenshots and videos for some parts of this site specifically groups"*). The Groups section has only the metropolis overview, the team clip and the tidy walk, and none shows 0.5.0's groups up close. Each shot below needs a still, and a clip where the movement is the point:
+  - a neighbourhood inside its kerb, close enough to read;
+  - the pointer on a grouped session, lighting its whole group while the rest fades (a clip, from pointing at nothing to pointing at it);
+  - the group's line in each of `group_line_form`'s three forms, as three stills of one city;
+  - moving a session into a group: the building fades out, the truck carries its crate, and it fades in on its new lot (a clip);
+  - a teammate following its lead into a group, as a convoy (a clip);
+  - closing a group from City Hall's board, packing its sessions into the depot (a clip).
