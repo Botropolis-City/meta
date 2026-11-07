@@ -5,6 +5,7 @@
 Landed: slice 1 (`d18f0c4`, r53).
 Landed: slice 2 (`93d643a`, r54).
 Landed: slice 3 (`a719f04`, r55).
+Landed: slice 4 (`48c30df`, r56).
 
 Aria, 2026-11-07, after 0.5.0's media went up: *"So much has changed recently. Let's do a pass of the website and change/update any content that needs to be added as well like the clinic, explanation of groups, etc..."*
 
