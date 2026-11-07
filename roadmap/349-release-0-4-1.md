@@ -1,6 +1,6 @@
 # 349. Release 0.4.1
 
-**Open, in progress since 2026-11-06 in the session "item 349". Filed 2026-11-06 (r1260) at Aria's request. Nobody's call — Aria named the version and what it holds.**
+**Done 2026-11-07 (`f70cb32d`, r1277). Filed 2026-11-06 (r1260) at Aria's request. Nobody's call — Aria named the version and what it holds.**
 
 Depends on: 343, 344, 345, 346, 347
 
@@ -58,3 +58,17 @@ Aria, 2026-11-06, before going to bed, to the roadmap manager:
   The fitted 600-district check is rerun on the quiet machine at the candidate and at v0.4.0; if the candidate passes, it ships; if it stays red, the machine or the code is investigated before it does.
 - **The re-film passes** (Aria, 2026-11-06, on a contact sheet of its 52 stills at `f70cb32d`): *"Pass, publish with 0.4.1"*; 51 shots, 80 files, imported into the site with the release.
 - **CI at `f70cb32d`** went green on its second attempt (run 42265186145): the first failed only on the Intel macOS runner, in item 355's land-queue test and in `pkg/daemon`'s `TestRequestRescan`, seen failing there for the first time; dry run 42269229104 green.
+
+## Released
+
+- **Released** (2026-11-06): run 42273170661 tagged `v0.4.1` at `f70cb32d` (r1277) and published 18 assets at 19:12 UTC, with the package repositories and the Homebrew tap (both macOS runners) green.
+  The re-cut from `c7beff07` to `f70cb32d` carries only item 352's slice 1 changelog line, moved into [0.4.1], since that slice's code was in the candidate; its CI, 42265186145, went green on a rerun of the Intel macOS job, and its dry run is 42269229104.
+  The 600-district frame passed three alternating pairs at `c7beff07` once the platform profile was performance (13.93 ms median against v0.4.0's 14.10, bar 16); the earlier reds were the balanced profile (item 358).
+- **The AUR** (2026-11-07, pushed by the roadmap manager on Aria's approval given to it directly): `botropolis` `298813e..59304e6` and `botropolis-bin` `854412d..5190213`, both 0.4.1-1, sources verified against the release.
+- **The site** (2026-11-07): the re-film's media, 52 images and 32 clips, imported (`d819547` in botropolis.city), uploaded by Aria's 1Password approval, and deployed by run 42366793758; botropolis.city shows v0.4.1.
+
+## Closed
+
+0.4.1 shipped items 343 to 347, plus item 352's first slice, which was on main when the candidate was cut.
+Deviations, all ruled by Aria: the soak and A1–A7 were waived; L1 and L2 ran against a candidate daemon beside hers rather than an installed package; the rescan check shipped red, as at 0.4.0, and item 340 has since brought it under its bar; the frame check stopped the release until the profile was found, and Aria chose to fix the machine rather than ship into a red.
+The soak runs once after 0.5.0, item 354.

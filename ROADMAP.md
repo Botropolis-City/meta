@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
-| [349](roadmap/349-release-0-4-1.md) | release 0.4.1: items 343–347, run through RELEASING.md with the soak waived | 343, 344, 345, 346, 347 | nobody, Aria named the version |
 | [354](roadmap/354-release-0-5-0.md) | release 0.5.0: items 340, 348, 350–353 and 359, with the one soak after it | 340, 348, 349, 350, 351, 352, 353, 359 | nobody, Aria named the version |
 | [351](roadmap/351-controls-part-2.md) | a vision item; details private | 350 | nobody's |
 | [353](roadmap/353-controls-part-4.md) | a vision item; details private | 351 (slice 2) | nobody's |
