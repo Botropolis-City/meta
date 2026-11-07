@@ -55,6 +55,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [342](roadmap/342-the-release-session-runs-the-live-half-of-a2-a4-and-a6.md) | the release session runs A2, A4 and A6 headless, as live checks L3–L5 | — | nobody's |
 | [360](roadmap/360-the-website-still-describes-the-city-of-0-3-0.md) | the website catches up with 0.5.0: groups, the clinic, the controls | — | nobody's |
 | [362](roadmap/362-the-demo-film-has-no-shot-of-the-new-controls.md) | the demo film shows none of the clinic's list, the action menu, the groups board or the keys | — | nobody's |
+| [363](roadmap/363-the-station-label-is-drawn-only-on-the-test-sheet.md) | the station label is drawn only on the render test sheet, so it is dead code | — | nobody's |
 
 ## Waiting on Aria
 
