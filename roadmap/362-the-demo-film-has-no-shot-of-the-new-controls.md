@@ -7,7 +7,8 @@
 - the clinic's list, opened with `a`;
 - the action menu open, from `space` and from right-click, with a column's menu showing;
 - City Hall's groups board, opened with `g`;
-- every key drawn as a cap while `e` is held.
+- every key drawn as a cap while `e` is held;
+- City Hall at all: `pkg/city/landmarks.go` stands it only when the snapshot carries statistics (`if snapshot.Stats != nil`, lines 266–270 at `v0.5.0`), and the film's scenarios carry none, so no still has it. Give the film statistics, so the hall stands and the website can mark it.
 
 The website (item 360) needs each one to show its Drive and Groups sections, and ships its text with the stills it has until the next film.
 
