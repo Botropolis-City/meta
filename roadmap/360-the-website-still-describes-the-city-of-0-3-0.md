@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-11-07 in the session "item 360". Filed 2026-11-07 (r1331) at Aria's request. Nobody's call — the content is what shipped; Aria judges the frames.**
 
+Landed: slice 1 (`d18f0c4`, r53).
+
 Aria, 2026-11-07, after 0.5.0's media went up: *"So much has changed recently. Let's do a pass of the website and change/update any content that needs to be added as well like the clinic, explanation of groups, etc..."*
 
 ## Where it stands
