@@ -23,3 +23,7 @@ Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a
 ## Answered while building
 
 - **Item 340 starts once 0.4.1 is tagged** (Aria, 2026-11-06): it wants a quieter machine than tonight's, and it compares the rescan's profile at r1209 with now, so both are measured under the same load.
+- **Tagged overnight on the automated checks** (Aria, 2026-11-07, before bed): *"Tag on automated checks, like 0.4.1"* — A1–A7 are waived as they were for 0.4.1, and the release tags when every automated check is green, the rescan check included now that item 340 has brought it to 12.2 ms against 16.
+  The AUR packages are pushed on her standing approval, given for 0.4.1 and renewed here; the site's media upload waits for her 1Password.
+- **The performance gate runs on the performance profile** (Aria, 2026-11-07): set again that night, since the machine had gone back to balanced; the gate records the profile, RAPL limits and governor beside its numbers, as item 358 asks, and a red reading on any other profile is not a measurement.
+- **The soak still runs once, after the tag**, as ruled on 2026-11-06.
