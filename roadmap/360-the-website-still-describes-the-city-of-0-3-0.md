@@ -41,3 +41,5 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
   [Item 361](361-the-station-glossary-entry-outlived-the-stations.md) gives the kerb an entry in the app's glossary, and the site moves to it once it lands.
 - **The 0.3.0 block stays as a dated record of 0.3.0**, with "and 0.3.x continues on them" dropped. The site states no measurement newer than one it can cite.
 - **Missing shots**: the text ships now with the stills the 0.5.0 film has, and [item 362](362-the-demo-film-has-no-shot-of-the-new-controls.md) adds the clinic's list, the action menu, the groups board and the held `e` to the film for the next release.
+- **S2's test tree** (roadmap manager, 2026-11-07): approved. It extends `glance.test.ts`'s loops, adding the clinic, City Hall and group hotspots, a plaza line that names the clinic, glossary rows for the clinic, the kerb and a group's line, and a roads row that names its four vehicles.
+  The existing acceptance loops cover the new hotspots' overlap and fit at 360 wide.
