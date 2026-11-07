@@ -13,3 +13,12 @@ Move every `related` list that names it onto that kind instead, and add a glossa
 Item 360 quotes the app's own lines on the website, so it reads the new wording once this lands.
 
 The website quotes the app's words and checks them live (item 360), so a rewrite here turns its check red where it quotes `KindStation`. Give the app a sentence that says what a group is, and tell the roadmap manager when this lands, so the site moves to the new words.
+
+## Answered while building
+
+- **Rename, don't delete** (roadmap manager, 2026-11-07). Nothing draws a station any more, but pointing at a group's line still returns a hit, so `KindStation` becomes `KindGroup`, with "group", "the sessions working on one thing" and the About the session proposed.
+  A new `KindKerb` holds the kerb, which can't be pointed at.
+  The project's and City Hall's related lists move to the group.
+  The internal `StationHit` and `Station` types keep their names.
+- **The line card says "site"** (roadmap manager, 2026-11-07), not "station". That matches the building card's "site 2 of 3" and 0.5.0's changelog, *"Pointing at a link shows what its station showed: the group, the site and the route"*.
+- **The test tree** (roadmap manager, 2026-11-07): approved as proposed, in `pkg/city/kinds_test.go`, the line card test and `pkg/ui/explain_test.go`.
