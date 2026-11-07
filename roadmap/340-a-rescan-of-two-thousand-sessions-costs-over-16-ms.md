@@ -10,3 +10,10 @@ Core time counts instructions plus kernel time, so I/O drift can move it; an A/B
 ## The fix
 
 Name what the rescan does more of than at r1209 (a CPU profile of the rescan at both), and take it back under 16 ms with margin; the bar does not move.
+
+## Answered while building
+
+- **It is the code, not drift** (item 340's session, 2026-11-07): an A/B at v0.3.4 (r1209) and r1315, three alternating rounds, reads 28.2 M instructions a rescan against 33.2 M (+18%), with kernel time flat; counters around each step put the whole rise in `groupViews`, 4.69 M to 9.84 M, from item 333's slice 1 (`f0fa16c2`) — a suggestion picked and described for each of 1,012 loose sessions on every rescan, by string-built keys, beside a second session index built alongside `titleOf`'s; a pprof of 3,000 rescans at each agrees.
+  Raw runs in `~/.local/state/botropolis-perf/item-340-rescan-ab-20261107/`.
+- **Two slices, approved** (roadmap manager, 2026-11-07): slice 1 takes `groupViews` back (one presized index shared with `titleOf`, suggestions compared field by field once per detection, one description per member), to about 29.0 M, ~15.2 ms, which meets the bar without margin; slice 2 reads the temporary-directory roots once per pass in `pkg/state/districts.go` instead of once per session, to about 21.5 M, ~11.5 ms, 28% under it.
+  Guards: a characterisation of the suggestion order, an allocation bound per group member, an allocation bound for assigning 2,000 settled sessions, and the perf-tier rescan test itself, red today.

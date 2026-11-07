@@ -18,3 +18,8 @@ The second would be a defect in the queue, not the test, and is the one to rule 
 Reproduce it under load on macOS, or with the stopped waiter held longer on Linux, name which of the two it is, and fix that:
 a bound taken from what the case needs rather than the runner's speed, or a queue that never blocks a new arrival on a stopped waiter.
 Item 295 built the queue and item 332 put its tests under a make target.
+
+## Seen since
+
+- 2026-11-06, on main: `pkg/daemon`'s `TestRequestRescan` (*"when the watcher has just rescanned and a background pass asks for another"*) on `macos-26-intel`, run 42265186145; `pkg/measure`'s `TestThread` (*"it should count at least 80% of the CPU the process spent"*) on `macos-26-intel`, run 42284185651; and `TestWatch` (*"when a subagent transcript appears under a live session"*) on `macos-26`, the same run.
+  Each passed on a rerun and on Linux, so the Intel runner's timing is the common thread, and this item may be the place to fix them together.
