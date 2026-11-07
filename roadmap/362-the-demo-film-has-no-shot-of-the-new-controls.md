@@ -29,3 +29,8 @@ Check them with `make check-demo-corpus`.
   - moving a session into a group: the building fades out, the truck carries its crate, and it fades in on its new lot (a clip);
   - a teammate following its lead into a group, as a convoy (a clip);
   - closing a group from City Hall's board, packing its sessions into the depot (a clip).
+- **The plan and test tree** (roadmap manager, 2026-11-07): approved. Slice 1 has the stager write `stats-cache.json` when a scenario sets `stats: true`, with tests in `pkg/demo` and the scenario integration test. Slice 2 adds the scenarios: `metropolis.yaml` gains statistics, and the new `controls.yaml` and `groups.yaml` are added.
+- **All seven metropolis shots re-film** (roadmap manager, 2026-11-07). Adding statistics changes that scenario, which counts as "changed", and the site must not mix frames with and without City Hall.
+- **The statistics come from the staged sessions**, not figures written to look like a heavy user (roadmap manager, 2026-11-07). The film shows what its own city did.
+- **The city is 0.5.0's and the demo tool is main's** (roadmap manager, 2026-11-07). The `v0.5.0` tag's demo tool refuses the new `stats:` key, so `bin/botropolis` comes from the tag and `botropolis-demo` from the landed commit. That holds only if the diff between them touches nothing outside `pkg/demo`, `cmd/botropolis-demo` and `demo/`; the session checks this before filming.
+- **Closing a group is filmed new, in `groups.yaml`** (roadmap manager, 2026-11-07), with 0.5.0's dialog. The site stops using the stale `tidy/close-group`.
