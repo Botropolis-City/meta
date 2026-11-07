@@ -18,8 +18,17 @@ make roadmap-manager REMOTE=1  # also reachable from claude.ai/code and the Clau
 
 `REMOTE=1` adds Remote Control, which needs a claude.ai subscription login rather than an API key.
 
+```sh
+make roadmap-manager RESUME=1     # resume the newest "roadmap manager" session instead of starting fresh
+make roadmap-manager RESUME=<id>  # resume that session
+```
+
+`RESUME=1` resumes the role's newest session, found by `tools/agent-session`: the newest one started from this root that is still named after the role and received at least one message.
+It refuses, and says so, when there is none, rather than starting a fresh session under a flag that asked for the old one.
+
 `make agents` opens a tmux session, `botropolis` (set `AGENTS_TMUX` to change it), with design in window 1, the roadmap manager in 2 and the performance manager in 3, named `benchmark`, all with Remote Control.
 Run it again to reattach; it starts nothing new while that session exists.
+`make agents RESUME=1` opens the same three windows with each role's newest session resumed, which is how they come back after a reboot or a crash.
 
 ## What the roles keep, and where
 

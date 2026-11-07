@@ -71,7 +71,8 @@ publishable :: docs-check
 	@tools/check-publishable
 
 AGENT_MODEL = ${MODEL_$(subst -,_,$(1))}
-AGENT = claude --agent $(1) -n "$(2)" $(if $(AGENT_MODEL),--model $(AGENT_MODEL)) $(if ${REMOTE},--remote-control)
+AGENT_SESSION = $(if $(filter 1 yes latest,${RESUME}),tools/agent-session "$(2)",echo ${RESUME})
+AGENT = $(if ${RESUME},session=$$($(AGENT_SESSION)) || exit $$?; )claude --agent $(1) -n "$(2)" $(if $(AGENT_MODEL),--model $(AGENT_MODEL)) $(if ${REMOTE},--remote-control)$(if ${RESUME}, --resume "$$session")
 
 item-model ::
 	@$(if ${ITEM_MODEL},echo --model ${ITEM_MODEL},true)
@@ -96,12 +97,12 @@ AGENTS_TMUX ?= botropolis
 AGENT_WINDOWS := design:design-agent roadmap:roadmap-manager benchmark:performance-manager
 
 agents ::
-	$(LOG) "Starting design, roadmap and benchmark in tmux session ${AGENTS_TMUX}, with Remote Control"
+	$(LOG) "$(if ${RESUME},Resuming,Starting) design, roadmap and benchmark in tmux session ${AGENTS_TMUX}, with Remote Control"
 	@if ! tmux has-session -t "=${AGENTS_TMUX}" 2>/dev/null; then \
 		i=1; \
 		for w in ${AGENT_WINDOWS}; do \
 			name=$${w%%:*}; role=$${w#*:}; \
-			cmd="make -C $(CURDIR) $$role REMOTE=1; exec $$SHELL"; \
+			cmd="make -C $(CURDIR) $$role REMOTE=1$(if ${RESUME}, RESUME=1); exec $$SHELL"; \
 			if [ $$i = 1 ]; then \
 				tmux new-session -d -s "${AGENTS_TMUX}" -n "$$name" -c "$(CURDIR)" "$$cmd"; \
 				[ "$$(tmux display-message -p -t "=${AGENTS_TMUX}:$$name" '#I')" = 1 ] \

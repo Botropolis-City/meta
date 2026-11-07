@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# The newest Claude Code session a role can resume, by its session name.
+set -euo pipefail
+
+usage() {
+    cat <<'USAGE'
+agent-session — the newest Claude Code session named TITLE, to resume
+
+Usage: tools/agent-session [--cwd DIR] [--projects DIR] TITLE
+
+Prints the id of the newest session that was started from --cwd (default:
+the current directory), is still named TITLE, and received at least one
+message, so `claude --resume <id>` brings it back.  Exits 1 and says so
+when there is none.
+
+The make targets use it: `make roadmap-manager RESUME=1` resumes the
+newest "roadmap manager" session instead of starting a fresh one, and
+`make agents RESUME=1` does the same for all three windows.
+
+--cwd DIR        where the session was started (default: here)
+--projects DIR   Claude Code's projects directory (default: ~/.claude/projects)
+USAGE
+}
+
+case "${1:-}" in
+    -h|--help) usage; exit 0 ;;
+esac
+
+exec python3 "$(dirname "$0")/agent_session.py" "$@"
