@@ -1,6 +1,6 @@
 # 354. Release 0.5.0
 
-**Open. Filed 2026-11-06 (r1266) at Aria's request. Nobody's call — Aria named what it holds; she confirms the number when the candidate is cut.**
+**Open, in progress since 2026-11-07 in the session "item 354". Filed 2026-11-06 (r1266) at Aria's request. Nobody's call — Aria named what it holds; she confirms the number when the candidate is cut.**
 
 Depends on: 340, 348, 349, 350, 351, 352, 353, 359
 
