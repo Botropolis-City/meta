@@ -2,6 +2,9 @@
 
 **Open, in progress since 2026-11-07 in the session "item 340". Filed 2026-11-03 (r1256), from 0.4.0's release gate. Nobody's call — the budget is set; the daemon is over it.**
 
+Depends on: nothing
+Landed: slice 1 (`d4a9daf6`, r1318).
+
 `TestARescanAtTwoThousandSessions` read a median of 16.63 ms of a core at the 0.4.0 candidate `cad2504` (16.59, 16.63, 16.63, 16.80, 21.20) against its bar of 16 ms, pinned and settled.
 It has climbed a release at a time: 14.6 ms at r1209 (0.3.4), 15.0 at r1230 and r1233, 15.7 at r1245, 16.6 at r1256.
 Raw: `~/.local/state/botropolis-perf/test-performance-r1256-cad2504-release-0.4.0-20261103-080606/`.
