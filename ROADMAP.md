@@ -50,6 +50,10 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [355](roadmap/355-the-landing-queue-s-slow-waiter-test-times-out-on-macos-intel.md) | the landing queue's slow-waiter test times out on the Intel macOS runner | — | nobody, a flaky test |
 | [357](roadmap/357-make-land-s-own-tests-miss-the-wait-under-load.md) | `make land`'s own acceptance tests miss the wait under load | — | nobody, a flaky test |
 | [358](roadmap/358-the-performance-gate-records-nothing-of-the-machine-s-power-state.md) | the performance gate records nothing of the machine's power state | — | nobody, a gap in the method |
+| [335](roadmap/335-the-greedy-batcher-splits-on-which-draw-leads.md) | the frame's batcher is greedy, so the draw-command count depends on which source happens to lead | — | nobody, after 0.4.0 |
+| [339](roadmap/339-the-stress-measures-follow-the-clock.md) | the stress city's measures follow the wall clock, so a night run does 3.5% more work than a day run | — | nobody, after 0.4.0 |
+| [342](roadmap/342-the-release-session-runs-the-live-half-of-a2-a4-and-a6.md) | the release session runs A2, A4 and A6 headless, as live checks L3–L5 | — | nobody's |
+| [360](roadmap/360-the-website-still-describes-the-city-of-0-3-0.md) | the website catches up with 0.5.0: groups, the clinic, the controls | — | nobody's |
 
 ## Waiting on Aria
 
@@ -86,9 +90,6 @@ Each is either bot-crossing's setting rather than a feature, or a cost the footp
 | [DESIGN.md](botropolis/DESIGN.md) | what exists, and the rules the work is held to |
 
 Items are numbered in one series, 1–68.
-| [335](roadmap/335-the-greedy-batcher-splits-on-which-draw-leads.md) | the frame's batcher is greedy, so the draw-command count depends on which source happens to lead | — | nobody, after 0.4.0 |
-| [339](roadmap/339-the-stress-measures-follow-the-clock.md) | the stress city's measures follow the wall clock, so a night run does 3.5% more work than a day run | — | nobody, after 0.4.0 |
-| [342](roadmap/342-the-release-session-runs-the-live-half-of-a2-a4-and-a6.md) | the release session runs A2, A4 and A6 headless, as live checks L3–L5 | — | nobody's |
 Section 8's bugs 1–34 and the art batch's 35–68 continue the same numbering; phases 19 and 20 have their own small series, cited as "phase 20 item 3".
 There are two bug 18s — road tiles, and rovers parking — both fixed, both left renumbered as written, because a dated record that gets tidied stops being a record.
 Nothing cites either by number.
