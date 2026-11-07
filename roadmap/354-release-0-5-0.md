@@ -51,7 +51,7 @@ Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a
   It went to Aria with a contact sheet of its 52 stills, and her pass is pending.
 - **The AUR** (2026-11-07): `botropolis` `59304e6..29d79b8` and `botropolis-bin` `5190213..fbd0e03`, both 0.5.0-1, their sources checked against the release, and pushed by the roadmap manager on Aria's standing approval.
 - **The site**: the re-film's 52 images and 32 clips were imported in botropolis.city's `4b2663f`, committed but not pushed.
-  The upload waits on Aria's pass and her 1Password, and the push and deploy follow it.
+  Aria uploaded the clips on 2026-11-07, and `4b2663f` was pushed, but its CI failed on the Glance hotspots, so 0.5.0's page has not deployed; [item 360](360-the-website-still-describes-the-city-of-0-3-0.md) fixes that first.
 
 Deviations, all ruled by Aria: A1–A7 were waived; the tag rests on the automated checks alone; and L1 and L2 ran against a candidate daemon beside hers.
 The soak runs once, on the released build, and its record goes here.
