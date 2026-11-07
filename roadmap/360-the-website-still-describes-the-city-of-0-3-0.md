@@ -57,3 +57,7 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
   - The HUD at 390 fades at its right edge, so a link it cuts reads as more to scroll.
   - The Groups copy changes three ways. The "a group" fact goes, since its station-era sentence contradicts 0.5.0's default line and the lead already says what a group is. The changelog's leading "Now" goes from the teammate and group-of-one facts. And "this group" becomes "a group" in close group.
 - **Fully up to date** (Aria, 2026-11-07: *"Get the website fully up to date"*). Item 360 stays open after S5 for two things. It moves its quotes to item 361's new wording, and it takes item 362's shots: the City Hall marker, the clinic's list, the action menu, the groups board and the held `e`, with the Glance hotspots re-checked if the hero still changes.
+- **The Groups layout once item 362 lands** (roadmap manager, 2026-11-07): approved. Each fact becomes a card, with its media on top at 16:9 and then its title and line, laid out two across on desktop and one on a phone.
+  The line's card spans the full width, with the three line-form stills behind a toggle named by the setting's values, default first.
+  Clips get controls, a poster and no autoplay.
+  A group of one stays text only, since no shot shows one, and a badge borrowed from another shot would claim what it doesn't show.
