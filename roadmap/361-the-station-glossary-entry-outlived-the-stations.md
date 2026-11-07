@@ -1,6 +1,6 @@
 # 361. The map's glossary still describes a group's stations, which 0.5.0 removed
 
-**Open. Filed 2026-11-07 (r1331), found by item 360's session while reading the app for the website. Nobody's call — a defect.**
+**Open, in progress since 2026-11-07 in the session "item 361". Filed 2026-11-07 (r1331), found by item 360's session while reading the app for the website. Nobody's call — a defect.**
 
 0.5.0's changelog says *"A group's line has no stations"*, but `pkg/city/kinds.go` at `v0.5.0` still carries `KindStation`: *"a project on a group's line"*, with the long line *"A group of sessions working on one thing is drawn as a line through its projects, with a station at each. A station's colour says whose move it is there."*
 It is listed in the kinds' order (line 46), named as related by the session's entry (line 60), and named again on line 92.

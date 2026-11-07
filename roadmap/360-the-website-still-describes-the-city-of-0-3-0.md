@@ -55,3 +55,4 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
   - The `.flip` rows mirror, through a `:global()`.
   - The HUD at 390 fades at its right edge, so a link it cuts reads as more to scroll.
   - The Groups copy changes three ways. The "a group" fact goes, since its station-era sentence contradicts 0.5.0's default line and the lead already says what a group is. The changelog's leading "Now" goes from the teammate and group-of-one facts. And "this group" becomes "a group" in close group.
+- **Fully up to date** (Aria, 2026-11-07: *"Get the website fully up to date"*). Item 360 stays open after S5 for two things. It moves its quotes to item 361's new wording, and it takes item 362's shots: the City Hall marker, the clinic's list, the action menu, the groups board and the held `e`, with the Glance hotspots re-checked if the hero still changes.

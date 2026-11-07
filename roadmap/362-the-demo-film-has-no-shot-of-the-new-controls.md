@@ -1,6 +1,6 @@
 # 362. The demo film has no shot of the clinic's list, the action menu, the groups board or the keys
 
-**Open. Filed 2026-11-07 (r1331), from item 360's audit of the website. Nobody's call — the shots are what shipped.**
+**Open, in progress since 2026-11-07 in the session "item 362". Filed 2026-11-07 (r1331), from item 360's audit of the website. Nobody's call — the shots are what shipped.**
 
 0.5.0's film (`make demo-media`, the scenarios in `botropolis/demo/scenarios/`) has no shot of:
 
@@ -15,4 +15,10 @@ The website (item 360) needs each one to show its Drive and Groups sections, and
 ## The fix
 
 Add each as a scenario shot, with a still and, where the move is the point (the menu opening, the board's rename), a clip, and give its caption the changelog's words.
-Check them with `make check-demo-corpus` and film them at the next release, as [film at release](354-release-0-5-0.md) does; nothing is re-filmed on its own.
+Check them with `make check-demo-corpus`.
+
+## Answered while building
+
+- **Film them now, from 0.5.0** (Aria, 2026-11-07: *"Get the website fully up to date"*). The usual rule waits for a release to film, but this is filmed now for the website, which describes 0.5.0.
+  So the shots are filmed from the `v0.5.0` binaries with the new scenarios, and only the shots that are new or changed, never a full re-film, and never from a build of `main` that holds unreleased work.
+  They then go to [item 360](360-the-website-still-describes-the-city-of-0-3-0.md), which imports them into the site. The upload needs Aria's 1Password.
