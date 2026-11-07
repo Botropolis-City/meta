@@ -1,6 +1,6 @@
 # 364. Moving a session into a team's group is silently dropped
 
-**Open. Filed 2026-11-07 (r1333), found by item 362's session while test-filming 0.5.0. Nobody's call — a defect.**
+**Open, in progress since 2026-11-07 in the session "item 364". Filed 2026-11-07 (r1333), found by item 362's session while test-filming 0.5.0. Nobody's call — a defect.**
 
 Moving a session into a group that a team makes, by hand from *move to group*, does nothing.
 The picker says "moved to <group>" and the session stays where it was.
