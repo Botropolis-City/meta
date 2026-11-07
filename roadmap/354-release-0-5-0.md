@@ -38,3 +38,20 @@ Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a
 - **L1–L2, side by side**, as 0.4.1's: the candidate's daemon on its own socket, config copy and state, cache and runtime directories, reading the real `~/.claude`; no sudo, and Aria's daemon left alone.
   L1 passes: 403 sessions, 55 jobs, 7 live records, each agreeing, and every finished job with no live process resting; a design-agent record saying idle over an unanswered prompt shows needs-you, as item 250 ruled, and the daemon read past a NUL-filled line in that transcript.
   L2 passes: a stopped throwaway session left `claude agents --all` and the daemon 7 s after `botropolis rm`, and stayed off across a restart of the side daemon.
+
+## Released
+
+- **Released** (2026-11-07): run 42384836569 tagged `v0.5.0` at `b5d2d46e` (r1331) and published 18 assets at 15:37 UTC, with the package repositories and the Homebrew tap, both macOS runners included, green.
+  The dry run, 42382227091, was green at the same commit.
+  The candidate is one commit: VERSION and the [0.5.0] section, which gathers everything under [Unreleased].
+  It landed through `make land` with S1–S10 in its gate, and its CI, 42377323663, was green on the first attempt.
+  The amd64 and arm64 packages matched `SHA256SUMS`, and their binaries report 0.5.0.
+- **The checks** are recorded above: the performance gate on `performance`, every check green, the rescan included, and L1–L2 run side by side.
+- **The re-film**: `make demo-media` at `b5d2d46e` filmed 51 shots in 80 files.
+  It went to Aria with a contact sheet of its 52 stills, and her pass is pending.
+- **The AUR** (2026-11-07): `botropolis` `59304e6..29d79b8` and `botropolis-bin` `5190213..fbd0e03`, both 0.5.0-1, their sources checked against the release, and pushed by the roadmap manager on Aria's standing approval.
+- **The site**: the re-film's 52 images and 32 clips were imported in botropolis.city's `4b2663f`, committed but not pushed.
+  The upload waits on Aria's pass and her 1Password, and the push and deploy follow it.
+
+Deviations, all ruled by Aria: A1–A7 were waived; the tag rests on the automated checks alone; and L1 and L2 ran against a candidate daemon beside hers.
+The soak runs once, on the released build, and its record goes here.
