@@ -32,3 +32,12 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
 
 - **The site's `main` is red, and 0.5.0's page has not deployed** (2026-11-07): the media commit `4b2663f` failed `src/data/glance.test.ts`, *"it should sit on an object in the still"*, because three of the Glance hotspots now fall on grass or a plate in 0.5.0's still, not on the object they label.
   0.4.1's page stays live until it is fixed, so this is the first slice: move the hotspots onto what they label in the new still, so the test passes on its own terms, never by loosening it.
+
+## Answered while building
+
+- **The audit and its slices** (roadmap manager, 2026-11-07): approved as proposed. S2 is Glance, with the clinic, City Hall and group hotspots, the full plaza line and the glossary rows. S3 is Drive. S4 is a new Groups section, between Drive and New. S5 is the release block.
+  Street stalls stay out, since they are off by default.
+- **A hotspot may quote `CHANGELOG.md`** when the app has no wording of its own, as with the kerb: the changelog is public, and the app's own words always win where they exist.
+  [Item 361](361-the-station-glossary-entry-outlived-the-stations.md) gives the kerb an entry in the app's glossary, and the site moves to it once it lands.
+- **The 0.3.0 block stays as a dated record of 0.3.0**, with "and 0.3.x continues on them" dropped. The site states no measurement newer than one it can cite.
+- **Missing shots**: the text ships now with the stills the 0.5.0 film has, and [item 362](362-the-demo-film-has-no-shot-of-the-new-controls.md) adds the clinic's list, the action menu, the groups board and the held `e` to the film for the next release.
