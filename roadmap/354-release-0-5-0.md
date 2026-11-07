@@ -27,3 +27,14 @@ Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a
   The AUR packages are pushed on her standing approval, given for 0.4.1 and renewed here; the site's media upload waits for her 1Password.
 - **The performance gate runs on the performance profile** (Aria, 2026-11-07): set again that night, since the machine had gone back to balanced; the gate records the profile, RAPL limits and governor beside its numbers, as item 358 asks, and a red reading on any other profile is not a measurement.
 - **The soak still runs once, after the tag**, as ruled on 2026-11-06.
+
+## The checks
+
+- **The candidate** (release session, 2026-11-07): `b5d2d46e` (r1331), `VERSION` 0.5.0 and a `[0.5.0]` section gathering everything that was under `[Unreleased]`, landed through `make land` with its whole gate green, S1–S10 included.
+- **CI** 42377323663 green on its first attempt, both macOS runners included; eight packages, amd64 and arm64, verified against `SHA256SUMS`, the binaries reporting 0.5.0.
+- **The performance gate**, every check green, the rescan included, after `settle` waited 7m42s: platform profile performance, governor powersave, EPP balance_performance, turbo on, RAPL long-term and short-term 57 W, peak 106 W, the same before and after (item 358).
+  The rescan at 2,000 sessions 11.8 ms median against 16 (11.1–12.4, one outlier at 25.7); the fitted 600-district frame 14.6 ms against 16, zoomed 5.7 and panned 5.6 against 10; the 2,400-session city settled at 473 MiB under 512; the daemon at 2,000 sessions 59 MiB under 64.
+  Skipped by design: `TestCalibrateCoreRate`, run by its own tool, and `TestLightCycleOnARealGPU`, which needs a window on Aria's screen.
+- **L1–L2, side by side**, as 0.4.1's: the candidate's daemon on its own socket, config copy and state, cache and runtime directories, reading the real `~/.claude`; no sudo, and Aria's daemon left alone.
+  L1 passes: 403 sessions, 55 jobs, 7 live records, each agreeing, and every finished job with no live process resting; a design-agent record saying idle over an unanswered prompt shows needs-you, as item 250 ruled, and the daemon read past a NUL-filled line in that transcript.
+  L2 passes: a stopped throwaway session left `claude agents --all` and the daemon 7 s after `botropolis rm`, and stayed off across a restart of the side daemon.
