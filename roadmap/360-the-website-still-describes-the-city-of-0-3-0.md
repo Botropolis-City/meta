@@ -50,3 +50,8 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
 - **S3's test tree** (roadmap manager, 2026-11-07): approved. `drive.ts` swaps the old card's chips for the Session, Project and Group menus. A live test checks each menu's labels and keys against `scene.go` and `bindings.go`, and each key line against the changelog. The acceptance spec shows the three menus and no old row of buttons.
 - **S4's test tree** (roadmap manager, 2026-11-07): approved. It is a Groups section between Drive and New, with fifteen quoted facts in `groups.ts`, three media rows (`metropolis/overview`, `team/team-line` and `tidy/walk`), and a `groups` link in the HUD between drive and new.
   It adds no new site key: the site's keys cover only some sections, and a `g` would collide with the github key.
+- **S5's test tree** (roadmap manager, 2026-11-07): approved. The 0.3.0 block reads "Two budgets 0.3.0 did not meet", and `release.ts` loses `continues`.
+  S5 also takes three fixes from S4's frames:
+  - The `.flip` rows mirror, through a `:global()`.
+  - The HUD at 390 fades at its right edge, so a link it cuts reads as more to scroll.
+  - The Groups copy changes three ways. The "a group" fact goes, since its station-era sentence contradicts 0.5.0's default line and the lead already says what a group is. The changelog's leading "Now" goes from the teammate and group-of-one facts. And "this group" becomes "a group" in close group.

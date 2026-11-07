@@ -11,3 +11,5 @@ Remove `KindStation`, or, if anything still draws one, rewrite its entry as what
 Move every `related` list that names it onto that kind instead, and add a glossary entry for the kerb, which has no wording in the app.
 `kinds_test.go` and anything that walks every kind (the map key, the Keys panel and the hover cards) are what pin it now.
 Item 360 quotes the app's own lines on the website, so it reads the new wording once this lands.
+
+The website quotes the app's words and checks them live (item 360), so a rewrite here turns its check red where it quotes `KindStation`. Give the app a sentence that says what a group is, and tell the roadmap manager when this lands, so the site moves to the new words.
