@@ -4,5 +4,6 @@
 
 Depends on: 350
 Landed: slice 1 (`d819e1dc`, r1316).
+Landed: slice 2 (`209d2d8b`, r1321).
 
 Details: `vision/items/351-controls-part-2.md`, in the private vision repository.
