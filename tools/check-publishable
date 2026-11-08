@@ -19,7 +19,9 @@ Checks:
      (only where a .publishable-tokens list exists, here or in botropolis/; it is
      read where it is and never copied, and without one the check is skipped, and said so)
   2. every ref the remote advertises is an ancestor of HEAD, the history being published
-     (an unreachable or empty remote is said so, not passed)
+     (an unreachable or empty remote is said so, not passed), except that a
+     pull request's ref (refs/pull/*) outside it is fetched and the commits it
+     adds are swept as in 1, and named in the summary
 
 The third check botropolis makes, that every image has been reviewed, belongs
 to tools/check-docs here, and `make publishable` runs it first.
@@ -46,41 +48,56 @@ for candidate in .publishable-tokens botropolis/.publishable-tokens; do
         break
     fi
 done
-if [ -n "${tokens_file}" ] && [ ! -s "${tokens_file}" ]; then
-    note "${tokens_file} is present but empty, so it would match nothing."
-elif [ -n "${tokens_file}" ]; then
-    # Every search is captured before it is tested. Piped into `head -1 | grep -q`,
-    # as botropolis's was until 2026-10-15, the search is killed by SIGPIPE as soon
-    # as the reader has its first line, and pipefail reports the pipeline as failed:
-    # a token found in more than one place read exactly like a token found nowhere.
+# sweep WHERE REVS... searches every blob and message of the commits REVS names.
+# Every search is captured before it is tested. Piped into `head -1 | grep -q`,
+# as botropolis's was until 2026-10-15, the search is killed by SIGPIPE as soon
+# as the reader has its first line, and pipefail reports the pipeline as failed:
+# a token found in more than one place read exactly like a token found nowhere.
+sweep() {
+    local where="$1" rc listed messages tokens found
+    local -a commits
+    shift
     rc=0
-    messages=$(git log --all --no-show-signature --format='%s%n%b') || rc=$?
-    [ "${rc}" -eq 0 ] || note "git log could not read the commit messages (exit ${rc})"
+    listed=$(git rev-list "$@") || rc=$?
+    [ "${rc}" -eq 0 ] || { note "git rev-list could not list ${where} (exit ${rc})"; return; }
+    [ -n "${listed}" ] || return 0
+    mapfile -t commits <<< "${listed}"
+    rc=0
+    messages=$(git log --no-show-signature --format='%s%n%b' "$@") || rc=$?
+    [ "${rc}" -eq 0 ] || note "git log could not read the commit messages of ${where} (exit ${rc})"
     while read -r tokens; do
         [ -n "${tokens}" ] || continue
         case "${tokens}" in \#*) continue;; esac
         rc=0
-        found=$(git grep -lI -E -e "${tokens}" $(git rev-list --all) -- 2>/dev/null) || rc=$?
+        found=$(git grep -lI -E -e "${tokens}" "${commits[@]}" -- 2>/dev/null) || rc=$?
         if [ "${rc}" -gt 1 ]; then
-            note "a pattern from ${tokens_file} could not be searched for (git grep exit ${rc})"
+            note "a pattern from ${tokens_file} could not be searched for in ${where} (git grep exit ${rc})"
         elif [ -n "${found}" ]; then
-            note "a pattern from ${tokens_file} matches history:"
+            note "a pattern from ${tokens_file} matches ${where}:"
             sed -n '1,5s/^/    /p' <<< "${found}"
         fi
         rc=0
         grep -qE -e "${tokens}" <<< "${messages}" 2>/dev/null || rc=$?
         if [ "${rc}" -eq 0 ]; then
-            note "a pattern from ${tokens_file} matches a commit message"
+            note "a pattern from ${tokens_file} matches a commit message in ${where}"
         elif [ "${rc}" -gt 1 ]; then
             note "a pattern from ${tokens_file} is not a valid extended regular expression"
         fi
     done < "${tokens_file}"
+}
+
+if [ -n "${tokens_file}" ] && [ ! -s "${tokens_file}" ]; then
+    note "${tokens_file} is present but empty, so it would match nothing."
+elif [ -n "${tokens_file}" ]; then
+    sweep "history" --all
 fi
 
 # 2. Refs. `git ls-remote` is the only thing that says what the remote hands out;
 # a sweep of main cannot see a tag, which is how botropolis's first miss happened.
 # A loop over nothing passes, so an unreachable or empty remote is said so.
 refs="checked"
+pulls_swept=()
+pulls_unswept=()
 if ! git remote get-url github >/dev/null 2>&1; then
     note "no 'github' remote, so the refs it advertises cannot be checked"
 elif ! advertised=$(git ls-remote github 2>/dev/null); then
@@ -94,9 +111,27 @@ else
         # HEAD, not main, as in botropolis: a worktree lands with push HEAD:main,
         # and the local main belongs to the main checkout, which only its own
         # pull moves, so every push read as unpublishable here (item 316).
-        if ! git merge-base --is-ancestor "${sha}" HEAD 2>/dev/null; then
-            note "${ref} (${sha:0:10}) is not in the history being published"
-        fi
+        git merge-base --is-ancestor "${sha}" HEAD 2>/dev/null && continue
+        # A pull request's ref outlives its branch, and a squash or rebase merge
+        # leaves it outside main's history for good, so ancestry can never pass
+        # it (item 369). Its content is just as public, so read that instead:
+        # fetch it, without leaving a ref behind, and sweep what it adds.
+        case "${ref}" in
+            refs/pull/*)
+                if [ -z "${tokens_file}" ] || [ ! -s "${tokens_file}" ]; then
+                    pulls_unswept+=("${ref}")
+                elif ! git fetch -q --no-write-fetch-head github "${ref}" </dev/null 2>/dev/null; then
+                    note "${ref} (${sha:0:10}) is outside the history being published and could not be fetched to sweep"
+                else
+                    before=${fail}
+                    fail=0
+                    sweep "${ref}" "${sha}" ^HEAD
+                    [ "${fail}" -ne 0 ] || pulls_swept+=("${ref}")
+                    [ "${before}" -eq 0 ] || fail=${before}
+                fi
+                ;;
+            *) note "${ref} (${sha:0:10}) is not in the history being published" ;;
+        esac
     done <<< "${advertised}"
 fi
 
@@ -115,3 +150,9 @@ case "${refs}" in
     unreachable) refs_said="remote refs NOT checked: github could not be reached" ;;
 esac
 printf '  %s; %s.\n' "${tokens_said}" "${refs_said}"
+for ref in "${pulls_swept[@]}"; do
+    printf '  %s is outside the history being published, and the commits it adds were swept clean.\n' "${ref}"
+done
+for ref in "${pulls_unswept[@]}"; do
+    printf '  %s is outside the history being published, and NOT swept: no .publishable-tokens to sweep it with.\n' "${ref}"
+done

@@ -29,6 +29,14 @@ def commit(cwd, name):
     git(cwd, 'commit', '-q', '-m', name)
 
 
+TOKEN = 'zorblax'
+
+
+def write(cwd, name, text):
+    with open(os.path.join(cwd, name), 'w') as f:
+        f.write(text)
+
+
 def check(cwd):
     return subprocess.run([os.path.join(cwd, 'tools', 'check-publishable')], cwd=cwd, env=ENV,
                           capture_output=True, text=True)
@@ -58,6 +66,23 @@ class Repositories:
         git(self.other, 'pull', '-q', '--rebase', 'github', 'main')
         commit(self.other, name)
         git(self.other, 'push', '-q', 'github', 'HEAD:main')
+
+    def merge_pull_request(self, number, commits):
+        """Push `commits` (name, text, message) to refs/pull/N/head, then squash-merge their final tree into main."""
+        git(self.other, 'pull', '-q', '--rebase', 'github', 'main')
+        git(self.other, 'checkout', '-q', '-b', f'pull-{number}')
+        for name, text, message in commits:
+            write(self.other, name, text)
+            git(self.other, 'add', name)
+            git(self.other, 'commit', '-q', '-m', message)
+        git(self.other, 'push', '-q', 'github', f'HEAD:refs/pull/{number}/head')
+        git(self.other, 'checkout', '-q', 'main')
+        git(self.other, 'merge', '-q', '--squash', f'pull-{number}')
+        git(self.other, 'commit', '-q', '-m', f'Squashed pull request {number}')
+        git(self.other, 'push', '-q', 'github', 'HEAD:main')
+
+    def list_tokens(self):
+        write(self.worktree, '.publishable-tokens', TOKEN + '\n')
 
     def rebase_worktree(self):
         git(self.worktree, 'fetch', '-q', 'github')
@@ -138,12 +163,96 @@ class WhenPublishableRunsInAWorktree(unittest.TestCase):
             self.assertEqual(self.result.returncode, 1, self.result.stdout + self.result.stderr)
 
 
+class WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished:
+    class Case(unittest.TestCase):
+        commits = ()
+        tokens = True
+
+        @classmethod
+        def setUpClass(cls):
+            cls.repos = Repositories()
+            cls.repos.merge_pull_request(1, cls.commits)
+            cls.repos.rebase_worktree()
+            if cls.tokens:
+                cls.repos.list_tokens()
+            cls.result = check(cls.repos.worktree)
+
+        @classmethod
+        def tearDownClass(cls):
+            cls.repos.remove()
+
+    class AndItsCommitsAreClean(Case):
+        commits = (('feature', 'a feature\n', 'Add a feature'),
+                   ('feature', 'a better feature\n', 'Improve the feature'))
+
+        def test_it_should_pass(self):
+            self.assertEqual(self.result.returncode, 0, self.result.stdout + self.result.stderr)
+
+        def test_it_should_name_the_pull_requests_ref(self):
+            self.assertIn('refs/pull/1/head', self.result.stdout)
+
+    class AndAFileItAddsCarriesAToken(Case):
+        commits = (('feature', f'made for {TOKEN}\n', 'Add a feature'),
+                   ('feature', 'made for nobody\n', 'Take the name out'))
+
+        def test_it_should_fail(self):
+            self.assertEqual(self.result.returncode, 1, self.result.stdout + self.result.stderr)
+
+        def test_it_should_name_the_pull_requests_ref(self):
+            self.assertIn('refs/pull/1/head', self.result.stdout)
+
+    class AndItsCommitMessageCarriesAToken(Case):
+        commits = (('feature', 'a feature\n', f'Add the feature {TOKEN} asked for'),)
+
+        def test_it_should_fail(self):
+            self.assertEqual(self.result.returncode, 1, self.result.stdout + self.result.stderr)
+
+        def test_it_should_name_the_pull_requests_ref(self):
+            self.assertIn('refs/pull/1/head', self.result.stdout)
+
+    class AndThereIsNoTokensList(Case):
+        commits = (('feature', 'a feature\n', 'Add a feature'),)
+        tokens = False
+
+        def test_it_should_pass(self):
+            self.assertEqual(self.result.returncode, 0, self.result.stdout + self.result.stderr)
+
+        def test_it_should_say_the_pull_requests_ref_was_not_swept(self):
+            self.assertRegex(self.result.stdout, r'refs/pull/1/head[^.]*NOT swept')
+
+
+class WhenARemoteBranchIsOutsideTheHistoryBeingPublished(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.repos = Repositories()
+        git(cls.repos.other, 'checkout', '-q', '-b', 'side')
+        commit(cls.repos.other, 'never landed')
+        git(cls.repos.other, 'push', '-q', 'github', 'side')
+        cls.repos.list_tokens()
+        cls.result = check(cls.repos.worktree)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.repos.remove()
+
+    def test_it_should_fail(self):
+        self.assertEqual(self.result.returncode, 1, self.result.stdout + self.result.stderr)
+
+    def test_it_should_name_the_branch(self):
+        self.assertIn('refs/heads/side', self.result.stdout)
+
+
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
     for case in (WhenPublishableRunsInTheMainClone,
                  WhenPublishableRunsInAWorktree.AndTheLocalMainIsBehindTheRemote,
                  WhenPublishableRunsInAWorktree.AndARemoteTagIsOutsideTheHistoryBeingPublished,
-                 WhenPublishableRunsInAWorktree.AndTheRemoteMainIsAheadOfHead):
+                 WhenPublishableRunsInAWorktree.AndTheRemoteMainIsAheadOfHead,
+                 WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished.AndItsCommitsAreClean,
+                 WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished.AndAFileItAddsCarriesAToken,
+                 WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished.AndItsCommitMessageCarriesAToken,
+                 WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished.AndThereIsNoTokensList,
+                 WhenARemoteBranchIsOutsideTheHistoryBeingPublished):
         suite.addTests(loader.loadTestsFromTestCase(case))
     return suite
 
