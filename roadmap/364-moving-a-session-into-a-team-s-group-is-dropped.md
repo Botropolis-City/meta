@@ -22,3 +22,10 @@ And never let `Detect` return two groups with one id: a test across `place`'s or
 Tests in `pkg/group`: when a session is moved into a team's group, it should be a member of that group; and when that group is also stored, there should be one group with that id.
 Moving the lead out still carries its team, as 343 rules.
 Item 362's film moves sessions into a group that isn't a team's, so the film doesn't show this bug.
+
+## Answered while building
+
+- **The fix and test tree** (roadmap manager, 2026-11-07): approved. `place` splits in two. A lead's moves and starts run first, so a moved lead still carries its team (343). Then `followLeads` runs, then everyone else's moves and starts. A guard keeps `teamGroup` from making a second group under an id already in the result.
+  The tests sit in `teams_test.go`, and a generated `unique_test.go` (seeds 1–200) checks that no two groups ever share an id.
+- **A session started from a team's group is fixed here too** (roadmap manager, 2026-11-07). It is the same order defect, entered through `joinStarted`.
+- **The changelog line** (roadmap manager, 2026-11-07), under Fixed, covers both doors: moving a session into a team's group, or starting one from it, puts it there.
