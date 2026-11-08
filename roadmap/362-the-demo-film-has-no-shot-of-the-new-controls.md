@@ -4,6 +4,7 @@
 
 Landed: slice 1 (`2d6695b`, r1333).
 Landed: slice 2 (`6ad289a`, r1335).
+Landed: slice 3 (`c8cb3e8`, r1338).
 
 0.5.0's film (`make demo-media`, the scenarios in `botropolis/demo/scenarios/`) has no shot of:
 
