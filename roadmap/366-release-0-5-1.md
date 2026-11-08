@@ -1,6 +1,6 @@
 # 366. Release 0.5.1
 
-**Open, in progress since 2026-11-07 in the session "item 366". Filed 2026-11-07 (r1333) at Aria's request. Nobody's call — Aria named it and what it holds.**
+**Open. Filed 2026-11-07 (r1333) at Aria's request. Nobody's call — released; only the soak is owed.**
 
 Depends on: 364, 365, 367, 368
 
