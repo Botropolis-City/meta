@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-11-07 in the session "item 369". Filed 2026-11-07 (r1343), from the roadmap manager's pushes. Nobody's call — a defect in a guard.**
 
+Landed: slice 1 (`e84dc9d`, r1343).
+
 On 2026-11-07 a pull request was squash-merged into `main` in meta, botropolis and botropolis.city, each the first in its repository, at Aria's direction.
 Its branch is deleted, but GitHub keeps `refs/pull/N/head` for good, and a squash merge leaves that commit outside `main`'s history.
 So `make publishable` refuses every push in all three repositories with *"refs/pull/1/head (…) is not in the history being published"*.
