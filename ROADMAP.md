@@ -56,6 +56,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [363](roadmap/363-the-station-label-is-drawn-only-on-the-test-sheet.md) | the station label is drawn only on the render test sheet, so it is dead code | — | nobody's |
 | [366](roadmap/366-release-0-5-1.md) | release 0.5.1: items 364, 365, 367 and 368 | 364, 365, 367, 368 | nobody's |
 | [369](roadmap/369-make-publishable-refuses-forever-on-a-merged-pull-request.md) | `make publishable` refuses forever on a merged pull request's ref | — | nobody's |
+| [370](roadmap/370-botropolis-city-has-no-publishable-guard.md) | botropolis.city has no `make publishable` guard | 369 | nobody's |
 
 ## Waiting on Aria
 

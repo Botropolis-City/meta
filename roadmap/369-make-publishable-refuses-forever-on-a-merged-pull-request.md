@@ -20,3 +20,11 @@ Keep refusing branches and tags outside the history, as now.
 Test it in both repositories' guard tests: a merged pull request's ref with clean commits passes and is named; one with a token in its commits fails; a branch outside the history still fails.
 Mutate each red, as the guard's history asks ([CLAUDE.md](../CLAUDE.md), "The documentation guard").
 botropolis.city has its own `publishable`, so check whether it shares the same check.
+
+## Answered while building
+
+- **The design and test tree** (roadmap manager, 2026-11-07): approved, the same in both guards. A `refs/pull/*` ref outside the history is fetched without leaving a local ref, then swept over `<sha> ^HEAD`, both blobs and messages. If clean it passes and is named; a token or a failed fetch fails it, naming it.
+  With no tokens list, it passes but says it went unswept.
+  Branches and tags outside the history still fail.
+  Four mutations each go red.
+- **botropolis.city has no guard at all**: filed as its own item, which follows this one.
