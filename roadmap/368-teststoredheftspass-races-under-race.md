@@ -18,3 +18,11 @@ First decide whether only the test can run two passes at once, or the code can t
 If only the test, make `passOf` take the same guard as `start`.
 If the code can, make `pace` safe for that, or keep `running` held until `pass` has returned.
 Then consider whether `make test` should run `pkg/state` under `-race`, so a race in its goroutines fails the gate. Measure what that costs first.
+
+## Answered while building
+
+- **Only the test can race** (item 368's session, 2026-11-07): in the app, `start` is the only caller of `pass`, and it checks and sets `running` under `h.mu`, so a new pass happens-after the last one. The test's `passOf` set `running` regardless, while a pass `apply` had started was still running.
+  A full `go test -race ./pkg/state/` reports this one race and nothing else.
+- **The fix is test-only** (roadmap manager, 2026-11-07): approved. `passOf` takes the same guard as `start`, and the subtest drops its own `h.running = true`. The test tree is unchanged, and the red is `-race -count=20`.
+- **`-race` runs in CI, not in `make land`** (roadmap manager, 2026-11-07). On `pkg/state` it costs 3–7× (11.8 s plain against 33.1 s under race, measured at load 38), about 20–30 s on every landing for one package.
+  So CI runs `go test -race ./pkg/state/` as a step of its own, where it holds no landing lock, and a race there turns `main` red, which is fixed first. The local gate is unchanged.
