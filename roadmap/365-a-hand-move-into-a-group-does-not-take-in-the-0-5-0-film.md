@@ -25,3 +25,15 @@ Reproduce it outside the film: a side daemon beside Aria's, as the release's L1â
 If it is the film's environment only, fix the film, and make the notice say so when the write fails.
 Either way, the notice should only say "moved" once the move has taken, and a test should hold that.
 Item 362 drops its move-in and convoy shots until this is fixed, and adds them back from the release that fixes it.
+
+## Answered while building
+
+- **The cause** (item 365's session, 2026-11-07): the city writes a move to `groups.json` in the state directory and tells the daemon nothing.
+  The daemon reads that file again only when it rescans. It rescans on fsnotify events in `~/.claude`, or on an explicit call such as `Pack`, and it never watches the state directory.
+  So a move takes only at the next write anywhere in `~/.claude`: under a second while a session works, and never on a quiet home or in the film's static one.
+  Every `editGroups` write has the same gap: rename, take out, mute, the first-run review, and a new session's `StartedFrom`.
+  The code is unchanged since 0.4.1, so this isn't new in 0.5.0.
+  Item 364's duplicate ids were ruled out as the cause.
+- **The fix and slice 1's test tree** (roadmap manager, 2026-11-07): approved. The loader names the files it reads outside `~/.claude`, so far `groups.json`. The watcher adds that file's directory but rescans only for that file's events, since the daemon writes its own stores beside it. The case where the directory doesn't exist yet is in scope.
+  The notice half (say "moved" only once a snapshot shows the move, and say when the write failed) follows as slice 2, with its own tree.
+- **No repro with the release binaries** (roadmap manager, 2026-11-07): the code is unchanged since `v0.5.0`, and the `pkg/daemon` test with a real watcher stands in for it.
