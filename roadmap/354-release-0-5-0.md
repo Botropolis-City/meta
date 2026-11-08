@@ -1,6 +1,6 @@
 # 354. Release 0.5.0
 
-**Open, in progress since 2026-11-07 in the session "item 354". Filed 2026-11-06 (r1266) at Aria's request. Nobody's call — Aria named what it holds; she confirms the number when the candidate is cut.**
+**Done 2026-11-07 (`b5d2d46e`, r1331). Filed 2026-11-06 (r1266) at Aria's request.**
 
 Depends on: 340, 348, 349, 350, 351, 352, 353, 359
 
@@ -51,8 +51,13 @@ Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a
   It went to Aria with a contact sheet of its 52 stills, and her pass is pending.
 - **The AUR** (2026-11-07): `botropolis` `59304e6..29d79b8` and `botropolis-bin` `5190213..fbd0e03`, both 0.5.0-1, their sources checked against the release, and pushed by the roadmap manager on Aria's standing approval.
 - **The site**: the re-film's 52 images and 32 clips were imported in botropolis.city's `4b2663f`, committed but not pushed.
-  Aria uploaded the clips on 2026-11-07, and `4b2663f` was pushed, but its CI failed on the Glance hotspots, so 0.5.0's page has not deployed; [item 360](360-the-website-still-describes-the-city-of-0-3-0.md) fixes that first.
+  Aria uploaded the clips on 2026-11-07, and `4b2663f` was pushed, and its CI failed on the Glance hotspots; [item 360](360-the-website-still-describes-the-city-of-0-3-0.md) moved them (`d18f0c4`), and 0.5.0's page deployed.
 
 Deviations, all ruled by Aria: A1–A7 were waived; the tag rests on the automated checks alone; and L1 and L2 ran against a candidate daemon beside hers.
 The soak runs once, on the released build, and its record goes here.
 Aria cut 0.5.1 for the group move fixes (2026-11-07), so the soak runs once, on 0.5.1 ([item 366](366-release-0-5-1.md)), and this item closes on the release alone.
+
+## Closed
+
+Released as `v0.5.0` at `b5d2d46e` (r1331), with the AUR pushed and the site's media live. Aria passed the film by uploading it.
+The soak moves to 0.5.1 ([item 366](366-release-0-5-1.md)).

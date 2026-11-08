@@ -46,7 +46,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [277](roadmap/277-a-big-city-keeps-records-for-what-is-off-screen.md) | a big city keeps drawing records for what is off screen | — | nobody, parked until item 270 needs it |
 | [296](roadmap/296-the-tray-on-macos.md) | the city has no menu-bar item on macOS | 293, 245 | nobody, Aria ruled the tray |
 | [299](roadmap/299-version-check-trusts-whatever-is-in-bin.md) | `make version-check` fails a landing on binaries left in `bin/` from before a bump | — | nobody, a defect in a guard |
-| [354](roadmap/354-release-0-5-0.md) | release 0.5.0: items 340, 348, 350–353 and 359, with the one soak after it | 340, 348, 349, 350, 351, 352, 353, 359 | nobody, Aria named the version |
 | [355](roadmap/355-the-landing-queue-s-slow-waiter-test-times-out-on-macos-intel.md) | the landing queue's slow-waiter test times out on the Intel macOS runner | — | nobody, a flaky test |
 | [357](roadmap/357-make-land-s-own-tests-miss-the-wait-under-load.md) | `make land`'s own acceptance tests miss the wait under load | — | nobody, a flaky test |
 | [358](roadmap/358-the-performance-gate-records-nothing-of-the-machine-s-power-state.md) | the performance gate records nothing of the machine's power state | — | nobody, a gap in the method |
