@@ -1,6 +1,6 @@
 # 368. `TestStoredHeftsPass` has a data race that only `-race` sees
 
-**Open, in progress since 2026-11-07 in the session "item 368". Filed 2026-11-07 (r1334), found by item 365's session and reproduced by the roadmap manager. Nobody's call — a defect, in the test or the code. It ships in 0.5.1, at Aria's request.**
+**Fixed 2026-11-07 (`f4288834`, r1337). Filed 2026-11-07 (r1334), found by item 365's session and reproduced by the roadmap manager. A defect in the test, not the code. It ships in 0.5.1, at Aria's request.**
 
 `go test -race -run TestStoredHeftsPass ./pkg/state/` reports `DATA RACE` on its own, in the case *"when a load applies the hefts while a pass moves one"*.
 The gate (`make test`) does not run `-race`, so nothing has caught it.
@@ -26,3 +26,11 @@ Then consider whether `make test` should run `pkg/state` under `-race`, so a rac
 - **The fix is test-only** (roadmap manager, 2026-11-07): approved. `passOf` takes the same guard as `start`, and the subtest drops its own `h.running = true`. The test tree is unchanged, and the red is `-race -count=20`.
 - **`-race` runs in CI, not in `make land`** (roadmap manager, 2026-11-07). On `pkg/state` it costs 3–7× (11.8 s plain against 33.1 s under race, measured at load 38), about 20–30 s on every landing for one package.
   So CI runs `go test -race ./pkg/state/` as a step of its own, where it holds no landing lock, and a race there turns `main` red, which is fixed first. The local gate is unchanged.
+
+## Closed
+
+`passOf` now waits for `running` to clear and claims it under `h.mu`, as `start` does, and the subtest no longer sets `running` itself, so the load races against passes that run one at a time, as in the app.
+No production code changed.
+`go test -race -run TestStoredHeftsPass ./pkg/state/` failed at `-count=20` before, and passed at `-count=20` and `-count=200` after; a full `go test -race ./pkg/state/` is clean.
+CI's Linux job gained a step, *"The background passes under the race detector"*, in `.github/workflows/ci.yml` after `make test lint`, running `go test -race -count=1 ./pkg/state/`.
+Nothing a user sees changed, so there is no changelog entry.

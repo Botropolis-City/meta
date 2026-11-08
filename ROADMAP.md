@@ -58,7 +58,6 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [365](roadmap/365-a-hand-move-into-a-group-does-not-take-in-the-0-5-0-film.md) | a hand move into a group does not take in 0.5.0's film; cause unknown | — | nobody's |
 | [366](roadmap/366-release-0-5-1.md) | release 0.5.1: items 364, 365, 367 and 368 | 364, 365, 367, 368 | nobody's |
 | [367](roadmap/367-while-you-were-away-lists-a-session-once-per-time-it-needed-you.md) | "while you were away" lists a session once per time it needed you | — | nobody's |
-| [368](roadmap/368-teststoredheftspass-races-under-race.md) | `TestStoredHeftsPass` has a data race only `-race` sees | — | nobody's |
 
 ## Waiting on Aria
 
