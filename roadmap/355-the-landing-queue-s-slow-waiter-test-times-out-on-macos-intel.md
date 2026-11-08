@@ -24,3 +24,12 @@ Item 295 built the queue and item 332 put its tests under a make target.
 - 2026-11-06, on main: `pkg/daemon`'s `TestRequestRescan` (*"when the watcher has just rescanned and a background pass asks for another"*) on `macos-26-intel`, run 42265186145; `pkg/measure`'s `TestThread` (*"it should count at least 80% of the CPU the process spent"*) on `macos-26-intel`, run 42284185651; and `TestWatch` (*"when a subagent transcript appears under a live session"*) on `macos-26`, the same run.
   Each passed on a rerun and on Linux, so the Intel runner's timing is the common thread, and this item may be the place to fix them together.
 - 2026-11-08, on main at `c8cb3e82`: this item's own slow-waiter case again on `macos-26-intel`, run 42431337078, after 30.16 s.
+
+## Answered while building
+
+- **It is the queue, not the runner** (item 355's session, 2026-11-07). `take()` holds the queue's guard flock from before the ticket is renamed into place until after it writes the counter. A waiter stopped inside that window blocks every later arrival on the guard, with no ticket, for good.
+  That gives exactly the 30-second "neither queued nor ran" signature, reproduced 3 of 3 on Linux with the window stretched by 50 ms.
+  In real use: one `make land` stopped with Ctrl-Z during its few milliseconds in `take()` would block every later `make land` on the machine.
+- **The fix and test tree** (roadmap manager, 2026-11-07): approved. The guard goes. A ticket number is claimed with `link(2)`, which never replaces a file: on `EEXIST` it tries the next number, and the counter is written best-effort.
+  `TestTake` holds one taker where CI stopped the waiter, through a package variable that is a no-op in production. The slow-waiter case stays exactly as written.
+- **357 and the three other tests are separate.** Item 357 keeps its own fix. The three tests in "Seen since" moved to [item 372](372-three-timing-tests-fail-on-the-macos-runners.md).

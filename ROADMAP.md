@@ -58,6 +58,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [369](roadmap/369-make-publishable-refuses-forever-on-a-merged-pull-request.md) | `make publishable` refuses forever on a merged pull request's ref | — | nobody's |
 | [370](roadmap/370-botropolis-city-has-no-publishable-guard.md) | botropolis.city has no `make publishable` guard | 369 | nobody's |
 | [371](roadmap/371-the-demo-film-cannot-show-a-move-taking.md) | the demo film cannot show a move taking: a filmed city's moves go to a private state copy | — | nobody's |
+| [372](roadmap/372-three-timing-tests-fail-on-the-macos-runners.md) | three timing tests fail now and then on GitHub's macOS runners | — | nobody's |
 
 ## Waiting on Aria
 
