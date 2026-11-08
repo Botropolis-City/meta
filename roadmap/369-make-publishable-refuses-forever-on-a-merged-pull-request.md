@@ -28,3 +28,6 @@ botropolis.city has its own `publishable`, so check whether it shares the same c
   Branches and tags outside the history still fail.
   Four mutations each go red.
 - **botropolis.city has no guard at all**: filed as its own item, which follows this one.
+- **A pull request's branch is swept too** (roadmap manager, 2026-11-07). A rule added to CLAUDE.md the same evening (*"Workspace bots land through pull requests"*) means a remote often holds an open pull request's branch, and every push meanwhile was refused, the same always-refuses problem, only sometimes.
+  So a branch that some `refs/pull/*/head` points at is swept like that ref, not refused. Any other branch outside the history still fails.
+  That gets its own test and mutation in both guards.
