@@ -2,7 +2,7 @@
 
 **Open. Filed 2026-11-07 (r1333) at Aria's request. Nobody's call — Aria named it and what it holds.**
 
-Depends on: 364, 365
+Depends on: 364, 365, 367
 
 Aria, 2026-11-07, asked whether the fixes for moving sessions between groups ship as 0.5.1: *"Cut 0.5.1 when both land"*.
 
@@ -10,6 +10,7 @@ Aria, 2026-11-07, asked whether the fixes for moving sessions between groups shi
 
 - [Item 364](364-moving-a-session-into-a-team-s-group-is-dropped.md): moving a session into a team's group, or starting one from it, puts it there, and no two groups share an id.
 - [Item 365](365-a-hand-move-into-a-group-does-not-take-in-the-0-5-0-film.md): a group edit made from the map (a move, a rename, taking a session out) takes effect at once, not only after later activity in `~/.claude`. The notice says "moved" only once the move has taken.
+- [Item 367](367-while-you-were-away-lists-a-session-once-per-time-it-needed-you.md): "While you were away" lists each session once, with how many times it needed you, added by Aria the same day.
 - Everything else on `main` when the candidate is cut, item 361's glossary among it.
 
 ## What it runs
