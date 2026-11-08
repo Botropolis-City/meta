@@ -1,6 +1,6 @@
 # 355. The landing queue's slow-waiter test times out on the Intel macOS runner
 
-**Open. Filed 2026-11-06 (r1268), from CI on main. Nobody's call — a flaky test.**
+**Open, in progress since 2026-11-08 in the session "item 355". Filed 2026-11-06 (r1268), from CI on main. Nobody's call — a flaky test.**
 
 `tools/land-queue`'s `TestRun` case *"when the waiter next in line is slow to wake, and a later one arrives as the lock frees"* failed on the `macos-26-intel` job of two pushes in a row on 2026-11-06, runs 42194912566 and 42196168441, after 30 s each, with `main_test.go:261: the later waiter neither queued nor ran`.
 It passed on Linux and on Apple-silicon macOS in the same runs, and on every run before them.
