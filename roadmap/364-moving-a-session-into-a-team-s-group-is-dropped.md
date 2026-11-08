@@ -1,6 +1,6 @@
 # 364. Moving a session into a team's group is silently dropped
 
-**Open, in progress since 2026-11-07 in the session "item 364". Filed 2026-11-07 (r1333), found by item 362's session while test-filming 0.5.0. Nobody's call — a defect.**
+**Fixed 2026-11-07 (`85b04f41`, r1334). Filed 2026-11-07 (r1333), found by item 362's session while test-filming 0.5.0. Nobody's call — a defect.**
 
 Moving a session into a group that a team makes, by hand from *move to group*, does nothing.
 The picker says "moved to <group>" and the session stays where it was.
@@ -31,3 +31,15 @@ Item 362's film moves sessions into a group that isn't a team's, so the film doe
 - **The changelog line** (roadmap manager, 2026-11-07), under Fixed, covers both doors: moving a session into a team's group, or starting one from it, puts it there.
 - **The generated test runs 1,000 seeds, not 200** (roadmap manager, 2026-11-07, approving the session's change). A second way to get two groups with one id, unrelated to the order, first shows at seed 397. Detection takes a stored group's id, and a lead with no free stored group then made a fresh group under `newID(lead)`, which is the same id.
   The `freshID` guard fixes it: a fresh group never takes an id already in the result or in memory. With the guard off, 6 of the 1,000 seeds fail.
+
+## Closed
+
+Fixed in `85b04f41` (r1334).
+`place` now runs the leads' moves and starts first, then `followLeads`, then everyone else's moves and starts.
+So a session moved into a team's group, or started from it, is a member of that group.
+`freshID` keeps a group made by detection or by a team from taking an id already in the result or in memory.
+`TestTeams` covers the move and the start, into a stored and an unstored team group, and a lead moved away while an outsider moves in.
+`TestUniqueGroupIDs` checks 1,000 generated seeds in 0.25s.
+
+For Aria: the generated test runs 1,000 seeds where 200 were asked for, because a second way to get two groups with one id first shows at seed 397.
+That second way is older than 0.5.0: detection took a stored group's id, and a lead's fresh group could take it again.
