@@ -55,3 +55,4 @@ Aria named 0.5.0 when she chose the split; under the pre-1.0 rule a 0.X is for a
 
 Deviations, all ruled by Aria: A1–A7 were waived; the tag rests on the automated checks alone; and L1 and L2 ran against a candidate daemon beside hers.
 The soak runs once, on the released build, and its record goes here.
+Aria cut 0.5.1 for the group move fixes (2026-11-07), so the soak runs once, on 0.5.1 ([item 366](366-release-0-5-1.md)), and this item closes on the release alone.
