@@ -66,3 +66,8 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
 - **A merge mode for the importer** (roadmap manager, 2026-11-07): `make media-import MERGE=1`. `make media-import` takes only a whole film, and item 362's film is partial, while 0.5.0's full film is no longer on disk. So a pure `merge(existing, partial)` in `tools/media.ts` adds or replaces entries by id, keeps the rest and the views, and refuses a different version. It lists the stills it leaves stale, and prunes nothing in `.media/`.
   `media.json` records each entry's source commit as well as the film's, since a merged catalog comes from more than one.
   0.5.1's re-film imports whole, as usual.
+- **Three test trees** (roadmap manager, 2026-11-07): approved. They cover the City Hall hotspot on the film's `hall` anchor, quoting `KindHall`; the Groups section as cards; and Drive's media (`controls/menu`, `menu-rightclick`, `keys` and `clinic`).
+  The board card shows `controls/board-rename`, the clip, since renaming is what the board is for. Its still is the poster.
+  `controls/hall` and `menu-space` stay unused.
+- **The import waits on Aria** (2026-11-07): the merged import is committed in the worktree, unpushed, until she passes 362's contact sheet and uploads the clips with her 1Password.
+  After the upload the gate goes fully green, then `make publishable` runs, then the push.
