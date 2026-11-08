@@ -29,3 +29,33 @@ The re-film includes item 362's scenarios. Its move-in and convoy shots, dropped
   Item 355 starts right after the tag.
 - **The film's moves may still not take** (item 366's session, 2026-11-07). A city run with `--headless`, `--record` or `--script` works in a private copy of the state directory (item 114), so its moves reach no daemon.
   If `groups-moves.yaml`'s shots show no move, they are left out again, the release goes on, and the film tooling becomes a new item. Item 365's fix itself passed L1–L2's move checks, in 83 ms on a quiet home.
+
+## Released
+
+- **Released** (2026-11-07): run 42440854994 tagged `v0.5.1` at `a9bfaad7` (r1343) and published 18 assets at 03:33 UTC on 2026-11-08, with the package repositories and the Homebrew tap, both macOS runners included, green.
+  The dry run, 42438627729, was green at the same commit.
+  The candidate is one commit: VERSION and the [0.5.1] section, which gathers everything under [Unreleased].
+  It landed through `make land` with S1–S10 in its gate.
+  Its CI, 42434517185, was red twice on `macos-26-intel`, only in `tools/land-queue`'s slow-waiter test (items 355 and 357). Aria ruled to ship and fix 355 right after.
+  A third attempt of that job passed, since the release workflow takes only a green CI run, and the packages released are the first attempt's.
+  The amd64 and arm64 packages matched `SHA256SUMS`, and their binaries report 0.5.1.
+- **The performance gate**: every check green, with `settle` quiet at once, on platform profile `performance`, governor `powersave`, EPP `balance_performance`, turbo on and RAPL long- and short-term at 57 W, the same before and after (item 358).
+  The rescan at 2,000 sessions took 11.9 ms median against 16 (11.2–12.7). The fitted 600-district frame took 14.8 ms against 16, zoomed 5.9 and panned 5.8 against 10.
+  The 2,400-session city settled at 441 MiB under 512, and the daemon at 2,000 sessions at 55 MiB under 64.
+  Skipped by design: `TestCalibrateCoreRate` and `TestLightCycleOnARealGPU`.
+- **L1–L2, side by side**, as 0.5.0's: the candidate's daemon, from CI's tarball, ran on its own socket, config copy and state, cache and runtime directories, reading the real `~/.claude`. No sudo was used, and Aria's daemon was left alone.
+  L1 passes: 416 sessions, 59 jobs and 10 records, matched by id in one pass.
+  Two background sessions that the CLI called working against its own idle record, each ending on a Stop hook, show needs-you: the CLI disagreeing with itself, as ruled at 0.3.0.
+  One that armed its own wakeup shows waiting, and seven jobs with no transcript are not shown, by design.
+  L2 passes: a stopped throwaway session left `claude agents --all` and the daemon 2 s after `botropolis rm`, and stayed off across a restart of the side daemon.
+- **The move check** (item 365): a move made with the candidate's city into a group took 83 ms from the write to the daemon's snapshot on a quiet staged home, where nothing had been written for a minute before.
+  On the side daemon over the real home it took 147 ms, and it survived a restart.
+  The city ran on a private virtual display, and Aria's own groups were untouched.
+- **The re-film**: `make demo-media` at `a9bfaad7` filmed 67 shots in 107 files.
+  Its move-in and convoy shots still show no move: a scripted city keeps its state in a private copy, so the shot's daemon never sees the move. That is the film tooling, not the fix, and it is filed as [item 371](371-the-demo-film-cannot-show-a-move-taking.md).
+  Both shots are left out of the film handed to item 360: 103 entries, kept outside the worktree, with a contact sheet of its 66 stills beside it.
+- **The AUR** (2026-11-07): `botropolis` `29d79b8..daa5423` and `botropolis-bin` `fbd0e03..ab8a3e3`, both 0.5.1-1, their sources checked against the release, pushed by the roadmap manager on Aria's standing approval.
+- **The site**: [item 360](360-the-website-still-describes-the-city-of-0-3-0.md) imported the film. Its upload waits for Aria's 1Password.
+
+Deviations, all ruled by Aria: A1–A7 were waived; the tag rests on the automated checks alone; L1 and L2 ran against a candidate daemon beside hers; and the release shipped over the macOS Intel slow-waiter test, with item 355 to be fixed right after.
+The soak runs once, on the released build, and its record goes here. A first start ran about a minute and was stopped before it measured anything, so that item 369 could land first.
