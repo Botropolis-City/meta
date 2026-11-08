@@ -59,3 +59,6 @@ The re-film includes item 362's scenarios. Its move-in and convoy shots, dropped
 
 Deviations, all ruled by Aria: A1–A7 were waived; the tag rests on the automated checks alone; L1 and L2 ran against a candidate daemon beside hers; and the release shipped over the macOS Intel slow-waiter test, with item 355 to be fixed right after.
 The soak runs once, on the released build, and its record goes here. A first start ran about a minute and was stopped before it measured anything, so that item 369 could land first.
+- **The soak moves to the soak box** (Aria, 2026-11-07, *"I need my computer tonight … I can't leave this on my screen all night"*). A start on this machine at 23:03 put the city on Aria's real display (`:0`), as `perf-soak` does by design, and it was stopped within minutes, measuring nothing.
+  The soak runs on a Hetzner soak box (`testing/machines`, `make run-soak`) on the release's own binaries, kept at `~/.local/state/botropolis-perf/builds/v0.5.1`. Aria orders the box by typing its price.
+  The stopped runs' output stays in `~/.local/state/botropolis-perf/` and does not count.
