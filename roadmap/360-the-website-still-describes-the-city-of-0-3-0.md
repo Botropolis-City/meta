@@ -1,6 +1,6 @@
 # 360. The website still describes the city of 0.3.0
 
-**Open, in progress since 2026-11-07 in the session "item 360". Filed 2026-11-07 (r1331) at Aria's request. Nobody's call — the content is what shipped; Aria judges the frames.**
+**Done 2026-11-07 (`14f7d00`, r66). Filed 2026-11-07 (r1331) at Aria's request. Nobody's call — the content is what shipped; Aria judges the frames.**
 
 Landed: slice 1 (`d18f0c4`, r53).
 Landed: slice 2 (`93d643a`, r54).
@@ -78,3 +78,27 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
   After the upload the gate goes fully green, then `make publishable` runs, then the push.
 - **Passed, and the cards stay** (Aria, 2026-11-07, on the live 0.5.1 frames: *"Pass, keep the cards as they are"*). The text-only cards keep their place in the grid.
   The two move cards' clips move to [item 371](371-the-demo-film-cannot-show-a-move-taking.md), which films them and puts them on the site, so this item closes now.
+
+## Closed
+
+Done in twelve slices in botropolis.city, each test first, between `d18f0c4` (r53) and `14f7d00` (r66).
+Aria passed the live frames of 0.5.1's media: *"Pass, keep the cards as they are"*.
+
+- **Slice 1** made `main` green again: the trains, resting and road hotspots moved onto what they label in 0.5.0's still, with `glance.test.ts` unchanged.
+- **Glance** gained the clinic, a group on Driftwood's kerb and, once item 362 filmed it, City Hall on its clock tower.
+  The plaza names its civic buildings, and the glossary gained the clinic, the kerb and a group's line, with the four vehicles a road carries.
+- **Drive** names the card's direct verb and its Session, Project and Group menus, each row's label and key checked against `scene.go` and `bindings.go`.
+  It lists the map's keys since 0.4.1 in the changelog's words, and shows item 362's shots of the menu, right-click, the held `e` and the clinic's list.
+- **Groups** is a new section between Drive and New, with a HUD link: a card per fact, each quoting the app or the changelog, with the film's shot where one exists.
+  The line card switches between group_line_form's three forms, cropped to the group at import.
+- **The release block** keeps 0.3.0's figures as a dated record of 0.3.0, and no longer claims a later release continues on its misses.
+- **The quotes moved to the app's words** when item 361 landed, and a test refuses the line's before-and-after wording.
+- **The importer** gained `MERGE=1` for a partial film, a per-entry record of the app and film commits, and `tools/details.ts`, whose crops refuse a box that loses the anchors they name.
+  0.5.1's film then imported whole, from `a9bfaad7`.
+- **Layout**: rows that should mirror now do, the HUD fades where a phone cuts it, and section frames hide the HUD while capturing.
+
+Deviations, for Aria:
+
+- The two move cards, *move to group* and *carrying one in*, stay text only, because no film shows a move taking. Their clips moved to [item 371](371-the-demo-film-cannot-show-a-move-taking.md).
+- The site said moves work while they did not on a quiet home, from 0.4.1 until 0.5.1 fixed it (items 365 and 366). The copy was left as it was, and is true from 0.5.1.
+- A group of one has no picture, since no shot shows one.
