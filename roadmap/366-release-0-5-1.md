@@ -62,3 +62,6 @@ The soak runs once, on the released build, and its record goes here. A first sta
 - **The soak moves to the soak box** (Aria, 2026-11-07, *"I need my computer tonight … I can't leave this on my screen all night"*). A start on this machine at 23:03 put the city on Aria's real display (`:0`), as `perf-soak` does by design, and it was stopped within minutes, measuring nothing.
   The soak runs on a Hetzner soak box (`testing/machines`, `make run-soak`) on the release's own binaries, kept at `~/.local/state/botropolis-perf/builds/v0.5.1`. Aria orders the box by typing its price.
   The stopped runs' output stays in `~/.local/state/botropolis-perf/` and does not count.
+- **The soak box failed before the soak** (2026-11-07). Aria ordered auction server 3109389 (i5-12500, HEL1, €0.1875 an hour) at 23:20. It was delivered at once, and the runner failed during `lock_down`, before the soak or its log stream began. It cancelled the box at 23:21, costing about €0.19.
+  The runner's own error was printed only to the terminal, which closed with it. The diagnostics it fetched are in `~/.local/state/botropolis-perf/soak-20261107-231551/` (round-trip 240–325 ms over IPv6, sshd at "0 of 10-100 startups").
+  Next time, run it with `KEEP_ON_FAILURE=1` and its output teed to a file. The soak stays owed, and this item stays open for it.
