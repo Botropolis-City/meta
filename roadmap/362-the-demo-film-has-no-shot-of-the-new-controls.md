@@ -3,6 +3,7 @@
 **Open, in progress since 2026-11-07 in the session "item 362". Filed 2026-11-07 (r1331), from item 360's audit of the website. Nobody's call — the shots are what shipped.**
 
 Landed: slice 1 (`2d6695b`, r1333).
+Landed: slice 2 (`6ad289a`, r1335).
 
 0.5.0's film (`make demo-media`, the scenarios in `botropolis/demo/scenarios/`) has no shot of:
 
