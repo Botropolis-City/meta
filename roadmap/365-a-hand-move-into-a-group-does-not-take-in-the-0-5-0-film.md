@@ -2,6 +2,8 @@
 
 **Open, in progress since 2026-11-07 in the session "item 365". Filed 2026-11-07 (r1333), found by item 362's session while test-filming 0.5.0. Nobody's call — a defect, cause not yet known.**
 
+Landed: slice 1 (`5c53c1c`, r1336).
+
 In the demo film, with the city on `v0.5.0` and `daemon: true`, *move to group* into any group says "moved to <group>", and the stream logs it, but the session never joins.
 Ten seconds later its card has no group line, and its menu still offers *move to group* instead of *take out of group*.
 Two moves seven seconds apart both failed, and the film log shows no error.
