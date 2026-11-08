@@ -22,3 +22,8 @@ The full timeline (`Events`) is unchanged: only the away list collapses.
 Tests in `pkg/city`: a session with seven needs-you events since you left gives one away row, carrying the count 7; two sessions give two rows, the most recent first; a session with a needs-you and an error gives one row, its newest; an event with no session keeps its row; and the timeline still lists every event.
 A frame of the away list with a repeated session, for Aria.
 It ships in [0.5.1](366-release-0-5-1.md).
+
+## Answered while building
+
+- **The design and test tree** (roadmap manager, 2026-11-07): approved. `events.Event` gains `Times`, which only away rows set. `Scene.Away` collapses to one row per session, and the journal's "since" strip keeps counting every event, through `Scene.AwayEvents`. A row that stands for several events ends "· 7 times".
+  The tests are in `pkg/city` `TestSceneAway` and the timeline's words in `pkg/ui`.
