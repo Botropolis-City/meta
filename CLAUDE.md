@@ -115,7 +115,7 @@ While developing, a session runs only the packages it touches, so the full suite
 
 **Workspace bots land through pull requests** (Aria, 2026-11-08).
 Agents in the Coder workspaces commit as `botropolis-city-bot`, and a ruleset on `main` stops that account from pushing to it.
-They push a branch, open a pull request and run `gh pr merge --rebase` once @auroq has approved it as code owner.
+They push a branch rebased onto `main` and open a pull request; once @auroq approves it as code owner, it lands on `main` with its signed commits unchanged.
 Sessions on the operator's account still land as above, because an organization admin bypasses the ruleset.
 **The session that launches an item manages it** (Aria, 2026-10-16).
 Item sessions do not wait on Aria in their own windows: they send their questions, their test trees and a line per landed slice to the session named in their kickoff, the one that ran `roadmap-start`.
