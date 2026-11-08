@@ -76,3 +76,5 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
   `controls/hall` and `menu-space` stay unused.
 - **The import waits on Aria** (2026-11-07): the merged import is committed in the worktree, unpushed, until she passes 362's contact sheet and uploads the clips with her 1Password.
   After the upload the gate goes fully green, then `make publishable` runs, then the push.
+- **Passed, and the cards stay** (Aria, 2026-11-07, on the live 0.5.1 frames: *"Pass, keep the cards as they are"*). The text-only cards keep their place in the grid.
+  The two move cards' clips move to [item 371](371-the-demo-film-cannot-show-a-move-taking.md), which films them and puts them on the site, so this item closes now.

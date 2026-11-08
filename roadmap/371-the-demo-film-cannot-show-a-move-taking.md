@@ -15,4 +15,4 @@ The film runs every city that way.
 
 Let the film's city and its daemon share one state directory that belongs to the shot, not to the person. Do it through a flag or the scenario's `daemon: true`, never by turning off item 114's protection for a person's own cities.
 Test it in `pkg/app`: a recorded city given the shot's state directory writes its moves there, and one without it still writes to a private copy.
-Then film `groups-moves.yaml` from the next release, and [item 360](360-the-website-still-describes-the-city-of-0-3-0.md) adds its two clips to the site's move cards.
+Then film `groups-moves.yaml` from the next release, and add its two clips to the site's two text-only move cards, "move to group" and "carrying one in". That was [item 360](360-the-website-still-describes-the-city-of-0-3-0.md)'s, and it closed without them.
