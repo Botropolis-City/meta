@@ -63,3 +63,6 @@ It lands in botropolis.city, whose push to `main` deploys, under its own tests (
   The line's card spans the full width, with the three line-form stills behind a toggle named by the setting's values, default first.
   Clips get controls, a poster and no autoplay.
   A group of one stays text only, since no shot shows one, and a badge borrowed from another shot would claim what it doesn't show.
+- **A merge mode for the importer** (roadmap manager, 2026-11-07): `make media-import MERGE=1`. `make media-import` takes only a whole film, and item 362's film is partial, while 0.5.0's full film is no longer on disk. So a pure `merge(existing, partial)` in `tools/media.ts` adds or replaces entries by id, keeps the rest and the views, and refuses a different version. It lists the stills it leaves stale, and prunes nothing in `.media/`.
+  `media.json` records each entry's source commit as well as the film's, since a merged catalog comes from more than one.
+  0.5.1's re-film imports whole, as usual.
