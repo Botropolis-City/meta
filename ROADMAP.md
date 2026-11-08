@@ -56,7 +56,7 @@ Phases 7–12 were specified in [`phases-7-12.md`](roadmap/phases-7-12.md) and a
 | [362](roadmap/362-the-demo-film-has-no-shot-of-the-new-controls.md) | the demo film shows none of the clinic's list, the action menu, the groups board or the keys | — | nobody's |
 | [363](roadmap/363-the-station-label-is-drawn-only-on-the-test-sheet.md) | the station label is drawn only on the render test sheet, so it is dead code | — | nobody's |
 | [365](roadmap/365-a-hand-move-into-a-group-does-not-take-in-the-0-5-0-film.md) | a hand move into a group does not take in 0.5.0's film; cause unknown | — | nobody's |
-| [366](roadmap/366-release-0-5-1.md) | release 0.5.1: items 364, 365 and 367 | 364, 365, 367 | nobody's |
+| [366](roadmap/366-release-0-5-1.md) | release 0.5.1: items 364, 365, 367 and 368 | 364, 365, 367, 368 | nobody's |
 | [367](roadmap/367-while-you-were-away-lists-a-session-once-per-time-it-needed-you.md) | "while you were away" lists a session once per time it needed you | — | nobody's |
 | [368](roadmap/368-teststoredheftspass-races-under-race.md) | `TestStoredHeftsPass` has a data race only `-race` sees | — | nobody's |
 

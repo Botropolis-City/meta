@@ -1,6 +1,6 @@
 # 368. `TestStoredHeftsPass` has a data race that only `-race` sees
 
-**Open. Filed 2026-11-07 (r1334), found by item 365's session and reproduced by the roadmap manager. Nobody's call — a defect, in the test or the code.**
+**Open, in progress since 2026-11-07 in the session "item 368". Filed 2026-11-07 (r1334), found by item 365's session and reproduced by the roadmap manager. Nobody's call — a defect, in the test or the code. It ships in 0.5.1, at Aria's request.**
 
 `go test -race -run TestStoredHeftsPass ./pkg/state/` reports `DATA RACE` on its own, in the case *"when a load applies the hefts while a pass moves one"*.
 The gate (`make test`) does not run `-race`, so nothing has caught it.
