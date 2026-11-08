@@ -113,6 +113,10 @@ A refused push changes nothing, and `make land` again rebases and reruns the gat
 While developing, a session runs only the packages it touches, so the full suite runs once per slice, inside the lock.
 `make lint` waits for another session's golangci-lint instead of failing on its lock.
 
+**Workspace bots land through pull requests** (Aria, 2026-11-08).
+Agents in the Coder workspaces commit as `botropolis-city-bot`, and a ruleset on `main` stops that account from pushing to it.
+They push a branch, open a pull request and run `gh pr merge --rebase` once @auroq has approved it as code owner.
+Sessions on the operator's account still land as above, because an organization admin bypasses the ruleset.
 **The session that launches an item manages it** (Aria, 2026-10-16).
 Item sessions do not wait on Aria in their own windows: they send their questions, their test trees and a line per landed slice to the session named in their kickoff, the one that ran `roadmap-start`.
 That manager answers from what is already decided — the item, its details, the vision, these documents — records each answer in the item so it is not asked twice, and brings Aria only what nothing settles, plus every frame to judge (`roadmap-manage`).
