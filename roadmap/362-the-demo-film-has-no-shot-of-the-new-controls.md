@@ -1,6 +1,6 @@
 # 362. The demo film has no shot of the clinic's list, the action menu, the groups board or the keys
 
-**Open, in progress since 2026-11-07 in the session "item 362". Filed 2026-11-07 (r1331), from item 360's audit of the website. Nobody's call — the shots are what shipped.**
+**Done 2026-11-07 (`c8cb3e8`, r1338). Filed 2026-11-07 (r1331), from item 360's audit of the website. Nobody's call — the shots are what shipped.**
 
 Landed: slice 1 (`2d6695b`, r1333).
 Landed: slice 2 (`6ad289a`, r1335).
@@ -42,3 +42,18 @@ Check them with `make check-demo-corpus`.
   This is stricter than comparing `v0.5.0` with `main`. Docs and tests never reach a binary, and `main`'s unreleased fixes, such as item 364's, never reach the film.
 - **Moving a session into a group, and the convoy, come back from the release that fixes [item 365](365-a-hand-move-into-a-group-does-not-take-in-the-0-5-0-film.md)** (roadmap manager, 2026-11-07). In the film, 0.5.0 drops a move made by hand, whatever the group. The two shots are in `groups-moves.yaml`, which was left out of the 0.5.0 film and is filmed with 0.5.1's (item 366).
 - **Filmed 2026-11-07** from `v0.5.0`'s binaries, with the demo tool from `6ad289a`. The hard stop held. Filmed: `metropolis.yaml` (all seven shots), `controls.yaml` and `groups.yaml`, 21 shots. In each metropolis still, City Hall's anchor is the only one added, and no other anchor moved by more than half a pixel.
+
+## Closed
+
+Landed in three slices.
+Slice 1 (`2d6695b`, r1333) lets a scenario set `stats: true`, and the stager then writes `stats-cache.json` from the transcripts it staged, so City Hall stands. The metropolis sets it.
+Slice 2 (`6ad289a`, r1335) adds `controls.yaml` and `groups.yaml`, and the scenario test now knows every landmark a script can aim at, with the hall only where it stands.
+Slice 3 (`c8cb3e8`, r1338) puts moving a session into a group, and a team's convoy, in `groups-moves.yaml`.
+The tests are `pkg/demo/stats_test.go`, `testing/integration/demo/scenarios_test.go` and `testing/acceptance/demo_test.go`.
+
+It was filmed on 2026-11-07 from `v0.5.0`'s binaries, with the demo tool from `6ad289a`, into `botropolis/dist/item-362-film` (main checkout), with a contact sheet.
+That is 21 shots: the metropolis's seven, re-filmed with the hall, and every shot of `controls.yaml` and `groups.yaml`.
+[Item 360](360-the-website-still-describes-the-city-of-0-3-0.md) imports them.
+
+**Deviation, for Aria:** the two move shots were not filmed. 0.5.0 drops a move made by hand ([item 365](365-a-hand-move-into-a-group-does-not-take-in-the-0-5-0-film.md)), so `groups-moves.yaml` was left out of this film and is filmed in 0.5.1's re-film, under [item 366](366-release-0-5-1.md).
+Found on the way: a move into a team's group was dropped whatever else happened, which is [item 364](364-moving-a-session-into-a-team-s-group-is-dropped.md).
