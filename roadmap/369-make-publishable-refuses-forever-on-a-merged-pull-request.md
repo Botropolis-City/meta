@@ -1,6 +1,6 @@
 # 369. `make publishable` refuses forever on a merged pull request's ref
 
-**Open, in progress since 2026-11-07 in the session "item 369". Filed 2026-11-07 (r1343), from the roadmap manager's pushes. Nobody's call — a defect in a guard.**
+**Fixed 2026-11-07 (`599b4ee9`, r1344). Filed 2026-11-07 (r1343), from the roadmap manager's pushes. Nobody's call — a defect in a guard.**
 
 Landed: slice 1 (`e84dc9d`, r1343).
 
@@ -33,3 +33,16 @@ botropolis.city has its own `publishable`, so check whether it shares the same c
 - **A pull request's branch is swept too** (roadmap manager, 2026-11-07). A rule added to CLAUDE.md the same evening (*"Workspace bots land through pull requests"*) means a remote often holds an open pull request's branch, and every push meanwhile was refused, the same always-refuses problem, only sometimes.
   So a branch that some `refs/pull/*/head` points at is swept like that ref, not refused. Any other branch outside the history still fails.
   That gets its own test and mutation in both guards.
+
+## Closed
+
+Both guards sweep instead of refusing: meta's in `b8cc546` and `e84dc9d`, botropolis's in `599b4ee9` (r1344), with a test-only follow-up in `4aa474ce` (r1345).
+A `refs/pull/*` ref outside the history, or a branch at the same commit as one, is fetched without leaving a local ref, and the commits it adds are swept for tokens in both blobs and messages.
+Clean, it passes and the summary names it; with no tokens list it passes and the summary says it went unswept.
+Any other branch, and every tag, still fails.
+
+The tests are `testing/acceptance/publishable_test.py` here and `testing/acceptance/publishable_test.go` in botropolis: a clean pull request passes and is named, a token in a file or a commit message fails, no tokens list says it went unswept, an open pull request's branch passes, and any other branch fails.
+Seven mutations went red in each guard: no exemption, an exemption without the sweep, an exemption for every ref, no fetch, a sweep of `--all` instead of what the ref adds, and the branch match set to never and to always.
+botropolis's fixture at first let the no-fetch mutation pass, because a local `git clone` copies every object in the remote; it now clones with `--no-local`.
+
+For Aria: this machine has no `.publishable-tokens`, so here every pull ref reads "NOT swept"; the sweep runs for real only where the list is.
