@@ -1,6 +1,6 @@
 # 367. "While you were away" lists a session once for every time it needed you
 
-**Open, in progress since 2026-11-07 in the session "item 367". Filed 2026-11-07 (r1333) at Aria's request. Nobody's call — Aria said what she wants.**
+**Fixed 2026-11-07 (`642d7154`, r1340). Filed 2026-11-07 (r1333) at Aria's request. Nobody's call — Aria said what she wants.**
 
 Aria, 2026-11-07: *"the "while you were away" page duplicates items. Meaning if a session needed me 7 times while I was gone, I will get 7 entries of that session. We should de-duplicate on session"*.
 
@@ -27,3 +27,11 @@ It ships in [0.5.1](366-release-0-5-1.md).
 
 - **The design and test tree** (roadmap manager, 2026-11-07): approved. `events.Event` gains `Times`, which only away rows set. `Scene.Away` collapses to one row per session, and the journal's "since" strip keeps counting every event, through `Scene.AwayEvents`. A row that stands for several events ends "· 7 times".
   The tests are in `pkg/city` `TestSceneAway` and the timeline's words in `pkg/ui`.
+
+## Closed
+
+Fixed in `642d7154` (r1340): the away list is one row per session, its newest event, ending "· 7 times" when it stands for several; an event with no session keeps its row.
+`TestSceneAway` in `pkg/city` and `TestLayoutTimeline` in `pkg/ui` hold it,
+and the timeline and the journal's "since" strip still count every event.
+The frame, for Aria, is `botropolis/docs/screenshots/r1340-item-367-away-list.png` (`51fddbd8`, r1341): one session that needed you seven times and another that failed once, as two rows.
+A screenshot run has no focus to lose, so it was filmed from a throwaway hook in the city that handed it the events and opened the list; nothing of the hook landed.
