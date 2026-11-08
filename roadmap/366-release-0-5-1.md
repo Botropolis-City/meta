@@ -19,3 +19,9 @@ Aria, 2026-11-07, asked whether the fixes for moving sessions between groups shi
 As 0.5.0's did ([item 354](354-release-0-5-0.md)): the tag rests on the automated checks, and the performance gate runs on the `performance` profile, recording the machine's power state (item 358). Then the re-film, the release, the AUR on Aria's standing approval, and the site's media, whose upload needs Aria's 1Password.
 The re-film includes item 362's scenarios. Its move-in and convoy shots, dropped from the 0.5.0 film because moves didn't take, come back from this release's build, and item 360 puts them on the site.
 0.5.0's soak has not run yet, so it runs once on this release instead.
+
+## Answered while building
+
+- **Do it all** (Aria, 2026-11-07, *"Do it all."*): the release runs to the end on the automated checks, and the roadmap manager pushes the AUR.
+  The soak then runs once, on this machine, overnight, on the released build (`make perf-soak`), and its record goes here.
+  The site's import of the 0.5.1 film follows. Its upload needs Aria's 1Password, so it waits for her if she is away.
