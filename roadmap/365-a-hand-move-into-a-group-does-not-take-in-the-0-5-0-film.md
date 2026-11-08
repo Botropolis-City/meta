@@ -37,3 +37,7 @@ Item 362 drops its move-in and convoy shots until this is fixed, and adds them b
 - **The fix and slice 1's test tree** (roadmap manager, 2026-11-07): approved. The loader names the files it reads outside `~/.claude`, so far `groups.json`. The watcher adds that file's directory but rescans only for that file's events, since the daemon writes its own stores beside it. The case where the directory doesn't exist yet is in scope.
   The notice half (say "moved" only once a snapshot shows the move, and say when the write failed) follows as slice 2, with its own tree.
 - **No repro with the release binaries** (roadmap manager, 2026-11-07): the code is unchanged since `v0.5.0`, and the `pkg/daemon` test with a real watcher stands in for it.
+- **Slice 2's notice tree** (roadmap manager, 2026-11-07): approved. A move first says "moving to X…", then "moved to X" once a snapshot shows the session there.
+  A failed write keeps its error notice, and no "moved" covers it.
+  If ten seconds pass without the move showing, the notice says "the move to X has not taken", in the error tone.
+  A second move replaces the first's wait.
