@@ -25,3 +25,7 @@ The re-film includes item 362's scenarios. Its move-in and convoy shots, dropped
 - **Do it all** (Aria, 2026-11-07, *"Do it all."*): the release runs to the end on the automated checks, and the roadmap manager pushes the AUR.
   The soak then runs once, on this machine, overnight, on the released build (`make perf-soak`), and its record goes here.
   The site's import of the 0.5.1 film follows. Its upload needs Aria's 1Password, so it waits for her if she is away.
+- **Ship on the Intel runner's red** (Aria, 2026-11-07, *"Ship; fix 355 right after"*). CI on `a9bfaad7` failed twice on `macos-26-intel`, both times only in `tools/land-queue`'s slow-waiter test ([item 355](355-the-landing-queue-s-slow-waiter-test-times-out-on-macos-intel.md)). That tests a development tool that ships in no package. Everything else was green: the other macOS runner, lint and every package.
+  Item 355 starts right after the tag.
+- **The film's moves may still not take** (item 366's session, 2026-11-07). A city run with `--headless`, `--record` or `--script` works in a private copy of the state directory (item 114), so its moves reach no daemon.
+  If `groups-moves.yaml`'s shots show no move, they are left out again, the release goes on, and the film tooling becomes a new item. Item 365's fix itself passed L1–L2's move checks, in 83 ms on a quiet home.
