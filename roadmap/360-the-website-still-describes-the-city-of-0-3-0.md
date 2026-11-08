@@ -13,6 +13,7 @@ Landed: slice 8 (`8460678`, r62).
 Landed: slice 9 (`2b05b5e`, r63).
 Landed: slice 10 (`84390a0`, r64).
 Landed: slice 11 (`c324722`, r65).
+Landed: slice 12 (`14f7d00`, r66).
 
 Aria, 2026-11-07, after 0.5.0's media went up: *"So much has changed recently. Let's do a pass of the website and change/update any content that needs to be added as well like the clinic, explanation of groups, etc..."*
 
