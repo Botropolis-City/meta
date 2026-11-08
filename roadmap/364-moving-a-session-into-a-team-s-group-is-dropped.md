@@ -29,3 +29,5 @@ Item 362's film moves sessions into a group that isn't a team's, so the film doe
   The tests sit in `teams_test.go`, and a generated `unique_test.go` (seeds 1–200) checks that no two groups ever share an id.
 - **A session started from a team's group is fixed here too** (roadmap manager, 2026-11-07). It is the same order defect, entered through `joinStarted`.
 - **The changelog line** (roadmap manager, 2026-11-07), under Fixed, covers both doors: moving a session into a team's group, or starting one from it, puts it there.
+- **The generated test runs 1,000 seeds, not 200** (roadmap manager, 2026-11-07, approving the session's change). A second way to get two groups with one id, unrelated to the order, first shows at seed 397. Detection takes a stored group's id, and a lead with no free stored group then made a fresh group under `newID(lead)`, which is the same id.
+  The `freshID` guard fixes it: a fresh group never takes an id already in the result or in memory. With the guard off, 6 of the 1,000 seeds fail.
