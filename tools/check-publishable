@@ -20,8 +20,9 @@ Checks:
      read where it is and never copied, and without one the check is skipped, and said so)
   2. every ref the remote advertises is an ancestor of HEAD, the history being published
      (an unreachable or empty remote is said so, not passed), except that a
-     pull request's ref (refs/pull/*) outside it is fetched and the commits it
-     adds are swept as in 1, and named in the summary
+     pull request's ref (refs/pull/*), or a branch at the same commit as one,
+     outside it is fetched and the commits it adds are swept as in 1, and
+     named in the summary
 
 The third check botropolis makes, that every image has been reviewed, belongs
 to tools/check-docs here, and `make publishable` runs it first.
@@ -95,6 +96,23 @@ fi
 # 2. Refs. `git ls-remote` is the only thing that says what the remote hands out;
 # a sweep of main cannot see a tag, which is how botropolis's first miss happened.
 # A loop over nothing passes, so an unreachable or empty remote is said so.
+# sweep_ref REF SHA fetches REF, without leaving a ref behind, and sweeps the
+# commits it adds to HEAD, recording it as swept or as unswept for the summary.
+sweep_ref() {
+    local ref="$1" sha="$2" before
+    if [ -z "${tokens_file}" ] || [ ! -s "${tokens_file}" ]; then
+        pulls_unswept+=("${ref}")
+    elif ! git fetch -q --no-write-fetch-head github "${ref}" </dev/null 2>/dev/null; then
+        note "${ref} (${sha:0:10}) is outside the history being published and could not be fetched to sweep"
+    else
+        before=${fail}
+        fail=0
+        sweep "${ref}" "${sha}" ^HEAD
+        [ "${fail}" -ne 0 ] || pulls_swept+=("${ref}")
+        [ "${before}" -eq 0 ] || fail=${before}
+    fi
+}
+
 refs="checked"
 pulls_swept=()
 pulls_unswept=()
@@ -105,6 +123,7 @@ elif ! advertised=$(git ls-remote github 2>/dev/null); then
 elif [ -z "${advertised}" ]; then
     refs="empty"
 else
+    pull_shas=$(awk '$2 ~ /^refs\/pull\// { print $1 }' <<< "${advertised}")
     while read -r sha ref; do
         [ -n "${sha}" ] || continue
         case "${ref}" in *"^{}") continue;; esac
@@ -114,20 +133,17 @@ else
         git merge-base --is-ancestor "${sha}" HEAD 2>/dev/null && continue
         # A pull request's ref outlives its branch, and a squash or rebase merge
         # leaves it outside main's history for good, so ancestry can never pass
-        # it (item 369). Its content is just as public, so read that instead:
-        # fetch it, without leaving a ref behind, and sweep what it adds.
+        # it (item 369). Its content is just as public, so read that instead.
+        # An open pull request's branch is the same commit as its ref, and with
+        # pull requests the way workspace bots land one is routine, so it is
+        # swept too; any other branch, and every tag, still fails.
         case "${ref}" in
-            refs/pull/*)
-                if [ -z "${tokens_file}" ] || [ ! -s "${tokens_file}" ]; then
-                    pulls_unswept+=("${ref}")
-                elif ! git fetch -q --no-write-fetch-head github "${ref}" </dev/null 2>/dev/null; then
-                    note "${ref} (${sha:0:10}) is outside the history being published and could not be fetched to sweep"
+            refs/pull/*) sweep_ref "${ref}" "${sha}" ;;
+            refs/heads/*)
+                if grep -qxF -e "${sha}" <<< "${pull_shas}"; then
+                    sweep_ref "${ref}" "${sha}"
                 else
-                    before=${fail}
-                    fail=0
-                    sweep "${ref}" "${sha}" ^HEAD
-                    [ "${fail}" -ne 0 ] || pulls_swept+=("${ref}")
-                    [ "${before}" -eq 0 ] || fail=${before}
+                    note "${ref} (${sha:0:10}) is not in the history being published"
                 fi
                 ;;
             *) note "${ref} (${sha:0:10}) is not in the history being published" ;;
@@ -145,7 +161,13 @@ else
     tokens_said="employer tokens NOT checked: no .publishable-tokens here or in botropolis/"
 fi
 case "${refs}" in
-    checked) refs_said="every remote ref is in the history being published" ;;
+    checked)
+        if [ $(( ${#pulls_swept[@]} + ${#pulls_unswept[@]} )) -gt 0 ]; then
+            refs_said="every other remote ref is in the history being published"
+        else
+            refs_said="every remote ref is in the history being published"
+        fi
+        ;;
     empty) refs_said="github advertises no refs yet" ;;
     unreachable) refs_said="remote refs NOT checked: github could not be reached" ;;
 esac

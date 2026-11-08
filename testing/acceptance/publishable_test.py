@@ -242,6 +242,27 @@ class WhenARemoteBranchIsOutsideTheHistoryBeingPublished(unittest.TestCase):
         self.assertIn('refs/heads/side', self.result.stdout)
 
 
+class WhenAnOpenPullRequestsBranchIsOutsideTheHistoryBeingPublished(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.repos = Repositories()
+        git(cls.repos.other, 'checkout', '-q', '-b', 'side')
+        commit(cls.repos.other, 'awaiting review')
+        git(cls.repos.other, 'push', '-q', 'github', 'side', 'HEAD:refs/pull/2/head')
+        cls.repos.list_tokens()
+        cls.result = check(cls.repos.worktree)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.repos.remove()
+
+    def test_it_should_pass(self):
+        self.assertEqual(self.result.returncode, 0, self.result.stdout + self.result.stderr)
+
+    def test_it_should_name_the_branch(self):
+        self.assertIn('refs/heads/side', self.result.stdout)
+
+
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
     for case in (WhenPublishableRunsInTheMainClone,
@@ -252,7 +273,8 @@ def load_tests(loader, tests, pattern):
                  WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished.AndAFileItAddsCarriesAToken,
                  WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished.AndItsCommitMessageCarriesAToken,
                  WhenAMergedPullRequestsRefIsOutsideTheHistoryBeingPublished.AndThereIsNoTokensList,
-                 WhenARemoteBranchIsOutsideTheHistoryBeingPublished):
+                 WhenARemoteBranchIsOutsideTheHistoryBeingPublished,
+                 WhenAnOpenPullRequestsBranchIsOutsideTheHistoryBeingPublished):
         suite.addTests(loader.loadTestsFromTestCase(case))
     return suite
 
